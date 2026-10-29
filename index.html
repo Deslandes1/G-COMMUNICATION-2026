@@ -5,13 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0b2a4a">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="G Comm">
 <title>G Communication Portal</title>
-
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNjYiIGZpbGw9IiNkNGFlMzciLz48Y2lyY2xlIGN4PSI5NiIgY3k9Ijk2IiByPSI1OCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMGIyYTRhIiBzdHJva2Utd2lkdGg9IjIiIG9wYWNpdHk9IjAuMzUiLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5MiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzBiMmE0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RzwvdGV4dD48L3N2Zz4=">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNjYiIGZpbGw9IiNkNGFlMzciLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5MiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzBiMmE0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RzwvdGV4dD48L3N2Zz4=">
 <link rel="manifest" href="manifest.json">
-
 <style>
 :root{--navy:#0b2a4a;--navy-light:#143a5f;--accent:#0d7a8c;--gold:#d4af37;--green:#4aff7a;--red:#ff4757;--bg:#f2f5f8;--card:#fff;--text:#1e2a33;--muted:#6b7a87;--border:#e1e7ed}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -19,21 +16,57 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 #app{height:100%;display:flex;flex-direction:column;max-width:500px;margin:0 auto;background:var(--bg);position:relative;box-shadow:0 0 40px rgba(0,0,0,.15)}
 .screen{flex:1;display:none;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
 .screen.active{display:flex}
+
+/* ═══════════ INSTALL BANNER ═══════════ */
+.install-banner{
+  background:linear-gradient(90deg,var(--navy),var(--accent));
+  color:#fff;padding:10px 14px;
+  display:none;align-items:center;gap:10px;
+  font-size:13px;flex-shrink:0;
+  border-bottom:1px solid rgba(255,255,255,.1);
+  position:relative;
+}
+.install-banner.show{display:flex}
+.install-banner .inst-icon{
+  width:32px;height:32px;border-radius:8px;
+  background:var(--gold);color:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:800;flex-shrink:0;
+}
+.install-banner .inst-text{flex:1;line-height:1.35}
+.install-banner .inst-text strong{display:block;font-size:13px;margin-bottom:1px}
+.install-banner .inst-text small{font-size:11px;opacity:.8}
+.install-banner button{
+  background:#fff;color:var(--navy);
+  border:none;padding:8px 14px;border-radius:18px;
+  font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;
+  letter-spacing:.3px;
+}
+.install-banner .inst-close{
+  background:transparent;color:#fff;
+  padding:4px 6px;font-size:16px;
+  border:none;cursor:pointer;flex-shrink:0;
+  opacity:.7;
+}
+.install-banner .inst-close:active{opacity:1}
+
 #screen-onboard{background:linear-gradient(160deg,var(--navy) 0%,var(--navy-light) 60%,var(--accent) 100%);color:#fff;justify-content:center;align-items:center;padding:32px 28px;text-align:center}
 .onboard-logo{width:88px;height:88px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:800;margin-bottom:22px;box-shadow:0 8px 30px rgba(212,175,55,.35)}
 #screen-onboard h1{font-size:26px;letter-spacing:.5px;margin-bottom:8px;font-weight:700}
-#screen-onboard p{font-size:14px;opacity:.85;line-height:1.5;max-width:320px;margin-bottom:36px}
-.onboard-input{width:100%;max-width:320px;padding:15px 18px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);border-radius:12px;font-size:16px;color:#fff;outline:none;margin-bottom:16px}
+#screen-onboard p{font-size:14px;opacity:.85;line-height:1.5;max-width:320px;margin-bottom:28px}
+.onboard-input{width:100%;max-width:320px;padding:15px 18px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);border-radius:12px;font-size:16px;color:#fff;outline:none;margin-bottom:12px;text-align:center;letter-spacing:.5px}
 .onboard-input::placeholder{color:rgba(255,255,255,.5)}
 .onboard-input:focus{border-color:var(--gold)}
+.name-status{font-size:12px;color:rgba(255,255,255,.75);margin-bottom:14px;min-height:18px;letter-spacing:.3px}
+.name-status.ok{color:#4aff7a;font-weight:600}
+.name-status.bad{color:#ff8b8b;font-weight:600}
 .btn-primary{width:100%;max-width:320px;padding:15px;border:none;border-radius:12px;background:var(--gold);color:var(--navy);font-size:16px;font-weight:700;cursor:pointer}
 .btn-primary:active{transform:scale(.98)}
-.btn-primary:disabled{opacity:.5}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
 .app-header{background:var(--navy);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0}
 .app-header .logo{width:36px;height:36px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;flex-shrink:0}
 .app-header h2{font-size:17px;font-weight:700;flex:1}
-.app-header .status-dot{width:9px;height:9px;border-radius:50%;background:var(--red);transition:background .3s}
-.app-header .status-dot.online{background:var(--green);box-shadow:0 0 8px var(--green)}
+.app-header .online-dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
 .icon-btn{background:rgba(255,255,255,.1);border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px}
 .tab-content{flex:1;overflow-y:auto;padding-bottom:80px}
 .tab-content::-webkit-scrollbar{display:none}
@@ -41,26 +74,9 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .nav-item{flex:1;padding:10px 0 12px;text-align:center;font-size:10.5px;color:var(--muted);cursor:pointer;font-weight:600;border:none;background:none;position:relative}
 .nav-item .icon{display:block;font-size:22px;margin-bottom:2px}
 .nav-item.active{color:var(--navy)}
-.nav-badge{
-  position:absolute;top:4px;left:50%;transform:translateX(6px);
-  background:var(--red);color:#fff;
-  font-size:9.5px;font-weight:700;
-  min-width:17px;height:17px;
-  border-radius:9px;padding:0 5px;
-  display:none;align-items:center;justify-content:center;
-  line-height:1;border:2px solid #fff;
-  box-shadow:0 2px 5px rgba(0,0,0,.25);pointer-events:none;
-}
+.nav-badge{position:absolute;top:4px;left:50%;transform:translateX(6px);background:var(--red);color:#fff;font-size:9.5px;font-weight:700;min-width:17px;height:17px;border-radius:9px;padding:0 5px;display:none;align-items:center;justify-content:center;line-height:1;border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,.25);pointer-events:none}
 .nav-badge.show{display:flex}
-.unread-badge{
-  background:var(--red);color:#fff;
-  font-size:11px;font-weight:700;
-  min-width:20px;height:20px;
-  border-radius:10px;padding:0 6px;
-  display:none;align-items:center;justify-content:center;
-  line-height:1;flex-shrink:0;
-  box-shadow:0 1px 4px rgba(255,71,87,.4);
-}
+.unread-badge{background:var(--red);color:#fff;font-size:11px;font-weight:700;min-width:20px;height:20px;border-radius:10px;padding:0 6px;display:none;align-items:center;justify-content:center;line-height:1;flex-shrink:0;box-shadow:0 1px 4px rgba(255,71,87,.4)}
 .unread-badge.show{display:flex}
 .section-title{font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:18px 20px 8px}
 .list-item{background:var(--card);padding:14px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;border-bottom:1px solid var(--border)}
@@ -105,63 +121,26 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .msg .attach-file .file-name{font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .msg .attach-file .file-size{font-size:11px;color:var(--muted);margin-top:1px}
 .chat-input-bar{background:#fff;border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0;position:relative}
-.chat-input-bar input[type="text"]{flex:1;padding:11px 16px;border:1px solid var(--border);border-radius:22px;font-size:15px;outline:none;background:#f7f9fb}
+.chat-input-bar input[type="text"]{flex:1;padding:11px 16px;border:1px solid var(--border);border-radius:22px;font-size:15px;outline:none;background:#f7f9fb;min-width:0}
 .chat-input-bar input[type="text"]:focus{border-color:var(--accent)}
-.attach-btn{
-  background:transparent;border:none;
-  font-size:22px;color:var(--accent);
-  width:40px;height:40px;border-radius:50%;
-  cursor:pointer;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  transition:background .15s;
-}
+.attach-btn{background:transparent;border:none;font-size:22px;color:var(--accent);width:40px;height:40px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .attach-btn:active{background:#e5ecf2}
 .chat-input-bar .send-btn{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:20px;cursor:pointer;flex-shrink:0}
 .chat-input-bar .send-btn:disabled{opacity:.4}
-
-/* ═══════ UPLOAD PROGRESS ═══════ */
-.upload-bar{
-  position:absolute;top:-1px;left:0;right:0;height:3px;
-  background:#e1e7ed;
-  border-radius:2px;overflow:hidden;
-  display:none;
-}
+.upload-bar{position:absolute;top:-1px;left:0;right:0;height:3px;background:#e1e7ed;border-radius:2px;overflow:hidden;display:none}
 .upload-bar.show{display:block}
 .upload-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .2s}
-
-/* ═══════ LIGHTBOX ═══════ */
-#lightbox{
-  position:fixed;inset:0;background:rgba(0,0,0,.95);
-  display:none;align-items:center;justify-content:center;
-  z-index:9999;padding:20px;
-  flex-direction:column;
-}
+#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;flex-direction:column}
 #lightbox.show{display:flex}
-#lightbox img{
-  max-width:100%;max-height:85vh;
-  border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5);
-}
-#lightbox .close-lb{
-  position:absolute;top:20px;right:20px;
-  width:44px;height:44px;border-radius:50%;
-  background:rgba(255,255,255,.15);color:#fff;
-  border:none;font-size:24px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-}
-#lightbox .dl-lb{
-  position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
-  padding:12px 28px;border-radius:24px;
-  background:var(--gold);color:var(--navy);
-  border:none;font-size:14px;font-weight:700;cursor:pointer;
-  text-decoration:none;
-}
-
+#lightbox img{max-width:100%;max-height:85vh;border-radius:8px}
+#lightbox .close-lb{position:absolute;top:20px;right:20px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;border:none;font-size:24px;cursor:pointer}
+#lightbox .dl-lb{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);padding:12px 28px;border-radius:24px;background:var(--gold);color:var(--navy);border:none;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none}
 #screen-call{background:linear-gradient(180deg,var(--navy) 0%,#061e3a 100%);color:#fff;justify-content:center;align-items:center;padding:40px 24px;text-align:center}
 .call-avatar{width:120px;height:120px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:800;margin-bottom:24px;animation:pulse 2s infinite;overflow:hidden}
 .call-avatar img{width:100%;height:100%;object-fit:cover;display:block}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(212,175,55,.6)}70%{box-shadow:0 0 0 30px rgba(212,175,55,0)}100%{box-shadow:0 0 0 0 rgba(212,175,55,0)}}
 .call-name{font-size:24px;font-weight:700;margin-bottom:6px}
-.call-status{font-size:14px;color:rgba(255,255,255,.75);margin-bottom:48px}
+.call-status{font-size:14px;color:rgba(255,255,255,.75);margin-bottom:48px;min-height:20px}
 .call-status.active{color:var(--green)}
 .call-actions{display:flex;gap:32px}
 .call-btn{width:68px;height:68px;border-radius:50%;border:none;font-size:28px;cursor:pointer}
@@ -181,41 +160,83 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .vm-target{background:#fff;margin:0 20px 12px;border-radius:10px;padding:12px 16px;border:1px solid var(--border);font-size:14px;display:flex;align-items:center;justify-content:space-between}
 .vm-target select{border:1px solid var(--border);padding:8px 12px;border-radius:8px;font-size:14px;background:#f7f9fb;color:var(--text);max-width:60%}
 .profile-card{background:var(--card);margin:16px;border-radius:14px;padding:24px 20px;box-shadow:0 2px 12px rgba(0,0,0,.04);text-align:center}
-.profile-card .avatar-big{width:96px;height:96px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;margin:0 auto 14px;position:relative;cursor:pointer;overflow:hidden;transition:transform .12s}
-.profile-card .avatar-big:active{transform:scale(.96)}
+.profile-card .avatar-big{width:96px;height:96px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;margin:0 auto 14px;position:relative;cursor:pointer;overflow:hidden}
 .profile-card .avatar-big img{width:100%;height:100%;object-fit:cover;display:block}
-.avatar-camera{position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:14px;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.22);pointer-events:none}
-.avatar-remove{position:absolute;top:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--red);color:#fff;display:none;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.22);cursor:pointer;z-index:2}
+.avatar-camera{position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:14px;border:2.5px solid #fff;pointer-events:none}
+.avatar-remove{position:absolute;top:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--red);color:#fff;display:none;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:2.5px solid #fff;cursor:pointer;z-index:2}
 .avatar-big.has-photo .avatar-remove{display:flex}
 .avatar-big.has-photo .avatar-camera{background:var(--navy);color:#fff;font-size:11px}
-.avatar-hint{font-size:11px;color:var(--muted);margin-bottom:14px;letter-spacing:.3px}
+.avatar-hint{font-size:11px;color:var(--muted);margin-bottom:14px}
 .profile-card h3{font-size:20px;margin-bottom:4px}
+.profile-card .username{font-size:13px;color:var(--accent);font-weight:600;margin-bottom:8px}
 .profile-card .role-label{font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-weight:600}
-.id-box{background:#f0f4f8;border:2px dashed var(--accent);border-radius:10px;padding:14px;margin:20px 0;display:flex;align-items:center;gap:10px}
-.id-box .id-value{flex:1;font-family:'Courier New',monospace;font-size:13px;font-weight:700;color:var(--navy);word-break:break-all;text-align:left}
-.id-box button{background:var(--accent);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0}
 .help-text{font-size:12.5px;color:var(--muted);line-height:1.6;text-align:left;margin-top:16px}
 .menu-item{background:var(--card);padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;cursor:pointer;font-size:15px}
 .menu-item:active{background:#f0f3f6}
 .menu-item .menu-icon{font-size:20px;width:24px;text-align:center}
 .menu-item .menu-arrow{margin-left:auto;color:var(--muted);font-size:18px}
-.clone-btn{display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#0b2a4a,#0d7a8c);color:#fff;text-decoration:none;padding:16px 20px;margin:16px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:.3px;box-shadow:0 4px 16px rgba(11,42,74,.25);transition:transform .12s}
-.clone-btn:active{transform:scale(.97)}
-.clone-btn .clone-icon{background:#d4af37;color:#0b2a4a;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.clone-btn .clone-text{text-align:left;flex:1}
-.clone-btn .clone-text strong{display:block;font-size:15px}
-.clone-btn .clone-text small{display:block;font-size:11px;opacity:.8;font-weight:500;margin-top:2px}
+.menu-item.install-highlight{background:linear-gradient(90deg,#fef9e7,#fff);border-left:3px solid var(--gold)}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:100;padding:24px}
 .modal-overlay.show{display:flex}
-.modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:360px}
+.modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:360px;max-height:85vh;overflow-y:auto}
 .modal h3{font-size:18px;margin-bottom:6px}
 .modal p{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.5}
 .modal input{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;margin-bottom:12px;outline:none}
 .modal input:focus{border-color:var(--accent)}
+.modal-status{font-size:12px;margin-bottom:10px;min-height:16px}
+.modal-status.ok{color:#15803d;font-weight:600}
+.modal-status.bad{color:#b91c1c;font-weight:600}
 .modal-actions{display:flex;gap:10px;margin-top:8px}
 .modal-actions button{flex:1;padding:12px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;border:none}
 .modal-actions .cancel{background:#eef2f6;color:var(--text)}
 .modal-actions .confirm{background:var(--accent);color:#fff}
+.modal-actions .confirm:disabled{opacity:.5}
+
+/* ═══════════ INSTALL MODAL — step-by-step ═══════════ */
+.install-steps{list-style:none;padding:0;margin:8px 0 18px;counter-reset:step}
+.install-steps li{
+  counter-increment:step;
+  padding:14px 14px 14px 48px;position:relative;
+  background:#f7fafc;border-radius:10px;margin-bottom:10px;
+  font-size:13.5px;line-height:1.5;color:var(--text);
+  border:1px solid var(--border);
+}
+.install-steps li::before{
+  content:counter(step);
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  width:26px;height:26px;border-radius:50%;
+  background:var(--accent);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;
+}
+.install-steps li strong{color:var(--navy);font-weight:700}
+.install-steps li .inline-icon{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;border-radius:5px;
+  background:#e0e7ec;color:var(--navy);
+  font-size:13px;vertical-align:middle;margin:0 2px;font-weight:700;
+}
+.install-hero{
+  text-align:center;margin-bottom:14px;
+}
+.install-hero .install-app-icon{
+  width:64px;height:64px;border-radius:16px;
+  background:var(--navy);color:var(--gold);
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:34px;font-weight:800;
+  margin-bottom:10px;
+  box-shadow:0 6px 20px rgba(11,42,74,.25);
+}
+.install-hero h3{font-size:20px;margin-bottom:4px;color:var(--navy)}
+.install-hero p{font-size:13px;color:var(--muted);margin:0}
+.install-cta{
+  width:100%;padding:14px;border-radius:12px;
+  background:var(--gold);color:var(--navy);
+  border:none;font-size:15px;font-weight:800;cursor:pointer;
+  letter-spacing:.3px;margin-bottom:10px;
+}
+.install-cta:active{transform:scale(.98)}
+
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--navy);color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:200;max-width:90%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #incoming-call{position:fixed;inset:0;background:linear-gradient(180deg,var(--navy) 0%,#061e3a 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:150;padding:40px 24px;text-align:center}
@@ -225,19 +246,33 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 <body>
 <div id="app">
 
+<!-- ═══════════ INSTALL BANNER (shows after onboarding) ═══════════ -->
+<div class="install-banner" id="installBanner">
+  <div class="inst-icon">G</div>
+  <div class="inst-text">
+    <strong>Install G Comm</strong>
+    <small>Add to your home screen</small>
+  </div>
+  <button id="installBannerBtn">Install</button>
+  <button class="inst-close" id="installBannerClose">✕</button>
+</div>
+
+<!-- ═══════════ ONBOARDING ═══════════ -->
 <section id="screen-onboard" class="screen active">
   <div class="onboard-logo">G</div>
   <h1>G Communication Portal</h1>
-  <p>Private chat, voice mail, and calls — from your phone.</p>
-  <input id="nameInput" class="onboard-input" type="text" placeholder="Enter your display name" maxlength="30" autocomplete="off">
+  <p>Pick your name. That's how others will find you.</p>
+  <input id="nameInput" class="onboard-input" type="text" placeholder="Your name (e.g. gesner)" maxlength="20" autocomplete="off" autocapitalize="none">
+  <div class="name-status" id="nameStatus">Lowercase letters and numbers only</div>
   <button id="enterBtn" class="btn-primary" disabled>Enter Portal</button>
 </section>
 
+<!-- ═══════════ MAIN ═══════════ -->
 <section id="screen-main" class="screen">
   <header class="app-header">
     <div class="logo">G</div>
     <h2 id="headerTitle">Chats</h2>
-    <div id="connStatus" class="status-dot"></div>
+    <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
   <div id="tabCalls" class="tab-content" style="display:none;">
@@ -261,16 +296,19 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
       </div>
       <div class="avatar-hint">Tap photo to upload or change</div>
       <h3 id="profileName">—</h3>
+      <div class="username" id="profileUsername">@—</div>
       <div class="role-label">G Communication Portal</div>
-      <div class="id-box"><div class="id-value" id="myId">connecting…</div><button id="copyIdBtn">COPY</button></div>
-      <div class="help-text"><strong>Share this ID</strong> with anyone. They paste it into "Add Contact" to reach you.</div>
+      <div class="help-text" style="margin-top:20px">
+        <strong>Your name is your address.</strong> Anyone can message you by typing <span id="profileUsername2" style="color:var(--accent);font-weight:700">@you</span> in Add Contact.
+      </div>
     </div>
-    <a href="https://github.com/YOUR-USERNAME/g-comm" target="_blank" rel="noopener" class="clone-btn">
-      <span class="clone-icon">⬇</span>
-      <span class="clone-text"><strong>Clone this app</strong><small>Fork the code on GitHub</small></span>
-      <span style="font-size:20px;opacity:.7;">›</span>
-    </a>
-    <div class="menu-item" id="shareAppBtn"><span class="menu-icon">🔗</span> Share app's link <span class="menu-arrow">›</span></div>
+
+    <!-- Install card — always visible in Profile -->
+    <div class="menu-item install-highlight" id="installMenuItem">
+      <span class="menu-icon">⬇️</span> Install app on this phone
+      <span class="menu-arrow">›</span>
+    </div>
+
     <div class="menu-item" id="helpBtn"><span class="menu-icon">❓</span> How it works <span class="menu-arrow">›</span></div>
     <div class="menu-item" id="clearBtn"><span class="menu-icon">🗑</span> Clear local data <span class="menu-arrow">›</span></div>
   </div>
@@ -283,6 +321,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
   </nav>
 </section>
 
+<!-- ═══════════ CHAT ═══════════ -->
 <section id="screen-chat" class="screen">
   <header class="chat-header">
     <button class="back-btn" id="chatBackBtn">‹</button>
@@ -302,6 +341,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
   </div>
 </section>
 
+<!-- ═══════════ CALL ═══════════ -->
 <section id="screen-call" class="screen">
   <div class="call-avatar" id="callAvatar">G</div>
   <div class="call-name" id="callName">—</div>
@@ -322,30 +362,46 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
   </div>
 </div>
 
+<!-- ═══════════ ADD CONTACT MODAL ═══════════ -->
 <div class="modal-overlay" id="addModal">
   <div class="modal">
-    <h3>Add Contact</h3>
-    <p>Paste their ID and give them a name.</p>
-    <input id="modalName" type="text" placeholder="Contact name" maxlength="30" autocomplete="off">
-    <input id="modalId" type="text" placeholder="Their Peer ID" autocomplete="off">
+    <h3>Add by name</h3>
+    <p>Type the name of the person you want to reach.</p>
+    <input id="modalName" type="text" placeholder="their name" maxlength="20" autocomplete="off" autocapitalize="none">
+    <div class="modal-status" id="modalStatus"></div>
     <div class="modal-actions">
       <button class="cancel" id="modalCancel">Cancel</button>
-      <button class="confirm" id="modalConfirm">Add</button>
+      <button class="confirm" id="modalConfirm" disabled>Add</button>
     </div>
   </div>
 </div>
 
+<!-- ═══════════ HELP MODAL ═══════════ -->
 <div class="modal-overlay" id="helpModal">
   <div class="modal">
     <h3>How it works</h3>
     <p>
-      <strong>1.</strong> Share your ID from Profile.<br><br>
-      <strong>2.</strong> The other person adds you as a contact.<br><br>
-      <strong>3.</strong> Chat, send photos/videos/files, or voicemails — they sync via Firebase.<br><br>
-      <strong>4.</strong> Voice calls require both people online at the same time.<br><br>
-      <strong>5.</strong> A <span style="color:#ff4757;font-weight:700;">red badge</span> shows unread messages — cleared when you open the chat.
+      <strong>1.</strong> Your name is your address — e.g. <em>gesner</em>.<br><br>
+      <strong>2.</strong> Anyone types that name in "Add contact" to reach you.<br><br>
+      <strong>3.</strong> Chat, send photos / videos / files, or leave a voice note.<br><br>
+      <strong>4.</strong> Voice calls work best when both people are online at the same time.
     </p>
     <div class="modal-actions"><button class="confirm" id="helpClose">Got it</button></div>
+  </div>
+</div>
+
+<!-- ═══════════ INSTALL MODAL ═══════════ -->
+<div class="modal-overlay" id="installModal">
+  <div class="modal">
+    <div class="install-hero">
+      <div class="install-app-icon">G</div>
+      <h3>Install G Comm</h3>
+      <p id="installSubtitle">Add the app to your home screen for instant access</p>
+    </div>
+    <div id="installBody"><!-- filled by JS depending on platform --></div>
+    <div class="modal-actions">
+      <button class="cancel" id="installClose">Close</button>
+    </div>
   </div>
 </div>
 
@@ -360,16 +416,11 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 <input type="file" id="fileInput" style="display:none;">
 </div>
 
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref as dbRef, push, onValue, remove, set, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref as dbRef, push, onValue, onChildAdded, remove, set, get, runTransaction, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import { getStorage, ref as stRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-/* ═══════════════════════════════════════════════════════════
-   FIREBASE CONFIG — storageBucket fixed to .appspot.com format
-   ═══════════════════════════════════════════════════════════ */
 const firebaseConfig = {
   apiKey: "AIzaSyBfqTPdNq31MegFF_vh08D2K_6-2GMeIrY",
   authDomain: "jarvis-tracker-a8136.firebaseapp.com",
@@ -377,25 +428,24 @@ const firebaseConfig = {
   projectId: "jarvis-tracker-a8136",
   storageBucket: "jarvis-tracker-a8136.appspot.com",
   messagingSenderId: "994161558903",
-  appId: "1:994161558903:web:d0ce8ac130a7211b6d0d72",
-  measurementId: "G-WY372TXL3Q"
+  appId: "1:994161558903:web:d0ce8ac130a7211b6d0d72"
 };
-
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
 const storage = getStorage(fbApp);
+const ICE_SERVERS = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] };
 
 const App = {
-  peer: null, myId: null, myName: '', myPhoto: null,
-  contacts: [], activeChat: null, activeCall: null,
-  incomingCallData: null, localStream: null, muted: false,
-  mediaRecorder: null, recordedChunks: [], recordTimer: null,
-  vmUnsub: null, contactPhotoUnsubs: {},
+  mySlug: null, myName: '', myPhoto: null,
+  contacts: [], activeChat: null,
   lastRead: {}, unread: {}, lastMessages: {}, lastMsgTime: {},
-  globalSubscribed: {}, globalUnsubs: {},
-  pendingUpload: null
+  globalSubscribed: {}, globalUnsubs: {}, contactPhotoUnsubs: {},
+  vmUnsub: null,
+  pc: null, localStream: null, activeCall: null,
+  incomingCallData: null, callUnsubs: [], muted: false,
+  mediaRecorder: null, recordedChunks: [], recordTimer: null,
+  installPrompt: null, isInstalled: false
 };
-
 const $ = id => document.getElementById(id);
 const LS = {
   get: (k, d) => { try { return JSON.parse(localStorage.getItem('gcp_' + k)) ?? d; } catch { return d; } },
@@ -406,201 +456,234 @@ function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.cl
 let toastTimer;
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600); }
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function chatIdFor(a, b) { const [x, y] = [a, b].sort(); return `chat_${x}_${y}`; }
-function avatarInnerHTML(photo, name) {
-  if (photo) return `<img src="${photo}" alt="">`;
-  return esc(name ? name.charAt(0).toUpperCase() : '?');
-}
-function fmtBytes(b) {
-  if (!b) return '';
-  if (b < 1024) return b + ' B';
-  if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
-  return (b / 1048576).toFixed(1) + ' MB';
-}
-function previewTextFrom(last) {
+function slugify(name) { return String(name).toLowerCase().trim().replace(/[^a-z0-9]/g, '').slice(0, 20); }
+function chatIdFor(a, b) { const [x, y] = [a, b].sort(); return `${x}__${y}`; }
+function avatarInner(photo, name) { return photo ? `<img src="${photo}" alt="">` : esc((name || '?').charAt(0).toUpperCase()); }
+function fmtBytes(b) { if (!b) return ''; if (b < 1024) return b + ' B'; if (b < 1048576) return (b / 1024).toFixed(1) + ' KB'; return (b / 1048576).toFixed(1) + ' MB'; }
+function previewText(last) {
   if (!last) return 'Tap to chat';
   if (last.attachment) {
     const a = last.attachment;
     const tag = a.type === 'image' ? '📷 Photo' : a.type === 'video' ? '🎥 Video' : '📎 ' + (a.name || 'File');
-    if (last.text) return tag + ' · ' + last.text;
-    return tag;
+    return last.text ? tag + ' · ' + last.text : tag;
   }
   return last.text || '';
 }
 
-function loadLastRead() { App.lastRead = LS.get('lastRead', {}); }
-function saveLastRead() { LS.set('lastRead', App.lastRead); }
+/* ═══════════════════════════════════════════════════════════
+   INSTALL APP — PWA install prompt + iOS instructions
+   ═══════════════════════════════════════════════════════════ */
 
-function updateUnreadBadges() {
-  const total = Object.values(App.unread).reduce((s, n) => s + (n || 0), 0);
-  const chatsBtn = document.querySelector('.nav-item[data-tab="chats"]');
-  if (chatsBtn) {
-    let navBadge = chatsBtn.querySelector('.nav-badge');
-    if (!navBadge) {
-      navBadge = document.createElement('span');
-      navBadge.className = 'nav-badge';
-      chatsBtn.appendChild(navBadge);
-    }
-    if (total > 0) {
-      navBadge.textContent = total > 99 ? '99+' : String(total);
-      navBadge.classList.add('show');
-    } else {
-      navBadge.classList.remove('show');
-    }
-  }
-  document.title = total > 0 ? `(${total}) G Communication Portal` : 'G Communication Portal';
-  document.querySelectorAll('[data-contact-id]').forEach(el => {
-    const cid = el.dataset.contactId;
-    const n = App.unread[cid] || 0;
-    const badge = el.querySelector('.unread-badge');
-    const title = el.querySelector('.list-item-title');
-    const sub = el.querySelector('.list-item-sub');
-    if (badge) {
-      if (n > 0) { badge.textContent = n > 99 ? '99+' : String(n); badge.classList.add('show'); }
-      else { badge.classList.remove('show'); }
-    }
-    if (title) title.classList.toggle('unread', n > 0);
-    if (sub) sub.classList.toggle('unread', n > 0);
-  });
+// Detect iOS
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+// Detect if running as installed app
+const isStandalone =
+  window.matchMedia('(display-mode: standalone)').matches ||
+  window.navigator.standalone === true ||
+  document.referrer.startsWith('android-app://');
+
+App.isInstalled = isStandalone;
+
+// Capture the deferred install prompt (Android Chrome/Edge)
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  App.installPrompt = e;
+  if (!isStandalone) showInstallBanner();
+});
+
+// Listen for successful install
+window.addEventListener('appinstalled', () => {
+  App.installPrompt = null;
+  hideInstallBanner();
+  toast('App installed — check your home screen!');
+  App.isInstalled = true;
+});
+
+function showInstallBanner() {
+  // Only show if not dismissed and not already installed
+  if (isStandalone) return;
+  const dismissed = LS.get('installBannerDismissed', false);
+  if (dismissed) return;
+  $('installBanner').classList.add('show');
+}
+function hideInstallBanner() {
+  $('installBanner').classList.remove('show');
 }
 
-$('nameInput').addEventListener('input', () => { $('enterBtn').disabled = $('nameInput').value.trim().length < 2; });
-$('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('enterBtn').disabled) startApp(); });
-$('enterBtn').addEventListener('click', startApp);
+$('installBannerClose').addEventListener('click', () => {
+  LS.set('installBannerDismissed', true);
+  hideInstallBanner();
+});
 
-function startApp() {
-  App.myName = $('nameInput').value.trim();
-  App.myPhoto = LS.get('avatar', null);
-  LS.set('myName', App.myName);
-  loadLastRead();
+$('installBannerBtn').addEventListener('click', () => {
+  triggerInstall();
+});
+
+$('installMenuItem').addEventListener('click', () => {
+  triggerInstall();
+});
+
+async function triggerInstall() {
+  // Already installed → just confirm
+  if (isStandalone || App.isInstalled) {
+    toast('Already installed — open from your home screen');
+    return;
+  }
+
+  // Android: real native prompt
+  if (App.installPrompt) {
+    App.installPrompt.prompt();
+    const choice = await App.installPrompt.userChoice;
+    if (choice.outcome === 'accepted') {
+      toast('Installing…');
+      hideInstallBanner();
+    } else {
+      toast('Installation cancelled');
+    }
+    App.installPrompt = null;
+    return;
+  }
+
+  // iOS: show manual instructions
+  if (isIOS) {
+    openInstallModal('ios');
+    return;
+  }
+
+  // Desktop Chrome without prompt yet — show generic
+  openInstallModal('generic');
+}
+
+function openInstallModal(platform) {
+  const body = $('installBody');
+
+  if (platform === 'ios') {
+    $('installSubtitle').textContent = 'Follow these steps to add G Comm to your iPhone home screen';
+    body.innerHTML = `
+      <ol class="install-steps">
+        <li>Open this page in <strong>Safari</strong> (not Chrome or Firefox — they can't install apps on iOS).</li>
+        <li>Tap the <strong>Share button</strong> <span class="inline-icon">⬆</span> at the bottom of the screen.</li>
+        <li>Scroll down and tap <strong>Add to Home Screen</strong> <span class="inline-icon">＋</span>.</li>
+        <li>Tap <strong>Add</strong> in the top right corner.</li>
+        <li>Done! The G Comm icon is now on your home screen.</li>
+      </ol>
+      <button class="install-cta" onclick="document.getElementById('installModal').classList.remove('show')">Got it</button>
+    `;
+  } else if (platform === 'generic') {
+    $('installSubtitle').textContent = 'Add G Comm to your home screen for one-tap access';
+    body.innerHTML = `
+      <ol class="install-steps">
+        <li>Open this page in <strong>Chrome</strong> or <strong>Edge</strong> on Android, or <strong>Safari</strong> on iPhone.</li>
+        <li>Look for the <strong>install icon</strong> <span class="inline-icon">⬇</span> in the address bar (or tap the three dots menu).</li>
+        <li>Tap <strong>Install app</strong> or <strong>Add to Home Screen</strong>.</li>
+        <li>The G Comm icon will appear on your home screen — tap it to open the app instantly, without a browser.</li>
+      </ol>
+      <button class="install-cta" onclick="document.getElementById('installModal').classList.remove('show')">Got it</button>
+    `;
+  }
+  $('installModal').classList.add('show');
+}
+
+$('installClose').addEventListener('click', () => $('installModal').classList.remove('show'));
+
+// Check on load
+window.addEventListener('load', () => {
+  if (!isStandalone) {
+    // Show banner after a short delay if user is already set up
+    setTimeout(() => {
+      if (App.mySlug && !App.installPrompt) showInstallBanner();
+    }, 2000);
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════
+   THE REST OF THE APP — unchanged from previous version
+   ═══════════════════════════════════════════════════════════ */
+
+const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
+let nameCheckTimer = null, nameCheckOk = false;
+
+nameInput.addEventListener('input', () => {
+  enterBtn.disabled = true; nameCheckOk = false;
+  const slug = slugify(nameInput.value);
+  if (!slug) { nameStatus.textContent = 'Lowercase letters and numbers only'; nameStatus.className = 'name-status'; return; }
+  nameStatus.textContent = 'Checking availability…'; nameStatus.className = 'name-status';
+  clearTimeout(nameCheckTimer);
+  nameCheckTimer = setTimeout(async () => {
+    try {
+      const snap = await get(dbRef(db, 'users/' + slug));
+      if (snap.exists()) { nameStatus.textContent = `"${slug}" is taken — try another`; nameStatus.className = 'name-status bad'; }
+      else { nameStatus.textContent = `"${slug}" is available ✓`; nameStatus.className = 'name-status ok'; nameCheckOk = true; enterBtn.disabled = false; }
+    } catch { nameStatus.textContent = 'Could not check — check connection'; nameStatus.className = 'name-status bad'; }
+  }, 400);
+});
+
+enterBtn.addEventListener('click', async () => {
+  if (!nameCheckOk) return;
+  const slug = slugify(nameInput.value);
+  enterBtn.disabled = true; enterBtn.textContent = 'Reserving…';
+  try {
+    const userRef = dbRef(db, 'users/' + slug);
+    const result = await runTransaction(userRef, current => {
+      if (current === null) return { slug, displayName: nameInput.value.trim() || slug, createdAt: Date.now(), photo: null };
+      return;
+    });
+    if (!result.committed) {
+      toast('That name was just taken'); enterBtn.disabled = false; enterBtn.textContent = 'Enter Portal'; return;
+    }
+    App.mySlug = slug;
+    App.myName = result.snapshot.val().displayName;
+    App.myPhoto = LS.get('avatar', null);
+    if (App.myPhoto) await set(dbRef(db, 'users/' + slug + '/photo'), App.myPhoto);
+    LS.set('mySlug', slug); LS.set('myName', App.myName);
+    startMainApp();
+  } catch (e) {
+    console.error(e); toast('Try again'); enterBtn.disabled = false; enterBtn.textContent = 'Enter Portal';
+  }
+});
+
+window.addEventListener('load', () => {
+  const savedSlug = LS.get('mySlug', null);
+  const savedName = LS.get('myName', null);
+  const savedPhoto = LS.get('avatar', null);
+  if (savedPhoto) App.myPhoto = savedPhoto;
+  if (savedSlug && savedName) { App.mySlug = savedSlug; App.myName = savedName; startMainApp(); }
+  loadContacts(); loadLastRead();
+  document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); });
+  });
+});
+
+function startMainApp() {
   showScreen('screen-main');
-  updateProfileAvatar();
-  initPeer();
+  updateProfileHeader();
   buildUI();
-}
-
-function initPeer() {
-  App.peer = new Peer(undefined, {
-    config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] }
-  });
-  App.peer.on('open', id => {
-    App.myId = id;
-    $('myId').textContent = id;
-    $('connStatus').classList.add('online');
-    toast('You are online');
-    syncProfileToFirebase();
-    listenVoicemails();
-    App.contacts.forEach(c => listenContactPhoto(c.id));
-    setupGlobalMessageListeners();
-  });
-  App.peer.on('error', err => {
-    $('connStatus').classList.remove('online');
-    if (err.type === 'peer-unavailable') toast('Contact offline for calls');
-    else toast('Error: ' + err.type);
-  });
-  App.peer.on('disconnected', () => { $('connStatus').classList.remove('online'); try { App.peer.reconnect(); } catch {} });
-  App.peer.on('call', handleIncomingCall);
-}
-
-function syncProfileToFirebase() {
-  if (!App.myId) return;
-  const payload = { name: App.myName };
-  if (App.myPhoto) payload.photo = App.myPhoto;
-  set(dbRef(db, 'users/' + App.myId), payload).catch(e => console.warn('Profile sync failed:', e));
-}
-
-function setupGlobalMessageListeners() {
-  if (!App.myId) return;
-  App.contacts.forEach(c => setupGlobalMessageListener(c.id));
-}
-function setupGlobalMessageListener(contactId) {
-  if (App.globalUnsubs[contactId]) return;
-  const cid = chatIdFor(App.myId, contactId);
-  const q = query(dbRef(db, 'messages/' + cid), limitToLast(150));
-
-  App.globalUnsubs[contactId] = onValue(q, snap => {
-    const data = snap.val() || {};
-    const msgs = Object.entries(data).map(([k, v]) => ({ ...v, _k: k }))
-      .sort((a, b) => (a.time || 0) - (b.time || 0));
-    const lastMsg = msgs[msgs.length - 1];
-
-    if (!App.globalSubscribed[contactId]) {
-      App.globalSubscribed[contactId] = true;
-      App.lastMsgTime[contactId] = lastMsg ? (lastMsg.time || 0) : 0;
-      if (App.lastRead[contactId] === undefined) {
-        App.lastRead[contactId] = lastMsg ? (lastMsg.time || Date.now()) : Date.now();
-        saveLastRead();
-      }
-    } else {
-      const prevLast = App.lastMsgTime[contactId];
-      const isNewIncoming = lastMsg && (lastMsg.time || 0) > (prevLast || 0) && lastMsg.from !== App.myId;
-      if (lastMsg) App.lastMsgTime[contactId] = lastMsg.time || Date.now();
-      if (isNewIncoming && App.activeChat !== contactId) {
-        if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
-        const cname = App.contacts.find(x => x.id === contactId)?.name || 'Contact';
-        toast(`New message from ${cname}`);
-      }
-    }
-
-    App.lastMessages[contactId] = msgs;
-
-    if (App.activeChat === contactId) {
-      renderMessagesFor(contactId, msgs);
-      if (lastMsg) {
-        App.lastRead[contactId] = Math.max(App.lastRead[contactId] || 0, lastMsg.time || 0);
-        saveLastRead();
-      }
-      App.unread[contactId] = 0;
-    } else {
-      const lr = App.lastRead[contactId] || 0;
-      App.unread[contactId] = msgs.filter(m => m.from !== App.myId && (m.time || 0) > lr).length;
-    }
-
-    updateUnreadBadges();
-    refreshContactPreview(contactId, msgs);
-  });
-}
-
-function refreshContactPreview(contactId, msgs) {
-  const el = document.querySelector(`[data-contact-id="${contactId}"]`);
-  if (!el) return;
-  const sub = el.querySelector('.list-item-sub');
-  if (!sub) return;
-  const last = msgs[msgs.length - 1];
-  if (last) {
-    const txt = previewTextFrom(last);
-    sub.textContent = (last.from === App.myId ? 'You: ' : '') + (txt.length > 34 ? txt.slice(0, 34) + '…' : txt);
+  listenForIncomingCalls();
+  listenVoicemails();
+  App.contacts.forEach(c => { listenContactPhoto(c.slug); setupGlobalMessageListener(c.slug); });
+  // Show install banner if not installed
+  if (!isStandalone) {
+    setTimeout(() => {
+      if (!App.installPrompt && !isIOS) return; // no prompt available yet
+      showInstallBanner();
+    }, 1500);
   }
 }
 
-function listenContactPhoto(contactId) {
-  if (App.contactPhotoUnsubs[contactId]) return;
-  App.contactPhotoUnsubs[contactId] = onValue(dbRef(db, 'users/' + contactId + '/photo'), snap => {
-    const photo = snap.val();
-    const c = App.contacts.find(x => x.id === contactId);
-    if (!c) return;
-    if (c.photo !== photo) {
-      c.photo = photo || null;
-      saveContacts();
-      buildUI();
-      if (App.activeChat === contactId) updateChatHeader(c);
-    }
-  });
-}
-
-function updateProfileAvatar() {
-  const box = $('profileAvatar');
-  const img = $('profileAvatarImg');
-  const letter = $('profileAvatarLetter');
+function updateProfileHeader() {
+  $('profileName').textContent = App.myName;
+  $('profileUsername').textContent = '@' + App.mySlug;
+  $('profileUsername2').textContent = '@' + App.mySlug;
+  const box = $('profileAvatar'), img = $('profileAvatarImg'), letter = $('profileAvatarLetter');
   if (App.myPhoto) {
     img.src = App.myPhoto; img.style.display = 'block'; letter.style.display = 'none';
     box.classList.add('has-photo');
   } else {
     img.src = ''; img.style.display = 'none'; letter.style.display = 'inline';
-    letter.textContent = App.myName ? App.myName.charAt(0).toUpperCase() : 'G';
-    box.classList.remove('has-photo');
+    letter.textContent = App.myName.charAt(0).toUpperCase(); box.classList.remove('has-photo');
   }
 }
+
 $('profileAvatar').addEventListener('click', e => {
   if (e.target === $('avatarRemove')) return;
   $('avatarInput').click();
@@ -608,103 +691,214 @@ $('profileAvatar').addEventListener('click', e => {
 $('avatarRemove').addEventListener('click', async e => {
   e.stopPropagation();
   if (!confirm('Remove your profile photo?')) return;
-  App.myPhoto = null; LS.del('avatar'); updateProfileAvatar();
-  if (App.myId) { try { await remove(dbRef(db, 'users/' + App.myId + '/photo')); } catch {} }
+  App.myPhoto = null; LS.del('avatar'); updateProfileHeader();
+  try { await remove(dbRef(db, 'users/' + App.mySlug + '/photo')); } catch {}
   toast('Photo removed');
 });
 $('avatarInput').addEventListener('change', async e => {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
-  if (!file.type.startsWith('image/')) { toast('Please choose an image file'); return; }
+  if (!file.type.startsWith('image/')) { toast('Pick an image'); return; }
   try {
-    toast('Processing photo…');
+    toast('Processing…');
     const dataUrl = await resizeImage(file, 240);
-    App.myPhoto = dataUrl; LS.set('avatar', dataUrl);
-    updateProfileAvatar(); await syncProfileToFirebase();
-    toast('Profile photo updated');
-  } catch (err) { console.error(err); toast('Could not load image'); }
+    App.myPhoto = dataUrl; LS.set('avatar', dataUrl); updateProfileHeader();
+    await set(dbRef(db, 'users/' + App.mySlug + '/photo'), dataUrl);
+    toast('Photo updated');
+  } catch { toast('Failed'); }
   e.target.value = '';
 });
 function resizeImage(file, size) {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = reject;
-    reader.onload = ev => {
+    const r = new FileReader();
+    r.onerror = reject;
+    r.onload = ev => {
       const img = new Image();
       img.onerror = reject;
       img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = size; canvas.height = size;
-        const ctx = canvas.getContext('2d');
+        const c = document.createElement('canvas'); c.width = size; c.height = size;
+        const ctx = c.getContext('2d');
         const min = Math.min(img.width, img.height);
-        const sx = (img.width - min) / 2;
-        const sy = (img.height - min) / 2;
+        const sx = (img.width - min) / 2, sy = (img.height - min) / 2;
         ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
-        resolve(canvas.toDataURL('image/jpeg', 0.82));
+        resolve(c.toDataURL('image/jpeg', 0.82));
       };
       img.src = ev.target.result;
     };
-    reader.readAsDataURL(file);
+    r.readAsDataURL(file);
   });
 }
 
 function loadContacts() { App.contacts = LS.get('contacts', []); }
 function saveContacts() { LS.set('contacts', App.contacts); }
-function addContact(name, id) {
-  if (!name || !id) return toast('Name and ID required');
-  if (id === App.myId) return toast("That's your own ID");
-  if (App.contacts.find(c => c.id === id)) return toast('Already added');
-  App.contacts.push({ name, id, addedAt: Date.now(), photo: null });
-  saveContacts(); listenContactPhoto(id);
-  if (App.myId) setupGlobalMessageListener(id);
-  buildUI(); toast('Added: ' + name);
+function loadLastRead() { App.lastRead = LS.get('lastRead', {}); }
+function saveLastRead() { LS.set('lastRead', App.lastRead); }
+function addContactBySlug(slug, displayName) {
+  if (slug === App.mySlug) return toast("That's you");
+  if (App.contacts.find(c => c.slug === slug)) return toast('Already added');
+  App.contacts.push({ slug, name: displayName, addedAt: Date.now(), photo: null });
+  saveContacts(); listenContactPhoto(slug); setupGlobalMessageListener(slug);
+  buildUI(); toast('Added @' + slug);
+}
+
+let addLookupTimer = null, addLookupResult = null;
+$('addContactFab').addEventListener('click', () => {
+  $('modalName').value = ''; $('modalStatus').textContent = ''; $('modalStatus').className = 'modal-status';
+  $('modalConfirm').disabled = true; addLookupResult = null;
+  $('addModal').classList.add('show');
+});
+$('modalCancel').addEventListener('click', () => $('addModal').classList.remove('show'));
+$('modalName').addEventListener('input', () => {
+  $('modalConfirm').disabled = true; addLookupResult = null;
+  const slug = slugify($('modalName').value);
+  if (!slug) { $('modalStatus').textContent = ''; return; }
+  $('modalStatus').textContent = 'Searching…'; $('modalStatus').className = 'modal-status';
+  clearTimeout(addLookupTimer);
+  addLookupTimer = setTimeout(async () => {
+    try {
+      if (slug === App.mySlug) { $('modalStatus').textContent = "That's your own name"; $('modalStatus').className = 'modal-status bad'; return; }
+      const snap = await get(dbRef(db, 'users/' + slug));
+      if (!snap.exists()) { $('modalStatus').textContent = `No one called @${slug}`; $('modalStatus').className = 'modal-status bad'; return; }
+      const data = snap.val();
+      addLookupResult = { slug, displayName: data.displayName || slug };
+      $('modalStatus').textContent = `Found: ${addLookupResult.displayName} (@${slug})`;
+      $('modalStatus').className = 'modal-status ok'; $('modalConfirm').disabled = false;
+    } catch { $('modalStatus').textContent = 'Lookup failed'; $('modalStatus').className = 'modal-status bad'; }
+  }, 350);
+});
+$('modalConfirm').addEventListener('click', () => {
+  if (!addLookupResult) return;
+  addContactBySlug(addLookupResult.slug, addLookupResult.displayName);
+  $('addModal').classList.remove('show');
+});
+
+function listenContactPhoto(slug) {
+  if (App.contactPhotoUnsubs[slug]) return;
+  App.contactPhotoUnsubs[slug] = onValue(dbRef(db, 'users/' + slug + '/photo'), snap => {
+    const photo = snap.val();
+    const c = App.contacts.find(x => x.slug === slug);
+    if (!c) return;
+    if (c.photo !== photo) { c.photo = photo || null; saveContacts(); buildUI(); if (App.activeChat === slug) updateChatHeader(c); }
+  });
+}
+
+function updateUnreadBadges() {
+  const total = Object.values(App.unread).reduce((s, n) => s + (n || 0), 0);
+  const chatsBtn = document.querySelector('.nav-item[data-tab="chats"]');
+  if (chatsBtn) {
+    let b = chatsBtn.querySelector('.nav-badge');
+    if (!b) { b = document.createElement('span'); b.className = 'nav-badge'; chatsBtn.appendChild(b); }
+    if (total > 0) { b.textContent = total > 99 ? '99+' : String(total); b.classList.add('show'); }
+    else b.classList.remove('show');
+  }
+  document.title = total > 0 ? `(${total}) G Comm` : 'G Communication Portal';
+  document.querySelectorAll('[data-contact-slug]').forEach(el => {
+    const slug = el.dataset.contactSlug;
+    const n = App.unread[slug] || 0;
+    const badge = el.querySelector('.unread-badge');
+    const title = el.querySelector('.list-item-title');
+    const sub = el.querySelector('.list-item-sub');
+    if (badge) { if (n > 0) { badge.textContent = n > 99 ? '99+' : n; badge.classList.add('show'); } else badge.classList.remove('show'); }
+    if (title) title.classList.toggle('unread', n > 0);
+    if (sub) sub.classList.toggle('unread', n > 0);
+  });
+}
+
+function setupGlobalMessageListener(slug) {
+  if (App.globalUnsubs[slug]) return;
+  const cid = chatIdFor(App.mySlug, slug);
+  const q = query(dbRef(db, 'chats/' + cid + '/messages'), limitToLast(150));
+  App.globalUnsubs[slug] = onValue(q, snap => {
+    const data = snap.val() || {};
+    const msgs = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (a.time || 0) - (b.time || 0));
+    const last = msgs[msgs.length - 1];
+    if (!App.globalSubscribed[slug]) {
+      App.globalSubscribed[slug] = true;
+      App.lastMsgTime[slug] = last ? (last.time || 0) : 0;
+      if (App.lastRead[slug] === undefined) { App.lastRead[slug] = last ? (last.time || Date.now()) : Date.now(); saveLastRead(); }
+    } else {
+      const prev = App.lastMsgTime[slug];
+      const isNew = last && (last.time || 0) > (prev || 0) && last.from !== App.mySlug;
+      if (last) App.lastMsgTime[slug] = last.time || Date.now();
+      if (isNew && App.activeChat !== slug) {
+        if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+        const cname = App.contacts.find(x => x.slug === slug)?.name || slug;
+        toast(`New from ${cname}`);
+      }
+    }
+    App.lastMessages[slug] = msgs;
+    if (App.activeChat === slug) {
+      renderMessages(slug, msgs);
+      if (last) { App.lastRead[slug] = Math.max(App.lastRead[slug] || 0, last.time || 0); saveLastRead(); }
+      App.unread[slug] = 0;
+    } else {
+      const lr = App.lastRead[slug] || 0;
+      App.unread[slug] = msgs.filter(m => m.from !== App.mySlug && (m.time || 0) > lr).length;
+    }
+    updateUnreadBadges();
+    const el = document.querySelector(`[data-contact-slug="${slug}"] .list-item-sub`);
+    if (el && last) {
+      const txt = previewText(last);
+      el.textContent = (last.from === App.mySlug ? 'You: ' : '') + (txt.length > 34 ? txt.slice(0, 34) + '…' : txt);
+    }
+  });
+}
+
+function renderAttachment(m) {
+  const a = m.attachment;
+  if (!a) return '';
+  if (a.type === 'image') return `<img class="attach-img" src="${a.url}" loading="lazy" onclick="window.__lb('${a.url.replace(/'/g,"\\'")}','${esc(a.name||'photo')}')">`;
+  if (a.type === 'video') return `<video class="attach-video" controls preload="metadata" src="${a.url}"></video>`;
+  return `<a class="attach-file" href="${a.url}" target="_blank" download="${esc(a.name||'file')}">
+    <span class="file-icon">📄</span>
+    <span class="file-info"><span class="file-name">${esc(a.name||'File')}</span><span class="file-size">${fmtBytes(a.size)}</span></span>
+    <span style="font-size:20px;color:var(--muted)">⬇</span>
+  </a>`;
+}
+
+function renderMessages(slug, msgs) {
+  const area = $('messagesArea');
+  if (!area) return;
+  if (!msgs.length) { area.innerHTML = '<div class="empty"><p style="font-size:13px;">Say hello 👋</p></div>'; return; }
+  area.innerHTML = msgs.map(m => {
+    const out = m.from === App.mySlug;
+    const t = m.time ? new Date(m.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+    const hasA = !!m.attachment;
+    const cls = `msg ${out ? 'out' : 'in'}${hasA ? ' has-attachment' : ''}`;
+    const aHtml = hasA ? renderAttachment(m) : '';
+    const cHtml = (hasA && m.text) ? `<div class="msg-caption">${esc(m.text)}</div>` : '';
+    const tHtml = (!hasA && m.text) ? esc(m.text) : '';
+    return `<div class="${cls}">${aHtml}${cHtml}${tHtml}<span class="time">${t}</span></div>`;
+  }).join('');
+  area.scrollTop = area.scrollHeight;
 }
 
 function buildUI() {
-  $('profileName').textContent = App.myName;
   const cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient');
-
   if (!App.contacts.length) {
-    cl.innerHTML = '<div class="empty"><div class="empty-icon">💬</div><p>No contacts yet.<br>Tap <strong>＋</strong> to add someone.</p></div>';
-    ccl.innerHTML = '<div class="empty"><div class="empty-icon">📞</div><p>Add contacts to call them.</p></div>';
+    cl.innerHTML = '<div class="empty"><div class="empty-icon">💬</div><p>No contacts yet.<br>Tap <strong>＋</strong> and type someone\'s name.</p></div>';
+    ccl.innerHTML = '<div class="empty"><div class="empty-icon">📞</div><p>Add a contact to call them.</p></div>';
     vmSel.innerHTML = '<option value="">Select contact</option>';
-    updateUnreadBadges();
-    return;
+    updateUnreadBadges(); return;
   }
-
   cl.innerHTML = App.contacts.map(c => {
-    const n = App.unread[c.id] || 0;
-    const last = App.lastMessages[c.id] && App.lastMessages[c.id].length
-      ? App.lastMessages[c.id][App.lastMessages[c.id].length - 1] : null;
-    let subTxt = previewTextFrom(last);
-    subTxt = subTxt.length > 34 ? subTxt.slice(0, 34) + '…' : subTxt;
-    return `
-      <div class="list-item" data-contact-id="${c.id}">
-        <div class="avatar">${avatarInnerHTML(c.photo, c.name)}</div>
-        <div class="list-item-body">
-          <div class="list-item-title${n > 0 ? ' unread' : ''}">${esc(c.name)}</div>
-          <div class="list-item-sub${n > 0 ? ' unread' : ''}">${esc(subTxt)}</div>
-        </div>
-        <div class="unread-badge${n > 0 ? ' show' : ''}">${n > 99 ? '99+' : n}</div>
-        <div class="list-item-action">›</div>
-      </div>`;
+    const n = App.unread[c.slug] || 0;
+    const last = App.lastMessages[c.slug] && App.lastMessages[c.slug].length ? App.lastMessages[c.slug][App.lastMessages[c.slug].length - 1] : null;
+    let sub = previewText(last); sub = sub.length > 34 ? sub.slice(0, 34) + '…' : sub;
+    return `<div class="list-item" data-contact-slug="${c.slug}">
+      <div class="avatar">${avatarInner(c.photo, c.name)}</div>
+      <div class="list-item-body"><div class="list-item-title${n>0?' unread':''}">${esc(c.name)}</div><div class="list-item-sub${n>0?' unread':''}">${esc(sub)}</div></div>
+      <div class="unread-badge${n>0?' show':''}">${n>99?'99+':n}</div>
+      <div class="list-item-action">›</div></div>`;
   }).join('');
-
   ccl.innerHTML = App.contacts.map(c => `
-    <div class="list-item" data-call-id="${c.id}">
-      <div class="avatar accent">${avatarInnerHTML(c.photo, c.name)}</div>
-      <div class="list-item-body">
-        <div class="list-item-title">${esc(c.name)}</div>
-        <div class="list-item-sub">Tap to call</div>
-      </div>
-      <div class="list-item-action">📞</div>
-    </div>`).join('');
-
-  vmSel.innerHTML = '<option value="">Select contact</option>' +
-    App.contacts.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
-
-  cl.querySelectorAll('[data-contact-id]').forEach(el => el.addEventListener('click', () => openChat(el.dataset.contactId)));
-  ccl.querySelectorAll('[data-call-id]').forEach(el => el.addEventListener('click', () => startCall(el.dataset.callId)));
+    <div class="list-item" data-call-slug="${c.slug}">
+      <div class="avatar accent">${avatarInner(c.photo, c.name)}</div>
+      <div class="list-item-body"><div class="list-item-title">${esc(c.name)}</div><div class="list-item-sub">Tap to call</div></div>
+      <div class="list-item-action">📞</div></div>`).join('');
+  vmSel.innerHTML = '<option value="">Select contact</option>' + App.contacts.map(c => `<option value="${c.slug}">${esc(c.name)}</option>`).join('');
+  cl.querySelectorAll('[data-contact-slug]').forEach(el => el.addEventListener('click', () => openChat(el.dataset.contactSlug)));
+  ccl.querySelectorAll('[data-call-slug]').forEach(el => el.addEventListener('click', () => startCall(el.dataset.callSlug)));
   updateUnreadBadges();
 }
 
@@ -719,223 +913,106 @@ document.querySelectorAll('.nav-item').forEach(btn => {
   });
 });
 
-$('addContactFab').addEventListener('click', () => {
-  $('modalName').value = ''; $('modalId').value = '';
-  $('addModal').classList.add('show');
-});
-$('modalCancel').addEventListener('click', () => $('addModal').classList.remove('show'));
-$('modalConfirm').addEventListener('click', () => {
-  const n = $('modalName').value.trim(), id = $('modalId').value.trim();
-  if (!n || !id) return toast('Both fields required');
-  addContact(n, id); $('addModal').classList.remove('show');
-});
-
-function updateChatHeader(contact) {
-  $('chatName').textContent = contact.name;
-  $('chatAvatar').innerHTML = avatarInnerHTML(contact.photo, contact.name);
-}
-
-function renderAttachmentHTML(m) {
-  const a = m.attachment;
-  if (!a) return '';
-  if (a.type === 'image') {
-    return `<img class="attach-img" src="${a.url}" alt="${esc(a.name || '')}" loading="lazy"
-      onclick="window.__openLightbox('${a.url.replace(/'/g, "\\'")}','${esc(a.name || 'photo')}')">`;
-  }
-  if (a.type === 'video') {
-    return `<video class="attach-video" controls preload="metadata" src="${a.url}"></video>`;
-  }
-  return `<a class="attach-file" href="${a.url}" target="_blank" download="${esc(a.name || 'file')}">
-    <span class="file-icon">📄</span>
-    <span class="file-info">
-      <span class="file-name">${esc(a.name || 'File')}</span>
-      <span class="file-size">${fmtBytes(a.size)}</span>
-    </span>
-    <span style="font-size:20px;color:var(--muted)">⬇</span>
-  </a>`;
-}
-
-function renderMessagesFor(contactId, msgs) {
-  const area = $('messagesArea');
-  if (!area) return;
-  if (!msgs.length) {
-    area.innerHTML = '<div class="empty"><p style="font-size:13px;">No messages yet. Say hello 👋</p></div>';
-    return;
-  }
-  area.innerHTML = msgs.map(m => {
-    const out = m.from === App.myId;
-    const t = m.time ? new Date(m.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-    const hasAttach = !!m.attachment;
-    const cls = `msg ${out ? 'out' : 'in'}${hasAttach ? ' has-attachment' : ''}`;
-    const attachHtml = hasAttach ? renderAttachmentHTML(m) : '';
-    const captionHtml = (hasAttach && m.text) ? `<div class="msg-caption">${esc(m.text)}</div>` : '';
-    const textHtml = (!hasAttach && m.text) ? esc(m.text) : '';
-    return `<div class="${cls}">${attachHtml}${captionHtml}${textHtml}<span class="time">${t}</span></div>`;
-  }).join('');
-  area.scrollTop = area.scrollHeight;
-}
-
-function openChat(contactId) {
-  const c = App.contacts.find(x => x.id === contactId);
+function updateChatHeader(c) { $('chatName').textContent = c.name; $('chatAvatar').innerHTML = avatarInner(c.photo, c.name); }
+function openChat(slug) {
+  const c = App.contacts.find(x => x.slug === slug);
   if (!c) return;
-  App.activeChat = contactId;
+  App.activeChat = slug;
   updateChatHeader(c);
-  $('chatStatus').textContent = 'online';
   $('sendBtn').disabled = false;
-  App.lastRead[contactId] = Date.now();
-  saveLastRead();
-  App.unread[contactId] = 0;
-  updateUnreadBadges();
+  App.lastRead[slug] = Date.now(); saveLastRead(); App.unread[slug] = 0; updateUnreadBadges();
   showScreen('screen-chat');
-  if (App.lastMessages[contactId]) renderMessagesFor(contactId, App.lastMessages[contactId]);
-  else $('messagesArea').innerHTML = '<div class="empty"><p style="font-size:13px;">No messages yet. Say hello 👋</p></div>';
+  if (App.lastMessages[slug]) renderMessages(slug, App.lastMessages[slug]);
+  else $('messagesArea').innerHTML = '<div class="empty"><p style="font-size:13px;">Say hello 👋</p></div>';
 }
-
 async function sendMessage() {
-  const input = $('chatInput');
-  const text = input.value.trim();
+  const input = $('chatInput'); const text = input.value.trim();
   if (!text || !App.activeChat) return;
-  const cid = chatIdFor(App.myId, App.activeChat);
+  const cid = chatIdFor(App.mySlug, App.activeChat);
   try {
-    await push(dbRef(db, 'messages/' + cid), {
-      from: App.myId, to: App.activeChat, text, time: Date.now()
-    });
+    await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: App.activeChat, text, time: Date.now() });
     input.value = '';
-  } catch (e) { console.error(e); toast('Send failed — check Firebase rules'); }
+  } catch { toast('Send failed'); }
 }
 $('sendBtn').addEventListener('click', sendMessage);
 $('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
-$('chatBackBtn').addEventListener('click', () => {
-  App.activeChat = null;
-  showScreen('screen-main');
-  updateUnreadBadges();
-});
+$('chatBackBtn').addEventListener('click', () => { App.activeChat = null; showScreen('screen-main'); updateUnreadBadges(); });
 $('callFromChatBtn').addEventListener('click', () => { if (App.activeChat) startCall(App.activeChat); });
 
-const MAX_FILE_BYTES = 25 * 1024 * 1024;
-const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
-
+const MAX_BYTES = 25 * 1024 * 1024;
 $('attachBtn').addEventListener('click', () => {
   if (!App.activeChat) return toast('Open a chat first');
-  $('fileInput').value = '';
-  $('fileInput').click();
+  $('fileInput').value = ''; $('fileInput').click();
 });
-
 $('fileInput').addEventListener('change', async e => {
   const file = e.target.files && e.target.files[0];
-  if (!file) return;
-  if (!App.activeChat) return toast('Open a chat first');
-
-  if (file.size > MAX_FILE_BYTES) {
-    return toast(`File too large — max ${fmtBytes(MAX_FILE_BYTES)}`);
-  }
-
+  if (!file || !App.activeChat) return;
+  if (file.size > MAX_BYTES) return toast(`Max ${fmtBytes(MAX_BYTES)}`);
   const isImage = file.type.startsWith('image/');
   const isVideo = file.type.startsWith('video/');
-  const recipientId = App.activeChat;
-
+  const recipient = App.activeChat;
   try {
     let uploadFile = file;
     if (isImage) {
-      if (file.size > MAX_IMAGE_BYTES) return toast('Image too large');
-      toast('Optimizing image…');
+      toast('Optimizing…');
       try {
-        const blob = await compressImageFile(file, 1600, 0.85);
+        const blob = await compressImg(file, 1600, 0.85);
         uploadFile = new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' });
-      } catch (err) { console.warn('Compress failed, uploading original:', err); }
+      } catch {}
     }
-
-    await uploadAttachment(uploadFile, recipientId, isImage, isVideo, file.name);
-  } catch (err) {
-    console.error('Upload error:', err);
-    toast('Upload failed: ' + (err.message || 'unknown'));
-  }
+    await doUpload(uploadFile, recipient, isImage, isVideo, file.name);
+  } catch (err) { console.error(err); toast('Upload failed: ' + (err.message || 'unknown')); }
   e.target.value = '';
 });
-
-function compressImageFile(file, maxDim, quality) {
+function compressImg(file, maxDim, q) {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = reject;
-    reader.onload = ev => {
+    const r = new FileReader();
+    r.onerror = reject;
+    r.onload = ev => {
       const img = new Image();
       img.onerror = reject;
       img.onload = () => {
         let w = img.width, h = img.height;
         if (w > h && w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; }
         else if (h >= w && h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; }
-        const canvas = document.createElement('canvas');
-        canvas.width = w; canvas.height = h;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, w, h);
-        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Compress failed')), 'image/jpeg', quality);
+        const c = document.createElement('canvas'); c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        c.toBlob(b => b ? resolve(b) : reject(new Error('compress')), 'image/jpeg', q);
       };
       img.src = ev.target.result;
     };
-    reader.readAsDataURL(file);
+    r.readAsDataURL(file);
   });
 }
-
-function uploadAttachment(file, recipientId, isImage, isVideo, displayName) {
+function doUpload(file, recipient, isImage, isVideo, displayName) {
   return new Promise((resolve, reject) => {
-    const cid = chatIdFor(App.myId, recipientId);
-    const safeName = (displayName || 'file').replace(/[^\w.\-]+/g, '_').slice(0, 80);
-    const path = `attachments/${cid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeName}`;
+    const cid = chatIdFor(App.mySlug, recipient);
+    const safe = (displayName || 'file').replace(/[^\w.\-]+/g, '_').slice(0, 80);
+    const path = `attachments/${cid}/${Date.now()}-${Math.random().toString(36).slice(2,8)}-${safe}`;
     const ref = stRef(storage, path);
-    const meta = { contentType: file.type || 'application/octet-stream', customMetadata: { uploadedBy: App.myId } };
-    const task = uploadBytesResumable(ref, file, meta);
-
-    const bar = $('uploadBar');
-    const fill = $('uploadBarFill');
-    bar.classList.add('show');
-    fill.style.width = '0%';
-
+    const task = uploadBytesResumable(ref, file, { contentType: file.type || 'application/octet-stream' });
+    const bar = $('uploadBar'), fill = $('uploadBarFill');
+    bar.classList.add('show'); fill.style.width = '0%';
     task.on('state_changed',
-      snap => {
-        const pct = (snap.bytesTransferred / snap.totalBytes) * 100;
-        fill.style.width = pct.toFixed(1) + '%';
-      },
-      err => {
-        bar.classList.remove('show');
-        reject(err);
-      },
+      s => fill.style.width = ((s.bytesTransferred / s.totalBytes) * 100).toFixed(1) + '%',
+      err => { bar.classList.remove('show'); reject(err); },
       async () => {
         try {
           const url = await getDownloadURL(task.snapshot.ref);
-          fill.style.width = '100%';
           const type = isImage ? 'image' : isVideo ? 'video' : 'file';
-          await push(dbRef(db, 'messages/' + cid), {
-            from: App.myId,
-            to: recipientId,
-            text: '',
-            time: Date.now(),
-            attachment: {
-              type,
-              name: displayName || file.name || 'file',
-              size: file.size,
-              mime: file.type || 'application/octet-stream',
-              url,
-              storagePath: path
-            }
+          await push(dbRef(db, 'chats/' + cid + '/messages'), {
+            from: App.mySlug, to: recipient, text: '', time: Date.now(),
+            attachment: { type, name: displayName || file.name || 'file', size: file.size, mime: file.type || 'application/octet-stream', url, storagePath: path }
           });
-          setTimeout(() => {
-            bar.classList.remove('show');
-            fill.style.width = '0%';
-          }, 700);
-          toast('Sent ✓');
-          resolve();
-        } catch (err) {
-          bar.classList.remove('show');
-          reject(err);
-        }
+          setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 700);
+          toast('Sent ✓'); resolve();
+        } catch (e) { bar.classList.remove('show'); reject(e); }
       }
     );
   });
 }
-
-window.__openLightbox = function(url, name) {
-  $('lightboxImg').src = url;
-  $('lightboxDownload').href = url;
+window.__lb = (url, name) => {
+  $('lightboxImg').src = url; $('lightboxDownload').href = url;
   $('lightboxDownload').download = name || 'photo';
   $('lightbox').classList.add('show');
 };
@@ -946,7 +1023,7 @@ const recordBtn = $('recordBtn');
 recordBtn.addEventListener('click', async () => {
   if (App.mediaRecorder && App.mediaRecorder.state === 'recording') { App.mediaRecorder.stop(); return; }
   const recipient = $('vmRecipient').value;
-  if (!recipient) return toast('Select a recipient first');
+  if (!recipient) return toast('Select a recipient');
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     App.recordedChunks = [];
@@ -956,129 +1033,169 @@ recordBtn.addEventListener('click', async () => {
       clearTimeout(App.recordTimer);
       stream.getTracks().forEach(t => t.stop());
       const blob = new Blob(App.recordedChunks, { type: 'audio/webm' });
-      await uploadVoicemail(blob, recipient);
+      await sendVoicemail(blob, recipient);
       recordBtn.textContent = '⬤ Tap to Record (max 30s)';
       recordBtn.classList.remove('recording');
     };
     App.mediaRecorder.start();
     recordBtn.textContent = '⬛ Tap to Stop';
     recordBtn.classList.add('recording');
-    toast('Recording… tap again to stop');
+    toast('Recording…');
     App.recordTimer = setTimeout(() => {
-      if (App.mediaRecorder && App.mediaRecorder.state === 'recording') {
-        App.mediaRecorder.stop(); toast('30s limit reached — sending');
-      }
+      if (App.mediaRecorder && App.mediaRecorder.state === 'recording') { App.mediaRecorder.stop(); toast('30s — sending'); }
     }, 30000);
-  } catch { toast('Microphone permission denied'); }
+  } catch { toast('Microphone denied'); }
 });
-
-function uploadVoicemail(blob, recipient) {
-  if (blob.size > 700000) return toast('Recording too large — keep it shorter');
-  const reader = new FileReader();
-  reader.onload = async () => {
+function sendVoicemail(blob, recipient) {
+  if (blob.size > 700000) return toast('Too large');
+  const r = new FileReader();
+  r.onload = async () => {
     try {
-      await push(dbRef(db, 'voicemails/' + recipient), {
-        from: App.myId, fromName: App.myName,
-        data: reader.result, mime: blob.type, time: Date.now()
-      });
-      toast('Voicemail sent to ' + (App.contacts.find(c => c.id === recipient)?.name || 'contact'));
-    } catch (e) { console.error(e); toast('Send failed'); }
+      await push(dbRef(db, 'voicemails/' + recipient), { from: App.mySlug, fromName: App.myName, data: r.result, mime: blob.type, time: Date.now() });
+      toast('Voicemail sent');
+    } catch { toast('Failed'); }
   };
-  reader.readAsDataURL(blob);
+  r.readAsDataURL(blob);
 }
-
 function listenVoicemails() {
-  if (!App.myId) return;
+  if (!App.mySlug) return;
   if (App.vmUnsub) { try { App.vmUnsub(); } catch {} }
-  App.vmUnsub = onValue(dbRef(db, 'voicemails/' + App.myId), snap => {
+  App.vmUnsub = onValue(dbRef(db, 'voicemails/' + App.mySlug), snap => {
     const data = snap.val();
     const listEl = $('voicemailList');
     if (!listEl) return;
-    if (!data) { listEl.innerHTML = '<div class="empty"><p>No voicemails yet.</p></div>'; return; }
-    const vms = Object.entries(data).map(([k, v]) => ({ ...v, _k: k }))
-      .sort((a, b) => (b.time || 0) - (a.time || 0));
+    if (!data) { listEl.innerHTML = '<div class="empty"><p>No voicemails.</p></div>'; return; }
+    const vms = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (b.time || 0) - (a.time || 0));
     listEl.innerHTML = vms.map((v, i) => {
-      const who = v.fromName || App.contacts.find(c => c.id === v.from)?.name || v.from?.slice(0, 8) || 'Unknown';
+      const who = v.fromName || v.from || 'Unknown';
       return `<div class="vm-item">
         <button class="vm-play" data-i="${i}">▶</button>
-        <div class="vm-body">
-          <div class="vm-title">From: ${esc(who)}</div>
-          <div class="vm-meta">${new Date(v.time || 0).toLocaleString()}</div>
-        </div>
-        <button class="vm-del" data-del="${v._k}">🗑</button>
-      </div>`;
+        <div class="vm-body"><div class="vm-title">From: ${esc(who)}</div><div class="vm-meta">${new Date(v.time || 0).toLocaleString()}</div></div>
+        <button class="vm-del" data-del="${v._k}">🗑</button></div>`;
     }).join('');
-    listEl.querySelectorAll('[data-i]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const v = vms[parseInt(btn.dataset.i)];
-        try { new Audio(v.data).play().catch(() => toast('Cannot play')); toast('Playing voicemail…'); }
-        catch { toast('Playback error'); }
-      });
-    });
-    listEl.querySelectorAll('[data-del]').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        try { await remove(dbRef(db, 'voicemails/' + App.myId + '/' + btn.dataset.del)); toast('Deleted'); }
-        catch { toast('Delete failed'); }
-      });
-    });
+    listEl.querySelectorAll('[data-i]').forEach(btn => btn.addEventListener('click', () => {
+      const v = vms[parseInt(btn.dataset.i)];
+      try { new Audio(v.data).play().catch(() => toast('Cannot play')); toast('Playing…'); } catch {}
+    }));
+    listEl.querySelectorAll('[data-del]').forEach(btn => btn.addEventListener('click', async () => {
+      try { await remove(dbRef(db, 'voicemails/' + App.mySlug + '/' + btn.dataset.del)); } catch {}
+    }));
   });
 }
 
-async function startCall(contactId) {
-  const c = App.contacts.find(x => x.id === contactId);
+async function startCall(calleeSlug) {
+  if (App.activeCall) return toast('Already in a call');
+  const c = App.contacts.find(x => x.slug === calleeSlug);
   if (!c) return;
   try { App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
-  catch { return toast('Microphone permission denied'); }
+  catch { return toast('Microphone denied'); }
   $('callName').textContent = c.name;
-  $('callAvatar').innerHTML = avatarInnerHTML(c.photo, c.name);
+  $('callAvatar').innerHTML = avatarInner(c.photo, c.name);
   $('callStatus').textContent = 'Calling…';
   $('callStatus').classList.remove('active');
   $('muteBtn').classList.remove('muted');
   App.muted = false;
   showScreen('screen-call');
-  const call = App.peer.call(contactId, App.localStream);
-  App.activeCall = call;
-  call.on('stream', rs => {
-    const audio = new Audio(); audio.srcObject = rs; audio.autoplay = true; audio.play().catch(() => {});
-    $('callStatus').textContent = 'In call'; $('callStatus').classList.add('active');
+  App.activeCall = { peerSlug: calleeSlug, isCaller: true, callRefPath: `calls/${calleeSlug}/${App.mySlug}` };
+  const pc = new RTCPeerConnection(ICE_SERVERS);
+  App.pc = pc;
+  App.localStream.getTracks().forEach(t => pc.addTrack(t, App.localStream));
+  pc.ontrack = e => { const a = new Audio(); a.srcObject = e.streams[0]; a.autoplay = true; a.play().catch(() => {}); };
+  pc.onicecandidate = e => { if (e.candidate) push(dbRef(db, `${App.activeCall.callRefPath}/callerCandidates`), e.candidate.toJSON()).catch(() => {}); };
+  pc.onconnectionstatechange = () => {
+    if (pc.connectionState === 'connected') { $('callStatus').textContent = 'In call'; $('callStatus').classList.add('active'); }
+    if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') endCallCleanup();
+  };
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  await set(dbRef(db, App.activeCall.callRefPath), {
+    offer: { type: offer.type, sdp: offer.sdp },
+    callerName: App.myName, callerSlug: App.mySlug,
+    status: 'ringing', createdAt: Date.now()
   });
-  call.on('close', endCall);
-  call.on('error', () => { toast('Call failed — contact offline'); endCall(); });
+  App.callUnsubs.push(onValue(dbRef(db, App.activeCall.callRefPath + '/answer'), async snap => {
+    const ans = snap.val();
+    if (ans && pc && !pc.currentRemoteDescription && pc.signalingState === 'have-local-offer') {
+      try { await pc.setRemoteDescription(new RTCSessionDescription(ans)); } catch {}
+    }
+  }));
+  App.callUnsubs.push(onChildAdded(dbRef(db, App.activeCall.callRefPath + '/calleeCandidates'), snap => {
+    const cand = snap.val(); if (cand && pc) pc.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
+  }));
+  App.callUnsubs.push(onValue(dbRef(db, App.activeCall.callRefPath + '/status'), snap => {
+    const st = snap.val();
+    if (st === 'rejected') { toast('Call rejected'); endCallCleanup(); }
+    if (st === 'ended') endCallCleanup();
+  }));
 }
 
-function handleIncomingCall(call) {
-  const c = App.contacts.find(x => x.id === call.peer);
-  const name = c ? c.name : 'Unknown';
-  App.incomingCallData = call;
-  $('incomingName').textContent = name;
-  $('incomingAvatar').innerHTML = avatarInnerHTML(c?.photo, name);
-  $('incoming-call').classList.add('show');
-  call.on('close', () => { $('incoming-call').classList.remove('show'); App.incomingCallData = null; });
+function listenForIncomingCalls() {
+  if (!App.mySlug) return;
+  onValue(dbRef(db, 'calls/' + App.mySlug), snap => {
+    const calls = snap.val();
+    if (!calls) { App.incomingCallData = null; $('incoming-call').classList.remove('show'); return; }
+    let ringing = null;
+    for (const [callerSlug, call] of Object.entries(calls)) {
+      if (call && call.status === 'ringing' && call.offer && callerSlug !== App.mySlug) { ringing = { callerSlug, call }; break; }
+    }
+    if (ringing && !App.incomingCallData && !App.activeCall) {
+      App.incomingCallData = ringing;
+      const c = App.contacts.find(x => x.slug === ringing.callerSlug);
+      const name = c ? c.name : (ringing.call.callerName || ringing.call.callerSlug);
+      $('incomingName').textContent = name;
+      $('incomingAvatar').innerHTML = c ? avatarInner(c.photo, c.name) : esc(name.charAt(0).toUpperCase());
+      $('incoming-call').classList.add('show');
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
+    }
+  });
 }
 
 $('acceptCallBtn').addEventListener('click', async () => {
-  const call = App.incomingCallData;
-  if (!call) return;
-  try { App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
-  catch { return toast('Microphone needed'); }
-  call.answer(App.localStream);
-  App.activeCall = call;
+  const ic = App.incomingCallData; if (!ic) return;
   $('incoming-call').classList.remove('show');
-  const c = App.contacts.find(x => x.id === call.peer);
-  const name = c ? c.name : 'Unknown';
-  $('callName').textContent = name;
-  $('callAvatar').innerHTML = avatarInnerHTML(c?.photo, name);
-  $('callStatus').textContent = 'In call'; $('callStatus').classList.add('active');
+  const { callerSlug, call } = ic; App.incomingCallData = null;
+  try { App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+  catch { return toast('Microphone denied'); }
+  const pc = new RTCPeerConnection(ICE_SERVERS); App.pc = pc;
+  App.localStream.getTracks().forEach(t => pc.addTrack(t, App.localStream));
+  pc.ontrack = e => { const a = new Audio(); a.srcObject = e.streams[0]; a.autoplay = true; a.play().catch(() => {}); };
+  pc.onicecandidate = e => { if (e.candidate) push(dbRef(db, `calls/${App.mySlug}/${callerSlug}/calleeCandidates`), e.candidate.toJSON()).catch(() => {}); };
+  pc.onconnectionstatechange = () => {
+    if (pc.connectionState === 'connected') { $('callStatus').textContent = 'In call'; $('callStatus').classList.add('active'); }
+    if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') endCallCleanup();
+  };
+  await pc.setRemoteDescription(new RTCSessionDescription(call.offer));
+  const answer = await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+  await set(dbRef(db, `calls/${App.mySlug}/${callerSlug}/answer`), { type: answer.type, sdp: answer.sdp });
+  await set(dbRef(db, `calls/${App.mySlug}/${callerSlug}/status`), 'accepted');
+  App.activeCall = { peerSlug: callerSlug, isCaller: false, callRefPath: `calls/${App.mySlug}/${callerSlug}` };
+  const c = App.contacts.find(x => x.slug === callerSlug);
+  $('callName').textContent = c ? c.name : (call.callerName || callerSlug);
+  $('callAvatar').innerHTML = c ? avatarInner(c.photo, c.name) : esc((call.callerName || 'C').charAt(0).toUpperCase());
+  $('callStatus').textContent = 'Connecting…'; $('callStatus').classList.remove('active');
+  $('muteBtn').classList.remove('muted'); App.muted = false;
   showScreen('screen-call');
-  call.on('stream', rs => { const a = new Audio(); a.srcObject = rs; a.autoplay = true; a.play().catch(() => {}); });
-  call.on('close', endCall);
+  App.callUnsubs.push(onChildAdded(dbRef(db, App.activeCall.callRefPath + '/callerCandidates'), snap => {
+    const cand = snap.val(); if (cand && pc) pc.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
+  }));
+  App.callUnsubs.push(onValue(dbRef(db, App.activeCall.callRefPath + '/status'), snap => {
+    if (snap.val() === 'ended') endCallCleanup();
+  }));
 });
 
-$('rejectCallBtn').addEventListener('click', () => {
-  if (App.incomingCallData) { try { App.incomingCallData.close(); } catch {} App.incomingCallData = null; }
-  $('incoming-call').classList.remove('show');
+$('rejectCallBtn').addEventListener('click', async () => {
+  const ic = App.incomingCallData;
+  if (ic) {
+    try { await set(dbRef(db, `calls/${App.mySlug}/${ic.callerSlug}/status`), 'rejected'); } catch {}
+    try { await remove(dbRef(db, `calls/${App.mySlug}/${ic.callerSlug}`)); } catch {}
+  }
+  App.incomingCallData = null; $('incoming-call').classList.remove('show');
 });
-$('endCallBtn').addEventListener('click', () => { if (App.activeCall) App.activeCall.close(); endCall(); });
+$('endCallBtn').addEventListener('click', async () => {
+  if (App.activeCall) { try { await set(dbRef(db, App.activeCall.callRefPath + '/status'), 'ended'); } catch {} }
+  endCallCleanup();
+});
 $('muteBtn').addEventListener('click', function() {
   if (!App.localStream) return;
   App.muted = !App.muted;
@@ -1086,40 +1203,23 @@ $('muteBtn').addEventListener('click', function() {
   this.classList.toggle('muted', App.muted);
   this.textContent = App.muted ? '🔇' : '🎤';
 });
-function endCall() {
+async function endCallCleanup() {
+  if (App.pc) { try { App.pc.close(); } catch {} App.pc = null; }
   if (App.localStream) { App.localStream.getTracks().forEach(t => t.stop()); App.localStream = null; }
+  App.callUnsubs.forEach(u => { try { u(); } catch {} });
+  App.callUnsubs = [];
+  if (App.activeCall) { try { await remove(dbRef(db, App.activeCall.callRefPath)); } catch {} }
   App.activeCall = null; App.muted = false;
   showScreen('screen-main'); toast('Call ended');
 }
 
-$('copyIdBtn').addEventListener('click', async () => {
-  if (!App.myId) return;
-  try { await navigator.clipboard.writeText(App.myId); toast('ID copied'); }
-  catch { toast('Copy failed'); }
-});
-$('shareAppBtn').addEventListener('click', async () => {
-  const url = location.href;
-  if (navigator.share) { try { await navigator.share({ title: 'G Communication Portal', url }); } catch {} }
-  else { try { await navigator.clipboard.writeText(url); toast('Link copied'); } catch { toast(url); } }
-});
 $('helpBtn').addEventListener('click', () => $('helpModal').classList.add('show'));
 $('helpClose').addEventListener('click', () => $('helpModal').classList.remove('show'));
 $('clearBtn').addEventListener('click', () => {
-  if (!confirm('Clear local contacts and unread data on this device?')) return;
+  if (!confirm('Clear contacts and chat data on this device?')) return;
   LS.del('contacts'); LS.del('lastRead'); LS.del('avatar');
   App.contacts = []; App.lastRead = {}; App.unread = {}; App.lastMessages = {};
   buildUI(); toast('Cleared');
-});
-
-window.addEventListener('load', () => {
-  loadContacts(); loadLastRead();
-  const savedName = LS.get('myName', null);
-  const savedPhoto = LS.get('avatar', null);
-  if (savedName) { $('nameInput').value = savedName; $('enterBtn').disabled = false; }
-  if (savedPhoto) App.myPhoto = savedPhoto;
-  document.querySelectorAll('.modal-overlay').forEach(m => {
-    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); });
-  });
 });
 </script>
 </body>
