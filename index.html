@@ -87,10 +87,28 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .chat-header .chat-title{flex:1;min-width:0}
 .chat-header .chat-title h3{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chat-header .chat-title small{font-size:11px;color:var(--green);display:block;margin-top:1px}
-.messages{flex:1;overflow-y:auto;padding:16px 14px;background-color:#e5ecf2;background-image:radial-gradient(circle at 20% 30%,rgba(11,42,74,.035) 0%,transparent 35%),radial-gradient(circle at 80% 70%,rgba(13,122,140,.04) 0%,transparent 35%),radial-gradient(circle at 50% 50%,rgba(212,175,55,.025) 1.5px,transparent 2px);background-size:auto,auto,26px 26px;position:relative}
-.msg{max-width:78%;padding:9px 13px;border-radius:16px;font-size:14.5px;line-height:1.4;margin-bottom:8px;word-wrap:break-word;box-shadow:0 1px 2px rgba(0,0,0,.05)}
-.msg.out{background:linear-gradient(135deg,#d9fdd3 0%,#c8f5be 100%);margin-left:auto;border-bottom-right-radius:4px}
-.msg.in{background:#fff;margin-right:auto;border-bottom-left-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+/* ═══════════ NEW CHAT BACKGROUND ═══════════ */
+.messages{
+  flex:1;
+  overflow-y:auto;
+  padding:16px 14px;
+  position:relative;
+  background-color:#e8eff5;
+  background-image:
+    radial-gradient(circle at 0% 0%, rgba(13,122,140,.11) 0%, transparent 42%),
+    radial-gradient(circle at 100% 100%, rgba(212,175,55,.13) 0%, transparent 45%),
+    radial-gradient(circle at 100% 0%, rgba(11,42,74,.07) 0%, transparent 35%),
+    radial-gradient(circle at 0% 100%, rgba(74,255,122,.06) 0%, transparent 35%),
+    radial-gradient(circle at 50% 50%, rgba(11,42,74,.045) 1px, transparent 1.6px);
+  background-size:auto,auto,auto,auto,22px 22px;
+  background-attachment:local;
+  scroll-behavior:smooth;
+}
+.messages::-webkit-scrollbar{display:none}
+.msg{max-width:78%;padding:9px 13px;border-radius:16px;font-size:14.5px;line-height:1.4;margin-bottom:8px;word-wrap:break-word}
+.msg.out{background:linear-gradient(135deg,#d4fbc9 0%,#bef5b1 100%);margin-left:auto;border-bottom-right-radius:4px;box-shadow:0 2px 8px rgba(74,177,80,.18),0 1px 2px rgba(74,177,80,.10)}
+.msg.in{background:#ffffff;margin-right:auto;border-bottom-left-radius:4px;box-shadow:0 2px 8px rgba(11,42,74,.10),0 1px 2px rgba(11,42,74,.06);border:1px solid rgba(11,42,74,.04)}
 .msg .time{font-size:10px;color:var(--muted);display:block;margin-top:3px;text-align:right}
 .msg.has-attachment{padding:6px;max-width:80%}
 .msg.has-attachment .msg-caption{padding:5px 8px 0}
@@ -386,7 +404,7 @@ import { getDatabase, ref as dbRef, push, onValue, onChildAdded, remove, set, ge
 import { getStorage, ref as stRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 /* ═══════════════════════════════════════════════════════════
-   FIREBASE CONFIG — new web app, new storageBucket format
+   FIREBASE CONFIG — current app registration
    ═══════════════════════════════════════════════════════════ */
 const firebaseConfig = {
   apiKey: "AIzaSyBfqTPdNq31MegFF_vh08D2K_6-2GMeIrY",
@@ -395,8 +413,8 @@ const firebaseConfig = {
   projectId: "jarvis-tracker-a8136",
   storageBucket: "jarvis-tracker-a8136.firebasestorage.app",
   messagingSenderId: "994161558903",
-  appId: "1:994161558903:web:c0c49b63a9c392566d0d72",
-  measurementId: "G-BW12CTNDSW"
+  appId: "1:994161558903:web:a2bed95e40221b4b6d0d72",
+  measurementId: "G-1XX0TZNG1R"
 };
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
@@ -640,7 +658,7 @@ $('permBtn').addEventListener('click', async () => {
   else toast('Notification permission: ' + result);
 });
 
-/* ═══════════ STORAGE SELF-TEST — tries both bucket formats ═══════════ */
+/* ═══════════ STORAGE SELF-TEST ═══════════ */
 $('storageCheckBtn').addEventListener('click', async () => {
   toast('Testing storage…');
   const bucketsToTry = [
@@ -668,7 +686,6 @@ $('storageCheckBtn').addEventListener('click', async () => {
     } catch (err) {
       lastErr = err;
       console.warn('Bucket test failed for', bucket, err);
-      // If it's not a bucket error, no point trying other buckets
       const code = (err && err.code) ? String(err.code) : '';
       if (/unauthorized|permission|denied/i.test(code)) break;
     }
@@ -696,9 +713,11 @@ $('storageCheckBtn').addEventListener('click', async () => {
       'Open → https://console.firebase.google.com/u/1/project/jarvis-tracker-a8136/storage\n\n' +
       'If it says "Get started", click it, then choose a region and finish setup.';
   } else if (/retry-limit|network/i.test(code)) {
-    hint = 'Network problem — check your connection.';
+    hint = 'Network problem, or CORS not configured on the bucket.\n\n' +
+      'Run in Google Cloud Shell:\n\n' +
+      'gsutil cors set cors.json gs://jarvis-tracker-a8136.firebasestorage.app';
   } else if (/unknown/i.test(code)) {
-    hint = 'Storage may not be enabled.\n\n' +
+    hint = 'Storage may not be enabled, or CORS is missing.\n\n' +
       'Open → https://console.firebase.google.com/u/1/project/jarvis-tracker-a8136/storage\n\n' +
       'If it shows "Get started", complete the setup first.';
   }
@@ -1055,7 +1074,6 @@ $('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMes
 $('chatBackBtn').addEventListener('click', () => { App.activeChat = null; showScreen('screen-main'); updateUnreadBadges(); });
 $('callFromChatBtn').addEventListener('click', () => { if (App.activeChat) startCall(App.activeChat); });
 
-/* ═══════════ ATTACHMENTS ═══════════ */
 const MAX_BYTES = 50 * 1024 * 1024;
 $('attachBtn').addEventListener('click', (e) => {
   e.preventDefault();
@@ -1101,7 +1119,7 @@ function handleUploadError(err) {
   } else if (/bucket-not-found/i.test(code)) {
     hint = 'Wrong bucket. Open Profile → Check file storage.';
   } else if (/retry-limit|network|timeout/i.test(code + ' ' + msg)) {
-    hint = 'Network issue. Try again.';
+    hint = 'Network or CORS issue. Run gsutil cors set in Cloud Shell.';
   }
   toast('Upload failed: ' + (code || msg) + ' — ' + hint, true);
   alert('Upload failed\n\nError: ' + (code || 'unknown') + '\nMessage: ' + msg + '\n\n' + (hint || 'Open Profile → Check file storage to diagnose.'));
