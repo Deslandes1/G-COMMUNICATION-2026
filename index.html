@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b2a4a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="G Comm">
+<title>G Communication Portal</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.svg">
+<style>
+:root{--navy:#0b2a4a;--navy-light:#143a5f;--accent:#0d7a8c;--gold:#d4af37;--green:#4aff7a;--red:#ff4757;--bg:#f2f5f8;--card:#fff;--text:#1e2a33;--muted:#6b7a87;--border:#e1e7ed}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+#app{height:100%;display:flex;flex-direction:column;max-width:500px;margin:0 auto;background:var(--bg);position:relative;box-shadow:0 0 40px rgba(0,0,0,.15)}
+.screen{flex:1;display:none;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+.screen.active{display:flex}
+#screen-onboard{background:linear-gradient(160deg,var(--navy) 0%,var(--navy-light) 60%,var(--accent) 100%);color:#fff;justify-content:center;align-items:center;padding:32px 28px;text-align:center}
+.onboard-logo{width:88px;height:88px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:800;margin-bottom:22px;box-shadow:0 8px 30px rgba(212,175,55,.35)}
+#screen-onboard h1{font-size:26px;letter-spacing:.5px;margin-bottom:8px;font-weight:700}
+#screen-onboard p{font-size:14px;opacity:.85;line-height:1.5;max-width:320px;margin-bottom:36px}
+.onboard-input{width:100%;max-width:320px;padding:15px 18px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);border-radius:12px;font-size:16px;color:#fff;outline:none;margin-bottom:16px}
+.onboard-input::placeholder{color:rgba(255,255,255,.5)}
+.onboard-input:focus{border-color:var(--gold)}
+.btn-primary{width:100%;max-width:320px;padding:15px;border:none;border-radius:12px;background:var(--gold);color:var(--navy);font-size:16px;font-weight:700;cursor:pointer}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary:disabled{opacity:.5}
+.app-header{background:var(--navy);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0}
+.app-header .logo{width:36px;height:36px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;flex-shrink:0}
+.app-header h2{font-size:17px;font-weight:700;flex:1}
+.app-header .status-dot{width:9px;height:9px;border-radius:50%;background:var(--red);transition:background .3s}
+.app-header .status-dot.online{background:var(--green);box-shadow:0 0 8px var(--green)}
+.icon-btn{background:rgba(255,255,255,.1);border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px}
+.tab-content{flex:1;overflow-y:auto;padding-bottom:80px}
+.tab-content::-webkit-scrollbar{display:none}
+.bottom-nav{position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:10}
+.nav-item{flex:1;padding:10px 0 12px;text-align:center;font-size:10.5px;color:var(--muted);cursor:pointer;font-weight:600;border:none;background:none;position:relative}
+.nav-item .icon{display:block;font-size:22px;margin-bottom:2px}
+.nav-item.active{color:var(--navy)}
+.section-title{font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:18px 20px 8px}
+.list-item{background:var(--card);padding:14px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;border-bottom:1px solid var(--border)}
+.list-item:active{background:#f0f3f6}
+.list-item:last-child{border-bottom:none}
+.avatar{width:46px;height:46px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0}
+.avatar.accent{background:var(--accent)}
+.list-item-body{flex:1;min-width:0}
+.list-item-title{font-weight:600;font-size:15px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-item-sub{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-item-action{font-size:20px;color:var(--muted);flex-shrink:0}
+.empty{text-align:center;padding:60px 30px;color:var(--muted)}
+.empty .empty-icon{font-size:48px;margin-bottom:12px;opacity:.4}
+.empty p{font-size:14px;line-height:1.5}
+.fab{position:absolute;bottom:88px;right:20px;width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:26px;cursor:pointer;box-shadow:0 6px 20px rgba(13,122,140,.4);display:flex;align-items:center;justify-content:center;z-index:9}
+.chat-header{background:var(--navy);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px;min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0}
+.chat-header .back-btn{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:0 4px}
+.chat-header .chat-title{flex:1}
+.chat-header .chat-title h3{font-size:16px;font-weight:600}
+.chat-header .chat-title small{font-size:11px;color:var(--green);display:block;margin-top:1px}
+.messages{flex:1;overflow-y:auto;padding:16px 14px;background:#e5ecf2}
+.messages::-webkit-scrollbar{display:none}
+.msg{max-width:78%;padding:9px 13px;border-radius:16px;font-size:14.5px;line-height:1.4;margin-bottom:8px;word-wrap:break-word;animation:msgIn .2s}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg.out{background:#d9fdd3;margin-left:auto;border-bottom-right-radius:4px}
+.msg.in{background:#fff;margin-right:auto;border-bottom-left-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.msg .time{font-size:10px;color:var(--muted);display:block;margin-top:3px;text-align:right}
+.chat-input-bar{background:#fff;border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0}
+.chat-input-bar input{flex:1;padding:11px 16px;border:1px solid var(--border);border-radius:22px;font-size:15px;outline:none;background:#f7f9fb}
+.chat-input-bar input:focus{border-color:var(--accent)}
+.chat-input-bar .send-btn{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:20px;cursor:pointer}
+.chat-input-bar .send-btn:disabled{opacity:.4}
+#screen-call{background:linear-gradient(180deg,var(--navy) 0%,#061e3a 100%);color:#fff;justify-content:center;align-items:center;padding:40px 24px;text-align:center}
+.call-avatar{width:120px;height:120px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:800;margin-bottom:24px;animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(212,175,55,.6)}70%{box-shadow:0 0 0 30px rgba(212,175,55,0)}100%{box-shadow:0 0 0 0 rgba(212,175,55,0)}}
+.call-name{font-size:24px;font-weight:700;margin-bottom:6px}
+.call-status{font-size:14px;color:rgba(255,255,255,.75);margin-bottom:48px}
+.call-status.active{color:var(--green)}
+.call-actions{display:flex;gap:32px}
+.call-btn{width:68px;height:68px;border-radius:50%;border:none;font-size:28px;cursor:pointer}
+.call-btn.end{background:var(--red);color:#fff}
+.call-btn.accept{background:var(--green);color:var(--navy)}
+.call-btn.mute{background:rgba(255,255,255,.15);color:#fff}
+.call-btn.mute.muted{background:var(--gold);color:var(--navy)}
+.vm-item{background:var(--card);padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px}
+.vm-play{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:18px;cursor:pointer;flex-shrink:0}
+.vm-del{background:none;border:none;font-size:18px;color:var(--muted);cursor:pointer;padding:8px}
+.vm-body{flex:1;min-width:0}
+.vm-title{font-weight:600;font-size:14.5px;margin-bottom:3px}
+.vm-meta{font-size:12px;color:var(--muted)}
+.record-btn{width:calc(100% - 40px);max-width:320px;padding:15px;border:none;border-radius:12px;background:var(--red);color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin:20px auto;display:block}
+.record-btn.recording{background:#b91c1c;animation:recordPulse 1s infinite}
+@keyframes recordPulse{0%,100%{opacity:1}50%{opacity:.7}}
+.vm-target{background:#fff;margin:0 20px 12px;border-radius:10px;padding:12px 16px;border:1px solid var(--border);font-size:14px;display:flex;align-items:center;justify-content:space-between}
+.vm-target select{border:1px solid var(--border);padding:8px 12px;border-radius:8px;font-size:14px;background:#f7f9fb;color:var(--text);max-width:60%}
+.profile-card{background:var(--card);margin:16px;border-radius:14px;padding:24px 20px;box-shadow:0 2px 12px rgba(0,0,0,.04);text-align:center}
+.profile-card .avatar-big{width:80px;height:80px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;margin:0 auto 14px}
+.profile-card h3{font-size:20px;margin-bottom:4px}
+.profile-card .role-label{font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.id-box{background:#f0f4f8;border:2px dashed var(--accent);border-radius:10px;padding:14px;margin:20px 0;display:flex;align-items:center;gap:10px}
+.id-box .id-value{flex:1;font-family:'Courier New',monospace;font-size:13px;font-weight:700;color:var(--navy);word-break:break-all;text-align:left}
+.id-box button{background:var(--accent);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0}
+.help-text{font-size:12.5px;color:var(--muted);line-height:1.6;text-align:left;margin-top:16px}
+.menu-item{background:var(--card);padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;cursor:pointer;font-size:15px}
+.menu-item:active{background:#f0f3f6}
+.menu-item .menu-icon{font-size:20px;width:24px;text-align:center}
+.menu-item .menu-arrow{margin-left:auto;color:var(--muted);font-size:18px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:100;padding:24px}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:360px}
+.modal h3{font-size:18px;margin-bottom:6px}
+.modal p{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.5}
+.modal input{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;margin-bottom:12px;outline:none}
+.modal input:focus{border-color:var(--accent)}
+.modal-actions{display:flex;gap:10px;margin-top:8px}
+.modal-actions button{flex:1;padding:12px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;border:none}
+.modal-actions .cancel{background:#eef2f6;color:var(--text)}
+.modal-actions .confirm{background:var(--accent);color:#fff}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--navy);color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:200;max-width:90%;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#incoming-call{position:fixed;inset:0;background:linear-gradient(180deg,var(--navy) 0%,#061e3a 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:150;padding:40px 24px;text-align:center}
+#incoming-call.show{display:flex}
+</style>
+</head>
+<body>
+<div id="app">
+
+<section id="screen-onboard" class="screen active">
+  <div class="onboard-logo">G</div>
+  <h1>G Communication Portal</h1>
+  <p>Private chat, voice mail, and calls — from your phone.</p>
+  <input id="nameInput" class="onboard-input" type="text" placeholder="Enter your display name" maxlength="30" autocomplete="off">
+  <button id="enterBtn" class="btn-primary" disabled>Enter Portal</button>
+</section>
+
+<section id="screen-main" class="screen">
+  <header class="app-header">
+    <div class="logo">G</div>
+    <h2 id="headerTitle">Chats</h2>
+    <div id="connStatus" class="status-dot"></div>
+  </header>
+
+  <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
+
+  <div id="tabCalls" class="tab-content" style="display:none;">
+    <div class="section-title">Start a call</div>
+    <div id="callContactsList"></div>
+  </div>
+
+  <div id="tabVoicemail" class="tab-content" style="display:none;">
+    <div class="section-title">Send a voicemail</div>
+    <div class="vm-target">
+      <span>To:</span>
+      <select id="vmRecipient"><option value="">Select contact</option></select>
+    </div>
+    <button id="recordBtn" class="record-btn">⬤ Tap to Record (max 30s)</button>
+    <div class="section-title">Inbox</div>
+    <div id="voicemailList"></div>
+  </div>
+
+  <div id="tabProfile" class="tab-content" style="display:none;">
+    <div class="profile-card">
+      <div class="avatar-big" id="profileAvatar">G</div>
+      <h3 id="profileName">—</h3>
+      <div class="role-label">G Communication Portal</div>
+      <div class="id-box">
+        <div class="id-value" id="myId">connecting…</div>
+        <button id="copyIdBtn">COPY</button>
+      </div>
+      <div class="help-text">
+        <strong>Share this ID</strong> with anyone. They paste it into "Add Contact" to reach you.
+      </div>
+    </div>
+    <div class="menu-item" id="shareAppBtn"><span class="menu-icon">🔗</span> Share app's link <span class="menu-arrow">›</span></div>
+    <div class="menu-item" id="helpBtn"><span class="menu-icon">❓</span> How it works <span class="menu-arrow">›</span></div>
+    <div class="menu-item" id="clearBtn"><span class="menu-icon">🗑</span> Clear local data <span class="menu-arrow">›</span></div>
+  </div>
+
+  <button id="addContactFab" class="fab">＋</button>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="chats"><span class="icon">💬</span>Chats</button>
+    <button class="nav-item" data-tab="calls"><span class="icon">📞</span>Calls</button>
+    <button class="nav-item" data-tab="voicemail"><span class="icon">🎙</span>Voicemail</button>
+    <button class="nav-item" data-tab="profile"><span class="icon">👤</span>Profile</button>
+  </nav>
+</section>
+
+<section id="screen-chat" class="screen">
+  <header class="chat-header">
+    <button class="back-btn" id="chatBackBtn">‹</button>
+    <div class="chat-title">
+      <h3 id="chatName">—</h3>
+      <small id="chatStatus">online</small>
+    </div>
+    <button class="icon-btn" id="callFromChatBtn">📞</button>
+  </header>
+  <div id="messagesArea" class="messages"></div>
+  <div class="chat-input-bar">
+    <input id="chatInput" type="text" placeholder="Message…" autocomplete="off">
+    <button class="send-btn" id="sendBtn" disabled>➤</button>
+  </div>
+</section>
+
+<section id="screen-call" class="screen">
+  <div class="call-avatar" id="callAvatar">G</div>
+  <div class="call-name" id="callName">—</div>
+  <div class="call-status" id="callStatus">Calling…</div>
+  <div class="call-actions">
+    <button class="call-btn mute" id="muteBtn">🎤</button>
+    <button class="call-btn end" id="endCallBtn">📵</button>
+  </div>
+</section>
+
+<div id="incoming-call">
+  <div class="call-avatar" id="incomingAvatar">G</div>
+  <div class="call-name" id="incomingName">—</div>
+  <div class="call-status">Incoming call…</div>
+  <div class="call-actions">
+    <button class="call-btn end" id="rejectCallBtn">📵</button>
+    <button class="call-btn accept" id="acceptCallBtn">📞</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h3>Add Contact</h3>
+    <p>Paste their ID and give them a name.</p>
+    <input id="modalName" type="text" placeholder="Contact name" maxlength="30" autocomplete="off">
+    <input id="modalId" type="text" placeholder="Their Peer ID" autocomplete="off">
+    <div class="modal-actions">
+      <button class="cancel" id="modalCancel">Cancel</button>
+      <button class="confirm" id="modalConfirm">Add</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="helpModal">
+  <div class="modal">
+    <h3>How it works</h3>
+    <p>
+      <strong>1.</strong> Share your ID from Profile.<br><br>
+      <strong>2.</strong> The other person adds you as a contact.<br><br>
+      <strong>3.</strong> Chat and voicemails work even when the other person is offline — they sync via Firebase.<br><br>
+      <strong>4.</strong> Voice calls require both people online at the same time.
+    </p>
+    <div class="modal-actions"><button class="confirm" id="helpClose">Got it</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, push, onValue, remove, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBfqTPdNq31MegFF_vh08D2K_6-2GMeIrY",
+  authDomain: "jarvis-tracker-a8136.firebaseapp.com",
+  databaseURL: "https://jarvis-tracker-a8136-default-rtdb.firebaseio.com",
+  projectId: "jarvis-tracker-a8136",
+  storageBucket: "jarvis-tracker-a8136.firebasestorage.app",
+  messagingSenderId: "994161558903",
+  appId: "1:994161558903:web:d0ce8ac130a7211b6d0d72",
+  measurementId: "G-WY372TXL3Q"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getDatabase(fbApp);
+
+const App = {
+  peer: null, myId: null, myName: '',
+  contacts: [], activeChat: null, activeCall: null,
+  incomingCallData: null, localStream: null, muted: false,
+  mediaRecorder: null, recordedChunks: [], recordTimer: null,
+  msgUnsub: null, vmUnsub: null
+};
+
+const $ = id => document.getElementById(id);
+const LS = {
+  get: (k, d) => { try { return JSON.parse(localStorage.getItem('gcp_' + k)) ?? d; } catch { return d; } },
+  set: (k, v) => { try { localStorage.setItem('gcp_' + k, JSON.stringify(v)); } catch {} },
+  del: (k) => localStorage.removeItem('gcp_' + k)
+};
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
+let toastTimer;
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600); }
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function chatIdFor(a, b) { const [x, y] = [a, b].sort(); return `chat_${x}_${y}`; }
+
+$('nameInput').addEventListener('input', () => { $('enterBtn').disabled = $('nameInput').value.trim().length < 2; });
+$('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('enterBtn').disabled) startApp(); });
+$('enterBtn').addEventListener('click', startApp);
+
+function startApp() {
+  App.myName = $('nameInput').value.trim();
+  LS.set('myName', App.myName);
+  showScreen('screen-main');
+  initPeer();
+  buildUI();
+}
+
+function initPeer() {
+  App.peer = new Peer(undefined, {
+    config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] }
+  });
+  App.peer.on('open', id => {
+    App.myId = id;
+    $('myId').textContent = id;
+    $('connStatus').classList.add('online');
+    toast('You are online');
+    listenVoicemails();
+  });
+  App.peer.on('error', err => {
+    $('connStatus').classList.remove('online');
+    if (err.type === 'peer-unavailable') toast('Contact offline for calls');
+    else toast('Error: ' + err.type);
+  });
+  App.peer.on('disconnected', () => { $('connStatus').classList.remove('online'); try { App.peer.reconnect(); } catch {} });
+  App.peer.on('call', handleIncomingCall);
+}
+
+function loadContacts() { App.contacts = LS.get('contacts', []); }
+function saveContacts() { LS.set('contacts', App.contacts); }
+function addContact(name, id) {
+  if (!name || !id) return toast('Name and ID required');
+  if (id === App.myId) return toast("That's your own ID");
+  if (App.contacts.find(c => c.id === id)) return toast('Already added');
+  App.contacts.push({ name, id, addedAt: Date.now() });
+  saveContacts(); buildUI(); toast('Added: ' + name);
+}
+
+function buildUI() {
+  $('profileName').textContent = App.myName;
+  $('profileAvatar').textContent = App.myName.charAt(0).toUpperCase();
+
+  const cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient');
+
+  if (!App.contacts.length) {
+    cl.innerHTML = '<div class="empty"><div class="empty-icon">💬</div><p>No contacts yet.<br>Tap <strong>＋</strong> to add someone.</p></div>';
+    ccl.innerHTML = '<div class="empty"><div class="empty-icon">📞</div><p>Add contacts to call them.</p></div>';
+    vmSel.innerHTML = '<option value="">Select contact</option>';
+    return;
+  }
+
+  cl.innerHTML = App.contacts.map(c => `
+    <div class="list-item" data-contact-id="${c.id}">
+      <div class="avatar">${esc(c.name.charAt(0).toUpperCase())}</div>
+      <div class="list-item-body">
+        <div class="list-item-title">${esc(c.name)}</div>
+        <div class="list-item-sub">Tap to chat</div>
+      </div>
+      <div class="list-item-action">›</div>
+    </div>`).join('');
+
+  ccl.innerHTML = App.contacts.map(c => `
+    <div class="list-item" data-call-id="${c.id}">
+      <div class="avatar accent">${esc(c.name.charAt(0).toUpperCase())}</div>
+      <div class="list-item-body">
+        <div class="list-item-title">${esc(c.name)}</div>
+        <div class="list-item-sub">Tap to call</div>
+      </div>
+      <div class="list-item-action">📞</div>
+    </div>`).join('');
+
+  vmSel.innerHTML = '<option value="">Select contact</option>' +
+    App.contacts.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+
+  cl.querySelectorAll('[data-contact-id]').forEach(el => el.addEventListener('click', () => openChat(el.dataset.contactId)));
+  ccl.querySelectorAll('[data-call-id]').forEach(el => el.addEventListener('click', () => startCall(el.dataset.callId)));
+}
+
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b === btn));
+    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+    $('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = 'block';
+    $('headerTitle').textContent = { chats: 'Chats', calls: 'Calls', voicemail: 'Voicemail', profile: 'Profile' }[tab];
+    $('addContactFab').style.display = (tab === 'chats' || tab === 'calls') ? 'flex' : 'none';
+  });
+});
+
+$('addContactFab').addEventListener('click', () => {
+  $('modalName').value = ''; $('modalId').value = '';
+  $('addModal').classList.add('show');
+});
+$('modalCancel').addEventListener('click', () => $('addModal').classList.remove('show'));
+$('modalConfirm').addEventListener('click', () => {
+  const n = $('modalName').value.trim(), id = $('modalId').value.trim();
+  if (!n || !id) return toast('Both fields required');
+  addContact(n, id); $('addModal').classList.remove('show');
+});
+
+function openChat(contactId) {
+  const c = App.contacts.find(x => x.id === contactId);
+  if (!c) return;
+  App.activeChat = contactId;
+  $('chatName').textContent = c.name;
+  $('chatStatus').textContent = 'online';
+  $('sendBtn').disabled = false;
+  showScreen('screen-chat');
+  listenMessages(contactId);
+}
+
+function listenMessages(contactId) {
+  if (App.msgUnsub) { try { App.msgUnsub(); } catch {} }
+  const cid = chatIdFor(App.myId, contactId);
+  const q = query(ref(db, 'messages/' + cid), limitToLast(150));
+  App.msgUnsub = onValue(q, snap => {
+    const area = $('messagesArea');
+    if (!area) return;
+    const data = snap.val();
+    if (!data) {
+      area.innerHTML = '<div class="empty"><p style="font-size:13px;">No messages yet. Say hello 👋</p></div>';
+      return;
+    }
+    const msgs = Object.entries(data).map(([k, v]) => ({ ...v, _k: k }))
+      .sort((a, b) => (a.time || 0) - (b.time || 0));
+    area.innerHTML = msgs.map(m => {
+      const out = m.from === App.myId;
+      const t = m.time ? new Date(m.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+      return `<div class="msg ${out ? 'out' : 'in'}">${esc(m.text)}<span class="time">${t}</span></div>`;
+    }).join('');
+    area.scrollTop = area.scrollHeight;
+  });
+}
+
+async function sendMessage() {
+  const input = $('chatInput');
+  const text = input.value.trim();
+  if (!text || !App.activeChat) return;
+  const cid = chatIdFor(App.myId, App.activeChat);
+  try {
+    await push(ref(db, 'messages/' + cid), {
+      from: App.myId, to: App.activeChat, text, time: Date.now()
+    });
+    input.value = '';
+  } catch (e) {
+    console.error(e);
+    toast('Send failed — check Firebase rules');
+  }
+}
+$('sendBtn').addEventListener('click', sendMessage);
+$('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+$('chatBackBtn').addEventListener('click', () => {
+  App.activeChat = null;
+  if (App.msgUnsub) { try { App.msgUnsub(); } catch {} App.msgUnsub = null; }
+  showScreen('screen-main');
+});
+$('callFromChatBtn').addEventListener('click', () => { if (App.activeChat) startCall(App.activeChat); });
+
+const recordBtn = $('recordBtn');
+recordBtn.addEventListener('click', async () => {
+  if (App.mediaRecorder && App.mediaRecorder.state === 'recording') {
+    App.mediaRecorder.stop();
+    return;
+  }
+  const recipient = $('vmRecipient').value;
+  if (!recipient) return toast('Select a recipient first');
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    App.recordedChunks = [];
+    App.mediaRecorder = new MediaRecorder(stream);
+    App.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) App.recordedChunks.push(e.data); };
+    App.mediaRecorder.onstop = async () => {
+      clearTimeout(App.recordTimer);
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(App.recordedChunks, { type: 'audio/webm' });
+      await uploadVoicemail(blob, recipient);
+      recordBtn.textContent = '⬤ Tap to Record (max 30s)';
+      recordBtn.classList.remove('recording');
+    };
+    App.mediaRecorder.start();
+    recordBtn.textContent = '⬛ Tap to Stop';
+    recordBtn.classList.add('recording');
+    toast('Recording… tap again to stop');
+    App.recordTimer = setTimeout(() => {
+      if (App.mediaRecorder && App.mediaRecorder.state === 'recording') {
+        App.mediaRecorder.stop();
+        toast('30s limit reached — sending');
+      }
+    }, 30000);
+  } catch { toast('Microphone permission denied'); }
+});
+
+function uploadVoicemail(blob, recipient) {
+  if (blob.size > 700000) {
+    toast('Recording too large — keep it shorter');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try {
+      await push(ref(db, 'voicemails/' + recipient), {
+        from: App.myId, fromName: App.myName,
+        data: reader.result, mime: blob.type, time: Date.now()
+      });
+      toast('Voicemail sent to ' + (App.contacts.find(c => c.id === recipient)?.name || 'contact'));
+    } catch (e) {
+      console.error(e);
+      toast('Send failed');
+    }
+  };
+  reader.readAsDataURL(blob);
+}
+
+function listenVoicemails() {
+  if (!App.myId) return;
+  if (App.vmUnsub) { try { App.vmUnsub(); } catch {} }
+  App.vmUnsub = onValue(ref(db, 'voicemails/' + App.myId), snap => {
+    const data = snap.val();
+    const listEl = $('voicemailList');
+    if (!listEl) return;
+    if (!data) {
+      listEl.innerHTML = '<div class="empty"><p>No voicemails yet.</p></div>';
+      return;
+    }
+    const vms = Object.entries(data).map(([k, v]) => ({ ...v, _k: k }))
+      .sort((a, b) => (b.time || 0) - (a.time || 0));
+    listEl.innerHTML = vms.map((v, i) => {
+      const who = v.fromName || App.contacts.find(c => c.id === v.from)?.name || v.from?.slice(0, 8) || 'Unknown';
+      return `<div class="vm-item">
+        <button class="vm-play" data-i="${i}">▶</button>
+        <div class="vm-body">
+          <div class="vm-title">From: ${esc(who)}</div>
+          <div class="vm-meta">${new Date(v.time || 0).toLocaleString()}</div>
+        </div>
+        <button class="vm-del" data-del="${v._k}">🗑</button>
+      </div>`;
+    }).join('');
+    listEl.querySelectorAll('[data-i]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const v = vms[parseInt(btn.dataset.i)];
+        try {
+          const a = new Audio(v.data);
+          a.play().catch(() => toast('Cannot play'));
+          toast('Playing voicemail…');
+        } catch { toast('Playback error'); }
+      });
+    });
+    listEl.querySelectorAll('[data-del]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        try { await remove(ref(db, 'voicemails/' + App.myId + '/' + btn.dataset.del)); toast('Deleted'); }
+        catch { toast('Delete failed'); }
+      });
+    });
+  });
+}
+
+async function startCall(contactId) {
+  const c = App.contacts.find(x => x.id === contactId);
+  if (!c) return;
+  try { App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+  catch { return toast('Microphone permission denied'); }
+
+  $('callName').textContent = c.name;
+  $('callAvatar').textContent = c.name.charAt(0).toUpperCase();
+  $('callStatus').textContent = 'Calling…';
+  $('callStatus').classList.remove('active');
+  $('muteBtn').classList.remove('muted');
+  App.muted = false;
+  showScreen('screen-call');
+
+  const call = App.peer.call(contactId, App.localStream);
+  App.activeCall = call;
+  call.on('stream', rs => {
+    const audio = new Audio(); audio.srcObject = rs; audio.autoplay = true; audio.play().catch(() => {});
+    $('callStatus').textContent = 'In call';
+    $('callStatus').classList.add('active');
+  });
+  call.on('close', endCall);
+  call.on('error', () => { toast('Call failed — contact offline'); endCall(); });
+}
+
+function handleIncomingCall(call) {
+  const c = App.contacts.find(x => x.id === call.peer);
+  const name = c ? c.name : 'Unknown';
+  App.incomingCallData = call;
+  $('incomingName').textContent = name;
+  $('incomingAvatar').textContent = name.charAt(0).toUpperCase();
+  $('incoming-call').classList.add('show');
+  call.on('close', () => { $('incoming-call').classList.remove('show'); App.incomingCallData = null; });
+}
+
+$('acceptCallBtn').addEventListener('click', async () => {
+  const call = App.incomingCallData;
+  if (!call) return;
+  try { App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+  catch { return toast('Microphone needed'); }
+  call.answer(App.localStream);
+  App.activeCall = call;
+  $('incoming-call').classList.remove('show');
+  const c = App.contacts.find(x => x.id === call.peer);
+  const name = c ? c.name : 'Unknown';
+  $('callName').textContent = name;
+  $('callAvatar').textContent = name.charAt(0).toUpperCase();
+  $('callStatus').textContent = 'In call';
+  $('callStatus').classList.add('active');
+  showScreen('screen-call');
+  call.on('stream', rs => { const a = new Audio(); a.srcObject = rs; a.autoplay = true; a.play().catch(() => {}); });
+  call.on('close', endCall);
+});
+
+$('rejectCallBtn').addEventListener('click', () => {
+  if (App.incomingCallData) { try { App.incomingCallData.close(); } catch {} App.incomingCallData = null; }
+  $('incoming-call').classList.remove('show');
+});
+$('endCallBtn').addEventListener('click', () => { if (App.activeCall) App.activeCall.close(); endCall(); });
+$('muteBtn').addEventListener('click', function() {
+  if (!App.localStream) return;
+  App.muted = !App.muted;
+  App.localStream.getAudioTracks().forEach(t => t.enabled = !App.muted);
+  this.classList.toggle('muted', App.muted);
+  this.textContent = App.muted ? '🔇' : '🎤';
+});
+function endCall() {
+  if (App.localStream) { App.localStream.getTracks().forEach(t => t.stop()); App.localStream = null; }
+  App.activeCall = null; App.muted = false;
+  showScreen('screen-main'); toast('Call ended');
+}
+
+$('copyIdBtn').addEventListener('click', async () => {
+  if (!App.myId) return;
+  try { await navigator.clipboard.writeText(App.myId); toast('ID copied'); }
+  catch { toast('Copy failed'); }
+});
+$('shareAppBtn').addEventListener('click', async () => {
+  const url = location.href;
+  if (navigator.share) { try { await navigator.share({ title: 'G Communication Portal', url }); } catch {} }
+  else { try { await navigator.clipboard.writeText(url); toast('Link copied'); } catch { toast(url); } }
+});
+$('helpBtn').addEventListener('click', () => $('helpModal').classList.add('show'));
+$('helpClose').addEventListener('click', () => $('helpModal').classList.remove('show'));
+$('clearBtn').addEventListener('click', () => {
+  if (!confirm('Clear local contacts on this device?')) return;
+  LS.del('contacts'); App.contacts = []; buildUI(); toast('Cleared');
+});
+
+window.addEventListener('load', () => {
+  loadContacts();
+  const saved = LS.get('myName', null);
+  if (saved) { $('nameInput').value = saved; $('enterBtn').disabled = false; }
+  document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); });
+  });
+});
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('✅ Service worker registered:', reg.scope))
+        .catch(err => console.warn('Service worker failed:', err));
+    });
+  }
+</script>
+</body>
+</html>
