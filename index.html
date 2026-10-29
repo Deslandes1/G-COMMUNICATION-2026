@@ -16,14 +16,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 #app{height:100%;display:flex;flex-direction:column;max-width:500px;margin:0 auto;background:var(--bg);position:relative;box-shadow:0 0 40px rgba(0,0,0,.15);overflow:hidden}
 .screen{flex:1;display:none;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);position:relative}
 .screen.active{display:flex}
-
-/* ═══════════ INSTALL BANNER ═══════════ */
-.install-banner{
-  background:linear-gradient(90deg,#0b2a4a 0%,#143a5f 40%,#0d7a8c 100%);
-  color:#fff;padding:10px 14px;display:none;align-items:center;gap:10px;
-  font-size:13px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.1);
-  position:relative;z-index:20;
-}
+.install-banner{background:linear-gradient(90deg,#0b2a4a 0%,#143a5f 40%,#0d7a8c 100%);color:#fff;padding:10px 14px;display:none;align-items:center;gap:10px;font-size:13px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.1);position:relative;z-index:20}
 .install-banner.show{display:flex}
 .install-banner .inst-icon{width:32px;height:32px;border-radius:8px;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0;box-shadow:0 2px 8px rgba(212,175,55,.4)}
 .install-banner .inst-text{flex:1;line-height:1.35}
@@ -31,116 +24,36 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .install-banner .inst-text small{font-size:11px;opacity:.8}
 .install-banner button{background:#fff;color:var(--navy);border:none;padding:8px 14px;border-radius:18px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0}
 .install-banner .inst-close{background:transparent;color:#fff;padding:4px 6px;font-size:16px;border:none;cursor:pointer;flex-shrink:0;opacity:.7}
-
-/* ═══════════ ONBOARDING — ANIMATED BACKGROUND ═══════════ */
-#screen-onboard{
-  background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 25%,#0d7a8c 55%,#143a5f 80%,#0b2a4a 100%);
-  background-size:300% 300%;
-  animation:gradientShift 14s ease infinite;
-  color:#fff;justify-content:center;align-items:center;
-  padding:32px 28px;text-align:center;
-  position:relative;overflow:hidden;
-}
+#screen-onboard{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 25%,#0d7a8c 55%,#143a5f 80%,#0b2a4a 100%);background-size:300% 300%;animation:gradientShift 14s ease infinite;color:#fff;justify-content:center;align-items:center;padding:32px 28px;text-align:center;position:relative;overflow:hidden}
 @keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-
-/* Floating light orbs */
-.orb{
-  position:absolute;border-radius:50%;filter:blur(48px);
-  opacity:.45;pointer-events:none;z-index:0;
-  animation:floatOrb 18s ease-in-out infinite;
-}
+.orb{position:absolute;border-radius:50%;filter:blur(48px);opacity:.45;pointer-events:none;z-index:0;animation:floatOrb 18s ease-in-out infinite}
 .orb-1{width:220px;height:220px;background:radial-gradient(circle,#d4af37 0%,rgba(212,175,55,0) 70%);top:8%;left:-12%}
 .orb-2{width:320px;height:320px;background:radial-gradient(circle,#0d7a8c 0%,rgba(13,122,140,0) 70%);bottom:5%;right:-18%;animation-delay:-6s}
 .orb-3{width:160px;height:160px;background:radial-gradient(circle,#4aff7a 0%,rgba(74,255,122,0) 70%);top:48%;right:15%;animation-delay:-12s}
-@keyframes floatOrb{
-  0%,100%{transform:translate(0,0) scale(1)}
-  33%{transform:translate(30px,-45px) scale(1.12)}
-  66%{transform:translate(-25px,35px) scale(.92)}
-}
-
-.onboard-logo{
-  width:96px;height:96px;border-radius:50%;
-  background:linear-gradient(135deg,#f0d369,#d4af37 50%,#a8872f);
-  color:var(--navy);
-  display:flex;align-items:center;justify-content:center;
-  font-size:46px;font-weight:800;
-  margin-bottom:24px;
-  box-shadow:0 12px 40px rgba(212,175,55,.5),0 0 0 8px rgba(212,175,55,.1);
-  position:relative;z-index:1;
-  animation:logoPulse 3s ease-in-out infinite;
-}
-@keyframes logoPulse{
-  0%,100%{box-shadow:0 12px 40px rgba(212,175,55,.5),0 0 0 8px rgba(212,175,55,.1)}
-  50%{box-shadow:0 12px 50px rgba(212,175,55,.7),0 0 0 14px rgba(212,175,55,.06)}
-}
+@keyframes floatOrb{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-45px) scale(1.12)}66%{transform:translate(-25px,35px) scale(.92)}}
+.onboard-logo{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 50%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:46px;font-weight:800;margin-bottom:24px;box-shadow:0 12px 40px rgba(212,175,55,.5),0 0 0 8px rgba(212,175,55,.1);position:relative;z-index:1;animation:logoPulse 3s ease-in-out infinite}
+@keyframes logoPulse{0%,100%{box-shadow:0 12px 40px rgba(212,175,55,.5),0 0 0 8px rgba(212,175,55,.1)}50%{box-shadow:0 12px 50px rgba(212,175,55,.7),0 0 0 14px rgba(212,175,55,.06)}}
 #screen-onboard h1{font-size:26px;letter-spacing:.5px;margin-bottom:8px;font-weight:700;position:relative;z-index:1}
 #screen-onboard p{font-size:14px;opacity:.9;line-height:1.5;max-width:320px;margin-bottom:28px;position:relative;z-index:1}
-
-.onboard-input{
-  width:100%;max-width:320px;
-  padding:15px 18px;
-  border:2px solid rgba(255,255,255,.3);
-  background:rgba(255,255,255,.14);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-  border-radius:12px;font-size:16px;color:#fff;outline:none;
-  margin-bottom:12px;text-align:center;letter-spacing:.5px;
-  position:relative;z-index:1;
-  transition:all .2s;
-}
+.onboard-input{width:100%;max-width:320px;padding:15px 18px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.14);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:12px;font-size:16px;color:#fff;outline:none;margin-bottom:12px;text-align:center;letter-spacing:.5px;position:relative;z-index:1;transition:all .2s}
 .onboard-input::placeholder{color:rgba(255,255,255,.55)}
 .onboard-input:focus{border-color:var(--gold);background:rgba(255,255,255,.2)}
 .name-status{font-size:12px;color:rgba(255,255,255,.8);margin-bottom:14px;min-height:18px;position:relative;z-index:1}
 .name-status.ok{color:#4aff7a;font-weight:600}
 .name-status.bad{color:#ff8b8b;font-weight:600}
-.btn-primary{
-  width:100%;max-width:320px;padding:15px;border:none;border-radius:12px;
-  background:linear-gradient(135deg,#f0d369 0%,#d4af37 50%,#b8912a 100%);
-  color:var(--navy);font-size:16px;font-weight:700;cursor:pointer;
-  position:relative;z-index:1;
-  box-shadow:0 6px 20px rgba(212,175,55,.4);
-  transition:transform .1s,box-shadow .2s;
-}
+.btn-primary{width:100%;max-width:320px;padding:15px;border:none;border-radius:12px;background:linear-gradient(135deg,#f0d369 0%,#d4af37 50%,#b8912a 100%);color:var(--navy);font-size:16px;font-weight:700;cursor:pointer;position:relative;z-index:1;box-shadow:0 6px 20px rgba(212,175,55,.4);transition:transform .1s,box-shadow .2s}
 .btn-primary:active{transform:scale(.98)}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
-
-/* ═══════════ MAIN SCREEN ═══════════ */
-#screen-main{
-  background:
-    radial-gradient(circle at 5% 0%,rgba(212,175,55,.06) 0%,transparent 40%),
-    radial-gradient(circle at 100% 100%,rgba(13,122,140,.08) 0%,transparent 45%),
-    linear-gradient(180deg,#f2f5f8 0%,#e9eef3 100%);
-}
-.app-header{
-  background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);
-  color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;
-  min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0;
-  position:relative;z-index:5;
-  box-shadow:0 2px 12px rgba(11,42,74,.15);
-}
-.app-header .logo{
-  width:36px;height:36px;border-radius:50%;
-  background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);
-  color:var(--navy);display:flex;align-items:center;justify-content:center;
-  font-weight:800;font-size:17px;flex-shrink:0;
-  box-shadow:0 2px 8px rgba(212,175,55,.4);
-}
+#screen-main{background:radial-gradient(circle at 5% 0%,rgba(212,175,55,.06) 0%,transparent 40%),radial-gradient(circle at 100% 100%,rgba(13,122,140,.08) 0%,transparent 45%),linear-gradient(180deg,#f2f5f8 0%,#e9eef3 100%)}
+.app-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0;position:relative;z-index:5;box-shadow:0 2px 12px rgba(11,42,74,.15)}
+.app-header .logo{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;flex-shrink:0;box-shadow:0 2px 8px rgba(212,175,55,.4)}
 .app-header h2{font-size:17px;font-weight:700;flex:1}
 .app-header .online-dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
 .icon-btn{background:rgba(255,255,255,.12);border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:background .15s}
 .icon-btn:active{background:rgba(255,255,255,.25)}
-
 .tab-content{flex:1;overflow-y:auto;padding-bottom:80px;position:relative;z-index:1}
 .tab-content::-webkit-scrollbar{display:none}
-
-/* Glassmorphic bottom nav */
-.bottom-nav{
-  position:absolute;bottom:0;left:0;right:0;
-  background:rgba(255,255,255,.96);
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  border-top:1px solid rgba(11,42,74,.08);
-  display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:10;
-  box-shadow:0 -4px 20px rgba(11,42,74,.06);
-}
+.bottom-nav{position:absolute;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid rgba(11,42,74,.08);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:10;box-shadow:0 -4px 20px rgba(11,42,74,.06)}
 .nav-item{flex:1;padding:10px 0 12px;text-align:center;font-size:10.5px;color:var(--muted);cursor:pointer;font-weight:600;border:none;background:none;position:relative;transition:color .15s}
 .nav-item .icon{display:block;font-size:22px;margin-bottom:2px;transition:transform .2s}
 .nav-item.active{color:var(--navy)}
@@ -149,22 +62,11 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .nav-badge.show{display:flex}
 .unread-badge{background:var(--red);color:#fff;font-size:11px;font-weight:700;min-width:20px;height:20px;border-radius:10px;padding:0 6px;display:none;align-items:center;justify-content:center;line-height:1;flex-shrink:0;box-shadow:0 2px 6px rgba(255,71,87,.4)}
 .unread-badge.show{display:flex}
-
 .section-title{font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:18px 20px 8px}
-.list-item{
-  background:linear-gradient(180deg,#ffffff 0%,#fafcfd 100%);
-  padding:14px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;
-  border-bottom:1px solid var(--border);transition:background .15s;
-}
+.list-item{background:linear-gradient(180deg,#ffffff 0%,#fafcfd 100%);padding:14px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s}
 .list-item:active{background:linear-gradient(180deg,#f0f3f6 0%,#e9eef2 100%)}
 .list-item:last-child{border-bottom:none}
-.avatar{
-  width:46px;height:46px;border-radius:50%;
-  background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);
-  color:#fff;display:flex;align-items:center;justify-content:center;
-  font-weight:700;font-size:18px;flex-shrink:0;overflow:hidden;
-  box-shadow:0 2px 8px rgba(11,42,74,.15);
-}
+.avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0;overflow:hidden;box-shadow:0 2px 8px rgba(11,42,74,.15)}
 .avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .avatar.accent{background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%)}
 .list-item-body{flex:1;min-width:0}
@@ -176,43 +78,16 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .empty{text-align:center;padding:60px 30px;color:var(--muted)}
 .empty .empty-icon{font-size:48px;margin-bottom:12px;opacity:.4}
 .empty p{font-size:14px;line-height:1.5}
-
-/* FAB with stronger gradient */
-.fab{
-  position:absolute;bottom:88px;right:20px;width:56px;height:56px;border-radius:50%;
-  background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);
-  color:#fff;border:none;font-size:26px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;z-index:9;
-  box-shadow:0 8px 24px rgba(13,122,140,.5);
-  transition:transform .15s;
-}
+.fab{position:absolute;bottom:88px;right:20px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:9;box-shadow:0 8px 24px rgba(13,122,140,.5);transition:transform .15s}
 .fab:active{transform:scale(.94)}
-
-/* ═══════════ CHAT SCREEN ═══════════ */
-.chat-header{
-  background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);
-  color:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px;
-  min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0;
-  box-shadow:0 2px 12px rgba(11,42,74,.15);position:relative;z-index:5;
-}
+.chat-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px;min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0;box-shadow:0 2px 12px rgba(11,42,74,.15);position:relative;z-index:5}
 .chat-header .back-btn{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:0 4px}
 .chat-header .chat-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0;overflow:hidden;box-shadow:0 2px 8px rgba(212,175,55,.3)}
 .chat-header .chat-avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .chat-header .chat-title{flex:1;min-width:0}
 .chat-header .chat-title h3{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chat-header .chat-title small{font-size:11px;color:var(--green);display:block;margin-top:1px}
-
-/* Chat area with subtle WhatsApp-style pattern */
-.messages{
-  flex:1;overflow-y:auto;padding:16px 14px;
-  background-color:#e5ecf2;
-  background-image:
-    radial-gradient(circle at 20% 30%,rgba(11,42,74,.035) 0%,transparent 35%),
-    radial-gradient(circle at 80% 70%,rgba(13,122,140,.04) 0%,transparent 35%),
-    radial-gradient(circle at 50% 50%,rgba(212,175,55,.025) 1.5px,transparent 2px);
-  background-size:auto,auto,26px 26px;
-  position:relative;
-}
+.messages{flex:1;overflow-y:auto;padding:16px 14px;background-color:#e5ecf2;background-image:radial-gradient(circle at 20% 30%,rgba(11,42,74,.035) 0%,transparent 35%),radial-gradient(circle at 80% 70%,rgba(13,122,140,.04) 0%,transparent 35%),radial-gradient(circle at 50% 50%,rgba(212,175,55,.025) 1.5px,transparent 2px);background-size:auto,auto,26px 26px;position:relative}
 .msg{max-width:78%;padding:9px 13px;border-radius:16px;font-size:14.5px;line-height:1.4;margin-bottom:8px;word-wrap:break-word;box-shadow:0 1px 2px rgba(0,0,0,.05)}
 .msg.out{background:linear-gradient(135deg,#d9fdd3 0%,#c8f5be 100%);margin-left:auto;border-bottom-right-radius:4px}
 .msg.in{background:#fff;margin-right:auto;border-bottom-left-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
@@ -228,13 +103,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .msg .attach-file .file-info{flex:1;min-width:0}
 .msg .attach-file .file-name{font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .msg .attach-file .file-size{font-size:11px;color:var(--muted);margin-top:1px}
-
-.chat-input-bar{
-  background:rgba(255,255,255,.98);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-  border-top:1px solid var(--border);
-  padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0;position:relative;
-}
+.chat-input-bar{background:rgba(255,255,255,.98);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0;position:relative}
 .chat-input-bar input[type="text"]{flex:1;padding:11px 16px;border:1px solid var(--border);border-radius:22px;font-size:15px;outline:none;background:#f7f9fb;min-width:0;transition:border-color .15s}
 .chat-input-bar input[type="text"]:focus{border-color:var(--accent)}
 .attach-btn{background:transparent;border:none;font-size:22px;color:var(--accent);width:40px;height:40px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s}
@@ -244,15 +113,11 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .upload-bar{position:absolute;top:-1px;left:0;right:0;height:3px;background:#e1e7ed;border-radius:2px;overflow:hidden;display:none}
 .upload-bar.show{display:block}
 .upload-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .2s}
-
-/* Lightbox */
 #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;flex-direction:column}
 #lightbox.show{display:flex}
 #lightbox img{max-width:100%;max-height:85vh;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
 #lightbox .close-lb{position:absolute;top:20px;right:20px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;border:none;font-size:24px;cursor:pointer}
 #lightbox .dl-lb{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);padding:12px 28px;border-radius:24px;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#b8912a);color:var(--navy);border:none;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 6px 20px rgba(212,175,55,.4)}
-
-/* Call screen */
 #screen-call{background:radial-gradient(circle at 50% 0%,#143a5f 0%,#0b2a4a 50%,#061e3a 100%);color:#fff;justify-content:center;align-items:center;padding:40px 24px;text-align:center;position:relative;overflow:hidden}
 #screen-call::before{content:"";position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,.15) 0%,transparent 70%);top:-100px;left:50%;transform:translateX(-50%);pointer-events:none}
 .call-avatar{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:800;margin-bottom:24px;overflow:hidden;box-shadow:0 12px 40px rgba(212,175,55,.4);animation:pulse 2s infinite;position:relative;z-index:1}
@@ -267,8 +132,6 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .call-btn.accept{background:linear-gradient(135deg,#6bffa0,#4aff7a 60%,#2ecc60);color:#0b2a4a;animation:pulse 2s infinite}
 .call-btn.mute{background:rgba(255,255,255,.2);color:#fff;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .call-btn.mute.muted{background:linear-gradient(135deg,#f0d369,#d4af37);color:var(--navy)}
-
-/* Voicemail */
 .vm-item{background:linear-gradient(180deg,#ffffff 0%,#fafcfd 100%);padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px}
 .vm-play{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:18px;cursor:pointer;flex-shrink:0;box-shadow:0 3px 10px rgba(13,122,140,.3)}
 .vm-del{background:none;border:none;font-size:18px;color:var(--muted);cursor:pointer;padding:8px}
@@ -280,22 +143,8 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 @keyframes recordPulse{0%,100%{opacity:1}50%{opacity:.7}}
 .vm-target{background:#fff;margin:0 20px 12px;border-radius:10px;padding:12px 16px;border:1px solid var(--border);font-size:14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(11,42,74,.04)}
 .vm-target select{border:1px solid var(--border);padding:8px 12px;border-radius:8px;font-size:14px;background:#f7f9fb;color:var(--text);max-width:60%}
-
-/* Profile */
-.profile-card{
-  background:linear-gradient(180deg,#ffffff 0%,#fafcfd 100%);
-  margin:16px;border-radius:14px;padding:24px 20px;
-  box-shadow:0 4px 20px rgba(11,42,74,.06);
-  text-align:center;border:1px solid rgba(11,42,74,.04);
-}
-.profile-card .avatar-big{
-  width:96px;height:96px;border-radius:50%;
-  background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);
-  color:#fff;display:flex;align-items:center;justify-content:center;
-  font-size:36px;font-weight:700;margin:0 auto 14px;
-  position:relative;cursor:pointer;overflow:hidden;
-  box-shadow:0 6px 20px rgba(11,42,74,.2);
-}
+.profile-card{background:linear-gradient(180deg,#ffffff 0%,#fafcfd 100%);margin:16px;border-radius:14px;padding:24px 20px;box-shadow:0 4px 20px rgba(11,42,74,.06);text-align:center;border:1px solid rgba(11,42,74,.04)}
+.profile-card .avatar-big{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;margin:0 auto 14px;position:relative;cursor:pointer;overflow:hidden;box-shadow:0 6px 20px rgba(11,42,74,.2)}
 .profile-card .avatar-big img{width:100%;height:100%;object-fit:cover;display:block}
 .avatar-camera{position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:14px;border:2.5px solid #fff;pointer-events:none;box-shadow:0 2px 6px rgba(0,0,0,.2)}
 .avatar-remove{position:absolute;top:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--red);color:#fff;display:none;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:2.5px solid #fff;cursor:pointer;z-index:2;box-shadow:0 2px 6px rgba(255,71,87,.3)}
@@ -306,25 +155,15 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .profile-card .username{font-size:13px;color:var(--accent);font-weight:600;margin-bottom:8px}
 .profile-card .role-label{font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-weight:600}
 .help-text{font-size:12.5px;color:var(--muted);line-height:1.6;text-align:left;margin-top:16px}
-
-.menu-item{
-  background:linear-gradient(180deg,#ffffff 0%,#fafcfd 100%);
-  padding:16px 20px;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:14px;cursor:pointer;
-  font-size:15px;text-decoration:none;color:var(--text);
-  transition:background .15s;
-}
+.menu-item{background:linear-gradient(180deg,#ffffff 0%,#fafcfd 100%);padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;cursor:pointer;font-size:15px;text-decoration:none;color:var(--text);transition:background .15s}
 .menu-item:active{background:#f0f3f6}
 .menu-item .menu-icon{font-size:20px;width:24px;text-align:center}
 .menu-item .menu-arrow{margin-left:auto;color:var(--muted);font-size:18px}
 .menu-item.install-highlight{background:linear-gradient(90deg,#fef9e7,#fff);border-left:3px solid var(--gold)}
-
 .toggle-switch{margin-left:auto;position:relative;width:44px;height:24px;background:#cbd5e1;border-radius:12px;cursor:pointer;transition:background .2s;flex-shrink:0}
 .toggle-switch.on{background:var(--green)}
 .toggle-switch::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
 .toggle-switch.on::after{transform:translateX(20px)}
-
-/* Modals */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:24px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 .modal-overlay.show{display:flex}
 .modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:360px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
@@ -340,8 +179,6 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .modal-actions .cancel{background:#eef2f6;color:var(--text)}
 .modal-actions .confirm{background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff}
 .modal-actions .confirm:disabled{opacity:.5}
-
-/* Install steps */
 .install-steps{list-style:none;padding:0;margin:8px 0 18px;counter-reset:step}
 .install-steps li{counter-increment:step;padding:14px 14px 14px 48px;position:relative;background:#f7fafc;border-radius:10px;margin-bottom:10px;font-size:13.5px;line-height:1.5;border:1px solid var(--border)}
 .install-steps li::before{content:counter(step);position:absolute;left:12px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
@@ -352,12 +189,8 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .install-hero h3{font-size:20px;margin-bottom:4px;color:var(--navy)}
 .install-hero p{font-size:13px;color:var(--muted);margin:0}
 .install-cta{width:100%;padding:14px;border-radius:12px;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#b8912a);color:var(--navy);border:none;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:.3px;margin-bottom:10px;box-shadow:0 4px 14px rgba(212,175,55,.35)}
-
-/* Toast */
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(60px);background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:200;max-width:90%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* Incoming call */
 #incoming-call{position:fixed;inset:0;background:radial-gradient(circle at 50% 0%,#143a5f 0%,#0b2a4a 50%,#061e3a 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:150;padding:40px 24px;text-align:center;overflow:hidden}
 #incoming-call.show{display:flex}
 #incoming-call::before{content:"";position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,.2) 0%,transparent 70%);top:-100px;left:50%;transform:translateX(-50%);pointer-events:none;animation:pulse 2s infinite}
@@ -827,15 +660,25 @@ enterBtn.addEventListener('click', async () => {
   } catch (e) { console.error(e); toast('Try again'); enterBtn.disabled = false; enterBtn.textContent = 'Enter Portal'; }
 });
 
+/* ═══════════════════════════════════════════════════════════
+   BOOT — FIXED ORDER
+   Contacts and lastRead MUST be loaded BEFORE startMainApp()
+   so buildUI() and message listeners see the saved contacts.
+   ═══════════════════════════════════════════════════════════ */
 window.addEventListener('load', () => {
   updateToggleUI();
   updatePermStatus();
+  loadContacts();      /* ← load contacts FIRST */
+  loadLastRead();      /* ← load read-state FIRST */
   const savedSlug = LS.get('mySlug', null);
   const savedName = LS.get('myName', null);
   const savedPhoto = LS.get('avatar', null);
   if (savedPhoto) App.myPhoto = savedPhoto;
-  if (savedSlug && savedName) { App.mySlug = savedSlug; App.myName = savedName; startMainApp(); }
-  loadContacts(); loadLastRead();
+  if (savedSlug && savedName) {
+    App.mySlug = savedSlug;
+    App.myName = savedName;
+    startMainApp();    /* ← now sees the loaded contacts */
+  }
   document.querySelectorAll('.modal-overlay').forEach(m => {
     m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); });
   });
