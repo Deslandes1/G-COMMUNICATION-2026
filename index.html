@@ -13,7 +13,7 @@
 :root{--navy:#0b2a4a;--navy-light:#143a5f;--accent:#0d7a8c;--gold:#d4af37;--green:#4aff7a;--red:#ff4757;--bg:#f2f5f8;--card:#fff;--text:#1e2a33;--muted:#6b7a87;--border:#e1e7ed}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
-#app{height:100%;display:flex;flex-direction:column;max-width:500px;margin:0 auto;background:var(--bg);position:relative;box-shadow:0 0 40px rgba(0,0,0,.15);overflow:hidden}
+#app{height:100%;width:100%;display:flex;flex-direction:column;max-width:100%;margin:0 auto;background:var(--bg);position:relative;box-shadow:0 0 40px rgba(0,0,0,.15);overflow:hidden}
 .screen{flex:1;display:none;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);position:relative}
 .screen.active{display:flex}
 .install-banner{background:linear-gradient(90deg,#0b2a4a 0%,#143a5f 40%,#0d7a8c 100%);color:#fff;padding:10px 14px;display:none;align-items:center;gap:10px;font-size:13px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.1);position:relative;z-index:20}
@@ -93,24 +93,8 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .chat-header .chat-title small{font-size:11px;color:var(--green);display:block;margin-top:1px}
 
 /* ═══════════ CHAT — WARM CREAM + PASTEL BLOBS + DIAMOND PATTERN ═══════════ */
-.messages{
-  flex:1;
-  overflow-y:auto;
-  padding:16px 14px;
-  position:relative;
-  background-color:#fdf6ec;
-  background-image:
-    radial-gradient(circle at 8% 12%, rgba(168,230,207,.45) 0%, transparent 38%),
-    radial-gradient(circle at 92% 18%, rgba(212,197,249,.42) 0%, transparent 40%),
-    radial-gradient(circle at 12% 88%, rgba(255,214,165,.48) 0%, transparent 42%),
-    radial-gradient(circle at 92% 88%, rgba(255,179,186,.4) 0%, transparent 40%),
-    repeating-linear-gradient(45deg, rgba(11,42,74,.03) 0, rgba(11,42,74,.03) 1px, transparent 1px, transparent 14px),
-    repeating-linear-gradient(-45deg, rgba(11,42,74,.03) 0, rgba(11,42,74,.03) 1px, transparent 1px, transparent 14px),
-    linear-gradient(180deg, #fdf6ec 0%, #f5ebd8 100%);
-  scroll-behavior:smooth;
-}
+.messages{flex:1;overflow-y:auto;padding:16px 14px;position:relative;background-color:#fdf6ec;background-image:radial-gradient(circle at 8% 12%,rgba(168,230,207,.45) 0%,transparent 38%),radial-gradient(circle at 92% 18%,rgba(212,197,249,.42) 0%,transparent 40%),radial-gradient(circle at 12% 88%,rgba(255,214,165,.48) 0%,transparent 42%),radial-gradient(circle at 92% 88%,rgba(255,179,186,.4) 0%,transparent 40%),repeating-linear-gradient(45deg,rgba(11,42,74,.03) 0,rgba(11,42,74,.03) 1px,transparent 1px,transparent 14px),repeating-linear-gradient(-45deg,rgba(11,42,74,.03) 0,rgba(11,42,74,.03) 1px,transparent 1px,transparent 14px),linear-gradient(180deg,#fdf6ec 0%,#f5ebd8 100%);scroll-behavior:smooth}
 .messages::-webkit-scrollbar{display:none}
-
 .msg{max-width:78%;padding:9px 13px;border-radius:16px;font-size:14.5px;line-height:1.4;margin-bottom:8px;word-wrap:break-word}
 .msg.out{background:linear-gradient(135deg,#d4fbc9 0%,#bef5b1 100%);margin-left:auto;border-bottom-right-radius:4px;box-shadow:0 2px 8px rgba(74,177,80,.22),0 1px 2px rgba(74,177,80,.12)}
 .msg.in{background:#ffffff;margin-right:auto;border-bottom-left-radius:4px;box-shadow:0 2px 10px rgba(11,42,74,.10),0 1px 2px rgba(11,42,74,.06);border:1px solid rgba(11,42,74,.05)}
@@ -233,6 +217,39 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 #incoming-call::before{content:"";position:absolute;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,.32) 0%,rgba(212,175,55,.1) 35%,transparent 70%);top:-180px;left:50%;transform:translateX(-50%);pointer-events:none;animation:callGlowPulse 4s ease-in-out infinite}
 #incoming-call::after{content:"";position:absolute;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(13,122,140,.28) 0%,transparent 68%);bottom:-160px;left:50%;transform:translateX(-50%);pointer-events:none;animation:callGlowPulse 5s ease-in-out infinite reverse}
 #incoming-call > *{position:relative;z-index:1}
+
+/* ═══════════ RESPONSIVE — FIT DESKTOP / LAPTOP ═══════════ */
+@media (min-width: 640px) {
+  body {
+    padding: 16px;
+    background:
+      radial-gradient(circle at 0% 0%, #d8e3ec 0%, transparent 45%),
+      radial-gradient(circle at 100% 100%, #e8dcc8 0%, transparent 45%),
+      linear-gradient(180deg, #eef2f6 0%, #e4e9ef 100%);
+  }
+  #app {
+    height: calc(100% - 0px);
+    max-width: 900px;
+    border-radius: 20px;
+    box-shadow: 0 24px 80px rgba(11,42,74,.32), 0 0 0 1px rgba(11,42,74,.06);
+  }
+  .msg { max-width: 62%; }
+  .msg.has-attachment { max-width: 52%; }
+  #tabChats, #tabCalls, #tabVoicemail, #tabProfile {
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+  }
+}
+@media (min-width: 1024px) {
+  #app { max-width: 1100px; }
+  .msg { max-width: 55%; }
+  .msg.has-attachment { max-width: 45%; }
+}
+@media (min-width: 1440px) {
+  #app { max-width: 1240px; }
+}
 </style>
 </head>
 <body>
@@ -666,11 +683,7 @@ $('permBtn').addEventListener('click', async () => {
 });
 $('storageCheckBtn').addEventListener('click', async () => {
   toast('Testing storage…');
-  const bucketsToTry = [
-    firebaseConfig.storageBucket,
-    firebaseConfig.projectId + '.appspot.com',
-    firebaseConfig.projectId + '.firebasestorage.app'
-  ].filter((v, i, arr) => arr.indexOf(v) === i);
+  const bucketsToTry = [firebaseConfig.storageBucket, firebaseConfig.projectId + '.appspot.com', firebaseConfig.projectId + '.firebasestorage.app'].filter((v, i, arr) => arr.indexOf(v) === i);
   let lastErr = null;
   for (const bucket of bucketsToTry) {
     try {
@@ -681,11 +694,9 @@ $('storageCheckBtn').addEventListener('click', async () => {
       const url = await getDownloadURL(task.snapshot.ref);
       try { await task.snapshot.ref.delete(); } catch {}
       alert('✅ Storage works!\n\nBucket in use: ' + firebaseConfig.storageBucket + '\n\nUploads to /attachments/ will now succeed.');
-      toast('Storage OK');
-      return;
+      toast('Storage OK'); return;
     } catch (err) {
       lastErr = err;
-      console.warn('Bucket test failed for', bucket, err);
       const code = (err && err.code) ? String(err.code) : '';
       if (/unauthorized|permission|denied/i.test(code)) break;
     }
@@ -695,22 +706,11 @@ $('storageCheckBtn').addEventListener('click', async () => {
   const msg = (err && err.message) ? String(err.message) : 'unknown error';
   let hint = '';
   if (/unauthorized|permission|denied/i.test(code)) {
-    hint = 'Storage rules deny writes.\n\nOpen → https://console.firebase.google.com/u/1/project/jarvis-tracker-a8136/storage/rules\n\nPaste and Publish:\n\n' +
-      "rules_version = '2';\n" +
-      'service firebase.storage {\n' +
-      '  match /b/{bucket}/o {\n' +
-      '    match /attachments/{chatId}/{fileName} {\n' +
-      '      allow read: if true;\n' +
-      '      allow write: if true;\n' +
-      '    }\n' +
-      '  }\n' +
-      '}';
+    hint = 'Storage rules deny writes.\n\nOpen → https://console.firebase.google.com/u/1/project/jarvis-tracker-a8136/storage/rules\n\nPaste and Publish:\n\n' + "rules_version = '2';\nservice firebase.storage {\n  match /b/{bucket}/o {\n    match /attachments/{chatId}/{fileName} {\n      allow read: if true;\n      allow write: if true;\n    }\n  }\n}";
   } else if (/bucket-not-found/i.test(code)) {
-    hint = 'Bucket "' + firebaseConfig.storageBucket + '" does not exist.\n\nOpen → https://console.firebase.google.com/u/1/project/jarvis-tracker-a8136/storage\n\nIf it says "Get started", click it, then choose a region and finish setup.';
+    hint = 'Bucket does not exist.\n\nOpen → https://console.firebase.google.com/u/1/project/jarvis-tracker-a8136/storage\n\nIf it says "Get started", click it.';
   } else if (/retry-limit|network/i.test(code)) {
-    hint = 'Network problem, or CORS not configured on the bucket.\n\nRun in Google Cloud Shell:\n\ngsutil cors set cors.json gs://jarvis-tracker-a8136.firebasestorage.app';
-  } else if (/unknown/i.test(code)) {
-    hint = 'Storage may not be enabled, or CORS is missing.\n\nOpen → https://console.firebase.google.com/u/1/project/jarvis-tracker-a8136/storage\n\nIf it shows "Get started", complete the setup first.';
+    hint = 'Network or CORS issue.\n\nRun in Cloud Shell:\ngsutil cors set cors.json gs://jarvis-tracker-a8136.firebasestorage.app';
   }
   alert('❌ Storage test failed!\n\nError: ' + code + '\nMessage: ' + msg + '\n\n' + hint);
   toast('Storage failed', true);
@@ -729,7 +729,6 @@ nameInput.addEventListener('input', () => {
       if (snap.exists()) { nameStatus.textContent = `"${slug}" is taken — try another`; nameStatus.className = 'name-status bad'; }
       else { nameStatus.textContent = `"${slug}" is available ✓`; nameStatus.className = 'name-status ok'; nameCheckOk = true; enterBtn.disabled = false; }
     } catch (err) {
-      console.error('Name check failed:', err);
       const code = (err && err.code) ? err.code : 'unknown';
       let hint = '';
       if (code === 'PERMISSION_DENIED') hint = ' (rules block read)';
@@ -772,11 +771,7 @@ window.addEventListener('load', () => {
   const savedName = LS.get('myName', null);
   const savedPhoto = LS.get('avatar', null);
   if (savedPhoto) App.myPhoto = savedPhoto;
-  if (savedSlug && savedName) {
-    App.mySlug = savedSlug;
-    App.myName = savedName;
-    startMainApp();
-  }
+  if (savedSlug && savedName) { App.mySlug = savedSlug; App.myName = savedName; startMainApp(); }
   document.querySelectorAll('.modal-overlay').forEach(m => {
     m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); });
   });
@@ -961,15 +956,9 @@ function setupGlobalMessageListener(slug) {
 function renderAttachment(m) {
   const a = m.attachment; if (!a) return '';
   const safeUrl = String(a.url || '').replace(/"/g, '&quot;');
-  if (a.type === 'image') {
-    return `<img class="attach-img" src="${safeUrl}" loading="lazy" onclick="window.__lb('${String(a.url).replace(/'/g,"\\'")}','${esc(a.name||'photo')}')">`;
-  }
-  if (a.type === 'video') {
-    return `<video class="attach-video" controls playsinline webkit-playsinline preload="metadata" src="${safeUrl}"></video>`;
-  }
-  if (a.type === 'audio') {
-    return `<audio class="attach-audio" controls preload="metadata" src="${safeUrl}"></audio>`;
-  }
+  if (a.type === 'image') return `<img class="attach-img" src="${safeUrl}" loading="lazy" onclick="window.__lb('${String(a.url).replace(/'/g,"\\'")}','${esc(a.name||'photo')}')">`;
+  if (a.type === 'video') return `<video class="attach-video" controls playsinline webkit-playsinline preload="metadata" src="${safeUrl}"></video>`;
+  if (a.type === 'audio') return `<audio class="attach-audio" controls preload="metadata" src="${safeUrl}"></audio>`;
   return `<a class="attach-file" href="${safeUrl}" target="_blank" rel="noopener" download="${esc(a.name||'file')}">
     <span class="file-icon">📄</span>
     <span class="file-info"><span class="file-name">${esc(a.name||'File')}</span><span class="file-size">${fmtBytes(a.size)}</span></span>
@@ -1054,9 +1043,7 @@ const MAX_BYTES = 50 * 1024 * 1024;
 $('attachBtn').addEventListener('click', (e) => {
   e.preventDefault();
   if (!App.activeChat) { toast('Open a chat first', true); return; }
-  const inp = $('fileInput');
-  inp.value = '';
-  inp.click();
+  const inp = $('fileInput'); inp.value = ''; inp.click();
 });
 $('fileInput').addEventListener('change', async (e) => {
   const file = e.target.files && e.target.files[0];
@@ -1080,23 +1067,16 @@ $('fileInput').addEventListener('change', async (e) => {
       } catch (err) { console.warn('Compress skipped:', err); }
     }
     await doUpload(uploadFile, recipient, type, file.name || label);
-  } catch (err) {
-    handleUploadError(err);
-  }
+  } catch (err) { handleUploadError(err); }
   e.target.value = '';
 });
 function handleUploadError(err) {
-  console.error('Upload error:', err);
   const code = (err && err.code) ? String(err.code) : '';
   const msg = (err && err.message) ? String(err.message) : 'unknown';
   let hint = '';
-  if (/unauthorized|permission|denied/i.test(code + ' ' + msg)) {
-    hint = 'Storage rules deny writes. Open Profile → Check file storage.';
-  } else if (/bucket-not-found/i.test(code)) {
-    hint = 'Wrong bucket. Open Profile → Check file storage.';
-  } else if (/retry-limit|network|timeout/i.test(code + ' ' + msg)) {
-    hint = 'Network or CORS issue. Run gsutil cors set in Cloud Shell.';
-  }
+  if (/unauthorized|permission|denied/i.test(code + ' ' + msg)) hint = 'Storage rules deny writes. Open Profile → Check file storage.';
+  else if (/bucket-not-found/i.test(code)) hint = 'Wrong bucket. Open Profile → Check file storage.';
+  else if (/retry-limit|network|timeout/i.test(code + ' ' + msg)) hint = 'Network or CORS issue. Run gsutil cors set in Cloud Shell.';
   toast('Upload failed: ' + (code || msg) + ' — ' + hint, true);
   alert('Upload failed\n\nError: ' + (code || 'unknown') + '\nMessage: ' + msg + '\n\n' + (hint || 'Open Profile → Check file storage to diagnose.'));
 }
@@ -1128,8 +1108,7 @@ function doUpload(file, recipient, type, displayName) {
     const baseName = ext ? safeName.slice(0, -ext.length) : safeName;
     const path = `attachments/${cid}/${Date.now()}-${Math.random().toString(36).slice(2,8)}-${baseName}${ext}`;
     const ref = stRef(storage, path);
-    const meta = { contentType: file.type || 'application/octet-stream' };
-    const task = uploadBytesResumable(ref, file, meta);
+    const task = uploadBytesResumable(ref, file, { contentType: file.type || 'application/octet-stream' });
     const bar = $('uploadBar'), fill = $('uploadBarFill');
     bar.classList.add('show'); fill.style.width = '0%';
     task.on('state_changed',
@@ -1235,18 +1214,8 @@ function listenForIncomingCalls() {
   if (!App.mySlug) return;
   onValue(dbRef(db, 'calls/' + App.mySlug), snap => {
     const calls = snap.val();
-    if (!calls) {
-      App.incomingCallData = null;
-      $('incoming-call').classList.remove('show');
-      stopCallRing();
-      return;
-    }
-    if (App.incomingCallData && !calls[App.incomingCallData.callerSlug]) {
-      App.incomingCallData = null;
-      $('incoming-call').classList.remove('show');
-      stopCallRing();
-      return;
-    }
+    if (!calls) { App.incomingCallData = null; $('incoming-call').classList.remove('show'); stopCallRing(); return; }
+    if (App.incomingCallData && !calls[App.incomingCallData.callerSlug]) { App.incomingCallData = null; $('incoming-call').classList.remove('show'); stopCallRing(); return; }
     let ringing = null;
     for (const [callerSlug, call] of Object.entries(calls)) { if (call && call.status === 'ringing' && call.offer && callerSlug !== App.mySlug) { ringing = { callerSlug, call }; break; } }
     if (ringing && !App.incomingCallData && !App.activeCall) {
