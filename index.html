@@ -13,50 +13,160 @@
 :root{--navy:#0b2a4a;--navy-light:#143a5f;--accent:#0d7a8c;--gold:#d4af37;--green:#4aff7a;--red:#ff4757;--bg:#f2f5f8;--card:#fff;--text:#1e2a33;--muted:#6b7a87;--border:#e1e7ed}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
-#app{height:100%;display:flex;flex-direction:column;max-width:500px;margin:0 auto;background:var(--bg);position:relative;box-shadow:0 0 40px rgba(0,0,0,.15)}
-.screen{flex:1;display:none;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+#app{height:100%;display:flex;flex-direction:column;max-width:500px;margin:0 auto;background:var(--bg);position:relative;box-shadow:0 0 40px rgba(0,0,0,.15);overflow:hidden}
+.screen{flex:1;display:none;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);position:relative}
 .screen.active{display:flex}
-.install-banner{background:linear-gradient(90deg,var(--navy),var(--accent));color:#fff;padding:10px 14px;display:none;align-items:center;gap:10px;font-size:13px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.1)}
+
+/* ═══════════ INSTALL BANNER ═══════════ */
+.install-banner{
+  background:linear-gradient(90deg,#0b2a4a 0%,#143a5f 40%,#0d7a8c 100%);
+  color:#fff;padding:10px 14px;display:none;align-items:center;gap:10px;
+  font-size:13px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.1);
+  position:relative;z-index:20;
+}
 .install-banner.show{display:flex}
-.install-banner .inst-icon{width:32px;height:32px;border-radius:8px;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0}
+.install-banner .inst-icon{width:32px;height:32px;border-radius:8px;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0;box-shadow:0 2px 8px rgba(212,175,55,.4)}
 .install-banner .inst-text{flex:1;line-height:1.35}
 .install-banner .inst-text strong{display:block;font-size:13px;margin-bottom:1px}
 .install-banner .inst-text small{font-size:11px;opacity:.8}
 .install-banner button{background:#fff;color:var(--navy);border:none;padding:8px 14px;border-radius:18px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0}
 .install-banner .inst-close{background:transparent;color:#fff;padding:4px 6px;font-size:16px;border:none;cursor:pointer;flex-shrink:0;opacity:.7}
-#screen-onboard{background:linear-gradient(160deg,var(--navy) 0%,var(--navy-light) 60%,var(--accent) 100%);color:#fff;justify-content:center;align-items:center;padding:32px 28px;text-align:center}
-.onboard-logo{width:88px;height:88px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:800;margin-bottom:22px;box-shadow:0 8px 30px rgba(212,175,55,.35)}
-#screen-onboard h1{font-size:26px;letter-spacing:.5px;margin-bottom:8px;font-weight:700}
-#screen-onboard p{font-size:14px;opacity:.85;line-height:1.5;max-width:320px;margin-bottom:28px}
-.onboard-input{width:100%;max-width:320px;padding:15px 18px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);border-radius:12px;font-size:16px;color:#fff;outline:none;margin-bottom:12px;text-align:center;letter-spacing:.5px}
-.onboard-input::placeholder{color:rgba(255,255,255,.5)}
-.onboard-input:focus{border-color:var(--gold)}
-.name-status{font-size:12px;color:rgba(255,255,255,.75);margin-bottom:14px;min-height:18px}
+
+/* ═══════════ ONBOARDING — ANIMATED BACKGROUND ═══════════ */
+#screen-onboard{
+  background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 25%,#0d7a8c 55%,#143a5f 80%,#0b2a4a 100%);
+  background-size:300% 300%;
+  animation:gradientShift 14s ease infinite;
+  color:#fff;justify-content:center;align-items:center;
+  padding:32px 28px;text-align:center;
+  position:relative;overflow:hidden;
+}
+@keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+/* Floating light orbs */
+.orb{
+  position:absolute;border-radius:50%;filter:blur(48px);
+  opacity:.45;pointer-events:none;z-index:0;
+  animation:floatOrb 18s ease-in-out infinite;
+}
+.orb-1{width:220px;height:220px;background:radial-gradient(circle,#d4af37 0%,rgba(212,175,55,0) 70%);top:8%;left:-12%}
+.orb-2{width:320px;height:320px;background:radial-gradient(circle,#0d7a8c 0%,rgba(13,122,140,0) 70%);bottom:5%;right:-18%;animation-delay:-6s}
+.orb-3{width:160px;height:160px;background:radial-gradient(circle,#4aff7a 0%,rgba(74,255,122,0) 70%);top:48%;right:15%;animation-delay:-12s}
+@keyframes floatOrb{
+  0%,100%{transform:translate(0,0) scale(1)}
+  33%{transform:translate(30px,-45px) scale(1.12)}
+  66%{transform:translate(-25px,35px) scale(.92)}
+}
+
+.onboard-logo{
+  width:96px;height:96px;border-radius:50%;
+  background:linear-gradient(135deg,#f0d369,#d4af37 50%,#a8872f);
+  color:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+  font-size:46px;font-weight:800;
+  margin-bottom:24px;
+  box-shadow:0 12px 40px rgba(212,175,55,.5),0 0 0 8px rgba(212,175,55,.1);
+  position:relative;z-index:1;
+  animation:logoPulse 3s ease-in-out infinite;
+}
+@keyframes logoPulse{
+  0%,100%{box-shadow:0 12px 40px rgba(212,175,55,.5),0 0 0 8px rgba(212,175,55,.1)}
+  50%{box-shadow:0 12px 50px rgba(212,175,55,.7),0 0 0 14px rgba(212,175,55,.06)}
+}
+#screen-onboard h1{font-size:26px;letter-spacing:.5px;margin-bottom:8px;font-weight:700;position:relative;z-index:1}
+#screen-onboard p{font-size:14px;opacity:.9;line-height:1.5;max-width:320px;margin-bottom:28px;position:relative;z-index:1}
+
+.onboard-input{
+  width:100%;max-width:320px;
+  padding:15px 18px;
+  border:2px solid rgba(255,255,255,.3);
+  background:rgba(255,255,255,.14);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-radius:12px;font-size:16px;color:#fff;outline:none;
+  margin-bottom:12px;text-align:center;letter-spacing:.5px;
+  position:relative;z-index:1;
+  transition:all .2s;
+}
+.onboard-input::placeholder{color:rgba(255,255,255,.55)}
+.onboard-input:focus{border-color:var(--gold);background:rgba(255,255,255,.2)}
+.name-status{font-size:12px;color:rgba(255,255,255,.8);margin-bottom:14px;min-height:18px;position:relative;z-index:1}
 .name-status.ok{color:#4aff7a;font-weight:600}
 .name-status.bad{color:#ff8b8b;font-weight:600}
-.btn-primary{width:100%;max-width:320px;padding:15px;border:none;border-radius:12px;background:var(--gold);color:var(--navy);font-size:16px;font-weight:700;cursor:pointer}
-.btn-primary:disabled{opacity:.5;cursor:not-allowed}
-.app-header{background:var(--navy);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0}
-.app-header .logo{width:36px;height:36px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;flex-shrink:0}
+.btn-primary{
+  width:100%;max-width:320px;padding:15px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,#f0d369 0%,#d4af37 50%,#b8912a 100%);
+  color:var(--navy);font-size:16px;font-weight:700;cursor:pointer;
+  position:relative;z-index:1;
+  box-shadow:0 6px 20px rgba(212,175,55,.4);
+  transition:transform .1s,box-shadow .2s;
+}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+
+/* ═══════════ MAIN SCREEN ═══════════ */
+#screen-main{
+  background:
+    radial-gradient(circle at 5% 0%,rgba(212,175,55,.06) 0%,transparent 40%),
+    radial-gradient(circle at 100% 100%,rgba(13,122,140,.08) 0%,transparent 45%),
+    linear-gradient(180deg,#f2f5f8 0%,#e9eef3 100%);
+}
+.app-header{
+  background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);
+  color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;
+  min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0;
+  position:relative;z-index:5;
+  box-shadow:0 2px 12px rgba(11,42,74,.15);
+}
+.app-header .logo{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);
+  color:var(--navy);display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:17px;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(212,175,55,.4);
+}
 .app-header h2{font-size:17px;font-weight:700;flex:1}
 .app-header .online-dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
-.icon-btn{background:rgba(255,255,255,.1);border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px}
-.tab-content{flex:1;overflow-y:auto;padding-bottom:80px}
+.icon-btn{background:rgba(255,255,255,.12);border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:background .15s}
+.icon-btn:active{background:rgba(255,255,255,.25)}
+
+.tab-content{flex:1;overflow-y:auto;padding-bottom:80px;position:relative;z-index:1}
 .tab-content::-webkit-scrollbar{display:none}
-.bottom-nav{position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:10}
-.nav-item{flex:1;padding:10px 0 12px;text-align:center;font-size:10.5px;color:var(--muted);cursor:pointer;font-weight:600;border:none;background:none;position:relative}
-.nav-item .icon{display:block;font-size:22px;margin-bottom:2px}
+
+/* Glassmorphic bottom nav */
+.bottom-nav{
+  position:absolute;bottom:0;left:0;right:0;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-top:1px solid rgba(11,42,74,.08);
+  display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:10;
+  box-shadow:0 -4px 20px rgba(11,42,74,.06);
+}
+.nav-item{flex:1;padding:10px 0 12px;text-align:center;font-size:10.5px;color:var(--muted);cursor:pointer;font-weight:600;border:none;background:none;position:relative;transition:color .15s}
+.nav-item .icon{display:block;font-size:22px;margin-bottom:2px;transition:transform .2s}
 .nav-item.active{color:var(--navy)}
-.nav-badge{position:absolute;top:4px;left:50%;transform:translateX(6px);background:var(--red);color:#fff;font-size:9.5px;font-weight:700;min-width:17px;height:17px;border-radius:9px;padding:0 5px;display:none;align-items:center;justify-content:center;line-height:1;border:2px solid #fff;pointer-events:none}
+.nav-item.active .icon{transform:translateY(-2px)}
+.nav-badge{position:absolute;top:4px;left:50%;transform:translateX(6px);background:var(--red);color:#fff;font-size:9.5px;font-weight:700;min-width:17px;height:17px;border-radius:9px;padding:0 5px;display:none;align-items:center;justify-content:center;line-height:1;border:2px solid #fff;pointer-events:none;box-shadow:0 2px 5px rgba(255,71,87,.4)}
 .nav-badge.show{display:flex}
-.unread-badge{background:var(--red);color:#fff;font-size:11px;font-weight:700;min-width:20px;height:20px;border-radius:10px;padding:0 6px;display:none;align-items:center;justify-content:center;line-height:1;flex-shrink:0}
+.unread-badge{background:var(--red);color:#fff;font-size:11px;font-weight:700;min-width:20px;height:20px;border-radius:10px;padding:0 6px;display:none;align-items:center;justify-content:center;line-height:1;flex-shrink:0;box-shadow:0 2px 6px rgba(255,71,87,.4)}
 .unread-badge.show{display:flex}
+
 .section-title{font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:18px 20px 8px}
-.list-item{background:var(--card);padding:14px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;border-bottom:1px solid var(--border)}
+.list-item{
+  background:linear-gradient(180deg,#ffffff 0%,#fafcfd 100%);
+  padding:14px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;
+  border-bottom:1px solid var(--border);transition:background .15s;
+}
+.list-item:active{background:linear-gradient(180deg,#f0f3f6 0%,#e9eef2 100%)}
 .list-item:last-child{border-bottom:none}
-.avatar{width:46px;height:46px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0;overflow:hidden}
+.avatar{
+  width:46px;height:46px;border-radius:50%;
+  background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:18px;flex-shrink:0;overflow:hidden;
+  box-shadow:0 2px 8px rgba(11,42,74,.15);
+}
 .avatar img{width:100%;height:100%;object-fit:cover;display:block}
-.avatar.accent{background:var(--accent)}
+.avatar.accent{background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%)}
 .list-item-body{flex:1;min-width:0}
 .list-item-title{font-weight:600;font-size:15px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .list-item-title.unread{font-weight:800;color:#000}
@@ -66,18 +176,46 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .empty{text-align:center;padding:60px 30px;color:var(--muted)}
 .empty .empty-icon{font-size:48px;margin-bottom:12px;opacity:.4}
 .empty p{font-size:14px;line-height:1.5}
-.fab{position:absolute;bottom:88px;right:20px;width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:9}
-.chat-header{background:var(--navy);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px;min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0}
+
+/* FAB with stronger gradient */
+.fab{
+  position:absolute;bottom:88px;right:20px;width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);
+  color:#fff;border:none;font-size:26px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;z-index:9;
+  box-shadow:0 8px 24px rgba(13,122,140,.5);
+  transition:transform .15s;
+}
+.fab:active{transform:scale(.94)}
+
+/* ═══════════ CHAT SCREEN ═══════════ */
+.chat-header{
+  background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);
+  color:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px;
+  min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0;
+  box-shadow:0 2px 12px rgba(11,42,74,.15);position:relative;z-index:5;
+}
 .chat-header .back-btn{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:0 4px}
-.chat-header .chat-avatar{width:36px;height:36px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0;overflow:hidden}
+.chat-header .chat-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0;overflow:hidden;box-shadow:0 2px 8px rgba(212,175,55,.3)}
 .chat-header .chat-avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .chat-header .chat-title{flex:1;min-width:0}
 .chat-header .chat-title h3{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chat-header .chat-title small{font-size:11px;color:var(--green);display:block;margin-top:1px}
-.messages{flex:1;overflow-y:auto;padding:16px 14px;background:#e5ecf2}
-.msg{max-width:78%;padding:9px 13px;border-radius:16px;font-size:14.5px;line-height:1.4;margin-bottom:8px;word-wrap:break-word}
-.msg.out{background:#d9fdd3;margin-left:auto;border-bottom-right-radius:4px}
-.msg.in{background:#fff;margin-right:auto;border-bottom-left-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+
+/* Chat area with subtle WhatsApp-style pattern */
+.messages{
+  flex:1;overflow-y:auto;padding:16px 14px;
+  background-color:#e5ecf2;
+  background-image:
+    radial-gradient(circle at 20% 30%,rgba(11,42,74,.035) 0%,transparent 35%),
+    radial-gradient(circle at 80% 70%,rgba(13,122,140,.04) 0%,transparent 35%),
+    radial-gradient(circle at 50% 50%,rgba(212,175,55,.025) 1.5px,transparent 2px);
+  background-size:auto,auto,26px 26px;
+  position:relative;
+}
+.msg{max-width:78%;padding:9px 13px;border-radius:16px;font-size:14.5px;line-height:1.4;margin-bottom:8px;word-wrap:break-word;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.msg.out{background:linear-gradient(135deg,#d9fdd3 0%,#c8f5be 100%);margin-left:auto;border-bottom-right-radius:4px}
+.msg.in{background:#fff;margin-right:auto;border-bottom-left-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .msg .time{font-size:10px;color:var(--muted);display:block;margin-top:3px;text-align:right}
 .msg.has-attachment{padding:6px;max-width:80%}
 .msg.has-attachment .msg-caption{padding:5px 8px 0}
@@ -90,47 +228,77 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .msg .attach-file .file-info{flex:1;min-width:0}
 .msg .attach-file .file-name{font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .msg .attach-file .file-size{font-size:11px;color:var(--muted);margin-top:1px}
-.chat-input-bar{background:#fff;border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0;position:relative}
-.chat-input-bar input[type="text"]{flex:1;padding:11px 16px;border:1px solid var(--border);border-radius:22px;font-size:15px;outline:none;background:#f7f9fb;min-width:0}
-.attach-btn{background:transparent;border:none;font-size:22px;color:var(--accent);width:40px;height:40px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.chat-input-bar .send-btn{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:20px;cursor:pointer;flex-shrink:0}
-.chat-input-bar .send-btn:disabled{opacity:.4}
+
+.chat-input-bar{
+  background:rgba(255,255,255,.98);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-top:1px solid var(--border);
+  padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0;position:relative;
+}
+.chat-input-bar input[type="text"]{flex:1;padding:11px 16px;border:1px solid var(--border);border-radius:22px;font-size:15px;outline:none;background:#f7f9fb;min-width:0;transition:border-color .15s}
+.chat-input-bar input[type="text"]:focus{border-color:var(--accent)}
+.attach-btn{background:transparent;border:none;font-size:22px;color:var(--accent);width:40px;height:40px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.attach-btn:active{background:#e5ecf2}
+.chat-input-bar .send-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:20px;cursor:pointer;flex-shrink:0;box-shadow:0 3px 10px rgba(13,122,140,.35)}
+.chat-input-bar .send-btn:disabled{opacity:.4;box-shadow:none}
 .upload-bar{position:absolute;top:-1px;left:0;right:0;height:3px;background:#e1e7ed;border-radius:2px;overflow:hidden;display:none}
 .upload-bar.show{display:block}
 .upload-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .2s}
+
+/* Lightbox */
 #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;flex-direction:column}
 #lightbox.show{display:flex}
-#lightbox img{max-width:100%;max-height:85vh;border-radius:8px}
+#lightbox img{max-width:100%;max-height:85vh;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
 #lightbox .close-lb{position:absolute;top:20px;right:20px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;border:none;font-size:24px;cursor:pointer}
-#lightbox .dl-lb{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);padding:12px 28px;border-radius:24px;background:var(--gold);color:var(--navy);border:none;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none}
-#screen-call{background:linear-gradient(180deg,var(--navy) 0%,#061e3a 100%);color:#fff;justify-content:center;align-items:center;padding:40px 24px;text-align:center}
-.call-avatar{width:120px;height:120px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:800;margin-bottom:24px;overflow:hidden}
+#lightbox .dl-lb{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);padding:12px 28px;border-radius:24px;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#b8912a);color:var(--navy);border:none;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;box-shadow:0 6px 20px rgba(212,175,55,.4)}
+
+/* Call screen */
+#screen-call{background:radial-gradient(circle at 50% 0%,#143a5f 0%,#0b2a4a 50%,#061e3a 100%);color:#fff;justify-content:center;align-items:center;padding:40px 24px;text-align:center;position:relative;overflow:hidden}
+#screen-call::before{content:"";position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,.15) 0%,transparent 70%);top:-100px;left:50%;transform:translateX(-50%);pointer-events:none}
+.call-avatar{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:800;margin-bottom:24px;overflow:hidden;box-shadow:0 12px 40px rgba(212,175,55,.4);animation:pulse 2s infinite;position:relative;z-index:1}
 .call-avatar img{width:100%;height:100%;object-fit:cover;display:block}
-.call-name{font-size:24px;font-weight:700;margin-bottom:6px}
-.call-status{font-size:14px;color:rgba(255,255,255,.75);margin-bottom:48px;min-height:20px}
+@keyframes pulse{0%{box-shadow:0 12px 40px rgba(212,175,55,.4),0 0 0 0 rgba(212,175,55,.6)}70%{box-shadow:0 12px 40px rgba(212,175,55,.4),0 0 0 30px rgba(212,175,55,0)}100%{box-shadow:0 12px 40px rgba(212,175,55,.4),0 0 0 0 rgba(212,175,55,0)}}
+.call-name{font-size:24px;font-weight:700;margin-bottom:6px;position:relative;z-index:1}
+.call-status{font-size:14px;color:rgba(255,255,255,.8);margin-bottom:48px;min-height:20px;position:relative;z-index:1}
 .call-status.active{color:var(--green)}
-.call-actions{display:flex;gap:32px}
-.call-btn{width:68px;height:68px;border-radius:50%;border:none;font-size:28px;cursor:pointer}
-.call-btn.end{background:var(--red);color:#fff}
-.call-btn.accept{background:var(--green);color:var(--navy)}
-.call-btn.mute{background:rgba(255,255,255,.15);color:#fff}
-.call-btn.mute.muted{background:var(--gold);color:var(--navy)}
-.vm-item{background:var(--card);padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px}
-.vm-play{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:18px;cursor:pointer;flex-shrink:0}
+.call-actions{display:flex;gap:32px;position:relative;z-index:1}
+.call-btn{width:68px;height:68px;border-radius:50%;border:none;font-size:28px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.call-btn.end{background:linear-gradient(135deg,#ff6b7a,#ff4757 60%,#cc2e3d)}
+.call-btn.accept{background:linear-gradient(135deg,#6bffa0,#4aff7a 60%,#2ecc60);color:#0b2a4a;animation:pulse 2s infinite}
+.call-btn.mute{background:rgba(255,255,255,.2);color:#fff;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.call-btn.mute.muted{background:linear-gradient(135deg,#f0d369,#d4af37);color:var(--navy)}
+
+/* Voicemail */
+.vm-item{background:linear-gradient(180deg,#ffffff 0%,#fafcfd 100%);padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px}
+.vm-play{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:18px;cursor:pointer;flex-shrink:0;box-shadow:0 3px 10px rgba(13,122,140,.3)}
 .vm-del{background:none;border:none;font-size:18px;color:var(--muted);cursor:pointer;padding:8px}
 .vm-body{flex:1;min-width:0}
 .vm-title{font-weight:600;font-size:14.5px;margin-bottom:3px}
 .vm-meta{font-size:12px;color:var(--muted)}
-.record-btn{width:calc(100% - 40px);max-width:320px;padding:15px;border:none;border-radius:12px;background:var(--red);color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin:20px auto;display:block}
+.record-btn{width:calc(100% - 40px);max-width:320px;padding:15px;border:none;border-radius:12px;background:linear-gradient(135deg,#ff6b7a,#ff4757 60%,#cc2e3d);color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin:20px auto;display:block;box-shadow:0 6px 20px rgba(255,71,87,.35)}
 .record-btn.recording{background:#b91c1c;animation:recordPulse 1s infinite}
 @keyframes recordPulse{0%,100%{opacity:1}50%{opacity:.7}}
-.vm-target{background:#fff;margin:0 20px 12px;border-radius:10px;padding:12px 16px;border:1px solid var(--border);font-size:14px;display:flex;align-items:center;justify-content:space-between}
+.vm-target{background:#fff;margin:0 20px 12px;border-radius:10px;padding:12px 16px;border:1px solid var(--border);font-size:14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(11,42,74,.04)}
 .vm-target select{border:1px solid var(--border);padding:8px 12px;border-radius:8px;font-size:14px;background:#f7f9fb;color:var(--text);max-width:60%}
-.profile-card{background:var(--card);margin:16px;border-radius:14px;padding:24px 20px;box-shadow:0 2px 12px rgba(0,0,0,.04);text-align:center}
-.profile-card .avatar-big{width:96px;height:96px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;margin:0 auto 14px;position:relative;cursor:pointer;overflow:hidden}
+
+/* Profile */
+.profile-card{
+  background:linear-gradient(180deg,#ffffff 0%,#fafcfd 100%);
+  margin:16px;border-radius:14px;padding:24px 20px;
+  box-shadow:0 4px 20px rgba(11,42,74,.06);
+  text-align:center;border:1px solid rgba(11,42,74,.04);
+}
+.profile-card .avatar-big{
+  width:96px;height:96px;border-radius:50%;
+  background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:36px;font-weight:700;margin:0 auto 14px;
+  position:relative;cursor:pointer;overflow:hidden;
+  box-shadow:0 6px 20px rgba(11,42,74,.2);
+}
 .profile-card .avatar-big img{width:100%;height:100%;object-fit:cover;display:block}
-.avatar-camera{position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:14px;border:2.5px solid #fff;pointer-events:none}
-.avatar-remove{position:absolute;top:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--red);color:#fff;display:none;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:2.5px solid #fff;cursor:pointer;z-index:2}
+.avatar-camera{position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:14px;border:2.5px solid #fff;pointer-events:none;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.avatar-remove{position:absolute;top:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--red);color:#fff;display:none;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:2.5px solid #fff;cursor:pointer;z-index:2;box-shadow:0 2px 6px rgba(255,71,87,.3)}
 .avatar-big.has-photo .avatar-remove{display:flex}
 .avatar-big.has-photo .avatar-camera{background:var(--navy);color:#fff;font-size:11px}
 .avatar-hint{font-size:11px;color:var(--muted);margin-bottom:14px}
@@ -138,38 +306,62 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .profile-card .username{font-size:13px;color:var(--accent);font-weight:600;margin-bottom:8px}
 .profile-card .role-label{font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-weight:600}
 .help-text{font-size:12.5px;color:var(--muted);line-height:1.6;text-align:left;margin-top:16px}
-.menu-item{background:var(--card);padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;cursor:pointer;font-size:15px;text-decoration:none;color:var(--text)}
+
+.menu-item{
+  background:linear-gradient(180deg,#ffffff 0%,#fafcfd 100%);
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:14px;cursor:pointer;
+  font-size:15px;text-decoration:none;color:var(--text);
+  transition:background .15s;
+}
+.menu-item:active{background:#f0f3f6}
 .menu-item .menu-icon{font-size:20px;width:24px;text-align:center}
 .menu-item .menu-arrow{margin-left:auto;color:var(--muted);font-size:18px}
 .menu-item.install-highlight{background:linear-gradient(90deg,#fef9e7,#fff);border-left:3px solid var(--gold)}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:100;padding:24px}
+
+.toggle-switch{margin-left:auto;position:relative;width:44px;height:24px;background:#cbd5e1;border-radius:12px;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle-switch.on{background:var(--green)}
+.toggle-switch::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle-switch.on::after{transform:translateX(20px)}
+
+/* Modals */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:24px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 .modal-overlay.show{display:flex}
-.modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:360px;max-height:85vh;overflow-y:auto}
+.modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:360px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
 .modal h3{font-size:18px;margin-bottom:6px}
 .modal p{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.5}
-.modal input{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;margin-bottom:12px;outline:none}
+.modal input{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;margin-bottom:12px;outline:none;transition:border-color .15s}
+.modal input:focus{border-color:var(--accent)}
 .modal-status{font-size:12px;margin-bottom:10px;min-height:16px}
 .modal-status.ok{color:#15803d;font-weight:600}
 .modal-status.bad{color:#b91c1c;font-weight:600}
 .modal-actions{display:flex;gap:10px;margin-top:8px}
 .modal-actions button{flex:1;padding:12px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;border:none}
 .modal-actions .cancel{background:#eef2f6;color:var(--text)}
-.modal-actions .confirm{background:var(--accent);color:#fff}
+.modal-actions .confirm{background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff}
 .modal-actions .confirm:disabled{opacity:.5}
+
+/* Install steps */
 .install-steps{list-style:none;padding:0;margin:8px 0 18px;counter-reset:step}
 .install-steps li{counter-increment:step;padding:14px 14px 14px 48px;position:relative;background:#f7fafc;border-radius:10px;margin-bottom:10px;font-size:13.5px;line-height:1.5;border:1px solid var(--border)}
-.install-steps li::before{content:counter(step);position:absolute;left:12px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.install-steps li::before{content:counter(step);position:absolute;left:12px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
 .install-steps li strong{color:var(--navy);font-weight:700}
 .install-steps li .inline-icon{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:5px;background:#e0e7ec;color:var(--navy);font-size:13px;vertical-align:middle;margin:0 2px;font-weight:700}
 .install-hero{text-align:center;margin-bottom:14px}
-.install-hero .install-app-icon{width:64px;height:64px;border-radius:16px;background:var(--navy);color:var(--gold);display:inline-flex;align-items:center;justify-content:center;font-size:34px;font-weight:800;margin-bottom:10px;box-shadow:0 6px 20px rgba(11,42,74,.25)}
+.install-hero .install-app-icon{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:inline-flex;align-items:center;justify-content:center;font-size:34px;font-weight:800;margin-bottom:10px;box-shadow:0 6px 20px rgba(212,175,55,.4)}
 .install-hero h3{font-size:20px;margin-bottom:4px;color:var(--navy)}
 .install-hero p{font-size:13px;color:var(--muted);margin:0}
-.install-cta{width:100%;padding:14px;border-radius:12px;background:var(--gold);color:var(--navy);border:none;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:.3px;margin-bottom:10px}
-.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--navy);color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:200;max-width:90%;text-align:center}
+.install-cta{width:100%;padding:14px;border-radius:12px;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#b8912a);color:var(--navy);border:none;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:.3px;margin-bottom:10px;box-shadow:0 4px 14px rgba(212,175,55,.35)}
+
+/* Toast */
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(60px);background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:200;max-width:90%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-#incoming-call{position:fixed;inset:0;background:linear-gradient(180deg,var(--navy) 0%,#061e3a 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:150;padding:40px 24px;text-align:center}
+
+/* Incoming call */
+#incoming-call{position:fixed;inset:0;background:radial-gradient(circle at 50% 0%,#143a5f 0%,#0b2a4a 50%,#061e3a 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:150;padding:40px 24px;text-align:center;overflow:hidden}
 #incoming-call.show{display:flex}
+#incoming-call::before{content:"";position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,.2) 0%,transparent 70%);top:-100px;left:50%;transform:translateX(-50%);pointer-events:none;animation:pulse 2s infinite}
+#incoming-call > *{position:relative;z-index:1}
 </style>
 </head>
 <body>
@@ -183,6 +375,9 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 </div>
 
 <section id="screen-onboard" class="screen active">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
   <div class="onboard-logo">G</div>
   <h1>G Communication Portal</h1>
   <p>Pick your name. That's how others will find you.</p>
@@ -224,6 +419,18 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
       <div class="help-text" style="margin-top:20px">
         <strong>Your name is your address.</strong> Anyone can message you by typing <span id="profileUsername2" style="color:var(--accent);font-weight:700">@you</span> in Add Contact.
       </div>
+    </div>
+    <div class="menu-item">
+      <span class="menu-icon">🔔</span> Notification sound
+      <div class="toggle-switch on" id="toggleSound"></div>
+    </div>
+    <div class="menu-item">
+      <span class="menu-icon">📳</span> Vibration
+      <div class="toggle-switch on" id="toggleVibration"></div>
+    </div>
+    <div class="menu-item" id="permBtn">
+      <span class="menu-icon">📢</span> Browser notifications
+      <span class="menu-arrow" id="permStatus">checking…</span>
     </div>
     <div class="menu-item install-highlight" id="installMenuItem">
       <span class="menu-icon">⬇️</span> Install app on this phone
@@ -277,7 +484,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 <div id="incoming-call">
   <div class="call-avatar" id="incomingAvatar">G</div>
   <div class="call-name" id="incomingName">—</div>
-  <div class="call-status">Incoming call…</div>
+  <div class="call-status" id="incomingStatus">Incoming call…</div>
   <div class="call-actions">
     <button class="call-btn end" id="rejectCallBtn">📵</button>
     <button class="call-btn accept" id="acceptCallBtn">📞</button>
@@ -304,7 +511,8 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
       <strong>1.</strong> Your name is your address — e.g. <em>gesner</em>.<br><br>
       <strong>2.</strong> Anyone types that name in "Add contact" to reach you.<br><br>
       <strong>3.</strong> Chat, send photos / videos / files, or leave a voice note.<br><br>
-      <strong>4.</strong> Voice calls work best when both people are online at the same time.
+      <strong>4.</strong> Voice calls work best when both people are online at the same time.<br><br>
+      <strong>5.</strong> Notifications (sound, vibration, pop-up) can be toggled in Profile.
     </p>
     <div class="modal-actions"><button class="confirm" id="helpClose">Got it</button></div>
   </div>
@@ -361,7 +569,10 @@ const App = {
   pc: null, localStream: null, activeCall: null,
   incomingCallData: null, callUnsubs: [], muted: false,
   mediaRecorder: null, recordedChunks: [], recordTimer: null,
-  installPrompt: null, isInstalled: false
+  installPrompt: null, isInstalled: false,
+  soundEnabled: true, vibrationEnabled: true,
+  audioCtx: null, ringInterval: null, titleFlashInterval: null, callRingTimeout: null,
+  originalTitle: 'G Communication Portal'
 };
 const $ = id => document.getElementById(id);
 const LS = {
@@ -387,48 +598,108 @@ function previewText(last) {
   return last.text || '';
 }
 
-/* ═══════════ CLONE BUTTON — auto-detect repo ═══════════ */
-(function fixCloneButton() {
-  const btn = document.getElementById('cloneBtn');
-  if (!btn) return;
-  try {
-    const host = window.location.hostname;
-    const path = window.location.pathname;
-    if (host.endsWith('.github.io')) {
-      const username = host.split('.')[0];
-      const repoName = path.split('/').filter(Boolean)[0];
-      if (username && repoName) {
-        btn.href = `https://github.com/${username}/${repoName}`;
-        return;
-      }
-    }
-    btn.href = 'https://github.com';
-  } catch (err) {
-    btn.href = 'https://github.com';
-  }
-})();
+function getAudioCtx() { if (!App.audioCtx) { try { App.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch {} } return App.audioCtx; }
+function unlockAudio() { const ctx = getAudioCtx(); if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {}); }
+document.addEventListener('click', unlockAudio);
+document.addEventListener('touchstart', unlockAudio, { passive: true });
+document.addEventListener('keydown', unlockAudio);
 
-/* ═══════════ INSTALL ═══════════ */
+function playMessageSound() {
+  if (!App.soundEnabled) return;
+  const ctx = getAudioCtx(); if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+  const now = ctx.currentTime;
+  [880, 1320].forEach((freq, i) => {
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.type = 'sine'; osc.frequency.value = freq;
+    const start = now + i * 0.11;
+    gain.gain.setValueAtTime(0, start);
+    gain.gain.linearRampToValueAtTime(0.18, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.35);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(start); osc.stop(start + 0.4);
+  });
+}
+function playCallRingPattern() {
+  if (!App.soundEnabled) return;
+  const ctx = getAudioCtx(); if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+  const now = ctx.currentTime;
+  [0, 0.4].forEach(offset => {
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.type = 'sine'; osc.frequency.value = 1050;
+    const start = now + offset;
+    gain.gain.setValueAtTime(0, start);
+    gain.gain.linearRampToValueAtTime(0.25, start + 0.02);
+    gain.gain.setValueAtTime(0.25, start + 0.22);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.32);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(start); osc.stop(start + 0.35);
+  });
+}
+function startCallRing() {
+  stopCallRing();
+  playCallRingPattern();
+  if (App.vibrationEnabled && navigator.vibrate) navigator.vibrate([600, 400, 600]);
+  App.ringInterval = setInterval(() => {
+    playCallRingPattern();
+    if (App.vibrationEnabled && navigator.vibrate) navigator.vibrate([600, 400, 600]);
+  }, 2500);
+  App.callRingTimeout = setTimeout(() => {
+    if (App.incomingCallData) { stopCallRing(); $('incoming-call').classList.remove('show'); App.incomingCallData = null; }
+  }, 60000);
+}
+function stopCallRing() {
+  if (App.ringInterval) { clearInterval(App.ringInterval); App.ringInterval = null; }
+  if (App.callRingTimeout) { clearTimeout(App.callRingTimeout); App.callRingTimeout = null; }
+  if (navigator.vibrate) navigator.vibrate(0);
+}
+function showBrowserNotification(title, body, tag) {
+  if (!('Notification' in window)) return;
+  if (Notification.permission !== 'granted') return;
+  if (!document.hidden) return;
+  try {
+    const n = new Notification(title, { body: body || '', icon: 'icon-192.svg', badge: 'icon-192.svg', tag: tag || 'g-comm', renotify: true, silent: true, requireInteraction: false });
+    n.onclick = () => { window.focus(); n.close(); };
+    setTimeout(() => { try { n.close(); } catch {} }, 8000);
+  } catch (e) { console.warn('Notification failed:', e); }
+}
+function startTitleFlash(prefix) {
+  stopTitleFlash();
+  let toggle = false;
+  App.titleFlashInterval = setInterval(() => {
+    document.title = toggle ? (prefix || '🔔') + ' G Comm' : App.originalTitle;
+    toggle = !toggle;
+  }, 800);
+}
+function stopTitleFlash() {
+  if (App.titleFlashInterval) { clearInterval(App.titleFlashInterval); App.titleFlashInterval = null; }
+  document.title = App.originalTitle;
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) stopTitleFlash(); });
+
+async function requestNotificationPermission() {
+  if (!('Notification' in window)) return 'unsupported';
+  if (Notification.permission === 'granted') return 'granted';
+  if (Notification.permission === 'denied') return 'denied';
+  try { return await Notification.requestPermission(); } catch { return 'error'; }
+}
+function updatePermStatus() {
+  const el = $('permStatus'); if (!el) return;
+  if (!('Notification' in window)) { el.textContent = 'unsupported'; return; }
+  const p = Notification.permission;
+  if (p === 'granted') { el.textContent = '✓ enabled'; el.style.color = '#15803d'; }
+  else if (p === 'denied') { el.textContent = 'blocked'; el.style.color = '#b91c1c'; }
+  else { el.textContent = 'tap to enable'; el.style.color = '#d4af37'; }
+}
+
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true || document.referrer.startsWith('android-app://');
 App.isInstalled = isStandalone;
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  App.installPrompt = e;
-  if (!isStandalone) showInstallBanner();
-});
-window.addEventListener('appinstalled', () => {
-  App.installPrompt = null;
-  hideInstallBanner();
-  toast('App installed — check your home screen!');
-  App.isInstalled = true;
-});
-function showInstallBanner() {
-  if (isStandalone) return;
-  if (LS.get('installBannerDismissed', false)) return;
-  $('installBanner').classList.add('show');
-}
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); App.installPrompt = e; if (!isStandalone) showInstallBanner(); });
+window.addEventListener('appinstalled', () => { App.installPrompt = null; hideInstallBanner(); toast('App installed — check your home screen!'); App.isInstalled = true; });
+function showInstallBanner() { if (isStandalone) return; if (LS.get('installBannerDismissed', false)) return; $('installBanner').classList.add('show'); }
 function hideInstallBanner() { $('installBanner').classList.remove('show'); }
 $('installBannerClose').addEventListener('click', () => { LS.set('installBannerDismissed', true); hideInstallBanner(); });
 $('installBannerBtn').addEventListener('click', () => triggerInstall());
@@ -440,8 +711,7 @@ async function triggerInstall() {
     const choice = await App.installPrompt.userChoice;
     if (choice.outcome === 'accepted') { toast('Installing…'); hideInstallBanner(); }
     else toast('Installation cancelled');
-    App.installPrompt = null;
-    return;
+    App.installPrompt = null; return;
   }
   if (isIOS) { openInstallModal('ios'); return; }
   openInstallModal('generic');
@@ -450,33 +720,64 @@ function openInstallModal(platform) {
   const body = $('installBody');
   if (platform === 'ios') {
     $('installSubtitle').textContent = 'Follow these steps to add G Comm to your iPhone home screen';
-    body.innerHTML = `
-      <ol class="install-steps">
-        <li>Open this page in <strong>Safari</strong> (not Chrome or Firefox — they can't install apps on iOS).</li>
-        <li>Tap the <strong>Share button</strong> <span class="inline-icon">⬆</span> at the bottom of the screen.</li>
-        <li>Scroll down and tap <strong>Add to Home Screen</strong> <span class="inline-icon">＋</span>.</li>
-        <li>Tap <strong>Add</strong> in the top right corner.</li>
-        <li>Done! The G Comm icon is now on your home screen.</li>
-      </ol>
-      <button class="install-cta" onclick="document.getElementById('installModal').classList.remove('show')">Got it</button>
-    `;
+    body.innerHTML = `<ol class="install-steps">
+      <li>Open this page in <strong>Safari</strong>.</li>
+      <li>Tap the <strong>Share button</strong> <span class="inline-icon">⬆</span> at the bottom of the screen.</li>
+      <li>Scroll down and tap <strong>Add to Home Screen</strong> <span class="inline-icon">＋</span>.</li>
+      <li>Tap <strong>Add</strong> in the top right corner.</li>
+      <li>Done! The G Comm icon is now on your home screen.</li>
+    </ol>
+    <button class="install-cta" onclick="document.getElementById('installModal').classList.remove('show')">Got it</button>`;
   } else {
     $('installSubtitle').textContent = 'Add G Comm to your home screen for one-tap access';
-    body.innerHTML = `
-      <ol class="install-steps">
-        <li>Open this page in <strong>Chrome</strong> or <strong>Edge</strong> on Android, or <strong>Safari</strong> on iPhone.</li>
-        <li>Look for the <strong>install icon</strong> <span class="inline-icon">⬇</span> in the address bar (or tap the three dots menu).</li>
-        <li>Tap <strong>Install app</strong> or <strong>Add to Home Screen</strong>.</li>
-        <li>The G Comm icon will appear on your home screen.</li>
-      </ol>
-      <button class="install-cta" onclick="document.getElementById('installModal').classList.remove('show')">Got it</button>
-    `;
+    body.innerHTML = `<ol class="install-steps">
+      <li>Open this page in <strong>Chrome</strong> or <strong>Edge</strong> on Android.</li>
+      <li>Look for the <strong>install icon</strong> <span class="inline-icon">⬇</span> in the address bar.</li>
+      <li>Tap <strong>Install app</strong>.</li>
+      <li>The G Comm icon will appear on your home screen.</li>
+    </ol>
+    <button class="install-cta" onclick="document.getElementById('installModal').classList.remove('show')">Got it</button>`;
   }
   $('installModal').classList.add('show');
 }
 $('installClose').addEventListener('click', () => $('installModal').classList.remove('show'));
 
-/* ═══════════ ONBOARDING ═══════════ */
+(function fixCloneButton() {
+  const btn = document.getElementById('cloneBtn'); if (!btn) return;
+  try {
+    const host = window.location.hostname; const path = window.location.pathname;
+    if (host.endsWith('.github.io')) {
+      const username = host.split('.')[0]; const repoName = path.split('/').filter(Boolean)[0];
+      if (username && repoName) { btn.href = `https://github.com/${username}/${repoName}`; return; }
+    }
+    btn.href = 'https://github.com';
+  } catch { btn.href = 'https://github.com'; }
+})();
+
+App.soundEnabled = LS.get('soundEnabled', true);
+App.vibrationEnabled = LS.get('vibrationEnabled', true);
+function updateToggleUI() {
+  $('toggleSound').classList.toggle('on', App.soundEnabled);
+  $('toggleVibration').classList.toggle('on', App.vibrationEnabled);
+}
+$('toggleSound').addEventListener('click', () => {
+  App.soundEnabled = !App.soundEnabled; LS.set('soundEnabled', App.soundEnabled); updateToggleUI();
+  if (App.soundEnabled) playMessageSound();
+  toast(App.soundEnabled ? 'Sound on' : 'Sound off');
+});
+$('toggleVibration').addEventListener('click', () => {
+  App.vibrationEnabled = !App.vibrationEnabled; LS.set('vibrationEnabled', App.vibrationEnabled); updateToggleUI();
+  if (App.vibrationEnabled && navigator.vibrate) navigator.vibrate(80);
+  toast(App.vibrationEnabled ? 'Vibration on' : 'Vibration off');
+});
+$('permBtn').addEventListener('click', async () => {
+  const result = await requestNotificationPermission();
+  updatePermStatus();
+  if (result === 'granted') toast('Browser notifications enabled');
+  else if (result === 'denied') toast('Notifications blocked in browser settings');
+  else toast('Notification permission: ' + result);
+});
+
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
 let nameCheckTimer = null, nameCheckOk = false;
 nameInput.addEventListener('input', () => {
@@ -490,11 +791,24 @@ nameInput.addEventListener('input', () => {
       const snap = await get(dbRef(db, 'users/' + slug));
       if (snap.exists()) { nameStatus.textContent = `"${slug}" is taken — try another`; nameStatus.className = 'name-status bad'; }
       else { nameStatus.textContent = `"${slug}" is available ✓`; nameStatus.className = 'name-status ok'; nameCheckOk = true; enterBtn.disabled = false; }
-    } catch { nameStatus.textContent = 'Could not check — check connection'; nameStatus.className = 'name-status bad'; }
+    } catch (err) {
+      console.error('Name check failed:', err);
+      const code = (err && err.code) ? err.code : 'unknown';
+      let hint = '';
+      if (code === 'PERMISSION_DENIED') hint = ' (rules block read)';
+      else if (code === 'NETWORK_ERROR') hint = ' (no internet)';
+      else if (code === 'unavailable') hint = ' (server unreachable)';
+      else if (code === 'invalid-argument') hint = ' (wrong databaseURL)';
+      nameStatus.textContent = `Error: ${code}${hint}`;
+      nameStatus.className = 'name-status bad';
+    }
   }, 400);
 });
 enterBtn.addEventListener('click', async () => {
   if (!nameCheckOk) return;
+  unlockAudio();
+  await requestNotificationPermission();
+  updatePermStatus();
   const slug = slugify(nameInput.value);
   enterBtn.disabled = true; enterBtn.textContent = 'Reserving…';
   try {
@@ -514,6 +828,8 @@ enterBtn.addEventListener('click', async () => {
 });
 
 window.addEventListener('load', () => {
+  updateToggleUI();
+  updatePermStatus();
   const savedSlug = LS.get('mySlug', null);
   const savedName = LS.get('myName', null);
   const savedPhoto = LS.get('avatar', null);
@@ -533,6 +849,7 @@ function startMainApp() {
   listenVoicemails();
   App.contacts.forEach(c => { listenContactPhoto(c.slug); setupGlobalMessageListener(c.slug); });
   if (!isStandalone) setTimeout(() => { if (!App.installPrompt && !isIOS) return; showInstallBanner(); }, 1500);
+  updatePermStatus();
 }
 
 function updateProfileHeader() {
@@ -645,7 +962,10 @@ function updateUnreadBadges() {
     if (total > 0) { b.textContent = total > 99 ? '99+' : String(total); b.classList.add('show'); }
     else b.classList.remove('show');
   }
-  document.title = total > 0 ? `(${total}) G Comm` : 'G Communication Portal';
+  if (!App.titleFlashInterval) {
+    document.title = total > 0 ? `(${total}) G Comm` : 'G Communication Portal';
+    App.originalTitle = document.title;
+  }
   document.querySelectorAll('[data-contact-slug]').forEach(el => {
     const slug = el.dataset.contactSlug;
     const n = App.unread[slug] || 0;
@@ -674,10 +994,17 @@ function setupGlobalMessageListener(slug) {
       const prev = App.lastMsgTime[slug];
       const isNew = last && (last.time || 0) > (prev || 0) && last.from !== App.mySlug;
       if (last) App.lastMsgTime[slug] = last.time || Date.now();
-      if (isNew && App.activeChat !== slug) {
-        if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+      if (isNew && (App.activeChat !== slug || document.hidden)) {
         const cname = App.contacts.find(x => x.slug === slug)?.name || slug;
-        toast(`New from ${cname}`);
+        const preview = previewText(last);
+        playMessageSound();
+        if (App.vibrationEnabled && navigator.vibrate) navigator.vibrate([80, 40, 80]);
+        toast(`💬 ${cname}: ${preview.substring(0, 40)}`);
+        showBrowserNotification(`💬 ${cname}`, preview.substring(0, 120), `msg-${slug}`);
+        if (document.hidden) {
+          const total = Object.values(App.unread).reduce((s, n) => s + (n || 0), 0) + 1;
+          startTitleFlash(`(${total})`);
+        }
       }
     }
     App.lastMessages[slug] = msgs;
@@ -942,7 +1269,18 @@ function listenForIncomingCalls() {
   if (!App.mySlug) return;
   onValue(dbRef(db, 'calls/' + App.mySlug), snap => {
     const calls = snap.val();
-    if (!calls) { App.incomingCallData = null; $('incoming-call').classList.remove('show'); return; }
+    if (!calls) {
+      App.incomingCallData = null;
+      $('incoming-call').classList.remove('show');
+      stopCallRing();
+      return;
+    }
+    if (App.incomingCallData && !calls[App.incomingCallData.callerSlug]) {
+      App.incomingCallData = null;
+      $('incoming-call').classList.remove('show');
+      stopCallRing();
+      return;
+    }
     let ringing = null;
     for (const [callerSlug, call] of Object.entries(calls)) { if (call && call.status === 'ringing' && call.offer && callerSlug !== App.mySlug) { ringing = { callerSlug, call }; break; } }
     if (ringing && !App.incomingCallData && !App.activeCall) {
@@ -951,13 +1289,17 @@ function listenForIncomingCalls() {
       const name = c ? c.name : (ringing.call.callerName || ringing.call.callerSlug);
       $('incomingName').textContent = name;
       $('incomingAvatar').innerHTML = c ? avatarInner(c.photo, c.name) : esc(name.charAt(0).toUpperCase());
+      $('incomingStatus').textContent = 'Incoming call…';
       $('incoming-call').classList.add('show');
-      if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
+      startCallRing();
+      showBrowserNotification(`📞 Incoming call`, `${name} is calling you`, 'incoming-call');
+      if (document.hidden) startTitleFlash('📞');
     }
   });
 }
 
 $('acceptCallBtn').addEventListener('click', async () => {
+  stopCallRing();
   const ic = App.incomingCallData; if (!ic) return;
   $('incoming-call').classList.remove('show');
   const { callerSlug, call } = ic; App.incomingCallData = null;
@@ -986,11 +1328,16 @@ $('acceptCallBtn').addEventListener('click', async () => {
 });
 
 $('rejectCallBtn').addEventListener('click', async () => {
+  stopCallRing();
   const ic = App.incomingCallData;
   if (ic) { try { await set(dbRef(db, `calls/${App.mySlug}/${ic.callerSlug}/status`), 'rejected'); } catch {} try { await remove(dbRef(db, `calls/${App.mySlug}/${ic.callerSlug}`)); } catch {} }
   App.incomingCallData = null; $('incoming-call').classList.remove('show');
 });
-$('endCallBtn').addEventListener('click', async () => { if (App.activeCall) { try { await set(dbRef(db, App.activeCall.callRefPath + '/status'), 'ended'); } catch {} } endCallCleanup(); });
+$('endCallBtn').addEventListener('click', async () => {
+  stopCallRing();
+  if (App.activeCall) { try { await set(dbRef(db, App.activeCall.callRefPath + '/status'), 'ended'); } catch {} }
+  endCallCleanup();
+});
 $('muteBtn').addEventListener('click', function() {
   if (!App.localStream) return;
   App.muted = !App.muted;
@@ -999,6 +1346,7 @@ $('muteBtn').addEventListener('click', function() {
   this.textContent = App.muted ? '🔇' : '🎤';
 });
 async function endCallCleanup() {
+  stopCallRing();
   if (App.pc) { try { App.pc.close(); } catch {} App.pc = null; }
   if (App.localStream) { App.localStream.getTracks().forEach(t => t.stop()); App.localStream = null; }
   App.callUnsubs.forEach(u => { try { u(); } catch {} }); App.callUnsubs = [];
