@@ -16,40 +16,14 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 #app{height:100%;display:flex;flex-direction:column;max-width:500px;margin:0 auto;background:var(--bg);position:relative;box-shadow:0 0 40px rgba(0,0,0,.15)}
 .screen{flex:1;display:none;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
 .screen.active{display:flex}
-
-/* ═══════════ INSTALL BANNER ═══════════ */
-.install-banner{
-  background:linear-gradient(90deg,var(--navy),var(--accent));
-  color:#fff;padding:10px 14px;
-  display:none;align-items:center;gap:10px;
-  font-size:13px;flex-shrink:0;
-  border-bottom:1px solid rgba(255,255,255,.1);
-  position:relative;
-}
+.install-banner{background:linear-gradient(90deg,var(--navy),var(--accent));color:#fff;padding:10px 14px;display:none;align-items:center;gap:10px;font-size:13px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.1)}
 .install-banner.show{display:flex}
-.install-banner .inst-icon{
-  width:32px;height:32px;border-radius:8px;
-  background:var(--gold);color:var(--navy);
-  display:flex;align-items:center;justify-content:center;
-  font-size:18px;font-weight:800;flex-shrink:0;
-}
+.install-banner .inst-icon{width:32px;height:32px;border-radius:8px;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0}
 .install-banner .inst-text{flex:1;line-height:1.35}
 .install-banner .inst-text strong{display:block;font-size:13px;margin-bottom:1px}
 .install-banner .inst-text small{font-size:11px;opacity:.8}
-.install-banner button{
-  background:#fff;color:var(--navy);
-  border:none;padding:8px 14px;border-radius:18px;
-  font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;
-  letter-spacing:.3px;
-}
-.install-banner .inst-close{
-  background:transparent;color:#fff;
-  padding:4px 6px;font-size:16px;
-  border:none;cursor:pointer;flex-shrink:0;
-  opacity:.7;
-}
-.install-banner .inst-close:active{opacity:1}
-
+.install-banner button{background:#fff;color:var(--navy);border:none;padding:8px 14px;border-radius:18px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0}
+.install-banner .inst-close{background:transparent;color:#fff;padding:4px 6px;font-size:16px;border:none;cursor:pointer;flex-shrink:0;opacity:.7}
 #screen-onboard{background:linear-gradient(160deg,var(--navy) 0%,var(--navy-light) 60%,var(--accent) 100%);color:#fff;justify-content:center;align-items:center;padding:32px 28px;text-align:center}
 .onboard-logo{width:88px;height:88px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:800;margin-bottom:22px;box-shadow:0 8px 30px rgba(212,175,55,.35)}
 #screen-onboard h1{font-size:26px;letter-spacing:.5px;margin-bottom:8px;font-weight:700}
@@ -57,11 +31,10 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .onboard-input{width:100%;max-width:320px;padding:15px 18px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);border-radius:12px;font-size:16px;color:#fff;outline:none;margin-bottom:12px;text-align:center;letter-spacing:.5px}
 .onboard-input::placeholder{color:rgba(255,255,255,.5)}
 .onboard-input:focus{border-color:var(--gold)}
-.name-status{font-size:12px;color:rgba(255,255,255,.75);margin-bottom:14px;min-height:18px;letter-spacing:.3px}
+.name-status{font-size:12px;color:rgba(255,255,255,.75);margin-bottom:14px;min-height:18px}
 .name-status.ok{color:#4aff7a;font-weight:600}
 .name-status.bad{color:#ff8b8b;font-weight:600}
 .btn-primary{width:100%;max-width:320px;padding:15px;border:none;border-radius:12px;background:var(--gold);color:var(--navy);font-size:16px;font-weight:700;cursor:pointer}
-.btn-primary:active{transform:scale(.98)}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
 .app-header{background:var(--navy);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0}
 .app-header .logo{width:36px;height:36px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;flex-shrink:0}
@@ -74,13 +47,12 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .nav-item{flex:1;padding:10px 0 12px;text-align:center;font-size:10.5px;color:var(--muted);cursor:pointer;font-weight:600;border:none;background:none;position:relative}
 .nav-item .icon{display:block;font-size:22px;margin-bottom:2px}
 .nav-item.active{color:var(--navy)}
-.nav-badge{position:absolute;top:4px;left:50%;transform:translateX(6px);background:var(--red);color:#fff;font-size:9.5px;font-weight:700;min-width:17px;height:17px;border-radius:9px;padding:0 5px;display:none;align-items:center;justify-content:center;line-height:1;border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,.25);pointer-events:none}
+.nav-badge{position:absolute;top:4px;left:50%;transform:translateX(6px);background:var(--red);color:#fff;font-size:9.5px;font-weight:700;min-width:17px;height:17px;border-radius:9px;padding:0 5px;display:none;align-items:center;justify-content:center;line-height:1;border:2px solid #fff;pointer-events:none}
 .nav-badge.show{display:flex}
-.unread-badge{background:var(--red);color:#fff;font-size:11px;font-weight:700;min-width:20px;height:20px;border-radius:10px;padding:0 6px;display:none;align-items:center;justify-content:center;line-height:1;flex-shrink:0;box-shadow:0 1px 4px rgba(255,71,87,.4)}
+.unread-badge{background:var(--red);color:#fff;font-size:11px;font-weight:700;min-width:20px;height:20px;border-radius:10px;padding:0 6px;display:none;align-items:center;justify-content:center;line-height:1;flex-shrink:0}
 .unread-badge.show{display:flex}
 .section-title{font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:18px 20px 8px}
 .list-item{background:var(--card);padding:14px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;border-bottom:1px solid var(--border)}
-.list-item:active{background:#f0f3f6}
 .list-item:last-child{border-bottom:none}
 .avatar{width:46px;height:46px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0;overflow:hidden}
 .avatar img{width:100%;height:100%;object-fit:cover;display:block}
@@ -94,7 +66,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .empty{text-align:center;padding:60px 30px;color:var(--muted)}
 .empty .empty-icon{font-size:48px;margin-bottom:12px;opacity:.4}
 .empty p{font-size:14px;line-height:1.5}
-.fab{position:absolute;bottom:88px;right:20px;width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:26px;cursor:pointer;box-shadow:0 6px 20px rgba(13,122,140,.4);display:flex;align-items:center;justify-content:center;z-index:9}
+.fab{position:absolute;bottom:88px;right:20px;width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:9}
 .chat-header{background:var(--navy);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px;min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0}
 .chat-header .back-btn{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:0 4px}
 .chat-header .chat-avatar{width:36px;height:36px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0;overflow:hidden}
@@ -103,9 +75,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .chat-header .chat-title h3{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chat-header .chat-title small{font-size:11px;color:var(--green);display:block;margin-top:1px}
 .messages{flex:1;overflow-y:auto;padding:16px 14px;background:#e5ecf2}
-.messages::-webkit-scrollbar{display:none}
-.msg{max-width:78%;padding:9px 13px;border-radius:16px;font-size:14.5px;line-height:1.4;margin-bottom:8px;word-wrap:break-word;animation:msgIn .2s}
-@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg{max-width:78%;padding:9px 13px;border-radius:16px;font-size:14.5px;line-height:1.4;margin-bottom:8px;word-wrap:break-word}
 .msg.out{background:#d9fdd3;margin-left:auto;border-bottom-right-radius:4px}
 .msg.in{background:#fff;margin-right:auto;border-bottom-left-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
 .msg .time{font-size:10px;color:var(--muted);display:block;margin-top:3px;text-align:right}
@@ -122,9 +92,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .msg .attach-file .file-size{font-size:11px;color:var(--muted);margin-top:1px}
 .chat-input-bar{background:#fff;border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0;position:relative}
 .chat-input-bar input[type="text"]{flex:1;padding:11px 16px;border:1px solid var(--border);border-radius:22px;font-size:15px;outline:none;background:#f7f9fb;min-width:0}
-.chat-input-bar input[type="text"]:focus{border-color:var(--accent)}
 .attach-btn{background:transparent;border:none;font-size:22px;color:var(--accent);width:40px;height:40px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.attach-btn:active{background:#e5ecf2}
 .chat-input-bar .send-btn{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:20px;cursor:pointer;flex-shrink:0}
 .chat-input-bar .send-btn:disabled{opacity:.4}
 .upload-bar{position:absolute;top:-1px;left:0;right:0;height:3px;background:#e1e7ed;border-radius:2px;overflow:hidden;display:none}
@@ -136,9 +104,8 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 #lightbox .close-lb{position:absolute;top:20px;right:20px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;border:none;font-size:24px;cursor:pointer}
 #lightbox .dl-lb{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);padding:12px 28px;border-radius:24px;background:var(--gold);color:var(--navy);border:none;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none}
 #screen-call{background:linear-gradient(180deg,var(--navy) 0%,#061e3a 100%);color:#fff;justify-content:center;align-items:center;padding:40px 24px;text-align:center}
-.call-avatar{width:120px;height:120px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:800;margin-bottom:24px;animation:pulse 2s infinite;overflow:hidden}
+.call-avatar{width:120px;height:120px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:800;margin-bottom:24px;overflow:hidden}
 .call-avatar img{width:100%;height:100%;object-fit:cover;display:block}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(212,175,55,.6)}70%{box-shadow:0 0 0 30px rgba(212,175,55,0)}100%{box-shadow:0 0 0 0 rgba(212,175,55,0)}}
 .call-name{font-size:24px;font-weight:700;margin-bottom:6px}
 .call-status{font-size:14px;color:rgba(255,255,255,.75);margin-bottom:48px;min-height:20px}
 .call-status.active{color:var(--green)}
@@ -171,8 +138,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .profile-card .username{font-size:13px;color:var(--accent);font-weight:600;margin-bottom:8px}
 .profile-card .role-label{font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-weight:600}
 .help-text{font-size:12.5px;color:var(--muted);line-height:1.6;text-align:left;margin-top:16px}
-.menu-item{background:var(--card);padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;cursor:pointer;font-size:15px}
-.menu-item:active{background:#f0f3f6}
+.menu-item{background:var(--card);padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;cursor:pointer;font-size:15px;text-decoration:none;color:var(--text)}
 .menu-item .menu-icon{font-size:20px;width:24px;text-align:center}
 .menu-item .menu-arrow{margin-left:auto;color:var(--muted);font-size:18px}
 .menu-item.install-highlight{background:linear-gradient(90deg,#fef9e7,#fff);border-left:3px solid var(--gold)}
@@ -182,7 +148,6 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .modal h3{font-size:18px;margin-bottom:6px}
 .modal p{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.5}
 .modal input{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;margin-bottom:12px;outline:none}
-.modal input:focus{border-color:var(--accent)}
 .modal-status{font-size:12px;margin-bottom:10px;min-height:16px}
 .modal-status.ok{color:#15803d;font-weight:600}
 .modal-status.bad{color:#b91c1c;font-weight:600}
@@ -191,52 +156,16 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .modal-actions .cancel{background:#eef2f6;color:var(--text)}
 .modal-actions .confirm{background:var(--accent);color:#fff}
 .modal-actions .confirm:disabled{opacity:.5}
-
-/* ═══════════ INSTALL MODAL — step-by-step ═══════════ */
 .install-steps{list-style:none;padding:0;margin:8px 0 18px;counter-reset:step}
-.install-steps li{
-  counter-increment:step;
-  padding:14px 14px 14px 48px;position:relative;
-  background:#f7fafc;border-radius:10px;margin-bottom:10px;
-  font-size:13.5px;line-height:1.5;color:var(--text);
-  border:1px solid var(--border);
-}
-.install-steps li::before{
-  content:counter(step);
-  position:absolute;left:12px;top:50%;transform:translateY(-50%);
-  width:26px;height:26px;border-radius:50%;
-  background:var(--accent);color:#fff;
-  display:flex;align-items:center;justify-content:center;
-  font-size:13px;font-weight:800;
-}
+.install-steps li{counter-increment:step;padding:14px 14px 14px 48px;position:relative;background:#f7fafc;border-radius:10px;margin-bottom:10px;font-size:13.5px;line-height:1.5;border:1px solid var(--border)}
+.install-steps li::before{content:counter(step);position:absolute;left:12px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
 .install-steps li strong{color:var(--navy);font-weight:700}
-.install-steps li .inline-icon{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:22px;height:22px;border-radius:5px;
-  background:#e0e7ec;color:var(--navy);
-  font-size:13px;vertical-align:middle;margin:0 2px;font-weight:700;
-}
-.install-hero{
-  text-align:center;margin-bottom:14px;
-}
-.install-hero .install-app-icon{
-  width:64px;height:64px;border-radius:16px;
-  background:var(--navy);color:var(--gold);
-  display:inline-flex;align-items:center;justify-content:center;
-  font-size:34px;font-weight:800;
-  margin-bottom:10px;
-  box-shadow:0 6px 20px rgba(11,42,74,.25);
-}
+.install-steps li .inline-icon{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:5px;background:#e0e7ec;color:var(--navy);font-size:13px;vertical-align:middle;margin:0 2px;font-weight:700}
+.install-hero{text-align:center;margin-bottom:14px}
+.install-hero .install-app-icon{width:64px;height:64px;border-radius:16px;background:var(--navy);color:var(--gold);display:inline-flex;align-items:center;justify-content:center;font-size:34px;font-weight:800;margin-bottom:10px;box-shadow:0 6px 20px rgba(11,42,74,.25)}
 .install-hero h3{font-size:20px;margin-bottom:4px;color:var(--navy)}
 .install-hero p{font-size:13px;color:var(--muted);margin:0}
-.install-cta{
-  width:100%;padding:14px;border-radius:12px;
-  background:var(--gold);color:var(--navy);
-  border:none;font-size:15px;font-weight:800;cursor:pointer;
-  letter-spacing:.3px;margin-bottom:10px;
-}
-.install-cta:active{transform:scale(.98)}
-
+.install-cta{width:100%;padding:14px;border-radius:12px;background:var(--gold);color:var(--navy);border:none;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:.3px;margin-bottom:10px}
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--navy);color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:200;max-width:90%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #incoming-call{position:fixed;inset:0;background:linear-gradient(180deg,var(--navy) 0%,#061e3a 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:150;padding:40px 24px;text-align:center}
@@ -246,18 +175,13 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 <body>
 <div id="app">
 
-<!-- ═══════════ INSTALL BANNER (shows after onboarding) ═══════════ -->
 <div class="install-banner" id="installBanner">
   <div class="inst-icon">G</div>
-  <div class="inst-text">
-    <strong>Install G Comm</strong>
-    <small>Add to your home screen</small>
-  </div>
+  <div class="inst-text"><strong>Install G Comm</strong><small>Add to your home screen</small></div>
   <button id="installBannerBtn">Install</button>
   <button class="inst-close" id="installBannerClose">✕</button>
 </div>
 
-<!-- ═══════════ ONBOARDING ═══════════ -->
 <section id="screen-onboard" class="screen active">
   <div class="onboard-logo">G</div>
   <h1>G Communication Portal</h1>
@@ -267,7 +191,6 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
   <button id="enterBtn" class="btn-primary" disabled>Enter Portal</button>
 </section>
 
-<!-- ═══════════ MAIN ═══════════ -->
 <section id="screen-main" class="screen">
   <header class="app-header">
     <div class="logo">G</div>
@@ -302,13 +225,14 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
         <strong>Your name is your address.</strong> Anyone can message you by typing <span id="profileUsername2" style="color:var(--accent);font-weight:700">@you</span> in Add Contact.
       </div>
     </div>
-
-    <!-- Install card — always visible in Profile -->
     <div class="menu-item install-highlight" id="installMenuItem">
       <span class="menu-icon">⬇️</span> Install app on this phone
       <span class="menu-arrow">›</span>
     </div>
-
+    <a id="cloneBtn" href="#" target="_blank" rel="noopener" class="menu-item">
+      <span class="menu-icon">🐙</span> Clone this app on GitHub
+      <span class="menu-arrow">›</span>
+    </a>
     <div class="menu-item" id="helpBtn"><span class="menu-icon">❓</span> How it works <span class="menu-arrow">›</span></div>
     <div class="menu-item" id="clearBtn"><span class="menu-icon">🗑</span> Clear local data <span class="menu-arrow">›</span></div>
   </div>
@@ -321,7 +245,6 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
   </nav>
 </section>
 
-<!-- ═══════════ CHAT ═══════════ -->
 <section id="screen-chat" class="screen">
   <header class="chat-header">
     <button class="back-btn" id="chatBackBtn">‹</button>
@@ -341,7 +264,6 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
   </div>
 </section>
 
-<!-- ═══════════ CALL ═══════════ -->
 <section id="screen-call" class="screen">
   <div class="call-avatar" id="callAvatar">G</div>
   <div class="call-name" id="callName">—</div>
@@ -362,7 +284,6 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
   </div>
 </div>
 
-<!-- ═══════════ ADD CONTACT MODAL ═══════════ -->
 <div class="modal-overlay" id="addModal">
   <div class="modal">
     <h3>Add by name</h3>
@@ -376,7 +297,6 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
   </div>
 </div>
 
-<!-- ═══════════ HELP MODAL ═══════════ -->
 <div class="modal-overlay" id="helpModal">
   <div class="modal">
     <h3>How it works</h3>
@@ -390,7 +310,6 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
   </div>
 </div>
 
-<!-- ═══════════ INSTALL MODAL ═══════════ -->
 <div class="modal-overlay" id="installModal">
   <div class="modal">
     <div class="install-hero">
@@ -398,10 +317,8 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
       <h3>Install G Comm</h3>
       <p id="installSubtitle">Add the app to your home screen for instant access</p>
     </div>
-    <div id="installBody"><!-- filled by JS depending on platform --></div>
-    <div class="modal-actions">
-      <button class="cancel" id="installClose">Close</button>
-    </div>
+    <div id="installBody"></div>
+    <div class="modal-actions"><button class="cancel" id="installClose">Close</button></div>
   </div>
 </div>
 
@@ -470,93 +387,67 @@ function previewText(last) {
   return last.text || '';
 }
 
-/* ═══════════════════════════════════════════════════════════
-   INSTALL APP — PWA install prompt + iOS instructions
-   ═══════════════════════════════════════════════════════════ */
+/* ═══════════ CLONE BUTTON — auto-detect repo ═══════════ */
+(function fixCloneButton() {
+  const btn = document.getElementById('cloneBtn');
+  if (!btn) return;
+  try {
+    const host = window.location.hostname;
+    const path = window.location.pathname;
+    if (host.endsWith('.github.io')) {
+      const username = host.split('.')[0];
+      const repoName = path.split('/').filter(Boolean)[0];
+      if (username && repoName) {
+        btn.href = `https://github.com/${username}/${repoName}`;
+        return;
+      }
+    }
+    btn.href = 'https://github.com';
+  } catch (err) {
+    btn.href = 'https://github.com';
+  }
+})();
 
-// Detect iOS
+/* ═══════════ INSTALL ═══════════ */
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-// Detect if running as installed app
-const isStandalone =
-  window.matchMedia('(display-mode: standalone)').matches ||
-  window.navigator.standalone === true ||
-  document.referrer.startsWith('android-app://');
-
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true || document.referrer.startsWith('android-app://');
 App.isInstalled = isStandalone;
 
-// Capture the deferred install prompt (Android Chrome/Edge)
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   App.installPrompt = e;
   if (!isStandalone) showInstallBanner();
 });
-
-// Listen for successful install
 window.addEventListener('appinstalled', () => {
   App.installPrompt = null;
   hideInstallBanner();
   toast('App installed — check your home screen!');
   App.isInstalled = true;
 });
-
 function showInstallBanner() {
-  // Only show if not dismissed and not already installed
   if (isStandalone) return;
-  const dismissed = LS.get('installBannerDismissed', false);
-  if (dismissed) return;
+  if (LS.get('installBannerDismissed', false)) return;
   $('installBanner').classList.add('show');
 }
-function hideInstallBanner() {
-  $('installBanner').classList.remove('show');
-}
-
-$('installBannerClose').addEventListener('click', () => {
-  LS.set('installBannerDismissed', true);
-  hideInstallBanner();
-});
-
-$('installBannerBtn').addEventListener('click', () => {
-  triggerInstall();
-});
-
-$('installMenuItem').addEventListener('click', () => {
-  triggerInstall();
-});
-
+function hideInstallBanner() { $('installBanner').classList.remove('show'); }
+$('installBannerClose').addEventListener('click', () => { LS.set('installBannerDismissed', true); hideInstallBanner(); });
+$('installBannerBtn').addEventListener('click', () => triggerInstall());
+$('installMenuItem').addEventListener('click', () => triggerInstall());
 async function triggerInstall() {
-  // Already installed → just confirm
-  if (isStandalone || App.isInstalled) {
-    toast('Already installed — open from your home screen');
-    return;
-  }
-
-  // Android: real native prompt
+  if (isStandalone || App.isInstalled) { toast('Already installed — open from your home screen'); return; }
   if (App.installPrompt) {
     App.installPrompt.prompt();
     const choice = await App.installPrompt.userChoice;
-    if (choice.outcome === 'accepted') {
-      toast('Installing…');
-      hideInstallBanner();
-    } else {
-      toast('Installation cancelled');
-    }
+    if (choice.outcome === 'accepted') { toast('Installing…'); hideInstallBanner(); }
+    else toast('Installation cancelled');
     App.installPrompt = null;
     return;
   }
-
-  // iOS: show manual instructions
-  if (isIOS) {
-    openInstallModal('ios');
-    return;
-  }
-
-  // Desktop Chrome without prompt yet — show generic
+  if (isIOS) { openInstallModal('ios'); return; }
   openInstallModal('generic');
 }
-
 function openInstallModal(platform) {
   const body = $('installBody');
-
   if (platform === 'ios') {
     $('installSubtitle').textContent = 'Follow these steps to add G Comm to your iPhone home screen';
     body.innerHTML = `
@@ -569,40 +460,25 @@ function openInstallModal(platform) {
       </ol>
       <button class="install-cta" onclick="document.getElementById('installModal').classList.remove('show')">Got it</button>
     `;
-  } else if (platform === 'generic') {
+  } else {
     $('installSubtitle').textContent = 'Add G Comm to your home screen for one-tap access';
     body.innerHTML = `
       <ol class="install-steps">
         <li>Open this page in <strong>Chrome</strong> or <strong>Edge</strong> on Android, or <strong>Safari</strong> on iPhone.</li>
         <li>Look for the <strong>install icon</strong> <span class="inline-icon">⬇</span> in the address bar (or tap the three dots menu).</li>
         <li>Tap <strong>Install app</strong> or <strong>Add to Home Screen</strong>.</li>
-        <li>The G Comm icon will appear on your home screen — tap it to open the app instantly, without a browser.</li>
+        <li>The G Comm icon will appear on your home screen.</li>
       </ol>
       <button class="install-cta" onclick="document.getElementById('installModal').classList.remove('show')">Got it</button>
     `;
   }
   $('installModal').classList.add('show');
 }
-
 $('installClose').addEventListener('click', () => $('installModal').classList.remove('show'));
 
-// Check on load
-window.addEventListener('load', () => {
-  if (!isStandalone) {
-    // Show banner after a short delay if user is already set up
-    setTimeout(() => {
-      if (App.mySlug && !App.installPrompt) showInstallBanner();
-    }, 2000);
-  }
-});
-
-/* ═══════════════════════════════════════════════════════════
-   THE REST OF THE APP — unchanged from previous version
-   ═══════════════════════════════════════════════════════════ */
-
+/* ═══════════ ONBOARDING ═══════════ */
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
 let nameCheckTimer = null, nameCheckOk = false;
-
 nameInput.addEventListener('input', () => {
   enterBtn.disabled = true; nameCheckOk = false;
   const slug = slugify(nameInput.value);
@@ -617,7 +493,6 @@ nameInput.addEventListener('input', () => {
     } catch { nameStatus.textContent = 'Could not check — check connection'; nameStatus.className = 'name-status bad'; }
   }, 400);
 });
-
 enterBtn.addEventListener('click', async () => {
   if (!nameCheckOk) return;
   const slug = slugify(nameInput.value);
@@ -628,18 +503,14 @@ enterBtn.addEventListener('click', async () => {
       if (current === null) return { slug, displayName: nameInput.value.trim() || slug, createdAt: Date.now(), photo: null };
       return;
     });
-    if (!result.committed) {
-      toast('That name was just taken'); enterBtn.disabled = false; enterBtn.textContent = 'Enter Portal'; return;
-    }
+    if (!result.committed) { toast('That name was just taken'); enterBtn.disabled = false; enterBtn.textContent = 'Enter Portal'; return; }
     App.mySlug = slug;
     App.myName = result.snapshot.val().displayName;
     App.myPhoto = LS.get('avatar', null);
     if (App.myPhoto) await set(dbRef(db, 'users/' + slug + '/photo'), App.myPhoto);
     LS.set('mySlug', slug); LS.set('myName', App.myName);
     startMainApp();
-  } catch (e) {
-    console.error(e); toast('Try again'); enterBtn.disabled = false; enterBtn.textContent = 'Enter Portal';
-  }
+  } catch (e) { console.error(e); toast('Try again'); enterBtn.disabled = false; enterBtn.textContent = 'Enter Portal'; }
 });
 
 window.addEventListener('load', () => {
@@ -661,13 +532,7 @@ function startMainApp() {
   listenForIncomingCalls();
   listenVoicemails();
   App.contacts.forEach(c => { listenContactPhoto(c.slug); setupGlobalMessageListener(c.slug); });
-  // Show install banner if not installed
-  if (!isStandalone) {
-    setTimeout(() => {
-      if (!App.installPrompt && !isIOS) return; // no prompt available yet
-      showInstallBanner();
-    }, 1500);
-  }
+  if (!isStandalone) setTimeout(() => { if (!App.installPrompt && !isIOS) return; showInstallBanner(); }, 1500);
 }
 
 function updateProfileHeader() {
@@ -675,19 +540,10 @@ function updateProfileHeader() {
   $('profileUsername').textContent = '@' + App.mySlug;
   $('profileUsername2').textContent = '@' + App.mySlug;
   const box = $('profileAvatar'), img = $('profileAvatarImg'), letter = $('profileAvatarLetter');
-  if (App.myPhoto) {
-    img.src = App.myPhoto; img.style.display = 'block'; letter.style.display = 'none';
-    box.classList.add('has-photo');
-  } else {
-    img.src = ''; img.style.display = 'none'; letter.style.display = 'inline';
-    letter.textContent = App.myName.charAt(0).toUpperCase(); box.classList.remove('has-photo');
-  }
+  if (App.myPhoto) { img.src = App.myPhoto; img.style.display = 'block'; letter.style.display = 'none'; box.classList.add('has-photo'); }
+  else { img.src = ''; img.style.display = 'none'; letter.style.display = 'inline'; letter.textContent = App.myName.charAt(0).toUpperCase(); box.classList.remove('has-photo'); }
 }
-
-$('profileAvatar').addEventListener('click', e => {
-  if (e.target === $('avatarRemove')) return;
-  $('avatarInput').click();
-});
+$('profileAvatar').addEventListener('click', e => { if (e.target === $('avatarRemove')) return; $('avatarInput').click(); });
 $('avatarRemove').addEventListener('click', async e => {
   e.stopPropagation();
   if (!confirm('Remove your profile photo?')) return;
@@ -696,8 +552,7 @@ $('avatarRemove').addEventListener('click', async e => {
   toast('Photo removed');
 });
 $('avatarInput').addEventListener('change', async e => {
-  const file = e.target.files && e.target.files[0];
-  if (!file) return;
+  const file = e.target.files && e.target.files[0]; if (!file) return;
   if (!file.type.startsWith('image/')) { toast('Pick an image'); return; }
   try {
     toast('Processing…');
@@ -719,8 +574,7 @@ function resizeImage(file, size) {
         const c = document.createElement('canvas'); c.width = size; c.height = size;
         const ctx = c.getContext('2d');
         const min = Math.min(img.width, img.height);
-        const sx = (img.width - min) / 2, sy = (img.height - min) / 2;
-        ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
+        ctx.drawImage(img, (img.width - min) / 2, (img.height - min) / 2, min, min, 0, 0, size, size);
         resolve(c.toDataURL('image/jpeg', 0.82));
       };
       img.src = ev.target.result;
@@ -845,8 +699,7 @@ function setupGlobalMessageListener(slug) {
 }
 
 function renderAttachment(m) {
-  const a = m.attachment;
-  if (!a) return '';
+  const a = m.attachment; if (!a) return '';
   if (a.type === 'image') return `<img class="attach-img" src="${a.url}" loading="lazy" onclick="window.__lb('${a.url.replace(/'/g,"\\'")}','${esc(a.name||'photo')}')">`;
   if (a.type === 'video') return `<video class="attach-video" controls preload="metadata" src="${a.url}"></video>`;
   return `<a class="attach-file" href="${a.url}" target="_blank" download="${esc(a.name||'file')}">
@@ -857,8 +710,7 @@ function renderAttachment(m) {
 }
 
 function renderMessages(slug, msgs) {
-  const area = $('messagesArea');
-  if (!area) return;
+  const area = $('messagesArea'); if (!area) return;
   if (!msgs.length) { area.innerHTML = '<div class="empty"><p style="font-size:13px;">Say hello 👋</p></div>'; return; }
   area.innerHTML = msgs.map(m => {
     const out = m.from === App.mySlug;
@@ -915,11 +767,9 @@ document.querySelectorAll('.nav-item').forEach(btn => {
 
 function updateChatHeader(c) { $('chatName').textContent = c.name; $('chatAvatar').innerHTML = avatarInner(c.photo, c.name); }
 function openChat(slug) {
-  const c = App.contacts.find(x => x.slug === slug);
-  if (!c) return;
+  const c = App.contacts.find(x => x.slug === slug); if (!c) return;
   App.activeChat = slug;
-  updateChatHeader(c);
-  $('sendBtn').disabled = false;
+  updateChatHeader(c); $('sendBtn').disabled = false;
   App.lastRead[slug] = Date.now(); saveLastRead(); App.unread[slug] = 0; updateUnreadBadges();
   showScreen('screen-chat');
   if (App.lastMessages[slug]) renderMessages(slug, App.lastMessages[slug]);
@@ -929,10 +779,8 @@ async function sendMessage() {
   const input = $('chatInput'); const text = input.value.trim();
   if (!text || !App.activeChat) return;
   const cid = chatIdFor(App.mySlug, App.activeChat);
-  try {
-    await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: App.activeChat, text, time: Date.now() });
-    input.value = '';
-  } catch { toast('Send failed'); }
+  try { await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: App.activeChat, text, time: Date.now() }); input.value = ''; }
+  catch { toast('Send failed'); }
 }
 $('sendBtn').addEventListener('click', sendMessage);
 $('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
@@ -940,10 +788,7 @@ $('chatBackBtn').addEventListener('click', () => { App.activeChat = null; showSc
 $('callFromChatBtn').addEventListener('click', () => { if (App.activeChat) startCall(App.activeChat); });
 
 const MAX_BYTES = 25 * 1024 * 1024;
-$('attachBtn').addEventListener('click', () => {
-  if (!App.activeChat) return toast('Open a chat first');
-  $('fileInput').value = ''; $('fileInput').click();
-});
+$('attachBtn').addEventListener('click', () => { if (!App.activeChat) return toast('Open a chat first'); $('fileInput').value = ''; $('fileInput').click(); });
 $('fileInput').addEventListener('change', async e => {
   const file = e.target.files && e.target.files[0];
   if (!file || !App.activeChat) return;
@@ -955,10 +800,7 @@ $('fileInput').addEventListener('change', async e => {
     let uploadFile = file;
     if (isImage) {
       toast('Optimizing…');
-      try {
-        const blob = await compressImg(file, 1600, 0.85);
-        uploadFile = new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' });
-      } catch {}
+      try { const blob = await compressImg(file, 1600, 0.85); uploadFile = new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }); } catch {}
     }
     await doUpload(uploadFile, recipient, isImage, isVideo, file.name);
   } catch (err) { console.error(err); toast('Upload failed: ' + (err.message || 'unknown')); }
@@ -1011,11 +853,7 @@ function doUpload(file, recipient, isImage, isVideo, displayName) {
     );
   });
 }
-window.__lb = (url, name) => {
-  $('lightboxImg').src = url; $('lightboxDownload').href = url;
-  $('lightboxDownload').download = name || 'photo';
-  $('lightbox').classList.add('show');
-};
+window.__lb = (url, name) => { $('lightboxImg').src = url; $('lightboxDownload').href = url; $('lightboxDownload').download = name || 'photo'; $('lightbox').classList.add('show'); };
 $('lightboxClose').addEventListener('click', () => $('lightbox').classList.remove('show'));
 $('lightbox').addEventListener('click', e => { if (e.target === $('lightbox')) $('lightbox').classList.remove('show'); });
 
@@ -1050,10 +888,8 @@ function sendVoicemail(blob, recipient) {
   if (blob.size > 700000) return toast('Too large');
   const r = new FileReader();
   r.onload = async () => {
-    try {
-      await push(dbRef(db, 'voicemails/' + recipient), { from: App.mySlug, fromName: App.myName, data: r.result, mime: blob.type, time: Date.now() });
-      toast('Voicemail sent');
-    } catch { toast('Failed'); }
+    try { await push(dbRef(db, 'voicemails/' + recipient), { from: App.mySlug, fromName: App.myName, data: r.result, mime: blob.type, time: Date.now() }); toast('Voicemail sent'); }
+    catch { toast('Failed'); }
   };
   r.readAsDataURL(blob);
 }
@@ -1061,44 +897,28 @@ function listenVoicemails() {
   if (!App.mySlug) return;
   if (App.vmUnsub) { try { App.vmUnsub(); } catch {} }
   App.vmUnsub = onValue(dbRef(db, 'voicemails/' + App.mySlug), snap => {
-    const data = snap.val();
-    const listEl = $('voicemailList');
-    if (!listEl) return;
+    const data = snap.val(); const listEl = $('voicemailList'); if (!listEl) return;
     if (!data) { listEl.innerHTML = '<div class="empty"><p>No voicemails.</p></div>'; return; }
     const vms = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (b.time || 0) - (a.time || 0));
     listEl.innerHTML = vms.map((v, i) => {
       const who = v.fromName || v.from || 'Unknown';
-      return `<div class="vm-item">
-        <button class="vm-play" data-i="${i}">▶</button>
-        <div class="vm-body"><div class="vm-title">From: ${esc(who)}</div><div class="vm-meta">${new Date(v.time || 0).toLocaleString()}</div></div>
-        <button class="vm-del" data-del="${v._k}">🗑</button></div>`;
+      return `<div class="vm-item"><button class="vm-play" data-i="${i}">▶</button><div class="vm-body"><div class="vm-title">From: ${esc(who)}</div><div class="vm-meta">${new Date(v.time || 0).toLocaleString()}</div></div><button class="vm-del" data-del="${v._k}">🗑</button></div>`;
     }).join('');
-    listEl.querySelectorAll('[data-i]').forEach(btn => btn.addEventListener('click', () => {
-      const v = vms[parseInt(btn.dataset.i)];
-      try { new Audio(v.data).play().catch(() => toast('Cannot play')); toast('Playing…'); } catch {}
-    }));
-    listEl.querySelectorAll('[data-del]').forEach(btn => btn.addEventListener('click', async () => {
-      try { await remove(dbRef(db, 'voicemails/' + App.mySlug + '/' + btn.dataset.del)); } catch {}
-    }));
+    listEl.querySelectorAll('[data-i]').forEach(btn => btn.addEventListener('click', () => { const v = vms[parseInt(btn.dataset.i)]; try { new Audio(v.data).play().catch(() => toast('Cannot play')); toast('Playing…'); } catch {} }));
+    listEl.querySelectorAll('[data-del]').forEach(btn => btn.addEventListener('click', async () => { try { await remove(dbRef(db, 'voicemails/' + App.mySlug + '/' + btn.dataset.del)); } catch {} }));
   });
 }
 
 async function startCall(calleeSlug) {
   if (App.activeCall) return toast('Already in a call');
-  const c = App.contacts.find(x => x.slug === calleeSlug);
-  if (!c) return;
-  try { App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
-  catch { return toast('Microphone denied'); }
-  $('callName').textContent = c.name;
-  $('callAvatar').innerHTML = avatarInner(c.photo, c.name);
-  $('callStatus').textContent = 'Calling…';
-  $('callStatus').classList.remove('active');
-  $('muteBtn').classList.remove('muted');
-  App.muted = false;
+  const c = App.contacts.find(x => x.slug === calleeSlug); if (!c) return;
+  try { App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { return toast('Microphone denied'); }
+  $('callName').textContent = c.name; $('callAvatar').innerHTML = avatarInner(c.photo, c.name);
+  $('callStatus').textContent = 'Calling…'; $('callStatus').classList.remove('active');
+  $('muteBtn').classList.remove('muted'); App.muted = false;
   showScreen('screen-call');
   App.activeCall = { peerSlug: calleeSlug, isCaller: true, callRefPath: `calls/${calleeSlug}/${App.mySlug}` };
-  const pc = new RTCPeerConnection(ICE_SERVERS);
-  App.pc = pc;
+  const pc = new RTCPeerConnection(ICE_SERVERS); App.pc = pc;
   App.localStream.getTracks().forEach(t => pc.addTrack(t, App.localStream));
   pc.ontrack = e => { const a = new Audio(); a.srcObject = e.streams[0]; a.autoplay = true; a.play().catch(() => {}); };
   pc.onicecandidate = e => { if (e.candidate) push(dbRef(db, `${App.activeCall.callRefPath}/callerCandidates`), e.candidate.toJSON()).catch(() => {}); };
@@ -1106,26 +926,15 @@ async function startCall(calleeSlug) {
     if (pc.connectionState === 'connected') { $('callStatus').textContent = 'In call'; $('callStatus').classList.add('active'); }
     if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') endCallCleanup();
   };
-  const offer = await pc.createOffer();
-  await pc.setLocalDescription(offer);
-  await set(dbRef(db, App.activeCall.callRefPath), {
-    offer: { type: offer.type, sdp: offer.sdp },
-    callerName: App.myName, callerSlug: App.mySlug,
-    status: 'ringing', createdAt: Date.now()
-  });
+  const offer = await pc.createOffer(); await pc.setLocalDescription(offer);
+  await set(dbRef(db, App.activeCall.callRefPath), { offer: { type: offer.type, sdp: offer.sdp }, callerName: App.myName, callerSlug: App.mySlug, status: 'ringing', createdAt: Date.now() });
   App.callUnsubs.push(onValue(dbRef(db, App.activeCall.callRefPath + '/answer'), async snap => {
     const ans = snap.val();
-    if (ans && pc && !pc.currentRemoteDescription && pc.signalingState === 'have-local-offer') {
-      try { await pc.setRemoteDescription(new RTCSessionDescription(ans)); } catch {}
-    }
+    if (ans && pc && !pc.currentRemoteDescription && pc.signalingState === 'have-local-offer') { try { await pc.setRemoteDescription(new RTCSessionDescription(ans)); } catch {} }
   }));
-  App.callUnsubs.push(onChildAdded(dbRef(db, App.activeCall.callRefPath + '/calleeCandidates'), snap => {
-    const cand = snap.val(); if (cand && pc) pc.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
-  }));
+  App.callUnsubs.push(onChildAdded(dbRef(db, App.activeCall.callRefPath + '/calleeCandidates'), snap => { const cand = snap.val(); if (cand && pc) pc.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {}); }));
   App.callUnsubs.push(onValue(dbRef(db, App.activeCall.callRefPath + '/status'), snap => {
-    const st = snap.val();
-    if (st === 'rejected') { toast('Call rejected'); endCallCleanup(); }
-    if (st === 'ended') endCallCleanup();
+    const st = snap.val(); if (st === 'rejected') { toast('Call rejected'); endCallCleanup(); } if (st === 'ended') endCallCleanup();
   }));
 }
 
@@ -1135,9 +944,7 @@ function listenForIncomingCalls() {
     const calls = snap.val();
     if (!calls) { App.incomingCallData = null; $('incoming-call').classList.remove('show'); return; }
     let ringing = null;
-    for (const [callerSlug, call] of Object.entries(calls)) {
-      if (call && call.status === 'ringing' && call.offer && callerSlug !== App.mySlug) { ringing = { callerSlug, call }; break; }
-    }
+    for (const [callerSlug, call] of Object.entries(calls)) { if (call && call.status === 'ringing' && call.offer && callerSlug !== App.mySlug) { ringing = { callerSlug, call }; break; } }
     if (ringing && !App.incomingCallData && !App.activeCall) {
       App.incomingCallData = ringing;
       const c = App.contacts.find(x => x.slug === ringing.callerSlug);
@@ -1154,8 +961,7 @@ $('acceptCallBtn').addEventListener('click', async () => {
   const ic = App.incomingCallData; if (!ic) return;
   $('incoming-call').classList.remove('show');
   const { callerSlug, call } = ic; App.incomingCallData = null;
-  try { App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
-  catch { return toast('Microphone denied'); }
+  try { App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { return toast('Microphone denied'); }
   const pc = new RTCPeerConnection(ICE_SERVERS); App.pc = pc;
   App.localStream.getTracks().forEach(t => pc.addTrack(t, App.localStream));
   pc.ontrack = e => { const a = new Audio(); a.srcObject = e.streams[0]; a.autoplay = true; a.play().catch(() => {}); };
@@ -1165,8 +971,7 @@ $('acceptCallBtn').addEventListener('click', async () => {
     if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') endCallCleanup();
   };
   await pc.setRemoteDescription(new RTCSessionDescription(call.offer));
-  const answer = await pc.createAnswer();
-  await pc.setLocalDescription(answer);
+  const answer = await pc.createAnswer(); await pc.setLocalDescription(answer);
   await set(dbRef(db, `calls/${App.mySlug}/${callerSlug}/answer`), { type: answer.type, sdp: answer.sdp });
   await set(dbRef(db, `calls/${App.mySlug}/${callerSlug}/status`), 'accepted');
   App.activeCall = { peerSlug: callerSlug, isCaller: false, callRefPath: `calls/${App.mySlug}/${callerSlug}` };
@@ -1176,26 +981,16 @@ $('acceptCallBtn').addEventListener('click', async () => {
   $('callStatus').textContent = 'Connecting…'; $('callStatus').classList.remove('active');
   $('muteBtn').classList.remove('muted'); App.muted = false;
   showScreen('screen-call');
-  App.callUnsubs.push(onChildAdded(dbRef(db, App.activeCall.callRefPath + '/callerCandidates'), snap => {
-    const cand = snap.val(); if (cand && pc) pc.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {});
-  }));
-  App.callUnsubs.push(onValue(dbRef(db, App.activeCall.callRefPath + '/status'), snap => {
-    if (snap.val() === 'ended') endCallCleanup();
-  }));
+  App.callUnsubs.push(onChildAdded(dbRef(db, App.activeCall.callRefPath + '/callerCandidates'), snap => { const cand = snap.val(); if (cand && pc) pc.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {}); }));
+  App.callUnsubs.push(onValue(dbRef(db, App.activeCall.callRefPath + '/status'), snap => { if (snap.val() === 'ended') endCallCleanup(); }));
 });
 
 $('rejectCallBtn').addEventListener('click', async () => {
   const ic = App.incomingCallData;
-  if (ic) {
-    try { await set(dbRef(db, `calls/${App.mySlug}/${ic.callerSlug}/status`), 'rejected'); } catch {}
-    try { await remove(dbRef(db, `calls/${App.mySlug}/${ic.callerSlug}`)); } catch {}
-  }
+  if (ic) { try { await set(dbRef(db, `calls/${App.mySlug}/${ic.callerSlug}/status`), 'rejected'); } catch {} try { await remove(dbRef(db, `calls/${App.mySlug}/${ic.callerSlug}`)); } catch {} }
   App.incomingCallData = null; $('incoming-call').classList.remove('show');
 });
-$('endCallBtn').addEventListener('click', async () => {
-  if (App.activeCall) { try { await set(dbRef(db, App.activeCall.callRefPath + '/status'), 'ended'); } catch {} }
-  endCallCleanup();
-});
+$('endCallBtn').addEventListener('click', async () => { if (App.activeCall) { try { await set(dbRef(db, App.activeCall.callRefPath + '/status'), 'ended'); } catch {} } endCallCleanup(); });
 $('muteBtn').addEventListener('click', function() {
   if (!App.localStream) return;
   App.muted = !App.muted;
@@ -1206,8 +1001,7 @@ $('muteBtn').addEventListener('click', function() {
 async function endCallCleanup() {
   if (App.pc) { try { App.pc.close(); } catch {} App.pc = null; }
   if (App.localStream) { App.localStream.getTracks().forEach(t => t.stop()); App.localStream = null; }
-  App.callUnsubs.forEach(u => { try { u(); } catch {} });
-  App.callUnsubs = [];
+  App.callUnsubs.forEach(u => { try { u(); } catch {} }); App.callUnsubs = [];
   if (App.activeCall) { try { await remove(dbRef(db, App.activeCall.callRefPath)); } catch {} }
   App.activeCall = null; App.muted = false;
   showScreen('screen-main'); toast('Call ended');
