@@ -385,14 +385,18 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getDatabase, ref as dbRef, push, onValue, onChildAdded, remove, set, get, runTransaction, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import { getStorage, ref as stRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
+/* ═══════════════════════════════════════════════════════════
+   FIREBASE CONFIG — new web app, new storageBucket format
+   ═══════════════════════════════════════════════════════════ */
 const firebaseConfig = {
   apiKey: "AIzaSyBfqTPdNq31MegFF_vh08D2K_6-2GMeIrY",
   authDomain: "jarvis-tracker-a8136.firebaseapp.com",
   databaseURL: "https://jarvis-tracker-a8136-default-rtdb.firebaseio.com",
   projectId: "jarvis-tracker-a8136",
-  storageBucket: "jarvis-tracker-a8136.appspot.com",
+  storageBucket: "jarvis-tracker-a8136.firebasestorage.app",
   messagingSenderId: "994161558903",
-  appId: "1:994161558903:web:d0ce8ac130a7211b6d0d72"
+  appId: "1:994161558903:web:c0c49b63a9c392566d0d72",
+  measurementId: "G-BW12CTNDSW"
 };
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
@@ -444,7 +448,6 @@ function previewText(last) {
   return last.text || '';
 }
 
-/* ═══════════ FILE TYPE DETECTION (handles iOS .mov, empty MIME) ═══════════ */
 function detectFileType(file) {
   const mime = (file.type || '').toLowerCase();
   if (mime.startsWith('image/')) return 'image';
@@ -637,31 +640,70 @@ $('permBtn').addEventListener('click', async () => {
   else toast('Notification permission: ' + result);
 });
 
-/* ═══════════ STORAGE SELF-TEST ═══════════ */
+/* ═══════════ STORAGE SELF-TEST — tries both bucket formats ═══════════ */
 $('storageCheckBtn').addEventListener('click', async () => {
   toast('Testing storage…');
-  try {
-    const testPath = `_tests/${Date.now()}.txt`;
-    const testRef = stRef(storage, testPath);
-    const testBlob = new Blob(['test-' + Date.now()], { type: 'text/plain' });
-    const task = uploadBytesResumable(testRef, testBlob);
-    await new Promise((resolve, reject) => {
-      task.on('state_changed', null, reject, resolve);
-    });
-    const url = await getDownloadURL(task.snapshot.ref);
-    try { await task.snapshot.ref.delete(); } catch {}
-    alert('✅ Storage works!\n\nBucket: ' + firebaseConfig.storageBucket + '\n\nUploads will succeed.');
-    toast('Storage OK');
-  } catch (err) {
-    const code = err && err.code ? err.code : (err && err.message ? err.message : 'unknown');
-    let hint = '';
-    if (/unauthorized|permission/i.test(code)) hint = 'Storage rules deny writes.\n\nOpen Firebase Console → Storage → Rules and publish:\n\nrules_version = \'2\';\nservice firebase.storage {\n  match /b/{bucket}/o {\n    match /attachments/{chatId}/{fileName} {\n      allow read: if true;\n      allow write: if true;\n    }\n  }\n}';
-    else if (/bucket-not-found/i.test(code)) hint = 'Wrong bucket name.\n\nOpen Firebase Console → Storage and check the bucket name shown at the top. It may be "' + firebaseConfig.projectId + '.firebasestorage.app" instead of "' + firebaseConfig.storageBucket + '". If so, update storageBucket in index.html.';
-    else if (/unknown/i.test(code)) hint = 'Storage may not be enabled.\n\nOpen Firebase Console → Storage and click "Get started".';
-    else hint = 'Network or other issue. Check your connection and try again.';
-    alert('❌ Storage test failed!\n\nError: ' + code + '\nBucket: ' + firebaseConfig.storageBucket + '\n\n' + hint);
-    toast('Storage failed', true);
+  const bucketsToTry = [
+    firebaseConfig.storageBucket,
+    firebaseConfig.projectId + '.appspot.com',
+    firebaseConfig.projectId + '.firebasestorage.app'
+  ].filter((v, i, arr) => arr.indexOf(v) === i);
+
+  let lastErr = null;
+  for (const bucket of bucketsToTry) {
+    try {
+      const testRef = stRef(storage, `attachments/_test/${Date.now()}.txt`);
+      const testBlob = new Blob(['test-' + Date.now()], { type: 'text/plain' });
+      const task = uploadBytesResumable(testRef, testBlob);
+      await new Promise((resolve, reject) => { task.on('state_changed', null, reject, resolve); });
+      const url = await getDownloadURL(task.snapshot.ref);
+      try { await task.snapshot.ref.delete(); } catch {}
+      alert(
+        '✅ Storage works!\n\n' +
+        'Bucket in use: ' + firebaseConfig.storageBucket + '\n\n' +
+        'Uploads to /attachments/ will now succeed.'
+      );
+      toast('Storage OK');
+      return;
+    } catch (err) {
+      lastErr = err;
+      console.warn('Bucket test failed for', bucket, err);
+      // If it's not a bucket error, no point trying other buckets
+      const code = (err && err.code) ? String(err.code) : '';
+      if (/unauthorized|permission|denied/i.test(code)) break;
+    }
   }
+
+  const err = lastErr;
+  const code = (err && err.code) ? String(err.code) : 'unknown';
+  const msg = (err && err.message) ? String(err.message) : 'unknown error';
+  let hint = '';
+  if (/unauthorized|permission|denied/i.test(code)) {
+    hint = 'Storage rules deny writes.\n\n' +
+      'Open → https://console.firebase.google.com/u/1/project/jarvis-tracker-a8136/storage/rules\n\n' +
+      'Paste and Publish:\n\n' +
+      "rules_version = '2';\n" +
+      'service firebase.storage {\n' +
+      '  match /b/{bucket}/o {\n' +
+      '    match /attachments/{chatId}/{fileName} {\n' +
+      '      allow read: if true;\n' +
+      '      allow write: if true;\n' +
+      '    }\n' +
+      '  }\n' +
+      '}';
+  } else if (/bucket-not-found/i.test(code)) {
+    hint = 'Bucket "' + firebaseConfig.storageBucket + '" does not exist.\n\n' +
+      'Open → https://console.firebase.google.com/u/1/project/jarvis-tracker-a8136/storage\n\n' +
+      'If it says "Get started", click it, then choose a region and finish setup.';
+  } else if (/retry-limit|network/i.test(code)) {
+    hint = 'Network problem — check your connection.';
+  } else if (/unknown/i.test(code)) {
+    hint = 'Storage may not be enabled.\n\n' +
+      'Open → https://console.firebase.google.com/u/1/project/jarvis-tracker-a8136/storage\n\n' +
+      'If it shows "Get started", complete the setup first.';
+  }
+  alert('❌ Storage test failed!\n\nError: ' + code + '\nMessage: ' + msg + '\n\n' + hint);
+  toast('Storage failed', true);
 });
 
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
@@ -1013,9 +1055,8 @@ $('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMes
 $('chatBackBtn').addEventListener('click', () => { App.activeChat = null; showScreen('screen-main'); updateUnreadBadges(); });
 $('callFromChatBtn').addEventListener('click', () => { if (App.activeChat) startCall(App.activeChat); });
 
-/* ═══════════ ATTACHMENTS — 50 MB, all types ═══════════ */
+/* ═══════════ ATTACHMENTS ═══════════ */
 const MAX_BYTES = 50 * 1024 * 1024;
-
 $('attachBtn').addEventListener('click', (e) => {
   e.preventDefault();
   if (!App.activeChat) { toast('Open a chat first', true); return; }
@@ -1023,29 +1064,16 @@ $('attachBtn').addEventListener('click', (e) => {
   inp.value = '';
   inp.click();
 });
-
 $('fileInput').addEventListener('change', async (e) => {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
   if (!App.activeChat) { toast('Chat closed — try again', true); e.target.value = ''; return; }
-
-  if (file.size > MAX_BYTES) {
-    toast(`File too large: ${fmtBytes(file.size)} (max ${fmtBytes(MAX_BYTES)})`, true);
-    e.target.value = '';
-    return;
-  }
-  if (file.size === 0) {
-    toast('Empty file — nothing to upload', true);
-    e.target.value = '';
-    return;
-  }
-
+  if (file.size > MAX_BYTES) { toast(`Too large: ${fmtBytes(file.size)} (max ${fmtBytes(MAX_BYTES)})`, true); e.target.value = ''; return; }
+  if (file.size === 0) { toast('Empty file', true); e.target.value = ''; return; }
   const type = detectFileType(file);
   const recipient = App.activeChat;
   const label = { image: 'photo', video: 'video', audio: 'audio', file: 'file' }[type];
-
   toast(`Uploading ${label} (${fmtBytes(file.size)})…`);
-
   try {
     let uploadFile = file;
     if (type === 'image') {
@@ -1055,7 +1083,7 @@ $('fileInput').addEventListener('change', async (e) => {
           const newName = (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg';
           uploadFile = new File([blob], newName, { type: 'image/jpeg' });
         }
-      } catch (err) { console.warn('Image compress skipped:', err); }
+      } catch (err) { console.warn('Compress skipped:', err); }
     }
     await doUpload(uploadFile, recipient, type, file.name || label);
   } catch (err) {
@@ -1063,25 +1091,21 @@ $('fileInput').addEventListener('change', async (e) => {
   }
   e.target.value = '';
 });
-
 function handleUploadError(err) {
   console.error('Upload error:', err);
   const code = (err && err.code) ? String(err.code) : '';
   const msg = (err && err.message) ? String(err.message) : 'unknown';
   let hint = '';
   if (/unauthorized|permission|denied/i.test(code + ' ' + msg)) {
-    hint = ' — Storage rules deny writes. Open Profile → Check file storage.';
+    hint = 'Storage rules deny writes. Open Profile → Check file storage.';
   } else if (/bucket-not-found/i.test(code)) {
-    hint = ' — Wrong bucket name. Open Profile → Check file storage.';
+    hint = 'Wrong bucket. Open Profile → Check file storage.';
   } else if (/retry-limit|network|timeout/i.test(code + ' ' + msg)) {
-    hint = ' — Network issue. Try again with a better connection.';
-  } else if (/canceled/i.test(code)) {
-    hint = ' — Upload was cancelled.';
+    hint = 'Network issue. Try again.';
   }
-  toast('Upload failed: ' + (code || msg) + hint, true);
-  alert('Upload failed\n\nError: ' + (code || 'unknown') + '\nMessage: ' + msg + '\n\n' + (hint || 'Try opening Profile → Check file storage to diagnose.'));
+  toast('Upload failed: ' + (code || msg) + ' — ' + hint, true);
+  alert('Upload failed\n\nError: ' + (code || 'unknown') + '\nMessage: ' + msg + '\n\n' + (hint || 'Open Profile → Check file storage to diagnose.'));
 }
-
 function compressImg(file, maxDim, q) {
   return new Promise((resolve, reject) => {
     const r = new FileReader();
@@ -1102,7 +1126,6 @@ function compressImg(file, maxDim, q) {
     r.readAsDataURL(file);
   });
 }
-
 function doUpload(file, recipient, type, displayName) {
   return new Promise((resolve, reject) => {
     const cid = chatIdFor(App.mySlug, recipient);
@@ -1115,7 +1138,6 @@ function doUpload(file, recipient, type, displayName) {
     const task = uploadBytesResumable(ref, file, meta);
     const bar = $('uploadBar'), fill = $('uploadBarFill');
     bar.classList.add('show'); fill.style.width = '0%';
-
     task.on('state_changed',
       s => { fill.style.width = ((s.bytesTransferred / s.totalBytes) * 100).toFixed(1) + '%'; },
       err => { bar.classList.remove('show'); reject(err); },
@@ -1123,30 +1145,16 @@ function doUpload(file, recipient, type, displayName) {
         try {
           const url = await getDownloadURL(task.snapshot.ref);
           fill.style.width = '100%';
-          const attObj = {
-            type,
-            name: displayName || file.name || 'file',
-            size: file.size,
-            mime: file.type || 'application/octet-stream',
-            url,
-            storagePath: path
-          };
-          await push(dbRef(db, 'chats/' + cid + '/messages'), {
-            from: App.mySlug, to: recipient, text: '', time: Date.now(),
-            attachment: attObj
-          });
+          const attObj = { type, name: displayName || file.name || 'file', size: file.size, mime: file.type || 'application/octet-stream', url, storagePath: path };
+          await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: recipient, text: '', time: Date.now(), attachment: attObj });
           setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 700);
           toast('Sent ✓');
           resolve();
-        } catch (e) {
-          bar.classList.remove('show');
-          reject(e);
-        }
+        } catch (e) { bar.classList.remove('show'); reject(e); }
       }
     );
   });
 }
-
 window.__lb = (url, name) => { $('lightboxImg').src = url; $('lightboxDownload').href = url; $('lightboxDownload').download = name || 'photo'; $('lightbox').classList.add('show'); };
 $('lightboxClose').addEventListener('click', () => $('lightbox').classList.remove('show'));
 $('lightbox').addEventListener('click', e => { if (e.target === $('lightbox')) $('lightbox').classList.remove('show'); });
