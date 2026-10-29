@@ -97,6 +97,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .msg.has-attachment .time{padding:0 8px 3px}
 .msg .attach-img{max-width:100%;width:100%;display:block;border-radius:10px;cursor:pointer;background:#dfe6ed}
 .msg .attach-video{max-width:100%;width:100%;display:block;border-radius:10px;background:#000}
+.msg .attach-audio{width:100%;max-width:280px;margin-top:2px;border-radius:8px}
 .msg .attach-file{display:flex;align-items:center;gap:10px;padding:12px;background:#f2f7fb;border-radius:10px;text-decoration:none;color:var(--text)}
 .msg.out .attach-file{background:#c5edb8}
 .msg .attach-file .file-icon{font-size:26px;flex-shrink:0}
@@ -160,6 +161,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .menu-item .menu-icon{font-size:20px;width:24px;text-align:center}
 .menu-item .menu-arrow{margin-left:auto;color:var(--muted);font-size:18px}
 .menu-item.install-highlight{background:linear-gradient(90deg,#fef9e7,#fff);border-left:3px solid var(--gold)}
+.menu-item.danger-highlight{background:linear-gradient(90deg,#fff5f5,#fff);border-left:3px solid var(--red)}
 .toggle-switch{margin-left:auto;position:relative;width:44px;height:24px;background:#cbd5e1;border-radius:12px;cursor:pointer;transition:background .2s;flex-shrink:0}
 .toggle-switch.on{background:var(--green)}
 .toggle-switch::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
@@ -265,6 +267,10 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
       <span class="menu-icon">📢</span> Browser notifications
       <span class="menu-arrow" id="permStatus">checking…</span>
     </div>
+    <div class="menu-item" id="storageCheckBtn">
+      <span class="menu-icon">🗄️</span> Check file storage
+      <span class="menu-arrow">›</span>
+    </div>
     <div class="menu-item install-highlight" id="installMenuItem">
       <span class="menu-icon">⬇️</span> Install app on this phone
       <span class="menu-arrow">›</span>
@@ -274,7 +280,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
       <span class="menu-arrow">›</span>
     </a>
     <div class="menu-item" id="helpBtn"><span class="menu-icon">❓</span> How it works <span class="menu-arrow">›</span></div>
-    <div class="menu-item" id="clearBtn"><span class="menu-icon">🗑</span> Clear local data <span class="menu-arrow">›</span></div>
+    <div class="menu-item danger-highlight" id="clearBtn"><span class="menu-icon">🗑</span> Clear local data <span class="menu-arrow">›</span></div>
   </div>
   <button id="addContactFab" class="fab">＋</button>
   <nav class="bottom-nav">
@@ -298,7 +304,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
   <div id="messagesArea" class="messages"></div>
   <div class="chat-input-bar">
     <div class="upload-bar" id="uploadBar"><div class="upload-bar-fill" id="uploadBarFill"></div></div>
-    <button class="attach-btn" id="attachBtn" title="Attach photo, video, or file">📎</button>
+    <button class="attach-btn" id="attachBtn" title="Attach photo, video, audio, or file" type="button">📎</button>
     <input id="chatInput" type="text" placeholder="Message…" autocomplete="off">
     <button class="send-btn" id="sendBtn" disabled>➤</button>
   </div>
@@ -343,9 +349,9 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
     <p>
       <strong>1.</strong> Your name is your address — e.g. <em>gesner</em>.<br><br>
       <strong>2.</strong> Anyone types that name in "Add contact" to reach you.<br><br>
-      <strong>3.</strong> Chat, send photos / videos / files, or leave a voice note.<br><br>
+      <strong>3.</strong> Chat, send photos / videos / audio / files (up to 50 MB), or leave a voice note.<br><br>
       <strong>4.</strong> Voice calls work best when both people are online at the same time.<br><br>
-      <strong>5.</strong> Notifications (sound, vibration, pop-up) can be toggled in Profile.
+      <strong>5.</strong> If file upload fails, open <strong>Profile → Check file storage</strong>.
     </p>
     <div class="modal-actions"><button class="confirm" id="helpClose">Got it</button></div>
   </div>
@@ -415,7 +421,14 @@ const LS = {
 };
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
 let toastTimer;
-function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600); }
+function toast(msg, isError) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.style.borderColor = isError ? '#ff4757' : '#d4af37';
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), isError ? 5000 : 2600);
+}
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function slugify(name) { return String(name).toLowerCase().trim().replace(/[^a-z0-9]/g, '').slice(0, 20); }
 function chatIdFor(a, b) { const [x, y] = [a, b].sort(); return `${x}__${y}`; }
@@ -425,10 +438,23 @@ function previewText(last) {
   if (!last) return 'Tap to chat';
   if (last.attachment) {
     const a = last.attachment;
-    const tag = a.type === 'image' ? '📷 Photo' : a.type === 'video' ? '🎥 Video' : '📎 ' + (a.name || 'File');
+    const tag = a.type === 'image' ? '📷 Photo' : a.type === 'video' ? '🎥 Video' : a.type === 'audio' ? '🎤 Audio' : '📎 ' + (a.name || 'File');
     return last.text ? tag + ' · ' + last.text : tag;
   }
   return last.text || '';
+}
+
+/* ═══════════ FILE TYPE DETECTION (handles iOS .mov, empty MIME) ═══════════ */
+function detectFileType(file) {
+  const mime = (file.type || '').toLowerCase();
+  if (mime.startsWith('image/')) return 'image';
+  if (mime.startsWith('video/')) return 'video';
+  if (mime.startsWith('audio/')) return 'audio';
+  const name = (file.name || '').toLowerCase();
+  if (/\.(jpg|jpeg|png|gif|webp|bmp|heic|heif|svg|tiff)$/.test(name)) return 'image';
+  if (/\.(mp4|mov|webm|avi|mkv|m4v|3gp|ogv|flv|wmv)$/.test(name)) return 'video';
+  if (/\.(mp3|wav|ogg|m4a|aac|flac|opus|weba|oga)$/.test(name)) return 'audio';
+  return 'file';
 }
 
 function getAudioCtx() { if (!App.audioCtx) { try { App.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch {} } return App.audioCtx; }
@@ -611,6 +637,33 @@ $('permBtn').addEventListener('click', async () => {
   else toast('Notification permission: ' + result);
 });
 
+/* ═══════════ STORAGE SELF-TEST ═══════════ */
+$('storageCheckBtn').addEventListener('click', async () => {
+  toast('Testing storage…');
+  try {
+    const testPath = `_tests/${Date.now()}.txt`;
+    const testRef = stRef(storage, testPath);
+    const testBlob = new Blob(['test-' + Date.now()], { type: 'text/plain' });
+    const task = uploadBytesResumable(testRef, testBlob);
+    await new Promise((resolve, reject) => {
+      task.on('state_changed', null, reject, resolve);
+    });
+    const url = await getDownloadURL(task.snapshot.ref);
+    try { await task.snapshot.ref.delete(); } catch {}
+    alert('✅ Storage works!\n\nBucket: ' + firebaseConfig.storageBucket + '\n\nUploads will succeed.');
+    toast('Storage OK');
+  } catch (err) {
+    const code = err && err.code ? err.code : (err && err.message ? err.message : 'unknown');
+    let hint = '';
+    if (/unauthorized|permission/i.test(code)) hint = 'Storage rules deny writes.\n\nOpen Firebase Console → Storage → Rules and publish:\n\nrules_version = \'2\';\nservice firebase.storage {\n  match /b/{bucket}/o {\n    match /attachments/{chatId}/{fileName} {\n      allow read: if true;\n      allow write: if true;\n    }\n  }\n}';
+    else if (/bucket-not-found/i.test(code)) hint = 'Wrong bucket name.\n\nOpen Firebase Console → Storage and check the bucket name shown at the top. It may be "' + firebaseConfig.projectId + '.firebasestorage.app" instead of "' + firebaseConfig.storageBucket + '". If so, update storageBucket in index.html.';
+    else if (/unknown/i.test(code)) hint = 'Storage may not be enabled.\n\nOpen Firebase Console → Storage and click "Get started".';
+    else hint = 'Network or other issue. Check your connection and try again.';
+    alert('❌ Storage test failed!\n\nError: ' + code + '\nBucket: ' + firebaseConfig.storageBucket + '\n\n' + hint);
+    toast('Storage failed', true);
+  }
+});
+
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
 let nameCheckTimer = null, nameCheckOk = false;
 nameInput.addEventListener('input', () => {
@@ -660,16 +713,11 @@ enterBtn.addEventListener('click', async () => {
   } catch (e) { console.error(e); toast('Try again'); enterBtn.disabled = false; enterBtn.textContent = 'Enter Portal'; }
 });
 
-/* ═══════════════════════════════════════════════════════════
-   BOOT — FIXED ORDER
-   Contacts and lastRead MUST be loaded BEFORE startMainApp()
-   so buildUI() and message listeners see the saved contacts.
-   ═══════════════════════════════════════════════════════════ */
 window.addEventListener('load', () => {
   updateToggleUI();
   updatePermStatus();
-  loadContacts();      /* ← load contacts FIRST */
-  loadLastRead();      /* ← load read-state FIRST */
+  loadContacts();
+  loadLastRead();
   const savedSlug = LS.get('mySlug', null);
   const savedName = LS.get('myName', null);
   const savedPhoto = LS.get('avatar', null);
@@ -677,7 +725,7 @@ window.addEventListener('load', () => {
   if (savedSlug && savedName) {
     App.mySlug = savedSlug;
     App.myName = savedName;
-    startMainApp();    /* ← now sees the loaded contacts */
+    startMainApp();
   }
   document.querySelectorAll('.modal-overlay').forEach(m => {
     m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); });
@@ -870,9 +918,17 @@ function setupGlobalMessageListener(slug) {
 
 function renderAttachment(m) {
   const a = m.attachment; if (!a) return '';
-  if (a.type === 'image') return `<img class="attach-img" src="${a.url}" loading="lazy" onclick="window.__lb('${a.url.replace(/'/g,"\\'")}','${esc(a.name||'photo')}')">`;
-  if (a.type === 'video') return `<video class="attach-video" controls preload="metadata" src="${a.url}"></video>`;
-  return `<a class="attach-file" href="${a.url}" target="_blank" download="${esc(a.name||'file')}">
+  const safeUrl = String(a.url || '').replace(/"/g, '&quot;');
+  if (a.type === 'image') {
+    return `<img class="attach-img" src="${safeUrl}" loading="lazy" onclick="window.__lb('${String(a.url).replace(/'/g,"\\'")}','${esc(a.name||'photo')}')">`;
+  }
+  if (a.type === 'video') {
+    return `<video class="attach-video" controls playsinline webkit-playsinline preload="metadata" src="${safeUrl}"></video>`;
+  }
+  if (a.type === 'audio') {
+    return `<audio class="attach-audio" controls preload="metadata" src="${safeUrl}"></audio>`;
+  }
+  return `<a class="attach-file" href="${safeUrl}" target="_blank" rel="noopener" download="${esc(a.name||'file')}">
     <span class="file-icon">📄</span>
     <span class="file-info"><span class="file-name">${esc(a.name||'File')}</span><span class="file-size">${fmtBytes(a.size)}</span></span>
     <span style="font-size:20px;color:var(--muted)">⬇</span>
@@ -957,25 +1013,75 @@ $('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMes
 $('chatBackBtn').addEventListener('click', () => { App.activeChat = null; showScreen('screen-main'); updateUnreadBadges(); });
 $('callFromChatBtn').addEventListener('click', () => { if (App.activeChat) startCall(App.activeChat); });
 
-const MAX_BYTES = 25 * 1024 * 1024;
-$('attachBtn').addEventListener('click', () => { if (!App.activeChat) return toast('Open a chat first'); $('fileInput').value = ''; $('fileInput').click(); });
-$('fileInput').addEventListener('change', async e => {
+/* ═══════════ ATTACHMENTS — 50 MB, all types ═══════════ */
+const MAX_BYTES = 50 * 1024 * 1024;
+
+$('attachBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  if (!App.activeChat) { toast('Open a chat first', true); return; }
+  const inp = $('fileInput');
+  inp.value = '';
+  inp.click();
+});
+
+$('fileInput').addEventListener('change', async (e) => {
   const file = e.target.files && e.target.files[0];
-  if (!file || !App.activeChat) return;
-  if (file.size > MAX_BYTES) return toast(`Max ${fmtBytes(MAX_BYTES)}`);
-  const isImage = file.type.startsWith('image/');
-  const isVideo = file.type.startsWith('video/');
+  if (!file) return;
+  if (!App.activeChat) { toast('Chat closed — try again', true); e.target.value = ''; return; }
+
+  if (file.size > MAX_BYTES) {
+    toast(`File too large: ${fmtBytes(file.size)} (max ${fmtBytes(MAX_BYTES)})`, true);
+    e.target.value = '';
+    return;
+  }
+  if (file.size === 0) {
+    toast('Empty file — nothing to upload', true);
+    e.target.value = '';
+    return;
+  }
+
+  const type = detectFileType(file);
   const recipient = App.activeChat;
+  const label = { image: 'photo', video: 'video', audio: 'audio', file: 'file' }[type];
+
+  toast(`Uploading ${label} (${fmtBytes(file.size)})…`);
+
   try {
     let uploadFile = file;
-    if (isImage) {
-      toast('Optimizing…');
-      try { const blob = await compressImg(file, 1600, 0.85); uploadFile = new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }); } catch {}
+    if (type === 'image') {
+      try {
+        const blob = await compressImg(file, 1600, 0.85);
+        if (blob && blob.size && blob.size < file.size) {
+          const newName = (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg';
+          uploadFile = new File([blob], newName, { type: 'image/jpeg' });
+        }
+      } catch (err) { console.warn('Image compress skipped:', err); }
     }
-    await doUpload(uploadFile, recipient, isImage, isVideo, file.name);
-  } catch (err) { console.error(err); toast('Upload failed: ' + (err.message || 'unknown')); }
+    await doUpload(uploadFile, recipient, type, file.name || label);
+  } catch (err) {
+    handleUploadError(err);
+  }
   e.target.value = '';
 });
+
+function handleUploadError(err) {
+  console.error('Upload error:', err);
+  const code = (err && err.code) ? String(err.code) : '';
+  const msg = (err && err.message) ? String(err.message) : 'unknown';
+  let hint = '';
+  if (/unauthorized|permission|denied/i.test(code + ' ' + msg)) {
+    hint = ' — Storage rules deny writes. Open Profile → Check file storage.';
+  } else if (/bucket-not-found/i.test(code)) {
+    hint = ' — Wrong bucket name. Open Profile → Check file storage.';
+  } else if (/retry-limit|network|timeout/i.test(code + ' ' + msg)) {
+    hint = ' — Network issue. Try again with a better connection.';
+  } else if (/canceled/i.test(code)) {
+    hint = ' — Upload was cancelled.';
+  }
+  toast('Upload failed: ' + (code || msg) + hint, true);
+  alert('Upload failed\n\nError: ' + (code || 'unknown') + '\nMessage: ' + msg + '\n\n' + (hint || 'Try opening Profile → Check file storage to diagnose.'));
+}
+
 function compressImg(file, maxDim, q) {
   return new Promise((resolve, reject) => {
     const r = new FileReader();
@@ -996,33 +1102,51 @@ function compressImg(file, maxDim, q) {
     r.readAsDataURL(file);
   });
 }
-function doUpload(file, recipient, isImage, isVideo, displayName) {
+
+function doUpload(file, recipient, type, displayName) {
   return new Promise((resolve, reject) => {
     const cid = chatIdFor(App.mySlug, recipient);
-    const safe = (displayName || 'file').replace(/[^\w.\-]+/g, '_').slice(0, 80);
-    const path = `attachments/${cid}/${Date.now()}-${Math.random().toString(36).slice(2,8)}-${safe}`;
+    const safeName = (displayName || 'file').replace(/[^\w.\-]+/g, '_').slice(0, 80) || 'file';
+    const ext = (safeName.match(/\.[^.]+$/) || [''])[0];
+    const baseName = ext ? safeName.slice(0, -ext.length) : safeName;
+    const path = `attachments/${cid}/${Date.now()}-${Math.random().toString(36).slice(2,8)}-${baseName}${ext}`;
     const ref = stRef(storage, path);
-    const task = uploadBytesResumable(ref, file, { contentType: file.type || 'application/octet-stream' });
+    const meta = { contentType: file.type || 'application/octet-stream' };
+    const task = uploadBytesResumable(ref, file, meta);
     const bar = $('uploadBar'), fill = $('uploadBarFill');
     bar.classList.add('show'); fill.style.width = '0%';
+
     task.on('state_changed',
-      s => fill.style.width = ((s.bytesTransferred / s.totalBytes) * 100).toFixed(1) + '%',
+      s => { fill.style.width = ((s.bytesTransferred / s.totalBytes) * 100).toFixed(1) + '%'; },
       err => { bar.classList.remove('show'); reject(err); },
       async () => {
         try {
           const url = await getDownloadURL(task.snapshot.ref);
-          const type = isImage ? 'image' : isVideo ? 'video' : 'file';
+          fill.style.width = '100%';
+          const attObj = {
+            type,
+            name: displayName || file.name || 'file',
+            size: file.size,
+            mime: file.type || 'application/octet-stream',
+            url,
+            storagePath: path
+          };
           await push(dbRef(db, 'chats/' + cid + '/messages'), {
             from: App.mySlug, to: recipient, text: '', time: Date.now(),
-            attachment: { type, name: displayName || file.name || 'file', size: file.size, mime: file.type || 'application/octet-stream', url, storagePath: path }
+            attachment: attObj
           });
           setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 700);
-          toast('Sent ✓'); resolve();
-        } catch (e) { bar.classList.remove('show'); reject(e); }
+          toast('Sent ✓');
+          resolve();
+        } catch (e) {
+          bar.classList.remove('show');
+          reject(e);
+        }
       }
     );
   });
 }
+
 window.__lb = (url, name) => { $('lightboxImg').src = url; $('lightboxDownload').href = url; $('lightboxDownload').download = name || 'photo'; $('lightbox').classList.add('show'); };
 $('lightboxClose').addEventListener('click', () => $('lightbox').classList.remove('show'));
 $('lightbox').addEventListener('click', e => { if (e.target === $('lightbox')) $('lightbox').classList.remove('show'); });
@@ -1031,7 +1155,7 @@ const recordBtn = $('recordBtn');
 recordBtn.addEventListener('click', async () => {
   if (App.mediaRecorder && App.mediaRecorder.state === 'recording') { App.mediaRecorder.stop(); return; }
   const recipient = $('vmRecipient').value;
-  if (!recipient) return toast('Select a recipient');
+  if (!recipient) return toast('Select a recipient', true);
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     App.recordedChunks = [];
@@ -1052,14 +1176,14 @@ recordBtn.addEventListener('click', async () => {
     App.recordTimer = setTimeout(() => {
       if (App.mediaRecorder && App.mediaRecorder.state === 'recording') { App.mediaRecorder.stop(); toast('30s — sending'); }
     }, 30000);
-  } catch { toast('Microphone denied'); }
+  } catch { toast('Microphone denied', true); }
 });
 function sendVoicemail(blob, recipient) {
-  if (blob.size > 700000) return toast('Too large');
+  if (blob.size > 700000) return toast('Too large', true);
   const r = new FileReader();
   r.onload = async () => {
     try { await push(dbRef(db, 'voicemails/' + recipient), { from: App.mySlug, fromName: App.myName, data: r.result, mime: blob.type, time: Date.now() }); toast('Voicemail sent'); }
-    catch { toast('Failed'); }
+    catch { toast('Failed', true); }
   };
   r.readAsDataURL(blob);
 }
@@ -1082,7 +1206,7 @@ function listenVoicemails() {
 async function startCall(calleeSlug) {
   if (App.activeCall) return toast('Already in a call');
   const c = App.contacts.find(x => x.slug === calleeSlug); if (!c) return;
-  try { App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { return toast('Microphone denied'); }
+  try { App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { return toast('Microphone denied', true); }
   $('callName').textContent = c.name; $('callAvatar').innerHTML = avatarInner(c.photo, c.name);
   $('callStatus').textContent = 'Calling…'; $('callStatus').classList.remove('active');
   $('muteBtn').classList.remove('muted'); App.muted = false;
@@ -1146,7 +1270,7 @@ $('acceptCallBtn').addEventListener('click', async () => {
   const ic = App.incomingCallData; if (!ic) return;
   $('incoming-call').classList.remove('show');
   const { callerSlug, call } = ic; App.incomingCallData = null;
-  try { App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { return toast('Microphone denied'); }
+  try { App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { return toast('Microphone denied', true); }
   const pc = new RTCPeerConnection(ICE_SERVERS); App.pc = pc;
   App.localStream.getTracks().forEach(t => pc.addTrack(t, App.localStream));
   pc.ontrack = e => { const a = new Audio(); a.srcObject = e.streams[0]; a.autoplay = true; a.play().catch(() => {}); };
