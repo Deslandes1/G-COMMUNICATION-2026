@@ -1,7 +1,7 @@
 {
   "name": "G Communication Portal",
   "short_name": "G Comm",
-  "description": "Private chat, voicemail, and peer-to-peer voice calls — built by Gesner Deslandes",
+  "description": "Private chat, voicemail, calls, and media sharing — by Gesner Deslandes",
   "id": "/",
   "start_url": "./",
   "scope": "./",
@@ -13,39 +13,8 @@
   "dir": "ltr",
   "categories": ["communication", "social"],
   "icons": [
-    {
-      "src": "icon-192.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-512.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-maskable.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Chats",
-      "short_name": "Chats",
-      "description": "Open the chat list",
-      "url": "./?tab=chats",
-      "icons": [{ "src": "icon-192.svg", "sizes": "192x192" }]
-    },
-    {
-      "name": "Voicemail",
-      "short_name": "Voicemail",
-      "description": "Open voicemail inbox",
-      "url": "./?tab=voicemail",
-      "icons": [{ "src": "icon-192.svg", "sizes": "192x192" }]
-    }
+    { "src": "icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon-maskable.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "maskable" }
   ]
 }
