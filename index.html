@@ -9,9 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="G Comm">
 <title>G Communication Portal</title>
 
-<!-- ═══════════ G ICON (favicon) — embedded, no separate file needed ═══════════ -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNjYiIGZpbGw9IiNkNGFlMzciLz48Y2lyY2xlIGN4PSI5NiIgY3k9Ijk2IiByPSI1OCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMGIyYTRhIiBzdHJva2Utd2lkdGg9IjIiIG9wYWNpdHk9IjAuMzUiLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5MiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzBiMmE0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RzwvdGV4dD48L3N2Zz4=">
-<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNjYiIGZpbGw9IiNkNGFlMzciLz48Y2lyY2xlIGN4PSI5NiIgY3k9Ijk2IiByPSI1OCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMGIyYTRhIiBzdHJva2Utd2lkdGg9IjIiIG9wYWNpdHk9IjAuMzUiLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5MiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzBiMmE0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RzwvdGV4dD48L3N2Zz4=">
 <link rel="manifest" href="manifest.json">
 
 <style>
@@ -43,15 +41,39 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .nav-item{flex:1;padding:10px 0 12px;text-align:center;font-size:10.5px;color:var(--muted);cursor:pointer;font-weight:600;border:none;background:none;position:relative}
 .nav-item .icon{display:block;font-size:22px;margin-bottom:2px}
 .nav-item.active{color:var(--navy)}
+.nav-badge{
+  position:absolute;top:4px;left:50%;transform:translateX(6px);
+  background:var(--red);color:#fff;
+  font-size:9.5px;font-weight:700;
+  min-width:17px;height:17px;
+  border-radius:9px;padding:0 5px;
+  display:none;align-items:center;justify-content:center;
+  line-height:1;border:2px solid #fff;
+  box-shadow:0 2px 5px rgba(0,0,0,.25);pointer-events:none;
+}
+.nav-badge.show{display:flex}
+.unread-badge{
+  background:var(--red);color:#fff;
+  font-size:11px;font-weight:700;
+  min-width:20px;height:20px;
+  border-radius:10px;padding:0 6px;
+  display:none;align-items:center;justify-content:center;
+  line-height:1;flex-shrink:0;
+  box-shadow:0 1px 4px rgba(255,71,87,.4);
+}
+.unread-badge.show{display:flex}
 .section-title{font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:18px 20px 8px}
 .list-item{background:var(--card);padding:14px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;border-bottom:1px solid var(--border)}
 .list-item:active{background:#f0f3f6}
 .list-item:last-child{border-bottom:none}
-.avatar{width:46px;height:46px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0}
+.avatar{width:46px;height:46px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .avatar.accent{background:var(--accent)}
 .list-item-body{flex:1;min-width:0}
 .list-item-title{font-weight:600;font-size:15px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-item-title.unread{font-weight:800;color:#000}
 .list-item-sub{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-item-sub.unread{color:#1f2937;font-weight:600}
 .list-item-action{font-size:20px;color:var(--muted);flex-shrink:0}
 .empty{text-align:center;padding:60px 30px;color:var(--muted)}
 .empty .empty-icon{font-size:48px;margin-bottom:12px;opacity:.4}
@@ -59,8 +81,10 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .fab{position:absolute;bottom:88px;right:20px;width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:26px;cursor:pointer;box-shadow:0 6px 20px rgba(13,122,140,.4);display:flex;align-items:center;justify-content:center;z-index:9}
 .chat-header{background:var(--navy);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px;min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0}
 .chat-header .back-btn{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:0 4px}
-.chat-header .chat-title{flex:1}
-.chat-header .chat-title h3{font-size:16px;font-weight:600}
+.chat-header .chat-avatar{width:36px;height:36px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0;overflow:hidden}
+.chat-header .chat-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.chat-header .chat-title{flex:1;min-width:0}
+.chat-header .chat-title h3{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chat-header .chat-title small{font-size:11px;color:var(--green);display:block;margin-top:1px}
 .messages{flex:1;overflow-y:auto;padding:16px 14px;background:#e5ecf2}
 .messages::-webkit-scrollbar{display:none}
@@ -69,13 +93,72 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .msg.out{background:#d9fdd3;margin-left:auto;border-bottom-right-radius:4px}
 .msg.in{background:#fff;margin-right:auto;border-bottom-left-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
 .msg .time{font-size:10px;color:var(--muted);display:block;margin-top:3px;text-align:right}
-.chat-input-bar{background:#fff;border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0}
-.chat-input-bar input{flex:1;padding:11px 16px;border:1px solid var(--border);border-radius:22px;font-size:15px;outline:none;background:#f7f9fb}
-.chat-input-bar input:focus{border-color:var(--accent)}
-.chat-input-bar .send-btn{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:20px;cursor:pointer}
+.msg.has-attachment{padding:6px;max-width:80%}
+.msg.has-attachment .msg-caption{padding:5px 8px 0}
+.msg.has-attachment .time{padding:0 8px 3px}
+.msg .attach-img{max-width:100%;width:100%;display:block;border-radius:10px;cursor:pointer;background:#dfe6ed}
+.msg .attach-video{max-width:100%;width:100%;display:block;border-radius:10px;background:#000}
+.msg .attach-file{display:flex;align-items:center;gap:10px;padding:12px;background:#f2f7fb;border-radius:10px;text-decoration:none;color:var(--text)}
+.msg.out .attach-file{background:#c5edb8}
+.msg .attach-file .file-icon{font-size:26px;flex-shrink:0}
+.msg .attach-file .file-info{flex:1;min-width:0}
+.msg .attach-file .file-name{font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msg .attach-file .file-size{font-size:11px;color:var(--muted);margin-top:1px}
+.chat-input-bar{background:#fff;border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0;position:relative}
+.chat-input-bar input[type="text"]{flex:1;padding:11px 16px;border:1px solid var(--border);border-radius:22px;font-size:15px;outline:none;background:#f7f9fb}
+.chat-input-bar input[type="text"]:focus{border-color:var(--accent)}
+.attach-btn{
+  background:transparent;border:none;
+  font-size:22px;color:var(--accent);
+  width:40px;height:40px;border-radius:50%;
+  cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+}
+.attach-btn:active{background:#e5ecf2}
+.chat-input-bar .send-btn{width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:20px;cursor:pointer;flex-shrink:0}
 .chat-input-bar .send-btn:disabled{opacity:.4}
+
+/* ═══════ UPLOAD PROGRESS ═══════ */
+.upload-bar{
+  position:absolute;top:-1px;left:0;right:0;height:3px;
+  background:#e1e7ed;
+  border-radius:2px;overflow:hidden;
+  display:none;
+}
+.upload-bar.show{display:block}
+.upload-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .2s}
+
+/* ═══════ LIGHTBOX ═══════ */
+#lightbox{
+  position:fixed;inset:0;background:rgba(0,0,0,.95);
+  display:none;align-items:center;justify-content:center;
+  z-index:9999;padding:20px;
+  flex-direction:column;
+}
+#lightbox.show{display:flex}
+#lightbox img{
+  max-width:100%;max-height:85vh;
+  border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+#lightbox .close-lb{
+  position:absolute;top:20px;right:20px;
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(255,255,255,.15);color:#fff;
+  border:none;font-size:24px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+#lightbox .dl-lb{
+  position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
+  padding:12px 28px;border-radius:24px;
+  background:var(--gold);color:var(--navy);
+  border:none;font-size:14px;font-weight:700;cursor:pointer;
+  text-decoration:none;
+}
+
 #screen-call{background:linear-gradient(180deg,var(--navy) 0%,#061e3a 100%);color:#fff;justify-content:center;align-items:center;padding:40px 24px;text-align:center}
-.call-avatar{width:120px;height:120px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:800;margin-bottom:24px;animation:pulse 2s infinite}
+.call-avatar{width:120px;height:120px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:800;margin-bottom:24px;animation:pulse 2s infinite;overflow:hidden}
+.call-avatar img{width:100%;height:100%;object-fit:cover;display:block}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(212,175,55,.6)}70%{box-shadow:0 0 0 30px rgba(212,175,55,0)}100%{box-shadow:0 0 0 0 rgba(212,175,55,0)}}
 .call-name{font-size:24px;font-weight:700;margin-bottom:6px}
 .call-status{font-size:14px;color:rgba(255,255,255,.75);margin-bottom:48px}
@@ -98,7 +181,14 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .vm-target{background:#fff;margin:0 20px 12px;border-radius:10px;padding:12px 16px;border:1px solid var(--border);font-size:14px;display:flex;align-items:center;justify-content:space-between}
 .vm-target select{border:1px solid var(--border);padding:8px 12px;border-radius:8px;font-size:14px;background:#f7f9fb;color:var(--text);max-width:60%}
 .profile-card{background:var(--card);margin:16px;border-radius:14px;padding:24px 20px;box-shadow:0 2px 12px rgba(0,0,0,.04);text-align:center}
-.profile-card .avatar-big{width:80px;height:80px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;margin:0 auto 14px}
+.profile-card .avatar-big{width:96px;height:96px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;margin:0 auto 14px;position:relative;cursor:pointer;overflow:hidden;transition:transform .12s}
+.profile-card .avatar-big:active{transform:scale(.96)}
+.profile-card .avatar-big img{width:100%;height:100%;object-fit:cover;display:block}
+.avatar-camera{position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:14px;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.22);pointer-events:none}
+.avatar-remove{position:absolute;top:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--red);color:#fff;display:none;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.22);cursor:pointer;z-index:2}
+.avatar-big.has-photo .avatar-remove{display:flex}
+.avatar-big.has-photo .avatar-camera{background:var(--navy);color:#fff;font-size:11px}
+.avatar-hint{font-size:11px;color:var(--muted);margin-bottom:14px;letter-spacing:.3px}
 .profile-card h3{font-size:20px;margin-bottom:4px}
 .profile-card .role-label{font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-weight:600}
 .id-box{background:#f0f4f8;border:2px dashed var(--accent);border-radius:10px;padding:14px;margin:20px 0;display:flex;align-items:center;gap:10px}
@@ -149,56 +239,42 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
     <h2 id="headerTitle">Chats</h2>
     <div id="connStatus" class="status-dot"></div>
   </header>
-
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
-
   <div id="tabCalls" class="tab-content" style="display:none;">
     <div class="section-title">Start a call</div>
     <div id="callContactsList"></div>
   </div>
-
   <div id="tabVoicemail" class="tab-content" style="display:none;">
     <div class="section-title">Send a voicemail</div>
-    <div class="vm-target">
-      <span>To:</span>
-      <select id="vmRecipient"><option value="">Select contact</option></select>
-    </div>
+    <div class="vm-target"><span>To:</span><select id="vmRecipient"><option value="">Select contact</option></select></div>
     <button id="recordBtn" class="record-btn">⬤ Tap to Record (max 30s)</button>
     <div class="section-title">Inbox</div>
     <div id="voicemailList"></div>
   </div>
-
   <div id="tabProfile" class="tab-content" style="display:none;">
     <div class="profile-card">
-      <div class="avatar-big" id="profileAvatar">G</div>
+      <div class="avatar-big" id="profileAvatar" title="Tap to upload or change photo">
+        <span id="profileAvatarLetter">G</span>
+        <img id="profileAvatarImg" alt="" style="display:none;">
+        <div class="avatar-camera">📷</div>
+        <div class="avatar-remove" id="avatarRemove" title="Remove photo">✕</div>
+      </div>
+      <div class="avatar-hint">Tap photo to upload or change</div>
       <h3 id="profileName">—</h3>
       <div class="role-label">G Communication Portal</div>
-      <div class="id-box">
-        <div class="id-value" id="myId">connecting…</div>
-        <button id="copyIdBtn">COPY</button>
-      </div>
-      <div class="help-text">
-        <strong>Share this ID</strong> with anyone. They paste it into "Add Contact" to reach you.
-      </div>
+      <div class="id-box"><div class="id-value" id="myId">connecting…</div><button id="copyIdBtn">COPY</button></div>
+      <div class="help-text"><strong>Share this ID</strong> with anyone. They paste it into "Add Contact" to reach you.</div>
     </div>
-
-    <!-- ═══════════ CLONE BUTTON — edit the GitHub URL below ═══════════ -->
     <a href="https://github.com/YOUR-USERNAME/g-comm" target="_blank" rel="noopener" class="clone-btn">
       <span class="clone-icon">⬇</span>
-      <span class="clone-text">
-        <strong>Clone this app</strong>
-        <small>Fork the code on GitHub</small>
-      </span>
+      <span class="clone-text"><strong>Clone this app</strong><small>Fork the code on GitHub</small></span>
       <span style="font-size:20px;opacity:.7;">›</span>
     </a>
-
     <div class="menu-item" id="shareAppBtn"><span class="menu-icon">🔗</span> Share app's link <span class="menu-arrow">›</span></div>
     <div class="menu-item" id="helpBtn"><span class="menu-icon">❓</span> How it works <span class="menu-arrow">›</span></div>
     <div class="menu-item" id="clearBtn"><span class="menu-icon">🗑</span> Clear local data <span class="menu-arrow">›</span></div>
   </div>
-
   <button id="addContactFab" class="fab">＋</button>
-
   <nav class="bottom-nav">
     <button class="nav-item active" data-tab="chats"><span class="icon">💬</span>Chats</button>
     <button class="nav-item" data-tab="calls"><span class="icon">📞</span>Calls</button>
@@ -210,6 +286,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 <section id="screen-chat" class="screen">
   <header class="chat-header">
     <button class="back-btn" id="chatBackBtn">‹</button>
+    <div class="chat-avatar" id="chatAvatar">G</div>
     <div class="chat-title">
       <h3 id="chatName">—</h3>
       <small id="chatStatus">online</small>
@@ -218,6 +295,8 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
   </header>
   <div id="messagesArea" class="messages"></div>
   <div class="chat-input-bar">
+    <div class="upload-bar" id="uploadBar"><div class="upload-bar-fill" id="uploadBarFill"></div></div>
+    <button class="attach-btn" id="attachBtn" title="Attach photo, video, or file">📎</button>
     <input id="chatInput" type="text" placeholder="Message…" autocomplete="off">
     <button class="send-btn" id="sendBtn" disabled>➤</button>
   </div>
@@ -262,28 +341,41 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
     <p>
       <strong>1.</strong> Share your ID from Profile.<br><br>
       <strong>2.</strong> The other person adds you as a contact.<br><br>
-      <strong>3.</strong> Chat and voicemails work even when the other person is offline — they sync via Firebase.<br><br>
-      <strong>4.</strong> Voice calls require both people online at the same time.
+      <strong>3.</strong> Chat, send photos/videos/files, or voicemails — they sync via Firebase.<br><br>
+      <strong>4.</strong> Voice calls require both people online at the same time.<br><br>
+      <strong>5.</strong> A <span style="color:#ff4757;font-weight:700;">red badge</span> shows unread messages — cleared when you open the chat.
     </p>
     <div class="modal-actions"><button class="confirm" id="helpClose">Got it</button></div>
   </div>
 </div>
 
+<div id="lightbox">
+  <button class="close-lb" id="lightboxClose">✕</button>
+  <img id="lightboxImg" alt="">
+  <a class="dl-lb" id="lightboxDownload" download target="_blank">⬇ Download</a>
+</div>
+
 <div class="toast" id="toast"></div>
+<input type="file" id="avatarInput" accept="image/*" style="display:none;">
+<input type="file" id="fileInput" style="display:none;">
 </div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, remove, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref as dbRef, push, onValue, remove, set, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getStorage, ref as stRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
+/* ═══════════════════════════════════════════════════════════
+   FIREBASE CONFIG — storageBucket fixed to .appspot.com format
+   ═══════════════════════════════════════════════════════════ */
 const firebaseConfig = {
   apiKey: "AIzaSyBfqTPdNq31MegFF_vh08D2K_6-2GMeIrY",
   authDomain: "jarvis-tracker-a8136.firebaseapp.com",
   databaseURL: "https://jarvis-tracker-a8136-default-rtdb.firebaseio.com",
   projectId: "jarvis-tracker-a8136",
-  storageBucket: "jarvis-tracker-a8136.firebasestorage.app",
+  storageBucket: "jarvis-tracker-a8136.appspot.com",
   messagingSenderId: "994161558903",
   appId: "1:994161558903:web:d0ce8ac130a7211b6d0d72",
   measurementId: "G-WY372TXL3Q"
@@ -291,13 +383,17 @@ const firebaseConfig = {
 
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
+const storage = getStorage(fbApp);
 
 const App = {
-  peer: null, myId: null, myName: '',
+  peer: null, myId: null, myName: '', myPhoto: null,
   contacts: [], activeChat: null, activeCall: null,
   incomingCallData: null, localStream: null, muted: false,
   mediaRecorder: null, recordedChunks: [], recordTimer: null,
-  msgUnsub: null, vmUnsub: null
+  vmUnsub: null, contactPhotoUnsubs: {},
+  lastRead: {}, unread: {}, lastMessages: {}, lastMsgTime: {},
+  globalSubscribed: {}, globalUnsubs: {},
+  pendingUpload: null
 };
 
 const $ = id => document.getElementById(id);
@@ -311,6 +407,62 @@ let toastTimer;
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600); }
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function chatIdFor(a, b) { const [x, y] = [a, b].sort(); return `chat_${x}_${y}`; }
+function avatarInnerHTML(photo, name) {
+  if (photo) return `<img src="${photo}" alt="">`;
+  return esc(name ? name.charAt(0).toUpperCase() : '?');
+}
+function fmtBytes(b) {
+  if (!b) return '';
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+  return (b / 1048576).toFixed(1) + ' MB';
+}
+function previewTextFrom(last) {
+  if (!last) return 'Tap to chat';
+  if (last.attachment) {
+    const a = last.attachment;
+    const tag = a.type === 'image' ? '📷 Photo' : a.type === 'video' ? '🎥 Video' : '📎 ' + (a.name || 'File');
+    if (last.text) return tag + ' · ' + last.text;
+    return tag;
+  }
+  return last.text || '';
+}
+
+function loadLastRead() { App.lastRead = LS.get('lastRead', {}); }
+function saveLastRead() { LS.set('lastRead', App.lastRead); }
+
+function updateUnreadBadges() {
+  const total = Object.values(App.unread).reduce((s, n) => s + (n || 0), 0);
+  const chatsBtn = document.querySelector('.nav-item[data-tab="chats"]');
+  if (chatsBtn) {
+    let navBadge = chatsBtn.querySelector('.nav-badge');
+    if (!navBadge) {
+      navBadge = document.createElement('span');
+      navBadge.className = 'nav-badge';
+      chatsBtn.appendChild(navBadge);
+    }
+    if (total > 0) {
+      navBadge.textContent = total > 99 ? '99+' : String(total);
+      navBadge.classList.add('show');
+    } else {
+      navBadge.classList.remove('show');
+    }
+  }
+  document.title = total > 0 ? `(${total}) G Communication Portal` : 'G Communication Portal';
+  document.querySelectorAll('[data-contact-id]').forEach(el => {
+    const cid = el.dataset.contactId;
+    const n = App.unread[cid] || 0;
+    const badge = el.querySelector('.unread-badge');
+    const title = el.querySelector('.list-item-title');
+    const sub = el.querySelector('.list-item-sub');
+    if (badge) {
+      if (n > 0) { badge.textContent = n > 99 ? '99+' : String(n); badge.classList.add('show'); }
+      else { badge.classList.remove('show'); }
+    }
+    if (title) title.classList.toggle('unread', n > 0);
+    if (sub) sub.classList.toggle('unread', n > 0);
+  });
+}
 
 $('nameInput').addEventListener('input', () => { $('enterBtn').disabled = $('nameInput').value.trim().length < 2; });
 $('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('enterBtn').disabled) startApp(); });
@@ -318,8 +470,11 @@ $('enterBtn').addEventListener('click', startApp);
 
 function startApp() {
   App.myName = $('nameInput').value.trim();
+  App.myPhoto = LS.get('avatar', null);
   LS.set('myName', App.myName);
+  loadLastRead();
   showScreen('screen-main');
+  updateProfileAvatar();
   initPeer();
   buildUI();
 }
@@ -333,7 +488,10 @@ function initPeer() {
     $('myId').textContent = id;
     $('connStatus').classList.add('online');
     toast('You are online');
+    syncProfileToFirebase();
     listenVoicemails();
+    App.contacts.forEach(c => listenContactPhoto(c.id));
+    setupGlobalMessageListeners();
   });
   App.peer.on('error', err => {
     $('connStatus').classList.remove('online');
@@ -344,42 +502,197 @@ function initPeer() {
   App.peer.on('call', handleIncomingCall);
 }
 
+function syncProfileToFirebase() {
+  if (!App.myId) return;
+  const payload = { name: App.myName };
+  if (App.myPhoto) payload.photo = App.myPhoto;
+  set(dbRef(db, 'users/' + App.myId), payload).catch(e => console.warn('Profile sync failed:', e));
+}
+
+function setupGlobalMessageListeners() {
+  if (!App.myId) return;
+  App.contacts.forEach(c => setupGlobalMessageListener(c.id));
+}
+function setupGlobalMessageListener(contactId) {
+  if (App.globalUnsubs[contactId]) return;
+  const cid = chatIdFor(App.myId, contactId);
+  const q = query(dbRef(db, 'messages/' + cid), limitToLast(150));
+
+  App.globalUnsubs[contactId] = onValue(q, snap => {
+    const data = snap.val() || {};
+    const msgs = Object.entries(data).map(([k, v]) => ({ ...v, _k: k }))
+      .sort((a, b) => (a.time || 0) - (b.time || 0));
+    const lastMsg = msgs[msgs.length - 1];
+
+    if (!App.globalSubscribed[contactId]) {
+      App.globalSubscribed[contactId] = true;
+      App.lastMsgTime[contactId] = lastMsg ? (lastMsg.time || 0) : 0;
+      if (App.lastRead[contactId] === undefined) {
+        App.lastRead[contactId] = lastMsg ? (lastMsg.time || Date.now()) : Date.now();
+        saveLastRead();
+      }
+    } else {
+      const prevLast = App.lastMsgTime[contactId];
+      const isNewIncoming = lastMsg && (lastMsg.time || 0) > (prevLast || 0) && lastMsg.from !== App.myId;
+      if (lastMsg) App.lastMsgTime[contactId] = lastMsg.time || Date.now();
+      if (isNewIncoming && App.activeChat !== contactId) {
+        if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+        const cname = App.contacts.find(x => x.id === contactId)?.name || 'Contact';
+        toast(`New message from ${cname}`);
+      }
+    }
+
+    App.lastMessages[contactId] = msgs;
+
+    if (App.activeChat === contactId) {
+      renderMessagesFor(contactId, msgs);
+      if (lastMsg) {
+        App.lastRead[contactId] = Math.max(App.lastRead[contactId] || 0, lastMsg.time || 0);
+        saveLastRead();
+      }
+      App.unread[contactId] = 0;
+    } else {
+      const lr = App.lastRead[contactId] || 0;
+      App.unread[contactId] = msgs.filter(m => m.from !== App.myId && (m.time || 0) > lr).length;
+    }
+
+    updateUnreadBadges();
+    refreshContactPreview(contactId, msgs);
+  });
+}
+
+function refreshContactPreview(contactId, msgs) {
+  const el = document.querySelector(`[data-contact-id="${contactId}"]`);
+  if (!el) return;
+  const sub = el.querySelector('.list-item-sub');
+  if (!sub) return;
+  const last = msgs[msgs.length - 1];
+  if (last) {
+    const txt = previewTextFrom(last);
+    sub.textContent = (last.from === App.myId ? 'You: ' : '') + (txt.length > 34 ? txt.slice(0, 34) + '…' : txt);
+  }
+}
+
+function listenContactPhoto(contactId) {
+  if (App.contactPhotoUnsubs[contactId]) return;
+  App.contactPhotoUnsubs[contactId] = onValue(dbRef(db, 'users/' + contactId + '/photo'), snap => {
+    const photo = snap.val();
+    const c = App.contacts.find(x => x.id === contactId);
+    if (!c) return;
+    if (c.photo !== photo) {
+      c.photo = photo || null;
+      saveContacts();
+      buildUI();
+      if (App.activeChat === contactId) updateChatHeader(c);
+    }
+  });
+}
+
+function updateProfileAvatar() {
+  const box = $('profileAvatar');
+  const img = $('profileAvatarImg');
+  const letter = $('profileAvatarLetter');
+  if (App.myPhoto) {
+    img.src = App.myPhoto; img.style.display = 'block'; letter.style.display = 'none';
+    box.classList.add('has-photo');
+  } else {
+    img.src = ''; img.style.display = 'none'; letter.style.display = 'inline';
+    letter.textContent = App.myName ? App.myName.charAt(0).toUpperCase() : 'G';
+    box.classList.remove('has-photo');
+  }
+}
+$('profileAvatar').addEventListener('click', e => {
+  if (e.target === $('avatarRemove')) return;
+  $('avatarInput').click();
+});
+$('avatarRemove').addEventListener('click', async e => {
+  e.stopPropagation();
+  if (!confirm('Remove your profile photo?')) return;
+  App.myPhoto = null; LS.del('avatar'); updateProfileAvatar();
+  if (App.myId) { try { await remove(dbRef(db, 'users/' + App.myId + '/photo')); } catch {} }
+  toast('Photo removed');
+});
+$('avatarInput').addEventListener('change', async e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { toast('Please choose an image file'); return; }
+  try {
+    toast('Processing photo…');
+    const dataUrl = await resizeImage(file, 240);
+    App.myPhoto = dataUrl; LS.set('avatar', dataUrl);
+    updateProfileAvatar(); await syncProfileToFirebase();
+    toast('Profile photo updated');
+  } catch (err) { console.error(err); toast('Could not load image'); }
+  e.target.value = '';
+});
+function resizeImage(file, size) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = ev => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const min = Math.min(img.width, img.height);
+        const sx = (img.width - min) / 2;
+        const sy = (img.height - min) / 2;
+        ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
+        resolve(canvas.toDataURL('image/jpeg', 0.82));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 function loadContacts() { App.contacts = LS.get('contacts', []); }
 function saveContacts() { LS.set('contacts', App.contacts); }
 function addContact(name, id) {
   if (!name || !id) return toast('Name and ID required');
   if (id === App.myId) return toast("That's your own ID");
   if (App.contacts.find(c => c.id === id)) return toast('Already added');
-  App.contacts.push({ name, id, addedAt: Date.now() });
-  saveContacts(); buildUI(); toast('Added: ' + name);
+  App.contacts.push({ name, id, addedAt: Date.now(), photo: null });
+  saveContacts(); listenContactPhoto(id);
+  if (App.myId) setupGlobalMessageListener(id);
+  buildUI(); toast('Added: ' + name);
 }
 
 function buildUI() {
   $('profileName').textContent = App.myName;
-  $('profileAvatar').textContent = App.myName.charAt(0).toUpperCase();
-
   const cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient');
 
   if (!App.contacts.length) {
     cl.innerHTML = '<div class="empty"><div class="empty-icon">💬</div><p>No contacts yet.<br>Tap <strong>＋</strong> to add someone.</p></div>';
     ccl.innerHTML = '<div class="empty"><div class="empty-icon">📞</div><p>Add contacts to call them.</p></div>';
     vmSel.innerHTML = '<option value="">Select contact</option>';
+    updateUnreadBadges();
     return;
   }
 
-  cl.innerHTML = App.contacts.map(c => `
-    <div class="list-item" data-contact-id="${c.id}">
-      <div class="avatar">${esc(c.name.charAt(0).toUpperCase())}</div>
-      <div class="list-item-body">
-        <div class="list-item-title">${esc(c.name)}</div>
-        <div class="list-item-sub">Tap to chat</div>
-      </div>
-      <div class="list-item-action">›</div>
-    </div>`).join('');
+  cl.innerHTML = App.contacts.map(c => {
+    const n = App.unread[c.id] || 0;
+    const last = App.lastMessages[c.id] && App.lastMessages[c.id].length
+      ? App.lastMessages[c.id][App.lastMessages[c.id].length - 1] : null;
+    let subTxt = previewTextFrom(last);
+    subTxt = subTxt.length > 34 ? subTxt.slice(0, 34) + '…' : subTxt;
+    return `
+      <div class="list-item" data-contact-id="${c.id}">
+        <div class="avatar">${avatarInnerHTML(c.photo, c.name)}</div>
+        <div class="list-item-body">
+          <div class="list-item-title${n > 0 ? ' unread' : ''}">${esc(c.name)}</div>
+          <div class="list-item-sub${n > 0 ? ' unread' : ''}">${esc(subTxt)}</div>
+        </div>
+        <div class="unread-badge${n > 0 ? ' show' : ''}">${n > 99 ? '99+' : n}</div>
+        <div class="list-item-action">›</div>
+      </div>`;
+  }).join('');
 
   ccl.innerHTML = App.contacts.map(c => `
     <div class="list-item" data-call-id="${c.id}">
-      <div class="avatar accent">${esc(c.name.charAt(0).toUpperCase())}</div>
+      <div class="avatar accent">${avatarInnerHTML(c.photo, c.name)}</div>
       <div class="list-item-body">
         <div class="list-item-title">${esc(c.name)}</div>
         <div class="list-item-sub">Tap to call</div>
@@ -392,6 +705,7 @@ function buildUI() {
 
   cl.querySelectorAll('[data-contact-id]').forEach(el => el.addEventListener('click', () => openChat(el.dataset.contactId)));
   ccl.querySelectorAll('[data-call-id]').forEach(el => el.addEventListener('click', () => startCall(el.dataset.callId)));
+  updateUnreadBadges();
 }
 
 document.querySelectorAll('.nav-item').forEach(btn => {
@@ -416,38 +730,65 @@ $('modalConfirm').addEventListener('click', () => {
   addContact(n, id); $('addModal').classList.remove('show');
 });
 
+function updateChatHeader(contact) {
+  $('chatName').textContent = contact.name;
+  $('chatAvatar').innerHTML = avatarInnerHTML(contact.photo, contact.name);
+}
+
+function renderAttachmentHTML(m) {
+  const a = m.attachment;
+  if (!a) return '';
+  if (a.type === 'image') {
+    return `<img class="attach-img" src="${a.url}" alt="${esc(a.name || '')}" loading="lazy"
+      onclick="window.__openLightbox('${a.url.replace(/'/g, "\\'")}','${esc(a.name || 'photo')}')">`;
+  }
+  if (a.type === 'video') {
+    return `<video class="attach-video" controls preload="metadata" src="${a.url}"></video>`;
+  }
+  return `<a class="attach-file" href="${a.url}" target="_blank" download="${esc(a.name || 'file')}">
+    <span class="file-icon">📄</span>
+    <span class="file-info">
+      <span class="file-name">${esc(a.name || 'File')}</span>
+      <span class="file-size">${fmtBytes(a.size)}</span>
+    </span>
+    <span style="font-size:20px;color:var(--muted)">⬇</span>
+  </a>`;
+}
+
+function renderMessagesFor(contactId, msgs) {
+  const area = $('messagesArea');
+  if (!area) return;
+  if (!msgs.length) {
+    area.innerHTML = '<div class="empty"><p style="font-size:13px;">No messages yet. Say hello 👋</p></div>';
+    return;
+  }
+  area.innerHTML = msgs.map(m => {
+    const out = m.from === App.myId;
+    const t = m.time ? new Date(m.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+    const hasAttach = !!m.attachment;
+    const cls = `msg ${out ? 'out' : 'in'}${hasAttach ? ' has-attachment' : ''}`;
+    const attachHtml = hasAttach ? renderAttachmentHTML(m) : '';
+    const captionHtml = (hasAttach && m.text) ? `<div class="msg-caption">${esc(m.text)}</div>` : '';
+    const textHtml = (!hasAttach && m.text) ? esc(m.text) : '';
+    return `<div class="${cls}">${attachHtml}${captionHtml}${textHtml}<span class="time">${t}</span></div>`;
+  }).join('');
+  area.scrollTop = area.scrollHeight;
+}
+
 function openChat(contactId) {
   const c = App.contacts.find(x => x.id === contactId);
   if (!c) return;
   App.activeChat = contactId;
-  $('chatName').textContent = c.name;
+  updateChatHeader(c);
   $('chatStatus').textContent = 'online';
   $('sendBtn').disabled = false;
+  App.lastRead[contactId] = Date.now();
+  saveLastRead();
+  App.unread[contactId] = 0;
+  updateUnreadBadges();
   showScreen('screen-chat');
-  listenMessages(contactId);
-}
-
-function listenMessages(contactId) {
-  if (App.msgUnsub) { try { App.msgUnsub(); } catch {} }
-  const cid = chatIdFor(App.myId, contactId);
-  const q = query(ref(db, 'messages/' + cid), limitToLast(150));
-  App.msgUnsub = onValue(q, snap => {
-    const area = $('messagesArea');
-    if (!area) return;
-    const data = snap.val();
-    if (!data) {
-      area.innerHTML = '<div class="empty"><p style="font-size:13px;">No messages yet. Say hello 👋</p></div>';
-      return;
-    }
-    const msgs = Object.entries(data).map(([k, v]) => ({ ...v, _k: k }))
-      .sort((a, b) => (a.time || 0) - (b.time || 0));
-    area.innerHTML = msgs.map(m => {
-      const out = m.from === App.myId;
-      const t = m.time ? new Date(m.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-      return `<div class="msg ${out ? 'out' : 'in'}">${esc(m.text)}<span class="time">${t}</span></div>`;
-    }).join('');
-    area.scrollTop = area.scrollHeight;
-  });
+  if (App.lastMessages[contactId]) renderMessagesFor(contactId, App.lastMessages[contactId]);
+  else $('messagesArea').innerHTML = '<div class="empty"><p style="font-size:13px;">No messages yet. Say hello 👋</p></div>';
 }
 
 async function sendMessage() {
@@ -456,33 +797,156 @@ async function sendMessage() {
   if (!text || !App.activeChat) return;
   const cid = chatIdFor(App.myId, App.activeChat);
   try {
-    await push(ref(db, 'messages/' + cid), {
+    await push(dbRef(db, 'messages/' + cid), {
       from: App.myId, to: App.activeChat, text, time: Date.now()
     });
     input.value = '';
-  } catch (e) {
-    console.error(e);
-    toast('Send failed — check Firebase rules');
-  }
+  } catch (e) { console.error(e); toast('Send failed — check Firebase rules'); }
 }
 $('sendBtn').addEventListener('click', sendMessage);
 $('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
 $('chatBackBtn').addEventListener('click', () => {
   App.activeChat = null;
-  if (App.msgUnsub) { try { App.msgUnsub(); } catch {} App.msgUnsub = null; }
   showScreen('screen-main');
+  updateUnreadBadges();
 });
 $('callFromChatBtn').addEventListener('click', () => { if (App.activeChat) startCall(App.activeChat); });
 
+const MAX_FILE_BYTES = 25 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
+
+$('attachBtn').addEventListener('click', () => {
+  if (!App.activeChat) return toast('Open a chat first');
+  $('fileInput').value = '';
+  $('fileInput').click();
+});
+
+$('fileInput').addEventListener('change', async e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  if (!App.activeChat) return toast('Open a chat first');
+
+  if (file.size > MAX_FILE_BYTES) {
+    return toast(`File too large — max ${fmtBytes(MAX_FILE_BYTES)}`);
+  }
+
+  const isImage = file.type.startsWith('image/');
+  const isVideo = file.type.startsWith('video/');
+  const recipientId = App.activeChat;
+
+  try {
+    let uploadFile = file;
+    if (isImage) {
+      if (file.size > MAX_IMAGE_BYTES) return toast('Image too large');
+      toast('Optimizing image…');
+      try {
+        const blob = await compressImageFile(file, 1600, 0.85);
+        uploadFile = new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' });
+      } catch (err) { console.warn('Compress failed, uploading original:', err); }
+    }
+
+    await uploadAttachment(uploadFile, recipientId, isImage, isVideo, file.name);
+  } catch (err) {
+    console.error('Upload error:', err);
+    toast('Upload failed: ' + (err.message || 'unknown'));
+  }
+  e.target.value = '';
+});
+
+function compressImageFile(file, maxDim, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = ev => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > h && w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; }
+        else if (h >= w && h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Compress failed')), 'image/jpeg', quality);
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function uploadAttachment(file, recipientId, isImage, isVideo, displayName) {
+  return new Promise((resolve, reject) => {
+    const cid = chatIdFor(App.myId, recipientId);
+    const safeName = (displayName || 'file').replace(/[^\w.\-]+/g, '_').slice(0, 80);
+    const path = `attachments/${cid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeName}`;
+    const ref = stRef(storage, path);
+    const meta = { contentType: file.type || 'application/octet-stream', customMetadata: { uploadedBy: App.myId } };
+    const task = uploadBytesResumable(ref, file, meta);
+
+    const bar = $('uploadBar');
+    const fill = $('uploadBarFill');
+    bar.classList.add('show');
+    fill.style.width = '0%';
+
+    task.on('state_changed',
+      snap => {
+        const pct = (snap.bytesTransferred / snap.totalBytes) * 100;
+        fill.style.width = pct.toFixed(1) + '%';
+      },
+      err => {
+        bar.classList.remove('show');
+        reject(err);
+      },
+      async () => {
+        try {
+          const url = await getDownloadURL(task.snapshot.ref);
+          fill.style.width = '100%';
+          const type = isImage ? 'image' : isVideo ? 'video' : 'file';
+          await push(dbRef(db, 'messages/' + cid), {
+            from: App.myId,
+            to: recipientId,
+            text: '',
+            time: Date.now(),
+            attachment: {
+              type,
+              name: displayName || file.name || 'file',
+              size: file.size,
+              mime: file.type || 'application/octet-stream',
+              url,
+              storagePath: path
+            }
+          });
+          setTimeout(() => {
+            bar.classList.remove('show');
+            fill.style.width = '0%';
+          }, 700);
+          toast('Sent ✓');
+          resolve();
+        } catch (err) {
+          bar.classList.remove('show');
+          reject(err);
+        }
+      }
+    );
+  });
+}
+
+window.__openLightbox = function(url, name) {
+  $('lightboxImg').src = url;
+  $('lightboxDownload').href = url;
+  $('lightboxDownload').download = name || 'photo';
+  $('lightbox').classList.add('show');
+};
+$('lightboxClose').addEventListener('click', () => $('lightbox').classList.remove('show'));
+$('lightbox').addEventListener('click', e => { if (e.target === $('lightbox')) $('lightbox').classList.remove('show'); });
+
 const recordBtn = $('recordBtn');
 recordBtn.addEventListener('click', async () => {
-  if (App.mediaRecorder && App.mediaRecorder.state === 'recording') {
-    App.mediaRecorder.stop();
-    return;
-  }
+  if (App.mediaRecorder && App.mediaRecorder.state === 'recording') { App.mediaRecorder.stop(); return; }
   const recipient = $('vmRecipient').value;
   if (!recipient) return toast('Select a recipient first');
-
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     App.recordedChunks = [];
@@ -502,30 +966,23 @@ recordBtn.addEventListener('click', async () => {
     toast('Recording… tap again to stop');
     App.recordTimer = setTimeout(() => {
       if (App.mediaRecorder && App.mediaRecorder.state === 'recording') {
-        App.mediaRecorder.stop();
-        toast('30s limit reached — sending');
+        App.mediaRecorder.stop(); toast('30s limit reached — sending');
       }
     }, 30000);
   } catch { toast('Microphone permission denied'); }
 });
 
 function uploadVoicemail(blob, recipient) {
-  if (blob.size > 700000) {
-    toast('Recording too large — keep it shorter');
-    return;
-  }
+  if (blob.size > 700000) return toast('Recording too large — keep it shorter');
   const reader = new FileReader();
   reader.onload = async () => {
     try {
-      await push(ref(db, 'voicemails/' + recipient), {
+      await push(dbRef(db, 'voicemails/' + recipient), {
         from: App.myId, fromName: App.myName,
         data: reader.result, mime: blob.type, time: Date.now()
       });
       toast('Voicemail sent to ' + (App.contacts.find(c => c.id === recipient)?.name || 'contact'));
-    } catch (e) {
-      console.error(e);
-      toast('Send failed');
-    }
+    } catch (e) { console.error(e); toast('Send failed'); }
   };
   reader.readAsDataURL(blob);
 }
@@ -533,14 +990,11 @@ function uploadVoicemail(blob, recipient) {
 function listenVoicemails() {
   if (!App.myId) return;
   if (App.vmUnsub) { try { App.vmUnsub(); } catch {} }
-  App.vmUnsub = onValue(ref(db, 'voicemails/' + App.myId), snap => {
+  App.vmUnsub = onValue(dbRef(db, 'voicemails/' + App.myId), snap => {
     const data = snap.val();
     const listEl = $('voicemailList');
     if (!listEl) return;
-    if (!data) {
-      listEl.innerHTML = '<div class="empty"><p>No voicemails yet.</p></div>';
-      return;
-    }
+    if (!data) { listEl.innerHTML = '<div class="empty"><p>No voicemails yet.</p></div>'; return; }
     const vms = Object.entries(data).map(([k, v]) => ({ ...v, _k: k }))
       .sort((a, b) => (b.time || 0) - (a.time || 0));
     listEl.innerHTML = vms.map((v, i) => {
@@ -557,16 +1011,13 @@ function listenVoicemails() {
     listEl.querySelectorAll('[data-i]').forEach(btn => {
       btn.addEventListener('click', () => {
         const v = vms[parseInt(btn.dataset.i)];
-        try {
-          const a = new Audio(v.data);
-          a.play().catch(() => toast('Cannot play'));
-          toast('Playing voicemail…');
-        } catch { toast('Playback error'); }
+        try { new Audio(v.data).play().catch(() => toast('Cannot play')); toast('Playing voicemail…'); }
+        catch { toast('Playback error'); }
       });
     });
     listEl.querySelectorAll('[data-del]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        try { await remove(ref(db, 'voicemails/' + App.myId + '/' + btn.dataset.del)); toast('Deleted'); }
+        try { await remove(dbRef(db, 'voicemails/' + App.myId + '/' + btn.dataset.del)); toast('Deleted'); }
         catch { toast('Delete failed'); }
       });
     });
@@ -578,21 +1029,18 @@ async function startCall(contactId) {
   if (!c) return;
   try { App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
   catch { return toast('Microphone permission denied'); }
-
   $('callName').textContent = c.name;
-  $('callAvatar').textContent = c.name.charAt(0).toUpperCase();
+  $('callAvatar').innerHTML = avatarInnerHTML(c.photo, c.name);
   $('callStatus').textContent = 'Calling…';
   $('callStatus').classList.remove('active');
   $('muteBtn').classList.remove('muted');
   App.muted = false;
   showScreen('screen-call');
-
   const call = App.peer.call(contactId, App.localStream);
   App.activeCall = call;
   call.on('stream', rs => {
     const audio = new Audio(); audio.srcObject = rs; audio.autoplay = true; audio.play().catch(() => {});
-    $('callStatus').textContent = 'In call';
-    $('callStatus').classList.add('active');
+    $('callStatus').textContent = 'In call'; $('callStatus').classList.add('active');
   });
   call.on('close', endCall);
   call.on('error', () => { toast('Call failed — contact offline'); endCall(); });
@@ -603,7 +1051,7 @@ function handleIncomingCall(call) {
   const name = c ? c.name : 'Unknown';
   App.incomingCallData = call;
   $('incomingName').textContent = name;
-  $('incomingAvatar').textContent = name.charAt(0).toUpperCase();
+  $('incomingAvatar').innerHTML = avatarInnerHTML(c?.photo, name);
   $('incoming-call').classList.add('show');
   call.on('close', () => { $('incoming-call').classList.remove('show'); App.incomingCallData = null; });
 }
@@ -619,9 +1067,8 @@ $('acceptCallBtn').addEventListener('click', async () => {
   const c = App.contacts.find(x => x.id === call.peer);
   const name = c ? c.name : 'Unknown';
   $('callName').textContent = name;
-  $('callAvatar').textContent = name.charAt(0).toUpperCase();
-  $('callStatus').textContent = 'In call';
-  $('callStatus').classList.add('active');
+  $('callAvatar').innerHTML = avatarInnerHTML(c?.photo, name);
+  $('callStatus').textContent = 'In call'; $('callStatus').classList.add('active');
   showScreen('screen-call');
   call.on('stream', rs => { const a = new Audio(); a.srcObject = rs; a.autoplay = true; a.play().catch(() => {}); });
   call.on('close', endCall);
@@ -658,14 +1105,18 @@ $('shareAppBtn').addEventListener('click', async () => {
 $('helpBtn').addEventListener('click', () => $('helpModal').classList.add('show'));
 $('helpClose').addEventListener('click', () => $('helpModal').classList.remove('show'));
 $('clearBtn').addEventListener('click', () => {
-  if (!confirm('Clear local contacts on this device?')) return;
-  LS.del('contacts'); App.contacts = []; buildUI(); toast('Cleared');
+  if (!confirm('Clear local contacts and unread data on this device?')) return;
+  LS.del('contacts'); LS.del('lastRead'); LS.del('avatar');
+  App.contacts = []; App.lastRead = {}; App.unread = {}; App.lastMessages = {};
+  buildUI(); toast('Cleared');
 });
 
 window.addEventListener('load', () => {
-  loadContacts();
-  const saved = LS.get('myName', null);
-  if (saved) { $('nameInput').value = saved; $('enterBtn').disabled = false; }
+  loadContacts(); loadLastRead();
+  const savedName = LS.get('myName', null);
+  const savedPhoto = LS.get('avatar', null);
+  if (savedName) { $('nameInput').value = savedName; $('enterBtn').disabled = false; }
+  if (savedPhoto) App.myPhoto = savedPhoto;
   document.querySelectorAll('.modal-overlay').forEach(m => {
     m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); });
   });
