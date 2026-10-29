@@ -88,27 +88,27 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .chat-header .chat-title h3{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chat-header .chat-title small{font-size:11px;color:var(--green);display:block;margin-top:1px}
 
-/* ═══════════ NEW CHAT BACKGROUND ═══════════ */
+/* ═══════════ CHAT BACKGROUND — BOLD & VISIBLE ═══════════ */
 .messages{
   flex:1;
   overflow-y:auto;
   padding:16px 14px;
   position:relative;
-  background-color:#e8eff5;
+  background-color:#d5e3ee;
   background-image:
-    radial-gradient(circle at 0% 0%, rgba(13,122,140,.11) 0%, transparent 42%),
-    radial-gradient(circle at 100% 100%, rgba(212,175,55,.13) 0%, transparent 45%),
-    radial-gradient(circle at 100% 0%, rgba(11,42,74,.07) 0%, transparent 35%),
-    radial-gradient(circle at 0% 100%, rgba(74,255,122,.06) 0%, transparent 35%),
-    radial-gradient(circle at 50% 50%, rgba(11,42,74,.045) 1px, transparent 1.6px);
-  background-size:auto,auto,auto,auto,22px 22px;
-  background-attachment:local;
+    radial-gradient(circle at 0% 0%, rgba(13,122,140,.32) 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(212,175,55,.36) 0%, transparent 52%),
+    radial-gradient(circle at 100% 0%, rgba(11,42,74,.20) 0%, transparent 40%),
+    radial-gradient(circle at 0% 100%, rgba(74,200,122,.18) 0%, transparent 40%),
+    radial-gradient(circle at center, rgba(11,42,74,.14) 1.6px, transparent 2px);
+  background-size:auto,auto,auto,auto,20px 20px;
   scroll-behavior:smooth;
 }
 .messages::-webkit-scrollbar{display:none}
+
 .msg{max-width:78%;padding:9px 13px;border-radius:16px;font-size:14.5px;line-height:1.4;margin-bottom:8px;word-wrap:break-word}
-.msg.out{background:linear-gradient(135deg,#d4fbc9 0%,#bef5b1 100%);margin-left:auto;border-bottom-right-radius:4px;box-shadow:0 2px 8px rgba(74,177,80,.18),0 1px 2px rgba(74,177,80,.10)}
-.msg.in{background:#ffffff;margin-right:auto;border-bottom-left-radius:4px;box-shadow:0 2px 8px rgba(11,42,74,.10),0 1px 2px rgba(11,42,74,.06);border:1px solid rgba(11,42,74,.04)}
+.msg.out{background:linear-gradient(135deg,#d4fbc9 0%,#bef5b1 100%);margin-left:auto;border-bottom-right-radius:4px;box-shadow:0 2px 8px rgba(74,177,80,.20),0 1px 2px rgba(74,177,80,.12)}
+.msg.in{background:#ffffff;margin-right:auto;border-bottom-left-radius:4px;box-shadow:0 2px 8px rgba(11,42,74,.12),0 1px 2px rgba(11,42,74,.08);border:1px solid rgba(11,42,74,.06)}
 .msg .time{font-size:10px;color:var(--muted);display:block;margin-top:3px;text-align:right}
 .msg.has-attachment{padding:6px;max-width:80%}
 .msg.has-attachment .msg-caption{padding:5px 8px 0}
@@ -403,9 +403,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getDatabase, ref as dbRef, push, onValue, onChildAdded, remove, set, get, runTransaction, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import { getStorage, ref as stRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-/* ═══════════════════════════════════════════════════════════
-   FIREBASE CONFIG — current app registration
-   ═══════════════════════════════════════════════════════════ */
 const firebaseConfig = {
   apiKey: "AIzaSyBfqTPdNq31MegFF_vh08D2K_6-2GMeIrY",
   authDomain: "jarvis-tracker-a8136.firebaseapp.com",
@@ -658,7 +655,6 @@ $('permBtn').addEventListener('click', async () => {
   else toast('Notification permission: ' + result);
 });
 
-/* ═══════════ STORAGE SELF-TEST ═══════════ */
 $('storageCheckBtn').addEventListener('click', async () => {
   toast('Testing storage…');
   const bucketsToTry = [
@@ -676,11 +672,7 @@ $('storageCheckBtn').addEventListener('click', async () => {
       await new Promise((resolve, reject) => { task.on('state_changed', null, reject, resolve); });
       const url = await getDownloadURL(task.snapshot.ref);
       try { await task.snapshot.ref.delete(); } catch {}
-      alert(
-        '✅ Storage works!\n\n' +
-        'Bucket in use: ' + firebaseConfig.storageBucket + '\n\n' +
-        'Uploads to /attachments/ will now succeed.'
-      );
+      alert('✅ Storage works!\n\nBucket in use: ' + firebaseConfig.storageBucket + '\n\nUploads to /attachments/ will now succeed.');
       toast('Storage OK');
       return;
     } catch (err) {
@@ -696,9 +688,7 @@ $('storageCheckBtn').addEventListener('click', async () => {
   const msg = (err && err.message) ? String(err.message) : 'unknown error';
   let hint = '';
   if (/unauthorized|permission|denied/i.test(code)) {
-    hint = 'Storage rules deny writes.\n\n' +
-      'Open → https://console.firebase.google.com/u/1/project/jarvis-tracker-a8136/storage/rules\n\n' +
-      'Paste and Publish:\n\n' +
+    hint = 'Storage rules deny writes.\n\nOpen → https://console.firebase.google.com/u/1/project/jarvis-tracker-a8136/storage/rules\n\nPaste and Publish:\n\n' +
       "rules_version = '2';\n" +
       'service firebase.storage {\n' +
       '  match /b/{bucket}/o {\n' +
@@ -709,17 +699,11 @@ $('storageCheckBtn').addEventListener('click', async () => {
       '  }\n' +
       '}';
   } else if (/bucket-not-found/i.test(code)) {
-    hint = 'Bucket "' + firebaseConfig.storageBucket + '" does not exist.\n\n' +
-      'Open → https://console.firebase.google.com/u/1/project/jarvis-tracker-a8136/storage\n\n' +
-      'If it says "Get started", click it, then choose a region and finish setup.';
+    hint = 'Bucket "' + firebaseConfig.storageBucket + '" does not exist.\n\nOpen → https://console.firebase.google.com/u/1/project/jarvis-tracker-a8136/storage\n\nIf it says "Get started", click it, then choose a region and finish setup.';
   } else if (/retry-limit|network/i.test(code)) {
-    hint = 'Network problem, or CORS not configured on the bucket.\n\n' +
-      'Run in Google Cloud Shell:\n\n' +
-      'gsutil cors set cors.json gs://jarvis-tracker-a8136.firebasestorage.app';
+    hint = 'Network problem, or CORS not configured on the bucket.\n\nRun in Google Cloud Shell:\n\ngsutil cors set cors.json gs://jarvis-tracker-a8136.firebasestorage.app';
   } else if (/unknown/i.test(code)) {
-    hint = 'Storage may not be enabled, or CORS is missing.\n\n' +
-      'Open → https://console.firebase.google.com/u/1/project/jarvis-tracker-a8136/storage\n\n' +
-      'If it shows "Get started", complete the setup first.';
+    hint = 'Storage may not be enabled, or CORS is missing.\n\nOpen → https://console.firebase.google.com/u/1/project/jarvis-tracker-a8136/storage\n\nIf it shows "Get started", complete the setup first.';
   }
   alert('❌ Storage test failed!\n\nError: ' + code + '\nMessage: ' + msg + '\n\n' + hint);
   toast('Storage failed', true);
