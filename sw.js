@@ -1,8 +1,4 @@
-/* G Communication Portal — Service Worker
-   Cache-first for same-origin static assets.
-   Never caches Firebase or PeerJS (cross-origin). */
-
-const CACHE_VERSION = 'g-comm-v1';
+const CACHE_VERSION = 'g-comm-v2';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -24,9 +20,7 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(
-        keys.filter(k => k !== CACHE_VERSION).map(k => caches.delete(k))
-      ))
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE_VERSION).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -34,13 +28,9 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
-
   const url = new URL(req.url);
-
-  // Let Firebase + PeerJS (cross-origin) go straight to network
   if (url.origin !== location.origin) return;
 
-  // Navigation requests: network-first, fall back to cached index.html
   if (req.mode === 'navigate') {
     event.respondWith(
       fetch(req)
@@ -54,7 +44,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Static assets: cache-first
   event.respondWith(
     caches.match(req).then(cached => {
       if (cached) return cached;
