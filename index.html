@@ -8,8 +8,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="G Comm">
 <title>G Communication Portal</title>
+
+<!-- ═══════════ G ICON (favicon) — embedded, no separate file needed ═══════════ -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNjYiIGZpbGw9IiNkNGFlMzciLz48Y2lyY2xlIGN4PSI5NiIgY3k9Ijk2IiByPSI1OCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMGIyYTRhIiBzdHJva2Utd2lkdGg9IjIiIG9wYWNpdHk9IjAuMzUiLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5MiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzBiMmE0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RzwvdGV4dD48L3N2Zz4=">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNjYiIGZpbGw9IiNkNGFlMzciLz48Y2lyY2xlIGN4PSI5NiIgY3k9Ijk2IiByPSI1OCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMGIyYTRhIiBzdHJva2Utd2lkdGg9IjIiIG9wYWNpdHk9IjAuMzUiLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQXJpYWwsIEhlbHZldGljYSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5MiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzBiMmE0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RzwvdGV4dD48L3N2Zz4=">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.svg">
+
 <style>
 :root{--navy:#0b2a4a;--navy-light:#143a5f;--accent:#0d7a8c;--gold:#d4af37;--green:#4aff7a;--red:#ff4757;--bg:#f2f5f8;--card:#fff;--text:#1e2a33;--muted:#6b7a87;--border:#e1e7ed}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -105,6 +109,12 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .menu-item:active{background:#f0f3f6}
 .menu-item .menu-icon{font-size:20px;width:24px;text-align:center}
 .menu-item .menu-arrow{margin-left:auto;color:var(--muted);font-size:18px}
+.clone-btn{display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#0b2a4a,#0d7a8c);color:#fff;text-decoration:none;padding:16px 20px;margin:16px;border-radius:12px;font-size:15px;font-weight:700;letter-spacing:.3px;box-shadow:0 4px 16px rgba(11,42,74,.25);transition:transform .12s}
+.clone-btn:active{transform:scale(.97)}
+.clone-btn .clone-icon{background:#d4af37;color:#0b2a4a;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.clone-btn .clone-text{text-align:left;flex:1}
+.clone-btn .clone-text strong{display:block;font-size:15px}
+.clone-btn .clone-text small{display:block;font-size:11px;opacity:.8;font-weight:500;margin-top:2px}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:100;padding:24px}
 .modal-overlay.show{display:flex}
 .modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:360px}
@@ -171,6 +181,17 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
         <strong>Share this ID</strong> with anyone. They paste it into "Add Contact" to reach you.
       </div>
     </div>
+
+    <!-- ═══════════ CLONE BUTTON — edit the GitHub URL below ═══════════ -->
+    <a href="https://github.com/YOUR-USERNAME/g-comm" target="_blank" rel="noopener" class="clone-btn">
+      <span class="clone-icon">⬇</span>
+      <span class="clone-text">
+        <strong>Clone this app</strong>
+        <small>Fork the code on GitHub</small>
+      </span>
+      <span style="font-size:20px;opacity:.7;">›</span>
+    </a>
+
     <div class="menu-item" id="shareAppBtn"><span class="menu-icon">🔗</span> Share app's link <span class="menu-arrow">›</span></div>
     <div class="menu-item" id="helpBtn"><span class="menu-icon">❓</span> How it works <span class="menu-arrow">›</span></div>
     <div class="menu-item" id="clearBtn"><span class="menu-icon">🗑</span> Clear local data <span class="menu-arrow">›</span></div>
@@ -649,16 +670,6 @@ window.addEventListener('load', () => {
     m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); });
   });
 });
-</script>
-
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('✅ Service worker registered:', reg.scope))
-        .catch(err => console.warn('Service worker failed:', err));
-    });
-  }
 </script>
 </body>
 </html>
