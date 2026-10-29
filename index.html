@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0b2a4a">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="G Comm">
-<title>G Communication Portal</title>
+<meta name="apple-mobile-web-app-title" content="JARVIS">
+<title>JARVIS</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNjYiIGZpbGw9IiNkNGFlMzciLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5MiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzBiMmE0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RzwvdGV4dD48L3N2Zz4=">
 <link rel="manifest" href="manifest.json">
 <style>
@@ -25,7 +25,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .install-banner button{background:#fff;color:var(--navy);border:none;padding:8px 14px;border-radius:18px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0}
 .install-banner .inst-close{background:transparent;color:#fff;padding:4px 6px;font-size:16px;border:none;cursor:pointer;flex-shrink:0;opacity:.7}
 
-/* ═══════════ WELCOME — UNCHANGED ═══════════ */
+/* ═══════════ WELCOME — JARVIS ═══════════ */
 #screen-onboard{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 25%,#0d7a8c 55%,#143a5f 80%,#0b2a4a 100%);background-size:300% 300%;animation:gradientShift 14s ease infinite;color:#fff;justify-content:center;align-items:center;padding:32px 28px;text-align:center;position:relative;overflow:hidden}
 @keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 .orb{position:absolute;border-radius:50%;filter:blur(48px);opacity:.45;pointer-events:none;z-index:0;animation:floatOrb 18s ease-in-out infinite}
@@ -33,9 +33,9 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .orb-2{width:320px;height:320px;background:radial-gradient(circle,#0d7a8c 0%,rgba(13,122,140,0) 70%);bottom:5%;right:-18%;animation-delay:-6s}
 .orb-3{width:160px;height:160px;background:radial-gradient(circle,#4aff7a 0%,rgba(74,255,122,0) 70%);top:48%;right:15%;animation-delay:-12s}
 @keyframes floatOrb{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-45px) scale(1.12)}66%{transform:translate(-25px,35px) scale(.92)}}
-.onboard-logo{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 50%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:46px;font-weight:800;margin-bottom:24px;box-shadow:0 12px 40px rgba(212,175,55,.5),0 0 0 8px rgba(212,175,55,.1);position:relative;z-index:1;animation:logoPulse 3s ease-in-out infinite}
-@keyframes logoPulse{0%,100%{box-shadow:0 12px 40px rgba(212,175,55,.5),0 0 0 8px rgba(212,175,55,.1)}50%{box-shadow:0 12px 50px rgba(212,175,55,.7),0 0 0 14px rgba(212,175,55,.06)}}
-#screen-onboard h1{font-size:26px;letter-spacing:.5px;margin-bottom:8px;font-weight:700;position:relative;z-index:1}
+.onboard-logo{width:130px;height:130px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 50%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:64px;font-weight:800;margin-bottom:28px;box-shadow:0 16px 50px rgba(212,175,55,.55),0 0 0 10px rgba(212,175,55,.12);position:relative;z-index:1;animation:logoPulse 3s ease-in-out infinite}
+@keyframes logoPulse{0%,100%{box-shadow:0 16px 50px rgba(212,175,55,.55),0 0 0 10px rgba(212,175,55,.12)}50%{box-shadow:0 16px 60px rgba(212,175,55,.75),0 0 0 16px rgba(212,175,55,.06)}}
+#screen-onboard h1{font-size:34px;letter-spacing:6px;margin-bottom:8px;font-weight:800;position:relative;z-index:1}
 #screen-onboard p{font-size:14px;opacity:.9;line-height:1.5;max-width:320px;margin-bottom:28px;position:relative;z-index:1}
 .onboard-input{width:100%;max-width:320px;padding:15px 18px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.14);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:12px;font-size:16px;color:#fff;outline:none;margin-bottom:12px;text-align:center;letter-spacing:.5px;position:relative;z-index:1;transition:all .2s}
 .onboard-input::placeholder{color:rgba(255,255,255,.55)}
@@ -62,10 +62,14 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .nav-item .icon{display:block;font-size:22px;margin-bottom:2px;transition:transform .2s}
 .nav-item.active{color:var(--navy)}
 .nav-item.active .icon{transform:translateY(-2px)}
-.nav-badge{position:absolute;top:4px;left:50%;transform:translateX(6px);background:var(--red);color:#fff;font-size:9.5px;font-weight:700;min-width:17px;height:17px;border-radius:9px;padding:0 5px;display:none;align-items:center;justify-content:center;line-height:1;border:2px solid #fff;pointer-events:none;box-shadow:0 2px 5px rgba(255,71,87,.4)}
-.nav-badge.show{display:flex}
-.unread-badge{background:var(--red);color:#fff;font-size:11px;font-weight:700;min-width:20px;height:20px;border-radius:10px;padding:0 6px;display:none;align-items:center;justify-content:center;line-height:1;flex-shrink:0;box-shadow:0 2px 6px rgba(255,71,87,.4)}
-.unread-badge.show{display:flex}
+
+/* ═══════════ UNREAD BADGES — BIGGER + ANIMATED ═══════════ */
+.nav-badge{position:absolute;top:2px;left:50%;transform:translateX(8px);background:linear-gradient(135deg,#ff5b6b,#ff2f4a 60%,#cc1e38);color:#fff;font-size:11px;font-weight:800;min-width:22px;height:22px;border-radius:11px;padding:0 6px;display:none;align-items:center;justify-content:center;line-height:1;border:2.5px solid #fff;pointer-events:none;box-shadow:0 3px 8px rgba(255,71,87,.55)}
+.nav-badge.show{display:flex;animation:badgePop .35s ease-out}
+.unread-badge{background:linear-gradient(135deg,#ff5b6b,#ff2f4a 60%,#cc1e38);color:#fff;font-size:13px;font-weight:800;min-width:26px;height:26px;border-radius:13px;padding:0 8px;display:none;align-items:center;justify-content:center;line-height:1;flex-shrink:0;box-shadow:0 3px 10px rgba(255,71,87,.55),0 0 0 2px #fff}
+.unread-badge.show{display:flex;animation:badgePop .35s ease-out}
+@keyframes badgePop{0%{transform:scale(0)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+
 .section-title{font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:18px 20px 8px}
 .list-item{background:linear-gradient(180deg,#ffffff 0%,#fdfaf3 100%);padding:14px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s}
 .list-item:active{background:linear-gradient(180deg,#f5efe4 0%,#ede5d6 100%)}
@@ -257,7 +261,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 
 <div class="install-banner" id="installBanner">
   <div class="inst-icon">G</div>
-  <div class="inst-text"><strong>Install G Comm</strong><small>Add to your home screen</small></div>
+  <div class="inst-text"><strong>Install JARVIS</strong><small>Add to your home screen</small></div>
   <button id="installBannerBtn">Install</button>
   <button class="inst-close" id="installBannerClose">✕</button>
 </div>
@@ -267,7 +271,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
   <div class="orb orb-2"></div>
   <div class="orb orb-3"></div>
   <div class="onboard-logo">G</div>
-  <h1>G Communication Portal</h1>
+  <h1>JARVIS</h1>
   <p>Pick your name. That's how others will find you.</p>
   <input id="nameInput" class="onboard-input" type="text" placeholder="Your name (e.g. gesner)" maxlength="20" autocomplete="off" autocapitalize="none">
   <div class="name-status" id="nameStatus">Lowercase letters and numbers only</div>
@@ -303,7 +307,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
       <div class="avatar-hint">Tap photo to upload or change</div>
       <h3 id="profileName">—</h3>
       <div class="username" id="profileUsername">@—</div>
-      <div class="role-label">G Communication Portal</div>
+      <div class="role-label">JARVIS</div>
       <div class="help-text" style="margin-top:20px">
         <strong>Your name is your address.</strong> Anyone can message you by typing <span id="profileUsername2" style="color:var(--accent);font-weight:700">@you</span> in Add Contact.
       </div>
@@ -414,7 +418,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
   <div class="modal">
     <div class="install-hero">
       <div class="install-app-icon">G</div>
-      <h3>Install G Comm</h3>
+      <h3>Install JARVIS</h3>
       <p id="installSubtitle">Add the app to your home screen for instant access</p>
     </div>
     <div id="installBody"></div>
@@ -465,7 +469,7 @@ const App = {
   installPrompt: null, isInstalled: false,
   soundEnabled: true, vibrationEnabled: true,
   audioCtx: null, ringInterval: null, titleFlashInterval: null, callRingTimeout: null,
-  originalTitle: 'G Communication Portal'
+  originalTitle: 'JARVIS'
 };
 const $ = id => document.getElementById(id);
 const LS = {
@@ -568,7 +572,7 @@ function showBrowserNotification(title, body, tag) {
   if (Notification.permission !== 'granted') return;
   if (!document.hidden) return;
   try {
-    const n = new Notification(title, { body: body || '', icon: 'icon-192.svg', badge: 'icon-192.svg', tag: tag || 'g-comm', renotify: true, silent: true, requireInteraction: false });
+    const n = new Notification(title, { body: body || '', icon: 'icon-192.svg', badge: 'icon-192.svg', tag: tag || 'jarvis', renotify: true, silent: true, requireInteraction: false });
     n.onclick = () => { window.focus(); n.close(); };
     setTimeout(() => { try { n.close(); } catch {} }, 8000);
   } catch (e) { console.warn('Notification failed:', e); }
@@ -577,7 +581,7 @@ function startTitleFlash(prefix) {
   stopTitleFlash();
   let toggle = false;
   App.titleFlashInterval = setInterval(() => {
-    document.title = toggle ? (prefix || '🔔') + ' G Comm' : App.originalTitle;
+    document.title = toggle ? (prefix || '🔔') + ' JARVIS' : App.originalTitle;
     toggle = !toggle;
   }, 800);
 }
@@ -625,22 +629,22 @@ async function triggerInstall() {
 function openInstallModal(platform) {
   const body = $('installBody');
   if (platform === 'ios') {
-    $('installSubtitle').textContent = 'Follow these steps to add G Comm to your iPhone home screen';
+    $('installSubtitle').textContent = 'Follow these steps to add JARVIS to your iPhone home screen';
     body.innerHTML = `<ol class="install-steps">
       <li>Open this page in <strong>Safari</strong>.</li>
       <li>Tap the <strong>Share button</strong> <span class="inline-icon">⬆</span> at the bottom of the screen.</li>
       <li>Scroll down and tap <strong>Add to Home Screen</strong> <span class="inline-icon">＋</span>.</li>
       <li>Tap <strong>Add</strong> in the top right corner.</li>
-      <li>Done! The G Comm icon is now on your home screen.</li>
+      <li>Done! The JARVIS icon is now on your home screen.</li>
     </ol>
     <button class="install-cta" onclick="document.getElementById('installModal').classList.remove('show')">Got it</button>`;
   } else {
-    $('installSubtitle').textContent = 'Add G Comm to your home screen for one-tap access';
+    $('installSubtitle').textContent = 'Add JARVIS to your home screen for one-tap access';
     body.innerHTML = `<ol class="install-steps">
       <li>Open this page in <strong>Chrome</strong> or <strong>Edge</strong> on Android.</li>
       <li>Look for the <strong>install icon</strong> <span class="inline-icon">⬇</span> in the address bar.</li>
       <li>Tap <strong>Install app</strong>.</li>
-      <li>The G Comm icon will appear on your home screen.</li>
+      <li>The JARVIS icon will appear on your home screen.</li>
     </ol>
     <button class="install-cta" onclick="document.getElementById('installModal').classList.remove('show')">Got it</button>`;
   }
@@ -893,7 +897,7 @@ function updateUnreadBadges() {
     else b.classList.remove('show');
   }
   if (!App.titleFlashInterval) {
-    document.title = total > 0 ? `(${total}) G Comm` : 'G Communication Portal';
+    document.title = total > 0 ? `(${total}) JARVIS` : 'JARVIS';
     App.originalTitle = document.title;
   }
   document.querySelectorAll('[data-contact-slug]').forEach(el => {
