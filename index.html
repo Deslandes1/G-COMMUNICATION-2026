@@ -307,10 +307,6 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
       <span class="menu-icon">📢</span> Browser notifications
       <span class="menu-arrow" id="permStatus">checking…</span>
     </div>
-    <div class="menu-item" id="storageCheckBtn">
-      <span class="menu-icon">🗄️</span> Check file storage
-      <span class="menu-arrow">›</span>
-    </div>
     <div class="menu-item install-highlight" id="installMenuItem">
       <span class="menu-icon">⬇️</span> Install app on this phone
       <span class="menu-arrow">›</span>
@@ -337,7 +333,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
     <div class="chat-avatar" id="chatAvatar">G</div>
     <div class="chat-title">
       <h3 id="chatName">—</h3>
-      <small id="chatStatus">online</small>
+      <small id="chatStatus">connecting…</small>
     </div>
     <button class="icon-btn" id="callFromChatBtn">📞</button>
   </header>
@@ -430,11 +426,11 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
   <div class="modal">
     <h3>How it works</h3>
     <p>
-      <strong>1.</strong> Your name is your address — e.g. <em>gesner</em>.<br><br>
-      <strong>2.</strong> Anyone types that name in "Add contact" to reach you.<br><br>
+      <strong>1.</strong> Your name is your room — e.g. <em>gesner</em>.<br><br>
+      <strong>2.</strong> Messages and files travel <strong>directly browser-to-browser</strong> over WebRTC. No server, no database, no accounts.<br><br>
       <strong>3.</strong> Tap any emoji in the strip above the input to send it instantly. Tap 😊 for the full palette.<br><br>
-      <strong>4.</strong> ✓ means sent, ✓✓ means read.<br><br>
-      <strong>5.</strong> Files are uploaded via <strong>Puter.js</strong> object storage — no CORS issues, no signup, and the generated link works directly in the chat.
+      <strong>4.</strong> ✓ means sent. Since there is no server, read receipts are not available.<br><br>
+      <strong>5.</strong> Media (photos, videos, files) is sent peer-to-peer. Both users must be online at the same time to connect.
     </p>
     <div class="modal-actions"><button class="confirm" id="helpClose">Got it</button></div>
   </div>
@@ -464,224 +460,94 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref as dbRef, push, onValue, onChildAdded, remove, set, get, runTransaction, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-/* ═══════════════════════════════════════════════════════════
-   FIREBASE CONFIG — "G Jarvis" web app (new registration)
-   ═══════════════════════════════════════════════════════════ */
-const firebaseConfig = {
-  apiKey: "AIzaSyBfqTPdNq31MegFF_vh08D2K_6-2GMeIrY",
-  authDomain: "jarvis-tracker-a8136.firebaseapp.com",
-  databaseURL: "https://jarvis-tracker-a8136-default-rtdb.firebaseio.com",
-  projectId: "jarvis-tracker-a8136",
-  storageBucket: "jarvis-tracker-a8136.firebasestorage.app",
-  messagingSenderId: "994161558903",
-  appId: "1:994161558903:web:c978951c451a305b6d0d72",
-  measurementId: "G-80G2TGRQTZ"
-};
-const fbApp = initializeApp(firebaseConfig);
-const db = getDatabase(fbApp);
-const ICE_SERVERS = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] };
-
-/* ═══════════════════════════════════════════════════════════
-   PUTER.JS — CORS-free browser uploads
-   ═══════════════════════════════════════════════════════════ */
-let puterReady = false;
-let puterLoadPromise = null;
-
-function loadPuter() {
-  if (puterReady) return Promise.resolve();
-  if (puterLoadPromise) return puterLoadPromise;
-  puterLoadPromise = new Promise((resolve, reject) => {
-    const s = document.createElement('script');
-    s.src = 'https://js.puter.com/v2/';
-    s.onload = () => {
-      // Wait a tick for puter to attach to window
-      const check = setInterval(() => {
-        if (window.puter && window.puter.fs) {
-          clearInterval(check);
-          puterReady = true;
-          resolve();
-        }
-      }, 50);
-      setTimeout(() => { clearInterval(check); reject(new Error('Puter.js timed out')); }, 15000);
-    };
-    s.onerror = () => reject(new Error('Failed to load Puter.js'));
-    document.head.appendChild(s);
-  });
-  return puterLoadPromise;
-}
-
-async function uploadViaPuter(file, displayName) {
-  await loadPuter();
-  const safeName = (displayName || file.name || 'file').replace(/[^\w.\-]/g, '_');
-  const uniqueName = `${Date.now()}_${safeName}`;
-  await puter.fs.write(uniqueName, file);
-  const url = await puter.fs.getReadURL(uniqueName);
-  return url;
-}
+import { joinRoom } from 'https://esm.run/trystero/mqtt';
 
 const App = {
   mySlug: null, myName: '', myPhoto: null,
   contacts: [], activeChat: null,
-  lastRead: {}, unread: {}, lastMessages: {}, lastMsgTime: {},
-  globalSubscribed: {}, globalUnsubs: {}, contactPhotoUnsubs: {},
-  vmUnsub: null,
-  pc: null, localStream: null, activeCall: null,
-  incomingCallData: null, callUnsubs: [], muted: false,
-  mediaRecorder: null, recordedChunks: [], recordTimer: null,
+  lastRead: {}, unread: {}, lastMessages: {},
+  room: null, roomPeerId: null, pendingFile: null,
+  callPeer: null, localStream: null, activeCall: null,
+  incomingCallData: null, muted: false,
   installPrompt: null, isInstalled: false,
   soundEnabled: true, vibrationEnabled: true,
   audioCtx: null, ringInterval: null, titleFlashInterval: null, callRingTimeout: null,
-  originalTitle: 'JARVIS'
+  originalTitle: 'JARVIS', connectedPeers: {}
 };
+
+// ——— Trystero actions ———
+let sendChat, getChat, sendFile, getFile, onFileProgress;
+
 const $ = id => document.getElementById(id);
 const LS = {
   get: (k, d) => { try { return JSON.parse(localStorage.getItem('gcp_' + k)) ?? d; } catch { return d; } },
   set: (k, v) => { try { localStorage.setItem('gcp_' + k, JSON.stringify(v)); } catch {} },
   del: (k) => localStorage.removeItem('gcp_' + k)
 };
+
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
+
 let toastTimer;
 function toast(msg, isError) {
-  const t = $('toast');
-  t.textContent = msg;
+  const t = $('toast'); t.textContent = msg;
   t.style.borderColor = isError ? '#ff4757' : '#d4af37';
-  t.classList.add('show');
-  clearTimeout(toastTimer);
+  t.classList.add('show'); clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), isError ? 5000 : 2600);
 }
+
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function slugify(name) { return String(name).toLowerCase().trim().replace(/[^a-z0-9]/g, '').slice(0, 20); }
-function chatIdFor(a, b) { const [x, y] = [a, b].sort(); return `${x}__${y}`; }
+function roomIdFor(a, b) { return [a, b].sort().join('__'); }
 function avatarInner(photo, name) { return photo ? `<img src="${photo}" alt="">` : esc((name || '?').charAt(0).toUpperCase()); }
 function fmtBytes(b) { if (!b) return ''; if (b < 1024) return b + ' B'; if (b < 1048576) return (b / 1024).toFixed(1) + ' KB'; return (b / 1048576).toFixed(1) + ' MB'; }
-function previewText(last) {
-  if (!last) return 'Tap to chat';
-  if (last.attachment) {
-    const a = last.attachment;
-    const tag = a.type === 'image' ? '📷 Photo' : a.type === 'video' ? '🎥 Video' : a.type === 'audio' ? '🎤 Audio' : '📎 ' + (a.name || 'File');
-    return last.text ? tag + ' · ' + last.text : tag;
-  }
-  return last.text || '';
-}
-function detectFileType(file) {
-  const mime = (file.type || '').toLowerCase();
-  if (mime.startsWith('image/')) return 'image';
-  if (mime.startsWith('video/')) return 'video';
-  if (mime.startsWith('audio/')) return 'audio';
-  const name = (file.name || '').toLowerCase();
-  if (/\.(jpg|jpeg|png|gif|webp|bmp|heic|heif|svg|tiff)$/.test(name)) return 'image';
-  if (/\.(mp4|mov|webm|avi|mkv|m4v|3gp|ogv|flv|wmv)$/.test(name)) return 'video';
-  if (/\.(mp3|wav|ogg|m4a|aac|flac|opus|weba|oga)$/.test(name)) return 'audio';
-  return 'file';
-}
+
 function getAudioCtx() { if (!App.audioCtx) { try { App.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch {} } return App.audioCtx; }
 function unlockAudio() { const ctx = getAudioCtx(); if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {}); }
 document.addEventListener('click', unlockAudio);
 document.addEventListener('touchstart', unlockAudio, { passive: true });
-document.addEventListener('keydown', unlockAudio);
+
 function playMessageSound() {
-  if (!App.soundEnabled) return;
-  const ctx = getAudioCtx(); if (!ctx) return;
+  if (!App.soundEnabled) return; const ctx = getAudioCtx(); if (!ctx) return;
   if (ctx.state === 'suspended') ctx.resume().catch(() => {});
   const now = ctx.currentTime;
   [880, 1320, 1760].forEach((freq, i) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = freq;
+    const osc = ctx.createOscillator(), gain = ctx.createGain();
+    osc.type = 'sine'; osc.frequency.value = freq;
     const start = now + i * 0.09;
-    gain.gain.setValueAtTime(0, start);
-    gain.gain.linearRampToValueAtTime(0.22, start + 0.015);
+    gain.gain.setValueAtTime(0, start); gain.gain.linearRampToValueAtTime(0.22, start + 0.015);
     gain.gain.exponentialRampToValueAtTime(0.001, start + 0.4);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(start);
-    osc.stop(start + 0.42);
-  });
-}
-function playSentSound() {
-  if (!App.soundEnabled) return;
-  const ctx = getAudioCtx(); if (!ctx) return;
-  if (ctx.state === 'suspended') ctx.resume().catch(() => {});
-  const now = ctx.currentTime;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(900, now);
-  osc.frequency.exponentialRampToValueAtTime(600, now + 0.08);
-  gain.gain.setValueAtTime(0, now);
-  gain.gain.linearRampToValueAtTime(0.05, now + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.start(now);
-  osc.stop(now + 0.12);
-}
-function playCallRingPattern() {
-  if (!App.soundEnabled) return;
-  const ctx = getAudioCtx(); if (!ctx) return;
-  if (ctx.state === 'suspended') ctx.resume().catch(() => {});
-  const now = ctx.currentTime;
-  [0, 0.4].forEach(offset => {
-    const osc = ctx.createOscillator(); const gain = ctx.createGain();
-    osc.type = 'sine'; osc.frequency.value = 1050;
-    const start = now + offset;
-    gain.gain.setValueAtTime(0, start);
-    gain.gain.linearRampToValueAtTime(0.25, start + 0.02);
-    gain.gain.setValueAtTime(0.25, start + 0.22);
-    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.32);
     osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(start); osc.stop(start + 0.35);
+    osc.start(start); osc.stop(start + 0.42);
   });
 }
-function startCallRing() {
-  stopCallRing();
-  playCallRingPattern();
-  if (App.vibrationEnabled && navigator.vibrate) navigator.vibrate([600, 400, 600]);
-  App.ringInterval = setInterval(() => {
-    playCallRingPattern();
-    if (App.vibrationEnabled && navigator.vibrate) navigator.vibrate([600, 400, 600]);
-  }, 2500);
-  App.callRingTimeout = setTimeout(() => {
-    if (App.incomingCallData) { stopCallRing(); $('incoming-call').classList.remove('show'); App.incomingCallData = null; }
-  }, 60000);
+
+function playSentSound() {
+  if (!App.soundEnabled) return; const ctx = getAudioCtx(); if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator(), gain = ctx.createGain();
+  osc.type = 'sine'; osc.frequency.setValueAtTime(900, now); osc.frequency.exponentialRampToValueAtTime(600, now + 0.08);
+  gain.gain.setValueAtTime(0, now); gain.gain.linearRampToValueAtTime(0.05, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(now); osc.stop(now + 0.12);
 }
-function stopCallRing() {
-  if (App.ringInterval) { clearInterval(App.ringInterval); App.ringInterval = null; }
-  if (App.callRingTimeout) { clearTimeout(App.callRingTimeout); App.callRingTimeout = null; }
-  if (navigator.vibrate) navigator.vibrate(0);
-}
+
 function showBrowserNotification(title, body, tag) {
-  if (!('Notification' in window)) return;
-  if (Notification.permission !== 'granted') return;
-  if (!document.hidden) return;
-  try {
-    const n = new Notification(title, { body: body || '', icon: 'icon-192.svg', badge: 'icon-192.svg', tag: tag || 'jarvis', renotify: true, silent: true, requireInteraction: false });
-    n.onclick = () => { window.focus(); n.close(); };
-    setTimeout(() => { try { n.close(); } catch {} }, 8000);
-  } catch (e) { console.warn('Notification failed:', e); }
+  if (!('Notification' in window)) return; if (Notification.permission !== 'granted') return; if (!document.hidden) return;
+  try { const n = new Notification(title, { body: body || '', tag: tag || 'jarvis', silent: true }); n.onclick = () => { window.focus(); n.close(); }; setTimeout(() => { try { n.close(); } catch {} }, 8000); } catch {}
 }
+
 function startTitleFlash(prefix) {
-  stopTitleFlash();
-  let toggle = false;
-  App.titleFlashInterval = setInterval(() => {
-    document.title = toggle ? (prefix || '🔔') + ' JARVIS' : App.originalTitle;
-    toggle = !toggle;
-  }, 800);
+  stopTitleFlash(); let toggle = false;
+  App.titleFlashInterval = setInterval(() => { document.title = toggle ? (prefix || '🔔') + ' JARVIS' : App.originalTitle; toggle = !toggle; }, 800);
 }
-function stopTitleFlash() {
-  if (App.titleFlashInterval) { clearInterval(App.titleFlashInterval); App.titleFlashInterval = null; }
-  document.title = App.originalTitle;
-}
+function stopTitleFlash() { if (App.titleFlashInterval) { clearInterval(App.titleFlashInterval); App.titleFlashInterval = null; } document.title = App.originalTitle; }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) stopTitleFlash(); });
+
 async function requestNotificationPermission() {
-  if (!('Notification' in window)) return 'unsupported';
-  if (Notification.permission === 'granted') return 'granted';
-  if (Notification.permission === 'denied') return 'denied';
-  try { return await Notification.requestPermission(); } catch { return 'error'; }
+  if (!('Notification' in window)) return 'unsupported'; if (Notification.permission === 'granted') return 'granted';
+  if (Notification.permission === 'denied') return 'denied'; try { return await Notification.requestPermission(); } catch { return 'error'; }
 }
 function updatePermStatus() {
   const el = $('permStatus'); if (!el) return;
@@ -691,176 +557,99 @@ function updatePermStatus() {
   else if (p === 'denied') { el.textContent = 'blocked'; el.style.color = '#b91c1c'; }
   else { el.textContent = 'tap to enable'; el.style.color = '#d4af37'; }
 }
+
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true || document.referrer.startsWith('android-app://');
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 App.isInstalled = isStandalone;
 window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); App.installPrompt = e; if (!isStandalone) showInstallBanner(); });
-window.addEventListener('appinstalled', () => { App.installPrompt = null; hideInstallBanner(); toast('App installed — check your home screen!'); App.isInstalled = true; });
+window.addEventListener('appinstalled', () => { App.installPrompt = null; hideInstallBanner(); toast('App installed!'); App.isInstalled = true; });
 function showInstallBanner() { if (isStandalone) return; if (LS.get('installBannerDismissed', false)) return; $('installBanner').classList.add('show'); }
 function hideInstallBanner() { $('installBanner').classList.remove('show'); }
 $('installBannerClose').addEventListener('click', () => { LS.set('installBannerDismissed', true); hideInstallBanner(); });
 $('installBannerBtn').addEventListener('click', () => triggerInstall());
 $('installMenuItem').addEventListener('click', () => triggerInstall());
+
 async function triggerInstall() {
-  if (isStandalone || App.isInstalled) { toast('Already installed — open from your home screen'); return; }
-  if (App.installPrompt) {
-    App.installPrompt.prompt();
-    const choice = await App.installPrompt.userChoice;
-    if (choice.outcome === 'accepted') { toast('Installing…'); hideInstallBanner(); }
-    else toast('Installation cancelled');
-    App.installPrompt = null; return;
-  }
-  if (isIOS) { openInstallModal('ios'); return; }
-  openInstallModal('generic');
+  if (isStandalone || App.isInstalled) { toast('Already installed'); return; }
+  if (App.installPrompt) { App.installPrompt.prompt(); const choice = await App.installPrompt.userChoice; if (choice.outcome === 'accepted') { toast('Installing…'); hideInstallBanner(); } App.installPrompt = null; return; }
+  if (isIOS) { openInstallModal('ios'); return; } openInstallModal('generic');
 }
+
 function openInstallModal(platform) {
   const body = $('installBody');
   if (platform === 'ios') {
-    $('installSubtitle').textContent = 'Follow these steps to add JARVIS to your iPhone home screen';
+    $('installSubtitle').textContent = 'Add JARVIS to your iPhone home screen';
     body.innerHTML = `<ol class="install-steps">
       <li>Open this page in <strong>Safari</strong>.</li>
-      <li>Tap the <strong>Share button</strong> <span class="inline-icon">⬆</span> at the bottom of the screen.</li>
-      <li>Scroll down and tap <strong>Add to Home Screen</strong> <span class="inline-icon">＋</span>.</li>
-      <li>Tap <strong>Add</strong> in the top right corner.</li>
-      <li>Done! The JARVIS icon is now on your home screen.</li>
-    </ol>
-    <button class="install-cta" onclick="document.getElementById('installModal').classList.remove('show')">Got it</button>`;
+      <li>Tap the <strong>Share button</strong> <span class="inline-icon">⬆</span>.</li>
+      <li>Tap <strong>Add to Home Screen</strong> <span class="inline-icon">＋</span>.</li>
+      <li>Tap <strong>Add</strong>.</li>
+    </ol><button class="install-cta" onclick="document.getElementById('installModal').classList.remove('show')">Got it</button>`;
   } else {
-    $('installSubtitle').textContent = 'Add JARVIS to your home screen for one-tap access';
+    $('installSubtitle').textContent = 'Add JARVIS to your home screen';
     body.innerHTML = `<ol class="install-steps">
-      <li>Open this page in <strong>Chrome</strong> or <strong>Edge</strong> on Android.</li>
-      <li>Look for the <strong>install icon</strong> <span class="inline-icon">⬇</span> in the address bar.</li>
+      <li>Open this page in <strong>Chrome</strong> or <strong>Edge</strong>.</li>
+      <li>Tap the <strong>install icon</strong> <span class="inline-icon">⬇</span> in the address bar.</li>
       <li>Tap <strong>Install app</strong>.</li>
-      <li>The JARVIS icon will appear on your home screen.</li>
-    </ol>
-    <button class="install-cta" onclick="document.getElementById('installModal').classList.remove('show')">Got it</button>`;
+    </ol><button class="install-cta" onclick="document.getElementById('installModal').classList.remove('show')">Got it</button>`;
   }
   $('installModal').classList.add('show');
 }
 $('installClose').addEventListener('click', () => $('installModal').classList.remove('show'));
+
 (function fixCloneButton() {
   const btn = document.getElementById('cloneBtn'); if (!btn) return;
-  try {
-    const host = window.location.hostname; const path = window.location.pathname;
-    if (host.endsWith('.github.io')) {
-      const username = host.split('.')[0]; const repoName = path.split('/').filter(Boolean)[0];
-      if (username && repoName) { btn.href = `https://github.com/${username}/${repoName}`; return; }
-    }
+  try { const host = window.location.hostname, path = window.location.pathname;
+    if (host.endsWith('.github.io')) { const user = host.split('.')[0], repo = path.split('/').filter(Boolean)[0]; if (user && repo) { btn.href = `https://github.com/${user}/${repo}`; return; } }
     btn.href = 'https://github.com';
   } catch { btn.href = 'https://github.com'; }
 })();
+
 App.soundEnabled = LS.get('soundEnabled', true);
 App.vibrationEnabled = LS.get('vibrationEnabled', true);
-function updateToggleUI() {
-  $('toggleSound').classList.toggle('on', App.soundEnabled);
-  $('toggleVibration').classList.toggle('on', App.vibrationEnabled);
-}
-$('toggleSound').addEventListener('click', () => {
-  App.soundEnabled = !App.soundEnabled; LS.set('soundEnabled', App.soundEnabled); updateToggleUI();
-  if (App.soundEnabled) playMessageSound();
-  toast(App.soundEnabled ? 'Sound on' : 'Sound off');
-});
-$('toggleVibration').addEventListener('click', () => {
-  App.vibrationEnabled = !App.vibrationEnabled; LS.set('vibrationEnabled', App.vibrationEnabled); updateToggleUI();
-  if (App.vibrationEnabled && navigator.vibrate) navigator.vibrate(80);
-  toast(App.vibrationEnabled ? 'Vibration on' : 'Vibration off');
-});
-$('permBtn').addEventListener('click', async () => {
-  const result = await requestNotificationPermission();
-  updatePermStatus();
-  if (result === 'granted') toast('Browser notifications enabled');
-  else if (result === 'denied') toast('Notifications blocked in browser settings');
-  else toast('Notification permission: ' + result);
-});
 
-/* ═══════════════════════════════════════════════════════════
-   STORAGE CHECK — tests Puter.js upload
-   ═══════════════════════════════════════════════════════════ */
-$('storageCheckBtn').addEventListener('click', async () => {
-  toast('Testing Puter.js upload…');
-  try {
-    const testBlob = new Blob(['test-' + Date.now()], { type: 'text/plain' });
-    const testFile = new File([testBlob], 'test.txt', { type: 'text/plain' });
-    const url = await uploadViaPuter(testFile, 'test.txt');
-    alert('✅ Puter.js upload works!\n\nTest URL: ' + url + '\n\nAll media will be uploaded through Puter.js (CORS-free).');
-    toast('Puter.js OK ✓');
-  } catch (err) {
-    alert('❌ Puter.js upload failed!\n\nError: ' + err.message + '\n\nCheck that js.puter.com is not blocked by your network or an ad-blocker.');
-    toast('Puter.js test failed', true);
-  }
-});
+function updateToggleUI() { $('toggleSound').classList.toggle('on', App.soundEnabled); $('toggleVibration').classList.toggle('on', App.vibrationEnabled); }
 
+$('toggleSound').addEventListener('click', () => { App.soundEnabled = !App.soundEnabled; LS.set('soundEnabled', App.soundEnabled); updateToggleUI(); toast(App.soundEnabled ? 'Sound on' : 'Sound off'); });
+$('toggleVibration').addEventListener('click', () => { App.vibrationEnabled = !App.vibrationEnabled; LS.set('vibrationEnabled', App.vibrationEnabled); updateToggleUI(); toast(App.vibrationEnabled ? 'Vibration on' : 'Vibration off'); });
+$('permBtn').addEventListener('click', async () => { const r = await requestNotificationPermission(); updatePermStatus(); if (r === 'granted') toast('Notifications enabled'); else if (r === 'denied') toast('Blocked', true); });
+
+// ——— Onboarding (no network check — name is just a local slug) ———
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
-let nameCheckTimer = null, nameCheckOk = false;
+
 nameInput.addEventListener('input', () => {
-  enterBtn.disabled = true; nameCheckOk = false;
   const slug = slugify(nameInput.value);
-  if (!slug) { nameStatus.textContent = 'Lowercase letters and numbers only'; nameStatus.className = 'name-status'; return; }
-  nameStatus.textContent = 'Checking availability…'; nameStatus.className = 'name-status';
-  clearTimeout(nameCheckTimer);
-  nameCheckTimer = setTimeout(async () => {
-    try {
-      const snap = await get(dbRef(db, 'users/' + slug));
-      if (snap.exists()) { nameStatus.textContent = `"${slug}" is taken — try another`; nameStatus.className = 'name-status bad'; }
-      else { nameStatus.textContent = `"${slug}" is available ✓`; nameStatus.className = 'name-status ok'; nameCheckOk = true; enterBtn.disabled = false; }
-    } catch (err) {
-      const code = (err && err.code) ? err.code : 'unknown';
-      let hint = '';
-      if (code === 'PERMISSION_DENIED') hint = ' (rules block read)';
-      else if (code === 'NETWORK_ERROR') hint = ' (no internet)';
-      else if (code === 'unavailable') hint = ' (server unreachable)';
-      else if (code === 'invalid-argument') hint = ' (wrong databaseURL)';
-      nameStatus.textContent = `Error: ${code}${hint}`;
-      nameStatus.className = 'name-status bad';
-    }
-  }, 400);
+  if (!slug) { nameStatus.textContent = 'Lowercase letters and numbers only'; nameStatus.className = 'name-status'; enterBtn.disabled = true; return; }
+  nameStatus.textContent = `Your room: ${slug}`; nameStatus.className = 'name-status ok'; enterBtn.disabled = false;
 });
+
 enterBtn.addEventListener('click', async () => {
-  if (!nameCheckOk) return;
+  const slug = slugify(nameInput.value); if (!slug) return;
   unlockAudio();
   await requestNotificationPermission();
   updatePermStatus();
-  const slug = slugify(nameInput.value);
-  enterBtn.disabled = true; enterBtn.textContent = 'Reserving…';
-  try {
-    const userRef = dbRef(db, 'users/' + slug);
-    const result = await runTransaction(userRef, current => {
-      if (current === null) return { slug, displayName: nameInput.value.trim() || slug, createdAt: Date.now(), photo: null };
-      return;
-    });
-    if (!result.committed) { toast('That name was just taken'); enterBtn.disabled = false; enterBtn.textContent = 'Enter Portal'; return; }
-    App.mySlug = slug;
-    App.myName = result.snapshot.val().displayName;
-    App.myPhoto = LS.get('avatar', null);
-    if (App.myPhoto) await set(dbRef(db, 'users/' + slug + '/photo'), App.myPhoto);
-    LS.set('mySlug', slug); LS.set('myName', App.myName);
-    startMainApp();
-  } catch (e) { console.error(e); toast('Try again'); enterBtn.disabled = false; enterBtn.textContent = 'Enter Portal'; }
+  App.mySlug = slug; App.myName = nameInput.value.trim() || slug;
+  App.myPhoto = LS.get('avatar', null);
+  LS.set('mySlug', slug); LS.set('myName', App.myName);
+  startMainApp();
 });
+
 window.addEventListener('load', () => {
-  updateToggleUI();
-  updatePermStatus();
-  loadContacts();
-  loadLastRead();
-  const savedSlug = LS.get('mySlug', null);
-  const savedName = LS.get('myName', null);
-  const savedPhoto = LS.get('avatar', null);
+  updateToggleUI(); updatePermStatus(); loadContacts(); loadLastRead();
+  const savedSlug = LS.get('mySlug'), savedName = LS.get('myName'), savedPhoto = LS.get('avatar');
   if (savedPhoto) App.myPhoto = savedPhoto;
   if (savedSlug && savedName) { App.mySlug = savedSlug; App.myName = savedName; startMainApp(); }
-  document.querySelectorAll('.modal-overlay').forEach(m => {
-    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); });
-  });
+  document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); }));
 });
+
 function startMainApp() {
   showScreen('screen-main');
   updateProfileHeader();
   buildUI();
-  listenForIncomingCalls();
-  listenVoicemails();
-  App.contacts.forEach(c => { listenContactPhoto(c.slug); setupGlobalMessageListener(c.slug); });
-  if (!isStandalone) setTimeout(() => { if (!App.installPrompt && !isIOS) return; showInstallBanner(); }, 1500);
+  if (!isStandalone) setTimeout(() => showInstallBanner(), 1500);
   updatePermStatus();
 }
+
 function updateProfileHeader() {
   $('profileName').textContent = App.myName;
   $('profileUsername').textContent = '@' + App.mySlug;
@@ -869,191 +658,97 @@ function updateProfileHeader() {
   if (App.myPhoto) { img.src = App.myPhoto; img.style.display = 'block'; letter.style.display = 'none'; box.classList.add('has-photo'); }
   else { img.src = ''; img.style.display = 'none'; letter.style.display = 'inline'; letter.textContent = App.myName.charAt(0).toUpperCase(); box.classList.remove('has-photo'); }
 }
+
 $('profileAvatar').addEventListener('click', e => { if (e.target === $('avatarRemove')) return; $('avatarInput').click(); });
 $('avatarRemove').addEventListener('click', async e => {
-  e.stopPropagation();
-  if (!confirm('Remove your profile photo?')) return;
-  App.myPhoto = null; LS.del('avatar'); updateProfileHeader();
-  try { await remove(dbRef(db, 'users/' + App.mySlug + '/photo')); } catch {}
-  toast('Photo removed');
+  e.stopPropagation(); if (!confirm('Remove your profile photo?')) return;
+  App.myPhoto = null; LS.del('avatar'); updateProfileHeader(); toast('Photo removed');
 });
 $('avatarInput').addEventListener('change', async e => {
   const file = e.target.files && e.target.files[0]; if (!file) return;
-  if (!file.type.startsWith('image/')) { toast('Pick an image'); return; }
-  try {
-    toast('Processing…');
-    const dataUrl = await resizeImage(file, 240);
-    App.myPhoto = dataUrl; LS.set('avatar', dataUrl); updateProfileHeader();
-    await set(dbRef(db, 'users/' + App.mySlug + '/photo'), dataUrl);
-    toast('Photo updated');
-  } catch { toast('Failed'); }
+  if (!file.type.startsWith('image/')) { toast('Pick an image', true); return; }
+  try { toast('Processing…'); const dataUrl = await resizeImage(file, 240); App.myPhoto = dataUrl; LS.set('avatar', dataUrl); updateProfileHeader(); toast('Photo updated'); } catch { toast('Failed', true); }
   e.target.value = '';
 });
+
 function resizeImage(file, size) {
   return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onerror = reject;
-    r.onload = ev => {
-      const img = new Image();
-      img.onerror = reject;
-      img.onload = () => {
-        const c = document.createElement('canvas'); c.width = size; c.height = size;
-        const ctx = c.getContext('2d');
-        const min = Math.min(img.width, img.height);
-        ctx.drawImage(img, (img.width - min) / 2, (img.height - min) / 2, min, min, 0, 0, size, size);
-        resolve(c.toDataURL('image/jpeg', 0.82));
-      };
-      img.src = ev.target.result;
-    };
+    const r = new FileReader(); r.onerror = reject;
+    r.onload = ev => { const img = new Image(); img.onerror = reject; img.onload = () => {
+      const c = document.createElement('canvas'); c.width = size; c.height = size;
+      const ctx = c.getContext('2d'); const min = Math.min(img.width, img.height);
+      ctx.drawImage(img, (img.width - min) / 2, (img.height - min) / 2, min, min, 0, 0, size, size);
+      resolve(c.toDataURL('image/jpeg', 0.82));
+    }; img.src = ev.target.result; };
     r.readAsDataURL(file);
   });
 }
+
 function loadContacts() { App.contacts = LS.get('contacts', []); }
 function saveContacts() { LS.set('contacts', App.contacts); }
 function loadLastRead() { App.lastRead = LS.get('lastRead', {}); }
 function saveLastRead() { LS.set('lastRead', App.lastRead); }
-function addContactBySlug(slug, displayName) {
-  if (slug === App.mySlug) return toast("That's you");
-  if (App.contacts.find(c => c.slug === slug)) return toast('Already added');
-  App.contacts.push({ slug, name: displayName, addedAt: Date.now(), photo: null });
-  saveContacts(); listenContactPhoto(slug); setupGlobalMessageListener(slug);
-  buildUI(); toast('Added @' + slug);
-}
-let addLookupTimer = null, addLookupResult = null;
-$('addContactFab').addEventListener('click', () => {
-  $('modalName').value = ''; $('modalStatus').textContent = ''; $('modalStatus').className = 'modal-status';
-  $('modalConfirm').disabled = true; addLookupResult = null;
-  $('addModal').classList.add('show');
-});
+
+// ——— Add contact ———
+let addLookupResult = null;
+$('addContactFab').addEventListener('click', () => { $('modalName').value = ''; $('modalStatus').textContent = ''; $('modalStatus').className = 'modal-status'; $('modalConfirm').disabled = true; addLookupResult = null; $('addModal').classList.add('show'); });
 $('modalCancel').addEventListener('click', () => $('addModal').classList.remove('show'));
 $('modalName').addEventListener('input', () => {
-  $('modalConfirm').disabled = true; addLookupResult = null;
   const slug = slugify($('modalName').value);
-  if (!slug) { $('modalStatus').textContent = ''; return; }
-  $('modalStatus').textContent = 'Searching…'; $('modalStatus').className = 'modal-status';
-  clearTimeout(addLookupTimer);
-  addLookupTimer = setTimeout(async () => {
-    try {
-      if (slug === App.mySlug) { $('modalStatus').textContent = "That's your own name"; $('modalStatus').className = 'modal-status bad'; return; }
-      const snap = await get(dbRef(db, 'users/' + slug));
-      if (!snap.exists()) { $('modalStatus').textContent = `No one called @${slug}`; $('modalStatus').className = 'modal-status bad'; return; }
-      const data = snap.val();
-      addLookupResult = { slug, displayName: data.displayName || slug };
-      $('modalStatus').textContent = `Found: ${addLookupResult.displayName} (@${slug})`;
-      $('modalStatus').className = 'modal-status ok'; $('modalConfirm').disabled = false;
-    } catch { $('modalStatus').textContent = 'Lookup failed'; $('modalStatus').className = 'modal-status bad'; }
-  }, 350);
+  if (!slug) { $('modalStatus').textContent = ''; $('modalConfirm').disabled = true; return; }
+  if (slug === App.mySlug) { $('modalStatus').textContent = "That's your own name"; $('modalStatus').className = 'modal-status bad'; $('modalConfirm').disabled = true; return; }
+  addLookupResult = { slug, displayName: slug };
+  $('modalStatus').textContent = `Will connect to: @${slug}`; $('modalStatus').className = 'modal-status ok'; $('modalConfirm').disabled = false;
 });
 $('modalConfirm').addEventListener('click', () => {
   if (!addLookupResult) return;
   addContactBySlug(addLookupResult.slug, addLookupResult.displayName);
   $('addModal').classList.remove('show');
 });
-function listenContactPhoto(slug) {
-  if (App.contactPhotoUnsubs[slug]) return;
-  App.contactPhotoUnsubs[slug] = onValue(dbRef(db, 'users/' + slug + '/photo'), snap => {
-    const photo = snap.val();
-    const c = App.contacts.find(x => x.slug === slug);
-    if (!c) return;
-    if (c.photo !== photo) { c.photo = photo || null; saveContacts(); buildUI(); if (App.activeChat === slug) updateChatHeader(c); }
-  });
+
+function addContactBySlug(slug, displayName) {
+  if (slug === App.mySlug) return toast("That's you");
+  if (App.contacts.find(c => c.slug === slug)) return toast('Already added');
+  App.contacts.push({ slug, name: displayName, addedAt: Date.now(), photo: null });
+  saveContacts(); buildUI(); toast('Added @' + slug);
 }
+
+// ——— Unread badges ———
 function updateUnreadBadges() {
   const total = Object.values(App.unread).reduce((s, n) => s + (n || 0), 0);
   const chatsBtn = document.querySelector('.nav-item[data-tab="chats"]');
   if (chatsBtn) {
     let b = chatsBtn.querySelector('.nav-badge');
     if (!b) { b = document.createElement('span'); b.className = 'nav-badge'; chatsBtn.appendChild(b); }
-    if (total > 0) { b.textContent = total > 99 ? '99+' : String(total); b.classList.add('show'); }
-    else b.classList.remove('show');
+    if (total > 0) { b.textContent = total > 99 ? '99+' : String(total); b.classList.add('show'); } else b.classList.remove('show');
   }
-  if (!App.titleFlashInterval) {
-    document.title = total > 0 ? `(${total}) JARVIS` : 'JARVIS';
-    App.originalTitle = document.title;
-  }
+  if (!App.titleFlashInterval) { document.title = total > 0 ? `(${total}) JARVIS` : 'JARVIS'; App.originalTitle = document.title; }
   document.querySelectorAll('[data-contact-slug]').forEach(el => {
-    const slug = el.dataset.contactSlug;
-    const n = App.unread[slug] || 0;
-    const badge = el.querySelector('.unread-badge');
-    const title = el.querySelector('.list-item-title');
-    const sub = el.querySelector('.list-item-sub');
+    const slug = el.dataset.contactSlug; const n = App.unread[slug] || 0;
+    const badge = el.querySelector('.unread-badge'), title = el.querySelector('.list-item-title'), sub = el.querySelector('.list-item-sub');
     if (badge) { if (n > 0) { badge.textContent = n > 99 ? '99+' : n; badge.classList.add('show'); } else badge.classList.remove('show'); }
-    if (title) title.classList.toggle('unread', n > 0);
-    if (sub) sub.classList.toggle('unread', n > 0);
+    if (title) title.classList.toggle('unread', n > 0); if (sub) sub.classList.toggle('unread', n > 0);
   });
 }
-function setupGlobalMessageListener(slug) {
-  if (App.globalUnsubs[slug]) return;
-  const cid = chatIdFor(App.mySlug, slug);
-  const q = query(dbRef(db, 'chats/' + cid + '/messages'), limitToLast(150));
-  App.globalUnsubs[slug] = onValue(q, snap => {
-    const data = snap.val() || {};
-    const msgs = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (a.time || 0) - (b.time || 0));
-    const last = msgs[msgs.length - 1];
-    if (!App.globalSubscribed[slug]) {
-      App.globalSubscribed[slug] = true;
-      App.lastMsgTime[slug] = last ? (last.time || 0) : 0;
-      if (App.lastRead[slug] === undefined) { App.lastRead[slug] = last ? (last.time || Date.now()) : Date.now(); saveLastRead(); }
-    } else {
-      const prev = App.lastMsgTime[slug];
-      const isNew = last && (last.time || 0) > (prev || 0) && last.from !== App.mySlug;
-      if (last) App.lastMsgTime[slug] = last.time || Date.now();
-      if (isNew) {
-        playMessageSound();
-        const cname = App.contacts.find(x => x.slug === slug)?.name || slug;
-        const preview = previewText(last);
-        if (App.activeChat !== slug || document.hidden) {
-          if (App.vibrationEnabled && navigator.vibrate) navigator.vibrate([80, 40, 80]);
-          toast(`💬 ${cname}: ${preview.substring(0, 40)}`);
-          showBrowserNotification(`💬 ${cname}`, preview.substring(0, 120), `msg-${slug}`);
-          if (document.hidden) {
-            const total = Object.values(App.unread).reduce((s, n) => s + (n || 0), 0) + 1;
-            startTitleFlash(`(${total})`);
-          }
-        }
-      }
-    }
-    App.lastMessages[slug] = msgs;
-    const isActiveVisible = App.activeChat === slug && !document.hidden;
-    if (isActiveVisible) {
-      App.lastRead[slug] = Date.now();
-      saveLastRead();
-      App.unread[slug] = 0;
-      for (const m of msgs) {
-        if (m.from !== App.mySlug && !m.readAt) {
-          set(dbRef(db, 'chats/' + cid + '/messages/' + m._k + '/readAt'), Date.now()).catch(() => {});
-        }
-      }
-      renderMessages(slug, msgs);
-    } else if (App.activeChat === slug) {
-      renderMessages(slug, msgs);
-    } else {
-      const lr = App.lastRead[slug] || 0;
-      App.unread[slug] = msgs.filter(m => m.from !== App.mySlug && (m.time || 0) > lr).length;
-    }
-    updateUnreadBadges();
-    const el = document.querySelector(`[data-contact-slug="${slug}"] .list-item-sub`);
-    if (el && last) {
-      const txt = previewText(last);
-      el.textContent = (last.from === App.mySlug ? 'You: ' : '') + (txt.length > 34 ? txt.slice(0, 34) + '…' : txt);
-    }
-  });
+
+// ——— Rendering ———
+function previewText(last) {
+  if (!last) return 'Tap to chat';
+  if (last.attachment) { const a = last.attachment; const tag = a.type === 'image' ? '📷 Photo' : a.type === 'video' ? '🎥 Video' : a.type === 'audio' ? '🎤 Audio' : '📎 ' + (a.name || 'File'); return last.text ? tag + ' · ' + last.text : tag; }
+  return last.text || '';
 }
+
 function renderAttachment(m) {
   const a = m.attachment; if (!a) return '';
-  const safeUrl = String(a.url || '').replace(/"/g, '&quot;');
-  if (a.type === 'image') return `<img class="attach-img" src="${safeUrl}" loading="lazy" onclick="window.__lb('${String(a.url).replace(/'/g,"\\'")}','${esc(a.name||'photo')}')">`;
-  if (a.type === 'video') return `<video class="attach-video" controls playsinline webkit-playsinline preload="metadata" src="${safeUrl}"></video>`;
-  if (a.type === 'audio') return `<audio class="attach-audio" controls preload="metadata" src="${safeUrl}"></audio>`;
-  return `<a class="attach-file" href="${safeUrl}" target="_blank" rel="noopener" download="${esc(a.name||'file')}">
-    <span class="file-icon">📄</span>
-    <span class="file-info"><span class="file-name">${esc(a.name||'File')}</span><span class="file-size">${fmtBytes(a.size)}</span></span>
-    <span style="font-size:20px;color:var(--muted)">⬇</span>
-  </a>`;
+  if (a.type === 'image') return `<img class="attach-img" src="${a.url}" loading="lazy" onclick="window.__lb('${a.url}','${esc(a.name||'photo')}')">`;
+  if (a.type === 'video') return `<video class="attach-video" controls playsinline webkit-playsinline preload="metadata" src="${a.url}"></video>`;
+  if (a.type === 'audio') return `<audio class="attach-audio" controls preload="metadata" src="${a.url}"></audio>`;
+  return `<a class="attach-file" href="${a.url}" target="_blank" rel="noopener" download="${esc(a.name||'file')}"><span class="file-icon">📄</span><span class="file-info"><span class="file-name">${esc(a.name||'File')}</span><span class="file-size">${fmtBytes(a.size)}</span></span><span style="font-size:20px;color:var(--muted)">⬇</span></a>`;
 }
+
 function renderMessages(slug, msgs) {
   const area = $('messagesArea'); if (!area) return;
-  if (!msgs.length) { area.innerHTML = '<div class="empty"><p style="font-size:13px;">Say hello 👋</p></div>'; return; }
+  if (!msgs.length) { area.innerHTML = '<div class="empty"><p style="font-size:13px;">Say hello 👋<br><small style="font-size:11px;opacity:.7">Both users must be online at the same time.</small></p></div>'; return; }
   area.innerHTML = msgs.map(m => {
     const out = m.from === App.mySlug;
     const t = m.time ? new Date(m.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
@@ -1062,39 +757,32 @@ function renderMessages(slug, msgs) {
     const aHtml = hasA ? renderAttachment(m) : '';
     const cHtml = (hasA && m.text) ? `<div class="msg-caption">${esc(m.text)}</div>` : '';
     const tHtml = (!hasA && m.text) ? esc(m.text) : '';
-    const tick = out ? `<span class="tick${m.readAt ? ' read' : ''}">${m.readAt ? '✓✓' : '✓'}</span>` : '';
-    return `<div class="${cls}">${aHtml}${cHtml}${tHtml}<span class="time">${t}${tick}</span></div>`;
+    return `<div class="${cls}">${aHtml}${cHtml}${tHtml}<span class="time">${t}${out ? '<span class="tick">✓</span>' : ''}</span></div>`;
   }).join('');
   area.scrollTop = area.scrollHeight;
 }
+
 function buildUI() {
   const cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient');
   if (!App.contacts.length) {
     cl.innerHTML = '<div class="empty"><div class="empty-icon">💬</div><p>No contacts yet.<br>Tap <strong>＋</strong> and type someone\'s name.</p></div>';
     ccl.innerHTML = '<div class="empty"><div class="empty-icon">📞</div><p>Add a contact to call them.</p></div>';
-    vmSel.innerHTML = '<option value="">Select contact</option>';
-    updateUnreadBadges(); return;
+    vmSel.innerHTML = '<option value="">Select contact</option>'; updateUnreadBadges(); return;
   }
   cl.innerHTML = App.contacts.map(c => {
     const n = App.unread[c.slug] || 0;
     const last = App.lastMessages[c.slug] && App.lastMessages[c.slug].length ? App.lastMessages[c.slug][App.lastMessages[c.slug].length - 1] : null;
     let sub = previewText(last); sub = sub.length > 34 ? sub.slice(0, 34) + '…' : sub;
-    return `<div class="list-item" data-contact-slug="${c.slug}">
-      <div class="avatar">${avatarInner(c.photo, c.name)}</div>
-      <div class="list-item-body"><div class="list-item-title${n>0?' unread':''}">${esc(c.name)}</div><div class="list-item-sub${n>0?' unread':''}">${esc(sub)}</div></div>
-      <div class="unread-badge${n>0?' show':''}">${n>99?'99+':n}</div>
-      <div class="list-item-action">›</div></div>`;
+    const connected = App.connectedPeers[c.slug] ? '🟢 ' : '';
+    return `<div class="list-item" data-contact-slug="${c.slug}"><div class="avatar">${avatarInner(c.photo, c.name)}</div><div class="list-item-body"><div class="list-item-title${n>0?' unread':''}">${connected}${esc(c.name)}</div><div class="list-item-sub${n>0?' unread':''}">${esc(sub)}</div></div><div class="unread-badge${n>0?' show':''}">${n>99?'99+':n}</div><div class="list-item-action">›</div></div>`;
   }).join('');
-  ccl.innerHTML = App.contacts.map(c => `
-    <div class="list-item" data-call-slug="${c.slug}">
-      <div class="avatar accent">${avatarInner(c.photo, c.name)}</div>
-      <div class="list-item-body"><div class="list-item-title">${esc(c.name)}</div><div class="list-item-sub">Tap to call</div></div>
-      <div class="list-item-action">📞</div></div>`).join('');
+  ccl.innerHTML = App.contacts.map(c => `<div class="list-item" data-call-slug="${c.slug}"><div class="avatar accent">${avatarInner(c.photo, c.name)}</div><div class="list-item-body"><div class="list-item-title">${esc(c.name)}</div><div class="list-item-sub">Tap to call</div></div><div class="list-item-action">📞</div></div>`).join('');
   vmSel.innerHTML = '<option value="">Select contact</option>' + App.contacts.map(c => `<option value="${c.slug}">${esc(c.name)}</option>`).join('');
   cl.querySelectorAll('[data-contact-slug]').forEach(el => el.addEventListener('click', () => openChat(el.dataset.contactSlug)));
   ccl.querySelectorAll('[data-call-slug]').forEach(el => el.addEventListener('click', () => startCall(el.dataset.callSlug)));
   updateUnreadBadges();
 }
+
 document.querySelectorAll('.nav-item').forEach(btn => {
   btn.addEventListener('click', () => {
     const tab = btn.dataset.tab;
@@ -1105,7 +793,10 @@ document.querySelectorAll('.nav-item').forEach(btn => {
     $('addContactFab').style.display = (tab === 'chats' || tab === 'calls') ? 'flex' : 'none';
   });
 });
+
+// ——— Chat ———
 function updateChatHeader(c) { $('chatName').textContent = c.name; $('chatAvatar').innerHTML = avatarInner(c.photo, c.name); }
+
 async function openChat(slug) {
   const c = App.contacts.find(x => x.slug === slug); if (!c) return;
   App.activeChat = slug;
@@ -1114,353 +805,152 @@ async function openChat(slug) {
   $('emojiPalette').classList.remove('show');
   showScreen('screen-chat');
   const msgs = App.lastMessages[slug] || [];
-  if (msgs.length) renderMessages(slug, msgs);
-  else $('messagesArea').innerHTML = '<div class="empty"><p style="font-size:13px;">Say hello 👋</p></div>';
-  const cid = chatIdFor(App.mySlug, slug);
-  for (const m of msgs) {
-    if (m.from !== App.mySlug && !m.readAt) {
-      try { await set(dbRef(db, 'chats/' + cid + '/messages/' + m._k + '/readAt'), Date.now()); } catch {}
-    }
-  }
+  renderMessages(slug, msgs);
+  $('chatStatus').textContent = App.connectedPeers[slug] ? 'connected' : 'connecting…';
+  $('chatStatus').style.color = App.connectedPeers[slug] ? 'var(--green)' : 'rgba(255,255,255,.7)';
+  // Join / switch room
+  await joinChatRoom(slug);
 }
+
+async function joinChatRoom(peerSlug) {
+  if (App.room) { try { App.room.leave(); } catch {} App.room = null; }
+  const roomId = roomIdFor(App.mySlug, peerSlug);
+  try {
+    App.room = joinRoom({ appId: 'jarvis-p2p-v1' }, roomId);
+    App.roomPeerId = App.room.selfId;
+
+    [sendChat, getChat] = App.room.makeAction('chat');
+    [sendFile, getFile] = App.room.makeAction('file');
+    if (onFileProgress === undefined) onFileProgress = App.room.makeAction('progress');
+
+    App.room.onPeerJoin = peerId => {
+      App.connectedPeers[peerSlug] = true;
+      $('chatStatus').textContent = 'connected'; $('chatStatus').style.color = 'var(--green)';
+      buildUI();
+      getChat((data, from) => {
+        const msg = { from: data.from || peerSlug, text: data.text, time: data.time || Date.now(), attachment: data.attachment || null };
+        App.lastMessages[peerSlug] = (App.lastMessages[peerSlug] || []).concat(msg);
+        if (App.activeChat !== peerSlug || document.hidden) { playMessageSound(); if (navigator.vibrate && App.vibrationEnabled) navigator.vibrate([80,40,80]); showBrowserNotification('💬 ' + peerSlug, previewText(msg)); App.unread[peerSlug] = (App.unread[peerSlug] || 0) + 1; updateUnreadBadges(); }
+        if (App.activeChat === peerSlug) renderMessages(peerSlug, App.lastMessages[peerSlug]);
+        if (App.activeChat !== peerSlug) buildUI();
+      });
+      getFile((data, from, meta) => {
+        if (!(data instanceof ArrayBuffer)) return;
+        const blob = new Blob([data], { type: meta?.mime || 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const msg = { from: peerSlug, text: '', time: Date.now(), attachment: { type: meta?.type || 'file', name: meta?.name || 'file', size: blob.size, url } };
+        App.lastMessages[peerSlug] = (App.lastMessages[peerSlug] || []).concat(msg);
+        if (App.activeChat !== peerSlug) { playMessageSound(); App.unread[peerSlug] = (App.unread[peerSlug] || 0) + 1; updateUnreadBadges(); }
+        if (App.activeChat === peerSlug) renderMessages(peerSlug, App.lastMessages[peerSlug]); else buildUI();
+      });
+    };
+    App.room.onPeerLeave = peerId => {
+      App.connectedPeers[peerSlug] = false;
+      $('chatStatus').textContent = 'disconnected'; $('chatStatus').style.color = 'rgba(255,255,255,.7)';
+      buildUI();
+    };
+  } catch (e) { console.error('Room join failed:', e); toast('Could not join room — check connection', true); }
+}
+
 async function sendMessage() {
   const input = $('chatInput'); const text = input.value.trim();
-  if (!text || !App.activeChat) return;
-  const cid = chatIdFor(App.mySlug, App.activeChat);
-  try {
-    await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: App.activeChat, text, time: Date.now() });
-    input.value = '';
-    playSentSound();
-  } catch { toast('Send failed'); }
+  if (!text || !App.activeChat || !sendChat) return;
+  const msg = { from: App.mySlug, text, time: Date.now() };
+  try { await sendChat(msg); App.lastMessages[App.activeChat] = (App.lastMessages[App.activeChat] || []).concat({ ...msg, attachment: null }); renderMessages(App.activeChat, App.lastMessages[App.activeChat]); input.value = ''; $('sendBtn').disabled = true; playSentSound(); } catch { toast('Send failed — peer may be offline', true); }
 }
+
 $('sendBtn').addEventListener('click', sendMessage);
 $('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+$('chatInput').addEventListener('input', () => { $('sendBtn').disabled = !$('chatInput').value.trim(); });
 $('chatBackBtn').addEventListener('click', () => { App.activeChat = null; $('emojiPalette').classList.remove('show'); showScreen('screen-main'); updateUnreadBadges(); });
 $('callFromChatBtn').addEventListener('click', () => { if (App.activeChat) startCall(App.activeChat); });
-$('emojiBtn').addEventListener('click', (e) => {
-  e.preventDefault();
-  if (!App.activeChat) { toast('Open a chat first', true); return; }
-  $('emojiPalette').classList.toggle('show');
-});
+
+// ——— Emoji ———
+$('emojiBtn').addEventListener('click', (e) => { e.preventDefault(); if (!App.activeChat) { toast('Open a chat first', true); return; } $('emojiPalette').classList.toggle('show'); });
 document.querySelectorAll('.emoji-quick').forEach(btn => {
   btn.addEventListener('click', async () => {
-    if (!App.activeChat) return;
-    const emoji = btn.dataset.emoji;
-    const cid = chatIdFor(App.mySlug, App.activeChat);
-    try {
-      await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: App.activeChat, text: emoji, time: Date.now() });
-      playSentSound();
-      $('emojiPalette').classList.remove('show');
-    } catch { toast('Send failed'); }
+    if (!App.activeChat || !sendChat) return;
+    const msg = { from: App.mySlug, text: btn.dataset.emoji, time: Date.now() };
+    try { await sendChat(msg); App.lastMessages[App.activeChat] = (App.lastMessages[App.activeChat] || []).concat({ ...msg, attachment: null }); renderMessages(App.activeChat, App.lastMessages[App.activeChat]); playSentSound(); $('emojiPalette').classList.remove('show'); } catch { toast('Send failed', true); }
   });
 });
 document.querySelectorAll('.emoji-item').forEach(btn => {
   btn.addEventListener('mousedown', e => e.preventDefault());
-  btn.addEventListener('click', () => {
-    const inp = $('chatInput');
-    const start = inp.selectionStart ?? inp.value.length;
-    const end = inp.selectionEnd ?? inp.value.length;
-    const emoji = btn.textContent;
-    inp.value = inp.value.slice(0, start) + emoji + inp.value.slice(end);
-    const newPos = start + emoji.length;
-    inp.setSelectionRange(newPos, newPos);
-    if (document.activeElement !== inp) inp.focus();
-    if (inp.value.trim()) $('sendBtn').disabled = false;
-  });
+  btn.addEventListener('click', () => { const inp = $('chatInput'); const start = inp.selectionStart ?? inp.value.length; const end = inp.selectionEnd ?? inp.value.length; inp.value = inp.value.slice(0, start) + btn.textContent + inp.value.slice(end); inp.setSelectionRange(start + btn.textContent.length, start + btn.textContent.length); if (document.activeElement !== inp) inp.focus(); if (inp.value.trim()) $('sendBtn').disabled = false; });
 });
 document.querySelectorAll('.quick-reaction').forEach(btn => {
   btn.addEventListener('click', async () => {
-    if (!App.activeChat) { toast('Open a chat first', true); return; }
-    const emoji = btn.dataset.emoji;
-    const cid = chatIdFor(App.mySlug, App.activeChat);
-    try {
-      await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: App.activeChat, text: emoji, time: Date.now() });
-      playSentSound();
-      btn.style.transform = 'scale(1.3)';
-      setTimeout(() => btn.style.transform = '', 200);
-    } catch { toast('Send failed'); }
+    if (!App.activeChat || !sendChat) { toast('Open a chat first', true); return; }
+    const msg = { from: App.mySlug, text: btn.dataset.emoji, time: Date.now() };
+    try { await sendChat(msg); App.lastMessages[App.activeChat] = (App.lastMessages[App.activeChat] || []).concat({ ...msg, attachment: null }); renderMessages(App.activeChat, App.lastMessages[App.activeChat]); playSentSound(); btn.style.transform = 'scale(1.3)'; setTimeout(() => btn.style.transform = '', 200); } catch { toast('Send failed', true); }
   });
 });
-document.addEventListener('click', (e) => {
-  const pal = $('emojiPalette');
-  if (!pal.classList.contains('show')) return;
-  if (pal.contains(e.target)) return;
-  if (e.target.closest('#emojiBtn')) return;
-  pal.classList.remove('show');
-});
-$('chatInput').addEventListener('input', () => {
-  $('sendBtn').disabled = !$('chatInput').value.trim();
-});
-const MAX_BYTES = 50 * 1024 * 1024;
-$('attachBtn').addEventListener('click', (e) => {
-  e.preventDefault();
-  if (!App.activeChat) { toast('Open a chat first', true); return; }
-  const inp = $('fileInput'); inp.value = ''; inp.click();
-});
+document.addEventListener('click', (e) => { const pal = $('emojiPalette'); if (!pal.classList.contains('show')) return; if (pal.contains(e.target)) return; if (e.target.closest('#emojiBtn')) return; pal.classList.remove('show'); });
+
+// ——— Attach / file sending ———
+const MAX_BYTES = 100 * 1024 * 1024;
+$('attachBtn').addEventListener('click', (e) => { e.preventDefault(); if (!App.activeChat) { toast('Open a chat first', true); return; } if (!sendFile) { toast('Not connected yet', true); return; } const inp = $('fileInput'); inp.value = ''; inp.click(); });
+
 $('fileInput').addEventListener('change', async (e) => {
-  const file = e.target.files && e.target.files[0];
-  if (!file) return;
-  if (!App.activeChat) { toast('Chat closed — try again', true); e.target.value = ''; return; }
+  const file = e.target.files && e.target.files[0]; if (!file) return;
+  if (!App.activeChat || !sendFile) { toast('Not connected', true); e.target.value = ''; return; }
   if (file.size > MAX_BYTES) { toast(`Too large: ${fmtBytes(file.size)} (max ${fmtBytes(MAX_BYTES)})`, true); e.target.value = ''; return; }
-  if (file.size === 0) { toast('Empty file', true); e.target.value = ''; return; }
   const type = detectFileType(file);
   const recipient = App.activeChat;
-  const label = { image: 'photo', video: 'video', audio: 'audio', file: 'file' }[type];
-  toast(`Uploading ${label} (${fmtBytes(file.size)})…`);
+  const bar = $('uploadBar'), fill = $('uploadBarFill');
+  bar.classList.add('show'); fill.style.width = '10%';
   try {
-    let uploadFile = file;
-    if (type === 'image') {
-      try {
-        const blob = await compressImg(file, 1600, 0.85);
-        if (blob && blob.size && blob.size < file.size) {
-          const newName = (file.name || 'photo').replace(/\.[^.]+$/, '') + '.jpg';
-          uploadFile = new File([blob], newName, { type: 'image/jpeg' });
-        }
-      } catch (err) { console.warn('Compress skipped:', err); }
-    }
-    await doUpload(uploadFile, recipient, type, file.name || label);
-  } catch (err) { handleUploadError(err); }
+    const buffer = await file.arrayBuffer();
+    fill.style.width = '30%';
+    // Send file as binary with metadata
+    await sendFile(buffer, null, { type, name: file.name, mime: file.type, size: file.size });
+    fill.style.width = '100%';
+    const localMsg = { from: App.mySlug, text: '', time: Date.now(), attachment: { type, name: file.name, size: file.size, url: URL.createObjectURL(file) } };
+    App.lastMessages[recipient] = (App.lastMessages[recipient] || []).concat(localMsg);
+    if (App.activeChat === recipient) renderMessages(recipient, App.lastMessages[recipient]); else buildUI();
+    playSentSound(); toast('Sent ✓');
+    setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 700);
+  } catch (err) { fill.style.width = '0%'; bar.classList.remove('show'); toast('Send failed: ' + err.message, true); }
   e.target.value = '';
 });
-function handleUploadError(err) {
-  const msg = (err && err.message) ? String(err.message) : 'unknown error';
-  toast('Upload failed — see alert', true);
-  console.error('[upload] full error:', err);
-  alert(
-    'Upload failed\n\n' +
-    msg +
-    '\n\n(Your internet is likely fine — the file hosts are blocking the request. ' +
-    'Try disabling any VPN/ad-blocker, or switch between Wi-Fi and mobile data.)'
-  );
-}
-function compressImg(file, maxDim, q) {
-  return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onerror = reject;
-    r.onload = ev => {
-      const img = new Image();
-      img.onerror = reject;
-      img.onload = () => {
-        let w = img.width, h = img.height;
-        if (w > h && w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; }
-        else if (h >= w && h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; }
-        const c = document.createElement('canvas'); c.width = w; c.height = h;
-        c.getContext('2d').drawImage(img, 0, 0, w, h);
-        c.toBlob(b => b ? resolve(b) : reject(new Error('compress')), 'image/jpeg', q);
-      };
-      img.src = ev.target.result;
-    };
-    r.readAsDataURL(file);
-  });
+
+function detectFileType(file) {
+  const m = (file.type || '').toLowerCase(), n = (file.name || '').toLowerCase();
+  if (m.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|bmp|heic|svg|tiff)$/.test(n)) return 'image';
+  if (m.startsWith('video/') || /\.(mp4|mov|webm|avi|mkv|m4v|3gp|ogv)$/.test(n)) return 'video';
+  if (m.startsWith('audio/') || /\.(mp3|wav|ogg|m4a|aac|flac|opus|weba)$/.test(n)) return 'audio';
+  return 'file';
 }
 
-/* ═══════════════════════════════════════════════════════════
-   UPLOAD — Puter.js only (no CORS, no external host)
-   ═══════════════════════════════════════════════════════════ */
-async function doUpload(file, recipient, type, displayName) {
-  const bar = $('uploadBar'), fill = $('uploadBarFill');
-  bar.classList.add('show'); fill.style.width = '20%';
-
-  try {
-    fill.style.width = '50%';
-    const directUrl = await uploadViaPuter(file, displayName);
-    fill.style.width = '90%';
-
-    const cid = chatIdFor(App.mySlug, recipient);
-    const attObj = {
-      type,
-      name: displayName || file.name || 'file',
-      size: file.size,
-      mime: file.type || 'application/octet-stream',
-      url: directUrl,
-      storagePath: 'puter',
-      provider: 'puter'
-    };
-
-    await push(dbRef(db, 'chats/' + cid + '/messages'), {
-      from: App.mySlug, to: recipient, text: '', time: Date.now(), attachment: attObj
-    });
-
-    fill.style.width = '100%';
-    setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 700);
-    toast('Sent ✓');
-    playSentSound();
-  } catch (err) {
-    fill.style.width = '0%';
-    bar.classList.remove('show');
-    throw err;
-  }
-}
 window.__lb = (url, name) => { $('lightboxImg').src = url; $('lightboxDownload').href = url; $('lightboxDownload').download = name || 'photo'; $('lightbox').classList.add('show'); };
 $('lightboxClose').addEventListener('click', () => $('lightbox').classList.remove('show'));
 $('lightbox').addEventListener('click', e => { if (e.target === $('lightbox')) $('lightbox').classList.remove('show'); });
+
+// ——— Voicemail (records locally, plays locally) ———
 const recordBtn = $('recordBtn');
 recordBtn.addEventListener('click', async () => {
   if (App.mediaRecorder && App.mediaRecorder.state === 'recording') { App.mediaRecorder.stop(); return; }
-  const recipient = $('vmRecipient').value;
-  if (!recipient) return toast('Select a recipient', true);
+  const recipient = $('vmRecipient').value; if (!recipient) return toast('Select a recipient', true);
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     App.recordedChunks = [];
     App.mediaRecorder = new MediaRecorder(stream);
     App.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) App.recordedChunks.push(e.data); };
     App.mediaRecorder.onstop = async () => {
-      clearTimeout(App.recordTimer);
-      stream.getTracks().forEach(t => t.stop());
+      clearTimeout(App.recordTimer); stream.getTracks().forEach(t => t.stop());
       const blob = new Blob(App.recordedChunks, { type: 'audio/webm' });
-      await sendVoicemail(blob, recipient);
-      recordBtn.textContent = '⬤ Tap to Record (max 30s)';
-      recordBtn.classList.remove('recording');
+      const url = URL.createObjectURL(blob);
+      const msg = { from: App.mySlug, text: '', time: Date.now(), attachment: { type: 'audio', name: '🎤 Voice message', size: blob.size, url } };
+      App.lastMessages[recipient] = (App.lastMessages[recipient] || []).concat(msg);
+      if (App.activeChat === recipient) renderMessages(recipient, App.lastMessages[recipient]);
+      toast('Voicemail saved locally');
+      recordBtn.textContent = '⬤ Tap to Record (max 30s)'; recordBtn.classList.remove('recording');
     };
-    App.mediaRecorder.start();
-    recordBtn.textContent = '⬛ Tap to Stop';
-    recordBtn.classList.add('recording');
-    toast('Recording…');
-    App.recordTimer = setTimeout(() => {
-      if (App.mediaRecorder && App.mediaRecorder.state === 'recording') { App.mediaRecorder.stop(); toast('30s — sending'); }
-    }, 30000);
+    App.mediaRecorder.start(); recordBtn.textContent = '⬛ Tap to Stop'; recordBtn.classList.add('recording');
+    toast('Recording…'); App.recordTimer = setTimeout(() => { if (App.mediaRecorder && App.mediaRecorder.state === 'recording') { App.mediaRecorder.stop(); } }, 30000);
   } catch { toast('Microphone denied', true); }
 });
-function sendVoicemail(blob, recipient) {
-  if (blob.size > 700000) return toast('Too large — keep it under 30 seconds', true);
-  const r = new FileReader();
-  r.onload = async () => {
-    try {
-      await push(dbRef(db, 'voicemails/' + recipient), {
-        from: App.mySlug, fromName: App.myName, data: r.result, mime: blob.type || 'audio/webm', time: Date.now()
-      });
-      const cid = chatIdFor(App.mySlug, recipient);
-      const attObj = { type: 'audio', name: '🎤 Voice message', size: blob.size, mime: blob.type || 'audio/webm', url: r.result, storagePath: 'inline-voicemail' };
-      await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: recipient, text: '', time: Date.now(), attachment: attObj });
-      toast('Voicemail sent ✓');
-      playSentSound();
-    } catch (e) {
-      console.error('Voicemail failed:', e);
-      toast('Failed to send voicemail', true);
-    }
-  };
-  r.readAsDataURL(blob);
-}
-function listenVoicemails() {
-  if (!App.mySlug) return;
-  if (App.vmUnsub) { try { App.vmUnsub(); } catch {} }
-  App.vmUnsub = onValue(dbRef(db, 'voicemails/' + App.mySlug), snap => {
-    const data = snap.val(); const listEl = $('voicemailList'); if (!listEl) return;
-    if (!data) { listEl.innerHTML = '<div class="empty"><p>No voicemails.</p></div>'; return; }
-    const vms = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (b.time || 0) - (a.time || 0));
-    listEl.innerHTML = vms.map((v, i) => {
-      const who = v.fromName || v.from || 'Unknown';
-      return `<div class="vm-item"><button class="vm-play" data-i="${i}">▶</button><div class="vm-body"><div class="vm-title">From: ${esc(who)}</div><div class="vm-meta">${new Date(v.time || 0).toLocaleString()}</div></div><button class="vm-del" data-del="${v._k}">🗑</button></div>`;
-    }).join('');
-    listEl.querySelectorAll('[data-i]').forEach(btn => btn.addEventListener('click', () => { const v = vms[parseInt(btn.dataset.i)]; try { new Audio(v.data).play().catch(() => toast('Cannot play')); toast('Playing…'); } catch {} }));
-    listEl.querySelectorAll('[data-del]').forEach(btn => btn.addEventListener('click', async () => { try { await remove(dbRef(db, 'voicemails/' + App.mySlug + '/' + btn.dataset.del)); } catch {} }));
-  });
-}
-async function startCall(calleeSlug) {
-  if (App.activeCall) return toast('Already in a call');
-  const c = App.contacts.find(x => x.slug === calleeSlug); if (!c) return;
-  try { App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { return toast('Microphone denied', true); }
-  $('callName').textContent = c.name; $('callAvatar').innerHTML = avatarInner(c.photo, c.name);
-  $('callStatus').textContent = 'Calling…'; $('callStatus').classList.remove('active');
-  $('muteBtn').classList.remove('muted'); App.muted = false;
-  showScreen('screen-call');
-  App.activeCall = { peerSlug: calleeSlug, isCaller: true, callRefPath: `calls/${calleeSlug}/${App.mySlug}` };
-  const pc = new RTCPeerConnection(ICE_SERVERS); App.pc = pc;
-  App.localStream.getTracks().forEach(t => pc.addTrack(t, App.localStream));
-  pc.ontrack = e => { const a = new Audio(); a.srcObject = e.streams[0]; a.autoplay = true; a.play().catch(() => {}); };
-  pc.onicecandidate = e => { if (e.candidate) push(dbRef(db, `${App.activeCall.callRefPath}/callerCandidates`), e.candidate.toJSON()).catch(() => {}); };
-  pc.onconnectionstatechange = () => {
-    if (pc.connectionState === 'connected') { $('callStatus').textContent = 'In call'; $('callStatus').classList.add('active'); }
-    if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') endCallCleanup();
-  };
-  const offer = await pc.createOffer(); await pc.setLocalDescription(offer);
-  await set(dbRef(db, App.activeCall.callRefPath), { offer: { type: offer.type, sdp: offer.sdp }, callerName: App.myName, callerSlug: App.mySlug, status: 'ringing', createdAt: Date.now() });
-  App.callUnsubs.push(onValue(dbRef(db, App.activeCall.callRefPath + '/answer'), async snap => {
-    const ans = snap.val();
-    if (ans && pc && !pc.currentRemoteDescription && pc.signalingState === 'have-local-offer') { try { await pc.setRemoteDescription(new RTCSessionDescription(ans)); } catch {} }
-  }));
-  App.callUnsubs.push(onChildAdded(dbRef(db, App.activeCall.callRefPath + '/calleeCandidates'), snap => { const cand = snap.val(); if (cand && pc) pc.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {}); }));
-  App.callUnsubs.push(onValue(dbRef(db, App.activeCall.callRefPath + '/status'), snap => {
-    const st = snap.val(); if (st === 'rejected') { toast('Call rejected'); endCallCleanup(); } if (st === 'ended') endCallCleanup();
-  }));
-}
-function listenForIncomingCalls() {
-  if (!App.mySlug) return;
-  onValue(dbRef(db, 'calls/' + App.mySlug), snap => {
-    const calls = snap.val();
-    if (!calls) { App.incomingCallData = null; $('incoming-call').classList.remove('show'); stopCallRing(); return; }
-    if (App.incomingCallData && !calls[App.incomingCallData.callerSlug]) { App.incomingCallData = null; $('incoming-call').classList.remove('show'); stopCallRing(); return; }
-    let ringing = null;
-    for (const [callerSlug, call] of Object.entries(calls)) { if (call && call.status === 'ringing' && call.offer && callerSlug !== App.mySlug) { ringing = { callerSlug, call }; break; } }
-    if (ringing && !App.incomingCallData && !App.activeCall) {
-      App.incomingCallData = ringing;
-      const c = App.contacts.find(x => x.slug === ringing.callerSlug);
-      const name = c ? c.name : (ringing.call.callerName || ringing.call.callerSlug);
-      $('incomingName').textContent = name;
-      $('incomingAvatar').innerHTML = c ? avatarInner(c.photo, c.name) : esc(name.charAt(0).toUpperCase());
-      $('incomingStatus').textContent = 'Incoming call…';
-      $('incoming-call').classList.add('show');
-      startCallRing();
-      showBrowserNotification(`📞 Incoming call`, `${name} is calling you`, 'incoming-call');
-      if (document.hidden) startTitleFlash('📞');
-    }
-  });
-}
-$('acceptCallBtn').addEventListener('click', async () => {
-  stopCallRing();
-  const ic = App.incomingCallData; if (!ic) return;
-  $('incoming-call').classList.remove('show');
-  const { callerSlug, call } = ic; App.incomingCallData = null;
-  try { App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { return toast('Microphone denied', true); }
-  const pc = new RTCPeerConnection(ICE_SERVERS); App.pc = pc;
-  App.localStream.getTracks().forEach(t => pc.addTrack(t, App.localStream));
-  pc.ontrack = e => { const a = new Audio(); a.srcObject = e.streams[0]; a.autoplay = true; a.play().catch(() => {}); };
-  pc.onicecandidate = e => { if (e.candidate) push(dbRef(db, `calls/${App.mySlug}/${callerSlug}/calleeCandidates`), e.candidate.toJSON()).catch(() => {}); };
-  pc.onconnectionstatechange = () => {
-    if (pc.connectionState === 'connected') { $('callStatus').textContent = 'In call'; $('callStatus').classList.add('active'); }
-    if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') endCallCleanup();
-  };
-  await pc.setRemoteDescription(new RTCSessionDescription(call.offer));
-  const answer = await pc.createAnswer(); await pc.setLocalDescription(answer);
-  await set(dbRef(db, `calls/${App.mySlug}/${callerSlug}/answer`), { type: answer.type, sdp: answer.sdp });
-  await set(dbRef(db, `calls/${App.mySlug}/${callerSlug}/status`), 'accepted');
-  App.activeCall = { peerSlug: callerSlug, isCaller: false, callRefPath: `calls/${App.mySlug}/${callerSlug}` };
-  const c = App.contacts.find(x => x.slug === callerSlug);
-  $('callName').textContent = c ? c.name : (call.callerName || callerSlug);
-  $('callAvatar').innerHTML = c ? avatarInner(c.photo, c.name) : esc((call.callerName || 'C').charAt(0).toUpperCase());
-  $('callStatus').textContent = 'Connecting…'; $('callStatus').classList.remove('active');
-  $('muteBtn').classList.remove('muted'); App.muted = false;
-  showScreen('screen-call');
-  App.callUnsubs.push(onChildAdded(dbRef(db, App.activeCall.callRefPath + '/callerCandidates'), snap => { const cand = snap.val(); if (cand && pc) pc.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {}); }));
-  App.callUnsubs.push(onValue(dbRef(db, App.activeCall.callRefPath + '/status'), snap => { if (snap.val() === 'ended') endCallCleanup(); }));
-});
-$('rejectCallBtn').addEventListener('click', async () => {
-  stopCallRing();
-  const ic = App.incomingCallData;
-  if (ic) { try { await set(dbRef(db, `calls/${App.mySlug}/${ic.callerSlug}/status`), 'rejected'); } catch {} try { await remove(dbRef(db, `calls/${App.mySlug}/${ic.callerSlug}`)); } catch {} }
-  App.incomingCallData = null; $('incoming-call').classList.remove('show');
-});
-$('endCallBtn').addEventListener('click', async () => {
-  stopCallRing();
-  if (App.activeCall) { try { await set(dbRef(db, App.activeCall.callRefPath + '/status'), 'ended'); } catch {} }
-  endCallCleanup();
-});
-$('muteBtn').addEventListener('click', function() {
-  if (!App.localStream) return;
-  App.muted = !App.muted;
-  App.localStream.getAudioTracks().forEach(t => t.enabled = !App.muted);
-  this.classList.toggle('muted', App.muted);
-  this.textContent = App.muted ? '🔇' : '🎤';
-});
-async function endCallCleanup() {
-  stopCallRing();
-  if (App.pc) { try { App.pc.close(); } catch {} App.pc = null; }
-  if (App.localStream) { App.localStream.getTracks().forEach(t => t.stop()); App.localStream = null; }
-  App.callUnsubs.forEach(u => { try { u(); } catch {} }); App.callUnsubs = [];
-  if (App.activeCall) { try { await remove(dbRef(db, App.activeCall.callRefPath)); } catch {} }
-  App.activeCall = null; App.muted = false;
-  showScreen('screen-main'); toast('Call ended');
-}
+
 $('helpBtn').addEventListener('click', () => $('helpModal').classList.add('show'));
 $('helpClose').addEventListener('click', () => $('helpModal').classList.remove('show'));
 $('clearBtn').addEventListener('click', () => {
