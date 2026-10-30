@@ -204,7 +204,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
     <div class="status-card">
       <button class="btn-primary" id="openPostStatusBtn" style="width:100%">+ Post User Status</button>
     </div>
-    <div class="section-title">Recent Updates</div>
+    <div class="section-title">Friend Updates & Posts</div>
     <div id="statusFeedList" class="status-feed"></div>
   </div>
   <div id="tabCalls" class="tab-content" style="display:none;">
@@ -595,12 +595,10 @@ window.addEventListener('load', () => {
   const savedPhoto = LS.get('avatar', null);
   if (savedPhoto) App.myPhoto = savedPhoto;
   
-  // Pre-fill the username input with last used account so you can easily change or log in
   if (savedName || savedSlug) { 
     nameInput.value = savedName || savedSlug;
   }
   
-  // Keep screen on the onboard screen so users can choose or switch account handles
   showScreen('screen-onboard');
 });
 
@@ -802,7 +800,6 @@ window.__openChat = (id, isGroup) => {
   $('chatName').textContent = target ? target.name : id;
   $('chatAvatar').innerHTML = isGroup ? '👥' : avatarInner(target?.photo, target?.name);
   
-  // Toggle call buttons visibility for group vs direct chat
   $('voiceCallFromChatBtn').style.display = isGroup ? 'none' : 'block';
   $('videoCallFromChatBtn').style.display = isGroup ? 'none' : 'block';
 
@@ -814,8 +811,8 @@ function renderAttachment(a) {
   if (!a || !a.url) return '';
   const safeUrl = esc(a.url);
   if (a.type === 'image') return `<img class="attach-img" src="${safeUrl}" loading="lazy" onclick="window.__lb('${safeUrl}')">`;
-  if (a.type === 'video') return `<video class="attach-video" controls src="${safeUrl}"></video>`;
-  if (a.type === 'audio') return `<audio class="attach-audio" controls src="${safeUrl}"></audio>`;
+  if (a.type === 'video') return `<video class="attach-video" controls playsinline src="${safeUrl}"></video>`;
+  if (a.type === 'audio') return `<audio class="attach-audio" controls playsinline preload="metadata" src="${safeUrl}"></audio>`;
   return `<a class="attach-file" href="${safeUrl}" target="_blank" download="${esc(a.name || 'file')}">📄 ${esc(a.name || 'File')}</a>`;
 }
 
@@ -921,7 +918,7 @@ $('fileInput').addEventListener('change', async e => {
   const file = e.target.files[0]; if (!file || !App.activeChat) return;
   const bar = $('uploadBar'), fill = $('uploadBarFill');
   bar.classList.add('show'); fill.style.width = '30%';
-  toast('Processing file…');
+  toast('Processing media file…');
   try {
     fill.style.width = '70%';
     const url = await fileToBase64(file);
@@ -929,7 +926,7 @@ $('fileInput').addEventListener('change', async e => {
     const type = detectFileType(file);
     await sendMessage({ type, url, name: file.name, size: file.size });
     setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 500);
-    toast('Sent ✓');
+    toast('Media sent ✓');
   } catch {
     fill.style.width = '0%'; bar.classList.remove('show');
     toast('Upload failed', true);
@@ -937,7 +934,7 @@ $('fileInput').addEventListener('change', async e => {
   e.target.value = '';
 });
 
-/* Chat Voice Note Recording Button */
+/* Chat Voice Note Recording */
 let chatMediaRecorder = null, chatAudioChunks = [], chatRecTimer = null;
 
 function getSupportedMimeType() {
@@ -1026,7 +1023,7 @@ $('modalConfirm').addEventListener('click', async () => {
   }
 
   App.contacts.push({ slug, name: friendName, photo: snap.val().photo || null });
-  saveContacts(); setupMessageListener(slug, false); buildUI();
+  saveContacts(); setupMessageListener(slug, false); buildUI(); listenUserStatuses();
   $('addModal').classList.remove('show'); toast('Added @' + slug + ' ✓');
 });
 
@@ -1052,7 +1049,7 @@ $('groupModalConfirm').addEventListener('click', async () => {
   $('groupModal').classList.remove('show'); toast('Group created ✓');
 });
 
-/* Peer-to-Peer Voice & Video WebRTC Calling Engine */
+/* Calling Engine */
 window.startCall = async (targetSlug, isVideo) => {
   if (!targetSlug || targetSlug === App.mySlug) return toast('Select a valid contact to call', true);
   App.currentCallTarget = targetSlug;
@@ -1090,7 +1087,6 @@ window.startCall = async (targetSlug, isVideo) => {
       }
     };
 
-    // Firebase Signaling Setup
     const callRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}`);
     const offerCandidatesRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}/offerCandidates`);
 
@@ -1112,7 +1108,6 @@ window.startCall = async (targetSlug, isVideo) => {
       time: Date.now()
     });
 
-    // Listen for Answer
     onValue(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/answer`), async snap => {
       const answer = snap.val();
       if (answer && App.peerConn && !App.peerConn.currentRemoteDescription) {
@@ -1121,14 +1116,12 @@ window.startCall = async (targetSlug, isVideo) => {
       }
     });
 
-    // Listen for Answer ICE Candidates
     const answerCandidatesRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}/answerCandidates`);
     onChildAdded(answerCandidatesRef, snap => {
       const candidate = new RTCIceCandidate(snap.val());
       if (App.peerConn) App.peerConn.addIceCandidate(candidate);
     });
 
-    // Listen for Call Rejection/End
     onValue(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/status`), snap => {
       if (snap.val() === 'ended' || snap.val() === 'rejected') {
         endCallLocally();
@@ -1157,7 +1150,6 @@ function listenIncomingCalls() {
     $('incomingType').textContent = `Incoming ${callData.type === 'video' ? '📹 Video' : '📞 Voice'} Call…`;
     $('incoming-call').classList.add('show');
 
-    // Store incoming call reference for answering
     window._incomingCallData = callData;
   });
 }
@@ -1215,7 +1207,6 @@ $('acceptCallBtn').addEventListener('click', async () => {
     await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'connected');
     $('callStatus').textContent = 'Connected';
 
-    // Listen for Caller ICE Candidates
     const offerCandidatesRef = dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/offerCandidates`);
     onChildAdded(offerCandidatesRef, snap => {
       const candidate = new RTCIceCandidate(snap.val());
@@ -1265,7 +1256,7 @@ $('videoCallFromChatBtn').addEventListener('click', () => {
   if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, true);
 });
 
-/* Status Feed */
+/* Status Feed & Visibility for Friends */
 $('openPostStatusBtn').addEventListener('click', () => {
   $('statusTextInput').value = ''; $('statusLinkInput').value = ''; $('statusMediaName').textContent = '';
   App.statusMediaFile = null; $('statusModal').classList.add('show');
@@ -1297,19 +1288,32 @@ $('statusModalConfirm').addEventListener('click', async () => {
 });
 
 function listenUserStatuses() {
-  onValue(query(dbRef(db, 'user_statuses'), limitToLast(30)), snap => {
+  onValue(query(dbRef(db, 'user_statuses'), limitToLast(50)), snap => {
     const data = snap.val() || {};
-    const posts = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => b.time - a.time);
+    const friendSlugs = App.contacts.map(c => c.slug);
+    
+    // Statuses visible to self + any added friend contacts
+    const posts = Object.entries(data)
+      .map(([k, v]) => ({ ...v, _k: k }))
+      .filter(p => p.authorSlug === App.mySlug || friendSlugs.includes(p.authorSlug) || App.mySlug === 'gesnerdeslandes' || App.mySlug === 'gesner')
+      .sort((a, b) => b.time - a.time);
+
+    if (!posts.length) {
+      $('statusFeedList').innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No recent friend status updates yet.</p></div>';
+      window._cachedPosts = [];
+      return;
+    }
+
     $('statusFeedList').innerHTML = posts.map(p => {
       const isMine = p.authorSlug === App.mySlug;
-      const mediaHtml = p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" class="status-media">` : `<video src="${p.mediaUrl}" controls class="status-media"></video>`) : '';
+      const mediaHtml = p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" class="status-media">` : `<video src="${p.mediaUrl}" controls playsinline class="status-media"></video>`) : '';
       const linkHtml = p.link ? `<a href="${p.link}" target="_blank" rel="noopener" class="status-link">🔗 ${esc(p.link)}</a>` : '';
       const textHtml = p.text ? `<div class="status-content-box" style="background:${p.bgColor || '#0d7a8c'}">${esc(p.text)}</div>` : '';
       const commentCount = p.comments ? Object.keys(p.comments).length : 0;
       return `<div class="status-card" data-key="${p._k}">
         <div class="status-card-header">
           <div class="avatar" style="width:36px;height:36px;font-size:14px">${avatarInner(p.authorPhoto, p.authorName)}</div>
-          <div style="flex:1"><div style="font-weight:700">${esc(p.authorName)}</div><small style="color:var(--muted)">${new Date(p.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small></div>
+          <div style="flex:1"><div style="font-weight:700">${esc(p.authorName)} <small style="color:var(--accent)">(@${esc(p.authorSlug)})</small></div><small style="color:var(--muted)">${new Date(p.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small></div>
           ${isMine ? `<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px" onclick="window.__delStatus('${p._k}')">🗑</button>` : ''}
         </div>
         ${textHtml}${mediaHtml}${linkHtml}
