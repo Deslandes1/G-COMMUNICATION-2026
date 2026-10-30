@@ -884,10 +884,24 @@ $('chatRecordBtn').addEventListener('click', async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       chatAudioChunks = [];
-      chatMediaRecorder = new MediaRecorder(stream);
+      
+      // Determine supported MIME type for mobile compatibility (iOS Safari vs Android Chrome/Desktop)
+      let options = { mimeType: 'audio/webm' };
+      if (!MediaRecorder.isTypeSupported('audio/webm')) {
+        if (MediaRecorder.isTypeSupported('audio/mp4')) {
+          options = { mimeType: 'audio/mp4' };
+        } else if (MediaRecorder.isTypeSupported('audio/aac')) {
+          options = { mimeType: 'audio/aac' };
+        } else {
+          options = {}; // Fallback to default browser codec
+        }
+      }
+
+      chatMediaRecorder = new MediaRecorder(stream, options);
       chatMediaRecorder.ondataavailable = e => { if (e.data.size > 0) chatAudioChunks.push(e.data); };
       chatMediaRecorder.onstop = async () => {
-        const blob = new Blob(chatAudioChunks, { type: 'audio/webm' });
+        const mime = chatMediaRecorder.mimeType || 'audio/webm';
+        const blob = new Blob(chatAudioChunks, { type: mime });
         const url = await fileToBase64(blob);
         await sendMessage({ type: 'audio', url, name: 'Voice Note.webm' });
         btn.style.color = '#ff4757';
@@ -905,8 +919,9 @@ $('chatRecordBtn').addEventListener('click', async () => {
           chatMediaRecorder.stop();
         }
       }, 30000);
-    } catch {
-      toast('Microphone permission denied', true);
+    } catch (err) {
+      console.error(err);
+      toast('Microphone access error or permission denied', true);
     }
   } else if (chatMediaRecorder && chatMediaRecorder.state === 'recording') {
     clearTimeout(chatRecTimer);
@@ -1087,10 +1102,23 @@ $('recordBtn').addEventListener('click', async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       audioChunks = [];
-      mediaRecorder = new MediaRecorder(stream);
+
+      let options = { mimeType: 'audio/webm' };
+      if (!MediaRecorder.isTypeSupported('audio/webm')) {
+        if (MediaRecorder.isTypeSupported('audio/mp4')) {
+          options = { mimeType: 'audio/mp4' };
+        } else if (MediaRecorder.isTypeSupported('audio/aac')) {
+          options = { mimeType: 'audio/aac' };
+        } else {
+          options = {};
+        }
+      }
+
+      mediaRecorder = new MediaRecorder(stream, options);
       mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
       mediaRecorder.onstop = async () => {
-        const blob = new Blob(audioChunks, { type: 'audio/webm' });
+        const mime = mediaRecorder.mimeType || 'audio/webm';
+        const blob = new Blob(audioChunks, { type: mime });
         const url = await fileToBase64(blob);
         await push(dbRef(db, `voicemails/${recipient}`), {
           from: App.mySlug, fromName: App.myName, url, time: Date.now()
@@ -1110,7 +1138,8 @@ $('recordBtn').addEventListener('click', async () => {
           mediaRecorder.stop();
         }
       }, 30000);
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast('Microphone permission denied or unsupported', true);
     }
   } else if (mediaRecorder && mediaRecorder.state === 'recording') {
