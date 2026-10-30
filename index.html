@@ -434,7 +434,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
       <strong>2.</strong> Anyone types that name in "Add contact" to reach you.<br><br>
       <strong>3.</strong> Tap any emoji in the strip above the input to send it instantly. Tap 😊 for the full palette.<br><br>
       <strong>4.</strong> ✓ means sent, ✓✓ means read.<br><br>
-      <strong>5.</strong> If file upload fails, open <strong>Profile → Check file storage</strong>.
+      <strong>5.</strong> Files are uploaded to tmpfiles.org — completely free and anonymous.
     </p>
     <div class="modal-actions"><button class="confirm" id="helpClose">Got it</button></div>
   </div>
@@ -466,7 +466,6 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref as dbRef, push, onValue, onChildAdded, remove, set, get, runTransaction, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-import { getStorage, ref as stRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 /* ═══════════════════════════════════════════════════════════
    FIREBASE CONFIG — "G Jarvis" web app (new registration)
@@ -483,7 +482,6 @@ const firebaseConfig = {
 };
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
-const storage = getStorage(fbApp);
 const ICE_SERVERS = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] };
 
 const App = {
@@ -737,63 +735,26 @@ $('permBtn').addEventListener('click', async () => {
   else toast('Notification permission: ' + result);
 });
 $('storageCheckBtn').addEventListener('click', async () => {
-  /* Quick Litterbox diagnostic first */
-  toast('Testing Litterbox upload…');
+  toast('Testing tmpfiles.org upload…');
   try {
     const testBlob = new Blob(['test-' + Date.now()], { type: 'text/plain' });
     const testFile = new File([testBlob], 'test.txt', { type: 'text/plain' });
-    const fd = new FormData();
-    fd.append('reqtype', 'fileupload');
-    fd.append('time', '1h'); // short expiry for the test
-    fd.append('fileToUpload', testFile);
-    const res = await fetch('https://litterbox.catbox.moe/resources/internals/api.php', {
+    const body = new FormData();
+    body.append('file', testFile);
+    const res = await fetch('https://tmpfiles.org/api/v1/upload', {
       method: 'POST',
-      body: fd
+      body: body
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const url = (await res.text()).trim();
-    if (!url || !url.startsWith('http')) throw new Error('Litterbox returned invalid URL');
-    alert('✅ Litterbox works!\n\nTest URL: ' + url + '\n\nFile uploads will use Litterbox by default.');
-    toast('Litterbox OK ✓');
-    return;
-  } catch (litterErr) {
-    console.warn('Litterbox test failed:', litterErr);
-    toast('Litterbox failed — testing Firebase fallback…', true);
+    const json = await res.json();
+    const rawUrl = json.data.url;
+    const directUrl = rawUrl.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+    alert('✅ tmpfiles.org works!\n\nTest URL: ' + directUrl + '\n\nFile uploads will use this service.');
+    toast('tmpfiles.org OK ✓');
+  } catch (err) {
+    alert('❌ tmpfiles.org upload failed!\n\nError: ' + err.message + '\n\nPlease check your internet connection or try again later.');
+    toast('Storage test failed', true);
   }
-
-  /* Firebase Storage test */
-  toast('Testing Firebase Storage…');
-  const bucketsToTry = [firebaseConfig.storageBucket, firebaseConfig.projectId + '.appspot.com', firebaseConfig.projectId + '.firebasestorage.app'].filter((v, i, arr) => arr.indexOf(v) === i);
-  let lastErr = null;
-  for (const bucket of bucketsToTry) {
-    try {
-      const testRef = stRef(storage, `attachments/_test/${Date.now()}.txt`);
-      const testBlob = new Blob(['test-' + Date.now()], { type: 'text/plain' });
-      const task = uploadBytesResumable(testRef, testBlob);
-      await new Promise((resolve, reject) => { task.on('state_changed', null, reject, resolve); });
-      const url = await getDownloadURL(task.snapshot.ref);
-      try { await task.snapshot.ref.delete(); } catch {}
-      alert('✅ Firebase Storage works!\n\nBucket in use: ' + firebaseConfig.storageBucket + '\n\nUploads to /attachments/ will succeed as fallback.');
-      toast('Firebase Storage OK'); return;
-    } catch (err) {
-      lastErr = err;
-      const code = (err && err.code) ? String(err.code) : '';
-      if (/unauthorized|permission|denied/i.test(code)) break;
-    }
-  }
-  const err = lastErr;
-  const code = (err && err.code) ? String(err.code) : 'unknown';
-  const msg = (err && err.message) ? String(err.message) : 'unknown error';
-  let hint = '';
-  if (/unauthorized|permission|denied/i.test(code)) {
-    hint = 'Storage rules deny writes.\n\nOpen → https://console.firebase.google.com/u/1/project/jarvis-tracker-a8136/storage/rules\n\nPaste and Publish:\n\n' + "rules_version = '2';\nservice firebase.storage {\n  match /b/{bucket}/o {\n    match /attachments/{chatId}/{fileName} {\n      allow read: if true;\n      allow write: if true;\n    }\n  }\n}";
-  } else if (/bucket-not-found/i.test(code)) {
-    hint = 'Bucket does not exist.\n\nOpen → https://console.firebase.google.com/u/1/project/jarvis-tracker-a8136/storage\n\nIf it says "Get started", click it.';
-  } else if (/retry-limit|network/i.test(code)) {
-    hint = 'Network or CORS issue.\n\nRun in Cloud Shell:\ngsutil cors set cors.json gs://jarvis-tracker-a8136.firebasestorage.app';
-  }
-  alert('❌ Both upload methods failed!\n\nLitterbox: failed\nFirebase: ' + code + ' — ' + msg + '\n\n' + hint);
-  toast('All storage failed', true);
 });
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
 let nameCheckTimer = null, nameCheckOk = false;
@@ -1228,14 +1189,9 @@ $('fileInput').addEventListener('change', async (e) => {
   e.target.value = '';
 });
 function handleUploadError(err) {
-  const code = (err && err.code) ? String(err.code) : '';
-  const msg = (err && err.message) ? String(err.message) : 'unknown';
-  let hint = '';
-  if (/unauthorized|permission|denied/i.test(code + ' ' + msg)) hint = 'Storage rules deny writes. Open Profile → Check file storage.';
-  else if (/bucket-not-found/i.test(code)) hint = 'Wrong bucket. Open Profile → Check file storage.';
-  else if (/retry-limit|network|timeout/i.test(code + ' ' + msg)) hint = 'Network or CORS issue. Run gsutil cors set in Cloud Shell.';
-  toast('Upload failed: ' + (code || msg) + ' — ' + hint, true);
-  alert('Upload failed\n\nError: ' + (code || 'unknown') + '\nMessage: ' + msg + '\n\n' + (hint || 'Open Profile → Check file storage to diagnose.'));
+  const msg = (err && err.message) ? String(err.message) : 'unknown error';
+  toast('Upload failed: ' + msg, true);
+  alert('Upload failed\n\n' + msg + '\n\nPlease check your internet connection and try again.');
 }
 function compressImg(file, maxDim, q) {
   return new Promise((resolve, reject) => {
@@ -1259,94 +1215,59 @@ function compressImg(file, maxDim, q) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   UPLOAD — Litterbox first (free, no signup), Firebase fallback
+   UPLOAD — tmpfiles.org (free, anonymous, no signup)
    ═══════════════════════════════════════════════════════════ */
 async function doUpload(file, recipient, type, displayName) {
   const bar = $('uploadBar'), fill = $('uploadBarFill');
   bar.classList.add('show'); fill.style.width = '0%';
 
-  /* ── 1) Try Litterbox (free, no auth, no billing) ─────────── */
   try {
-    fill.style.width = '15%';
+    fill.style.width = '20%';
 
-    // Litterbox accepts files up to 1 GB. We cap at 50 MB (MAX_BYTES) upstream.
-    const fd = new FormData();
-    fd.append('reqtype', 'fileupload');
-    fd.append('time', '72h'); // 72 hours expiry — good for chat history
-    fd.append('fileToUpload', file);
+    const body = new FormData();
+    body.append('file', file);
 
-    const res = await fetch('https://litterbox.catbox.moe/resources/internals/api.php', {
+    const res = await fetch('https://tmpfiles.org/api/v1/upload', {
       method: 'POST',
-      body: fd
+      body: body
     });
 
-    if (!res.ok) throw new Error(`Litterbox HTTP ${res.status}`);
+    if (!res.ok) throw new Error(`tmpfiles HTTP ${res.status}`);
 
-    const url = (await res.text()).trim();
-    if (!url || !url.startsWith('http')) throw new Error('Litterbox did not return a valid URL');
+    const json = await res.json();
+    const rawUrl = json.data.url;
+
+    // Convert to direct download link
+    const directUrl = rawUrl.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
 
     fill.style.width = '100%';
+
     const cid = chatIdFor(App.mySlug, recipient);
     const attObj = {
       type,
       name: displayName || file.name || 'file',
       size: file.size,
       mime: file.type || 'application/octet-stream',
-      url,
-      storagePath: 'litterbox',
-      provider: 'litterbox'
+      url: directUrl,
+      storagePath: 'tmpfiles',
+      provider: 'tmpfiles'
     };
+
     await push(dbRef(db, 'chats/' + cid + '/messages'), {
       from: App.mySlug, to: recipient, text: '', time: Date.now(), attachment: attObj
     });
+
     setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 700);
     toast('Sent ✓');
     playSentSound();
     return;
 
   } catch (err) {
-    console.warn('Litterbox upload failed, falling back to Firebase:', err);
+    console.error('Upload failed:', err);
     fill.style.width = '0%';
-    // fall through to Firebase
+    bar.classList.remove('show');
+    throw err; // Re-throw so handleUploadError can show the alert
   }
-
-  /* ── 2) Fallback: Firebase Storage ───────────────────────── */
-  return new Promise((resolve, reject) => {
-    const cid = chatIdFor(App.mySlug, recipient);
-    const safeName = (displayName || 'file').replace(/[^\w.\-]+/g, '_').slice(0, 80) || 'file';
-    const ext      = (safeName.match(/\.[^.]+$/) || [''])[0];
-    const baseName = ext ? safeName.slice(0, -ext.length) : safeName;
-    const path     = `attachments/${cid}/${Date.now()}-${Math.random().toString(36).slice(2,8)}-${baseName}${ext}`;
-    const ref      = stRef(storage, path);
-    const task     = uploadBytesResumable(ref, file, { contentType: file.type || 'application/octet-stream' });
-    bar.classList.add('show'); fill.style.width = '0%';
-    task.on('state_changed',
-      s => { fill.style.width = ((s.bytesTransferred / s.totalBytes) * 100).toFixed(1) + '%'; },
-      err => { bar.classList.remove('show'); reject(err); },
-      async () => {
-        try {
-          const url = await getDownloadURL(task.snapshot.ref);
-          fill.style.width = '100%';
-          const attObj = {
-            type,
-            name: displayName || file.name || 'file',
-            size: file.size,
-            mime: file.type || 'application/octet-stream',
-            url,
-            storagePath: path,
-            provider: 'firebase'
-          };
-          await push(dbRef(db, 'chats/' + cid + '/messages'), {
-            from: App.mySlug, to: recipient, text: '', time: Date.now(), attachment: attObj
-          });
-          setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 700);
-          toast('Sent ✓');
-          playSentSound();
-          resolve();
-        } catch (e) { bar.classList.remove('show'); reject(e); }
-      }
-    );
-  });
 }
 window.__lb = (url, name) => { $('lightboxImg').src = url; $('lightboxDownload').href = url; $('lightboxDownload').download = name || 'photo'; $('lightbox').classList.add('show'); };
 $('lightboxClose').addEventListener('click', () => $('lightbox').classList.remove('show'));
