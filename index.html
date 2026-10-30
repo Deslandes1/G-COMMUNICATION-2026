@@ -1036,12 +1036,74 @@ document.querySelectorAll('.quick-reaction').forEach(b => b.addEventListener('cl
   $('chatInput').value = b.dataset.emoji; sendMessage();
 }));
 
+/* Voicemail Recording */
+let mediaRecorder = null, audioChunks = [], recordingTimer = null;
+$('recordBtn').addEventListener('click', async () => {
+  const recipient = $('vmRecipient').value;
+  if (!recipient) return toast('Select a recipient first', true);
+
+  const btn = $('recordBtn');
+  if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioChunks = [];
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+      mediaRecorder.onstop = async () => {
+        const blob = new Blob(audioChunks, { type: 'audio/webm' });
+        const url = await fileToBase64(blob);
+        await push(dbRef(db, `voicemails/${recipient}`), {
+          from: App.mySlug, fromName: App.myName, url, time: Date.now()
+        });
+        toast('Voicemail sent ✓');
+        btn.textContent = '⬤ Record (max 30s)';
+        btn.style.background = '#ff4757';
+        stream.getTracks().forEach(t => t.stop());
+      };
+      mediaRecorder.start();
+      btn.textContent = '■ Stop Recording (Recording...)';
+      btn.style.background = '#0d7a8c';
+      toast('Recording audio…');
+      clearTimeout(recordingTimer);
+      recordingTimer = setTimeout(() => {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+          mediaRecorder.stop();
+        }
+      }, 30000);
+    } catch {
+      toast('Microphone permission denied or unsupported', true);
+    }
+  } else if (mediaRecorder && mediaRecorder.state === 'recording') {
+    clearTimeout(recordingTimer);
+    mediaRecorder.stop();
+  }
+});
+
+function listenVoicemails() {
+  const list = $('voicemailList');
+  if (!list) return;
+  onValue(query(dbRef(db, `voicemails/${App.mySlug}`), limitToLast(20)), snap => {
+    const data = snap.val() || {};
+    const items = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => b.time - a.time);
+    if (!items.length) {
+      list.innerHTML = '<div class="empty"><p>No voicemails received.</p></div>';
+      return;
+    }
+    list.innerHTML = items.map(v => `
+      <div style="background:#fff;margin:8px 16px;padding:12px;border-radius:10px;border:1px solid var(--border);">
+        <div style="font-size:13px;font-weight:700;margin-bottom:6px;">From: @${esc(v.fromName || v.from)}</div>
+        <audio controls src="${v.url}" style="width:100%;"></audio>
+      </div>`).join('');
+  });
+}
+
 document.querySelectorAll('.nav-item').forEach(b => b.addEventListener('click', () => {
   const tab = b.dataset.tab;
   document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n === b));
   document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
   $('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = 'block';
   $('headerTitle').textContent = tab.charAt(0).toUpperCase() + tab.slice(1);
+  if (tab === 'voicemail') listenVoicemails();
 }));
 
 $('chatBackBtn').addEventListener('click', () => { App.activeChat = null; showScreen('screen-main'); });
