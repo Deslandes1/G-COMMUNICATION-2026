@@ -9,6 +9,7 @@
 <title>JARVIS</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNjYiIGZpbGw9IiNkNGFlMzciLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5MiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzBiMmE0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RzwvdGV4dD48L3N2Zz4=">
 <link rel="manifest" href="manifest.json">
+<script src="https://js.puter.com/v2/"></script>
 <style>
 :root{--navy:#0b2a4a;--navy-light:#143a5f;--accent:#0d7a8c;--gold:#d4af37;--green:#4aff7a;--red:#ff4757;--bg:#f2f5f8;--card:#fff;--text:#1e2a33;--muted:#6b7a87;--border:#e1e7ed}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -737,7 +738,7 @@ $('permBtn').addEventListener('click', async () => {
   else toast('Notification permission: ' + result);
 });
 $('storageCheckBtn').addEventListener('click', async () => {
-  toast('Testing storage…');
+  toast(typeof puter !== 'undefined' ? 'Puter loaded ✓ — testing Firebase too…' : 'Testing storage…');
   const bucketsToTry = [firebaseConfig.storageBucket, firebaseConfig.projectId + '.appspot.com', firebaseConfig.projectId + '.firebasestorage.app'].filter((v, i, arr) => arr.indexOf(v) === i);
   let lastErr = null;
   for (const bucket of bucketsToTry) {
@@ -767,8 +768,8 @@ $('storageCheckBtn').addEventListener('click', async () => {
   } else if (/retry-limit|network/i.test(code)) {
     hint = 'Network or CORS issue.\n\nRun in Cloud Shell:\ngsutil cors set cors.json gs://jarvis-tracker-a8136.firebasestorage.app';
   }
-  alert('❌ Storage test failed!\n\nError: ' + code + '\nMessage: ' + msg + '\n\n' + hint);
-  toast('Storage failed', true);
+  alert('❌ Firebase Storage test failed!\n\nError: ' + code + '\nMessage: ' + msg + '\n\n' + hint + '\n\nNote: The app will still try Puter.js first for uploads.');
+  toast('Firebase storage failed', true);
 });
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
 let nameCheckTimer = null, nameCheckOk = false;
@@ -1232,16 +1233,70 @@ function compressImg(file, maxDim, q) {
     r.readAsDataURL(file);
   });
 }
-function doUpload(file, recipient, type, displayName) {
+async function doUpload(file, recipient, type, displayName) {
+  const bar = $('uploadBar'), fill = $('uploadBarFill');
+  bar.classList.add('show'); fill.style.width = '0%';
+
+  /* ── 1) Try Puter.js — no Firebase Storage setup needed ───────────── */
+  if (typeof puter !== 'undefined' && puter.fs && typeof puter.fs.write === 'function') {
+    try {
+      fill.style.width = '15%';
+      const ext  = (file.name || '').match(/\.[^.]+$/)?.[0] || '';
+      const base = (displayName || file.name || 'file')
+                     .replace(/[^\w.\-]+/g, '_').slice(0, 60) || 'file';
+      const path = `jarvis-attachments/${Date.now()}-${Math.random().toString(36).slice(2,8)}-${base}${ext}`;
+
+      const puterFile = await puter.fs.write(path, file);
+      fill.style.width = '70%';
+
+      // Puter SDK versions differ on how to get a URL — try them in order.
+      let url = null;
+      if (typeof puter.fs.getReadURL === 'function') {
+        try { url = await puter.fs.getReadURL(puterFile.path || path); } catch {}
+      }
+      if (!url && typeof puter.fs.getURL === 'function') {
+        try { url = await puter.fs.getURL(puterFile.path || path); } catch {}
+      }
+      if (!url && puterFile && typeof puterFile.getURL === 'function') {
+        try { url = await puterFile.getURL(); } catch {}
+      }
+      if (!url && puterFile && puterFile.url) url = puterFile.url;
+      if (!url) throw new Error('Puter did not return a URL');
+
+      fill.style.width = '100%';
+      const cid = chatIdFor(App.mySlug, recipient);
+      const attObj = {
+        type,
+        name: displayName || file.name || 'file',
+        size: file.size,
+        mime: file.type || 'application/octet-stream',
+        url,
+        storagePath: puterFile.path || path,
+        provider: 'puter'
+      };
+      await push(dbRef(db, 'chats/' + cid + '/messages'), {
+        from: App.mySlug, to: recipient, text: '', time: Date.now(), attachment: attObj
+      });
+      setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 700);
+      toast('Sent ✓');
+      playSentSound();
+      return;
+    } catch (err) {
+      console.warn('Puter upload failed, falling back to Firebase Storage:', err);
+      fill.style.width = '0%';
+      // fall through to Firebase
+    }
+  }
+
+  /* ── 2) Fallback: Firebase Storage (original logic) ───────────────── */
   return new Promise((resolve, reject) => {
     const cid = chatIdFor(App.mySlug, recipient);
     const safeName = (displayName || 'file').replace(/[^\w.\-]+/g, '_').slice(0, 80) || 'file';
-    const ext = (safeName.match(/\.[^.]+$/) || [''])[0];
+    const ext      = (safeName.match(/\.[^.]+$/) || [''])[0];
     const baseName = ext ? safeName.slice(0, -ext.length) : safeName;
-    const path = `attachments/${cid}/${Date.now()}-${Math.random().toString(36).slice(2,8)}-${baseName}${ext}`;
-    const ref = stRef(storage, path);
-    const task = uploadBytesResumable(ref, file, { contentType: file.type || 'application/octet-stream' });
-    const bar = $('uploadBar'), fill = $('uploadBarFill');
+    const path     = `attachments/${cid}/${Date.now()}-${Math.random().toString(36).slice(2,8)}-${baseName}${ext}`;
+    const ref      = stRef(storage, path);
+    const task     = uploadBytesResumable(ref, file, { contentType: file.type || 'application/octet-stream' });
     bar.classList.add('show'); fill.style.width = '0%';
     task.on('state_changed',
       s => { fill.style.width = ((s.bytesTransferred / s.totalBytes) * 100).toFixed(1) + '%'; },
@@ -1250,8 +1305,18 @@ function doUpload(file, recipient, type, displayName) {
         try {
           const url = await getDownloadURL(task.snapshot.ref);
           fill.style.width = '100%';
-          const attObj = { type, name: displayName || file.name || 'file', size: file.size, mime: file.type || 'application/octet-stream', url, storagePath: path };
-          await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: recipient, text: '', time: Date.now(), attachment: attObj });
+          const attObj = {
+            type,
+            name: displayName || file.name || 'file',
+            size: file.size,
+            mime: file.type || 'application/octet-stream',
+            url,
+            storagePath: path,
+            provider: 'firebase'
+          };
+          await push(dbRef(db, 'chats/' + cid + '/messages'), {
+            from: App.mySlug, to: recipient, text: '', time: Date.now(), attachment: attObj
+          });
           setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 700);
           toast('Sent ✓');
           playSentSound();
