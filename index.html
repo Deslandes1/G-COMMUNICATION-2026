@@ -434,7 +434,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
       <strong>2.</strong> Anyone types that name in "Add contact" to reach you.<br><br>
       <strong>3.</strong> Tap any emoji in the strip above the input to send it instantly. Tap 😊 for the full palette.<br><br>
       <strong>4.</strong> ✓ means sent, ✓✓ means read.<br><br>
-      <strong>5.</strong> Files are uploaded to Catbox (permanent) or Litterbox (temporary) with automatic fallbacks — free and anonymous.
+      <strong>5.</strong> Files are uploaded via <strong>Puter.js</strong> object storage — no CORS issues, no signup, and the generated link works directly in the chat.
     </p>
     <div class="modal-actions"><button class="confirm" id="helpClose">Got it</button></div>
   </div>
@@ -485,12 +485,42 @@ const db = getDatabase(fbApp);
 const ICE_SERVERS = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] };
 
 /* ═══════════════════════════════════════════════════════════
-   MEDIA HOSTS — Catbox (permanent) & Litterbox (temporary)
-   with CORS-proxy retry and 0x0.st as final fallback.
+   PUTER.JS — CORS-free browser uploads
    ═══════════════════════════════════════════════════════════ */
-const CATBOX_API = 'https://catbox.moe/user/api.php';
-const LITTERBOX_API = 'https://litterbox.catbox.moe/resources/internals/api.php';
-const CORS_PROXY = 'https://corsproxy.io/?url=';
+let puterReady = false;
+let puterLoadPromise = null;
+
+function loadPuter() {
+  if (puterReady) return Promise.resolve();
+  if (puterLoadPromise) return puterLoadPromise;
+  puterLoadPromise = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://js.puter.com/v2/';
+    s.onload = () => {
+      // Wait a tick for puter to attach to window
+      const check = setInterval(() => {
+        if (window.puter && window.puter.fs) {
+          clearInterval(check);
+          puterReady = true;
+          resolve();
+        }
+      }, 50);
+      setTimeout(() => { clearInterval(check); reject(new Error('Puter.js timed out')); }, 15000);
+    };
+    s.onerror = () => reject(new Error('Failed to load Puter.js'));
+    document.head.appendChild(s);
+  });
+  return puterLoadPromise;
+}
+
+async function uploadViaPuter(file, displayName) {
+  await loadPuter();
+  const safeName = (displayName || file.name || 'file').replace(/[^\w.\-]/g, '_');
+  const uniqueName = `${Date.now()}_${safeName}`;
+  await puter.fs.write(uniqueName, file);
+  const url = await puter.fs.getReadURL(uniqueName);
+  return url;
+}
 
 const App = {
   mySlug: null, myName: '', myPhoto: null,
@@ -744,31 +774,20 @@ $('permBtn').addEventListener('click', async () => {
 });
 
 /* ═══════════════════════════════════════════════════════════
-   STORAGE CHECK — tests every host and reports which work.
+   STORAGE CHECK — tests Puter.js upload
    ═══════════════════════════════════════════════════════════ */
 $('storageCheckBtn').addEventListener('click', async () => {
-  toast('Testing all media hosts…');
-  const testBlob = new Blob(['test-' + Date.now()], { type: 'text/plain' });
-  const testFile = new File([testBlob], 'test.txt', { type: 'text/plain' });
-  const tests = [
-    ['Catbox',           () => uploadToCatbox(testFile, false)],
-    ['Catbox (proxy)',   () => uploadToCatbox(testFile, true)],
-    ['Litterbox',        () => uploadToLitterbox(testFile, false)],
-    ['Litterbox (proxy)',() => uploadToLitterbox(testFile, true)],
-    ['0x0.st',           () => uploadTo0x0(testFile)]
-  ];
-  const lines = [];
-  for (const [name, fn] of tests) {
-    try {
-      const url = await fn();
-      lines.push(`✅ ${name}: ${url}`);
-    } catch (err) {
-      lines.push(`❌ ${name}: ${err.message}`);
-    }
+  toast('Testing Puter.js upload…');
+  try {
+    const testBlob = new Blob(['test-' + Date.now()], { type: 'text/plain' });
+    const testFile = new File([testBlob], 'test.txt', { type: 'text/plain' });
+    const url = await uploadViaPuter(testFile, 'test.txt');
+    alert('✅ Puter.js upload works!\n\nTest URL: ' + url + '\n\nAll media will be uploaded through Puter.js (CORS-free).');
+    toast('Puter.js OK ✓');
+  } catch (err) {
+    alert('❌ Puter.js upload failed!\n\nError: ' + err.message + '\n\nCheck that js.puter.com is not blocked by your network or an ad-blocker.');
+    toast('Puter.js test failed', true);
   }
-  alert('Media host test results:\n\n' + lines.join('\n\n') +
-        '\n\nThe first ✅ will be used for uploads.');
-  toast('Media host test complete');
 });
 
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
@@ -1236,92 +1255,17 @@ function compressImg(file, maxDim, q) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   UPLOAD HELPERS — multi-service with CORS proxy fallback.
+   UPLOAD — Puter.js only (no CORS, no external host)
    ═══════════════════════════════════════════════════════════ */
-async function uploadToCatbox(file, useProxy) {
-  const target = useProxy
-    ? CORS_PROXY + encodeURIComponent(CATBOX_API)
-    : CATBOX_API;
-  const form = new FormData();
-  form.append('reqtype', 'fileupload');
-  form.append('fileToUpload', file, file.name || 'file');
-  const res = await fetch(target, { method: 'POST', body: form });
-  const text = (await res.text()).trim();
-  if (!res.ok) throw new Error(`HTTP ${res.status}: ${text.slice(0, 150)}`);
-  if (!text.startsWith('https://')) throw new Error(`Invalid response: ${text.slice(0, 150)}`);
-  return text;
-}
-
-async function uploadToLitterbox(file, useProxy) {
-  const target = useProxy
-    ? CORS_PROXY + encodeURIComponent(LITTERBOX_API)
-    : LITTERBOX_API;
-  const form = new FormData();
-  form.append('reqtype', 'fileupload');
-  form.append('time', '72h');
-  form.append('fileToUpload', file, file.name || 'file');
-  const res = await fetch(target, { method: 'POST', body: form });
-  const text = (await res.text()).trim();
-  if (!res.ok) throw new Error(`HTTP ${res.status}: ${text.slice(0, 150)}`);
-  if (!text.startsWith('https://')) throw new Error(`Invalid response: ${text.slice(0, 150)}`);
-  return text;
-}
-
-async function uploadTo0x0(file) {
-  const form = new FormData();
-  form.append('file', file, file.name || 'file');
-  const res = await fetch('https://0x0.st', { method: 'POST', body: form });
-  const text = (await res.text()).trim();
-  if (!res.ok) throw new Error(`HTTP ${res.status}: ${text.slice(0, 150)}`);
-  if (!text.startsWith('https://')) throw new Error(`Invalid response: ${text.slice(0, 150)}`);
-  return text;
-}
-
 async function doUpload(file, recipient, type, displayName) {
   const bar = $('uploadBar'), fill = $('uploadBarFill');
-  bar.classList.add('show'); fill.style.width = '5%';
-
-  const attempts = [];
-  if (file.size <= 200 * 1024 * 1024) {
-    attempts.push(['Catbox', () => uploadToCatbox(file, false)]);
-    attempts.push(['Catbox (proxy)', () => uploadToCatbox(file, true)]);
-  }
-  attempts.push(['Litterbox', () => uploadToLitterbox(file, false)]);
-  attempts.push(['Litterbox (proxy)', () => uploadToLitterbox(file, true)]);
-  attempts.push(['0x0.st', () => uploadTo0x0(file)]);
-
-  const errors = [];
-  let directUrl = null;
-
-  for (let i = 0; i < attempts.length; i++) {
-    const [name, fn] = attempts[i];
-    const pct = Math.min(90, 5 + Math.round((i / attempts.length) * 85));
-    fill.style.width = pct + '%';
-    try {
-      console.log(`[upload] trying ${name}…`);
-      directUrl = await fn();
-      console.log(`[upload] ${name} succeeded →`, directUrl);
-      break;
-    } catch (err) {
-      console.warn(`[upload] ${name} failed:`, err.message);
-      errors.push(`${name}: ${err.message}`);
-    }
-  }
-
-  if (!directUrl) {
-    fill.style.width = '0%';
-    bar.classList.remove('show');
-    throw new Error(
-      'All upload hosts failed.\n\n' +
-      errors.join('\n') +
-      '\n\nYour internet is fine — the file hosts are blocking this request. ' +
-      'Try turning off any ad-blocker/VPN, or switch Wi-Fi ↔ mobile data.'
-    );
-  }
-
-  fill.style.width = '95%';
+  bar.classList.add('show'); fill.style.width = '20%';
 
   try {
+    fill.style.width = '50%';
+    const directUrl = await uploadViaPuter(file, displayName);
+    fill.style.width = '90%';
+
     const cid = chatIdFor(App.mySlug, recipient);
     const attObj = {
       type,
@@ -1329,12 +1273,8 @@ async function doUpload(file, recipient, type, displayName) {
       size: file.size,
       mime: file.type || 'application/octet-stream',
       url: directUrl,
-      storagePath: directUrl.includes('catbox.moe') ? 'catbox'
-                 : directUrl.includes('0x0.st')   ? '0x0'
-                 : 'litterbox',
-      provider:   directUrl.includes('catbox.moe') ? 'catbox'
-                 : directUrl.includes('0x0.st')   ? '0x0'
-                 : 'litterbox'
+      storagePath: 'puter',
+      provider: 'puter'
     };
 
     await push(dbRef(db, 'chats/' + cid + '/messages'), {
