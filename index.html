@@ -223,6 +223,9 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
         <span>📢 Browser Notifications</span>
         <span id="permStatus" style="font-size:13px;font-weight:600;color:var(--gold)">checking…</span>
       </div>
+      <div id="ownerPortalTrigger" style="display:none;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;padding:14px;border-radius:10px;margin-bottom:10px;text-align:center;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(11,42,74,.3);">
+        🛡️ Owner Security & Monitoring Space
+      </div>
       <button class="btn-primary" id="clearBtn" style="background:#ff4757;color:#fff;width:100%">Clear Local Data</button>
     </div>
   </div>
@@ -376,6 +379,32 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
       <button class="cancel" id="statusCommentCancel">Close</button>
       <button class="confirm" id="statusCommentSend">Send DM</button>
     </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="ownerAuthModal">
+  <div class="modal">
+    <h3>Owner Authentication</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">Enter owner password to unlock monitoring space:</p>
+    <input id="ownerPassInput" type="password" placeholder="Password..." autocomplete="off">
+    <div class="modal-actions">
+      <button class="cancel" id="ownerAuthCancel">Cancel</button>
+      <button class="confirm" id="ownerAuthConfirm">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="ownerSpaceModal">
+  <div class="modal" style="max-width:600px;max-height:90vh;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="margin:0;">🛡️ Owner Monitoring Space</h3>
+      <button id="ownerSpaceClose" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:12px;">
+      <button class="btn-primary" id="ownerTabStatusBtn" style="flex:1;max-width:none;padding:8px;font-size:13px;">Monitor Statuses</button>
+      <button class="btn-primary" id="ownerTabChatsBtn" style="flex:1;max-width:none;padding:8px;font-size:13px;background:#143a5f;">Monitor P2P & Reports</button>
+    </div>
+    <div id="ownerContentArea" style="max-height:55vh;overflow-y:auto;display:flex;flex-direction:column;gap:10px;"></div>
   </div>
 </div>
 
@@ -535,6 +564,109 @@ function updateProfileHeader() {
   const box = $('profileAvatar'), img = $('profileAvatarImg'), letter = $('profileAvatarLetter');
   if (App.myPhoto) { img.src = App.myPhoto; img.style.display = 'block'; letter.style.display = 'none'; box.classList.add('has-photo'); }
   else { img.src = ''; img.style.display = 'none'; letter.style.display = 'inline'; letter.textContent = App.myName.charAt(0).toUpperCase(); box.classList.remove('has-photo'); }
+
+  // Check if owner (@gesnerdeslandes)
+  if (App.mySlug === 'gesnerdeslandes' || App.mySlug === 'gesner') {
+    $('ownerPortalTrigger').style.display = 'block';
+  } else {
+    $('ownerPortalTrigger').style.display = 'none';
+  }
+}
+
+$('ownerPortalTrigger').addEventListener('click', () => {
+  $('ownerPassInput').value = '';
+  $('ownerAuthModal').classList.add('show');
+});
+$('ownerAuthCancel').addEventListener('click', () => $('ownerAuthModal').classList.remove('show'));
+$('ownerAuthConfirm').addEventListener('click', () => {
+  const pwd = $('ownerPassInput').value;
+  if (pwd === 'a20carterpilar08B!') {
+    $('ownerAuthModal').classList.remove('show');
+    openOwnerSpace();
+  } else {
+    toast('Invalid owner password', true);
+  }
+});
+
+function openOwnerSpace() {
+  loadOwnerStatuses();
+  $('ownerSpaceModal').classList.add('show');
+}
+$('ownerSpaceClose').addEventListener('click', () => $('ownerSpaceModal').classList.remove('show'));
+
+$('ownerTabStatusBtn').addEventListener('click', () => {
+  $('ownerTabStatusBtn').style.background = 'linear-gradient(135deg,#f0d369,#d4af37)';
+  $('ownerTabStatusBtn').style.color = 'var(--navy)';
+  $('ownerTabChatsBtn').style.background = '#143a5f';
+  $('ownerTabChatsBtn').style.color = '#fff';
+  loadOwnerStatuses();
+});
+
+$('ownerTabChatsBtn').addEventListener('click', () => {
+  $('ownerTabChatsBtn').style.background = 'linear-gradient(135deg,#f0d369,#d4af37)';
+  $('ownerTabChatsBtn').style.color = 'var(--navy)';
+  $('ownerTabStatusBtn').style.background = '#143a5f';
+  $('ownerTabStatusBtn').style.color = '#fff';
+  loadOwnerReports();
+});
+
+function loadOwnerStatuses() {
+  const area = $('ownerContentArea');
+  const posts = window._cachedPosts || [];
+  if (!posts.length) {
+    area.innerHTML = '<div class="empty"><p>No user statuses found.</p></div>';
+    return;
+  }
+  area.innerHTML = posts.map(p => `
+    <div style="background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:12px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:6px;">
+        <span>User: @${esc(p.authorSlug)} (${esc(p.authorName)})</span>
+        <span style="color:var(--muted);">${new Date(p.time).toLocaleString()}</span>
+      </div>
+      <div style="font-size:14px;margin-bottom:6px;">${esc(p.text || '[Media/Link Status]')}</div>
+      ${p.mediaUrl ? `<img src="${p.mediaUrl}" style="max-width:100%;max-height:150px;border-radius:6px;margin-bottom:6px;display:block;">` : ''}
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
+        <button class="btn-primary" style="max-width:none;padding:6px 12px;font-size:12px;background:#ff4757;color:#fff;" onclick="window.__ownerReportStatus('${p._k}', '@${esc(p.authorSlug)}')">🚩 Upload Violation Report (Nudes/Violence)</button>
+        <button class="btn-primary" style="max-width:none;padding:6px 12px;font-size:12px;background:#333;color:#fff;" onclick="window.__ownerDeleteStatus('${p._k}')">🗑️ Remove</button>
+      </div>
+    </div>`).join('');
+}
+
+window.__ownerDeleteStatus = async (key) => {
+  if (confirm('Owner Action: Remove this status?')) {
+    await remove(dbRef(db, 'user_statuses/' + key));
+    toast('Status removed by owner');
+    loadOwnerStatuses();
+  }
+};
+
+window.__ownerReportStatus = async (key, userTag) => {
+  const reason = prompt('Specify violation reason (e.g. Nudes / Violence / Harassment):', 'Nudes or Violence violation');
+  if (!reason) return;
+  await push(dbRef(db, 'owner_reports'), {
+    type: 'Status Violation', targetUser: userTag, reason, time: Date.now(), reporter: App.mySlug
+  });
+  toast('Violation report uploaded to Owner Space ✓');
+};
+
+function loadOwnerReports() {
+  const area = $('ownerContentArea');
+  onValue(dbRef(db, 'owner_reports'), snap => {
+    const data = snap.val() || {};
+    const reports = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => b.time - a.time);
+    if (!reports.length) {
+      area.innerHTML = '<div class="empty"><p>No violation reports uploaded yet.</p></div>';
+      return;
+    }
+    area.innerHTML = `
+      <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:6px;">Active Owner Reports (Confidential)</div>
+      ` + reports.map(r => `
+      <div style="background:#fff0f0;border:1px solid #ffccd2;border-radius:10px;padding:12px;">
+        <div style="font-weight:700;color:#d32f2f;margin-bottom:4px;">${esc(r.type)} — Target: ${esc(r.targetUser)}</div>
+        <div style="font-size:13px;margin-bottom:4px;">Reason: <strong>${esc(r.reason)}</strong></div>
+        <div style="font-size:11px;color:var(--muted);">${new Date(r.time).toLocaleString()}</div>
+      </div>`).join('');
+  }, { onlyOnce: true });
 }
 
 $('profileAvatar').addEventListener('click', () => $('avatarInput').click());
