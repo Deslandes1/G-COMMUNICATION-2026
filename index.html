@@ -9,7 +9,6 @@
 <title>JARVIS</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNjYiIGZpbGw9IiNkNGFlMzciLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5MiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzBiMmE0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RzwvdGV4dD48L3N2Zz4=">
 <link rel="manifest" href="manifest.json">
-<script src="https://js.puter.com/v2/"></script>
 <style>
 :root{--navy:#0b2a4a;--navy-light:#143a5f;--accent:#0d7a8c;--gold:#d4af37;--green:#4aff7a;--red:#ff4757;--bg:#f2f5f8;--card:#fff;--text:#1e2a33;--muted:#6b7a87;--border:#e1e7ed}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -738,23 +737,28 @@ $('permBtn').addEventListener('click', async () => {
   else toast('Notification permission: ' + result);
 });
 $('storageCheckBtn').addEventListener('click', async () => {
-  /* Quick Puter diagnostic first */
-  if (typeof puter !== 'undefined' && puter.fs) {
-    try {
-      const testBlob = new Blob(['test-' + Date.now()], { type: 'text/plain' });
-      const testFile = new File([testBlob], 'test.txt', { type: 'text/plain' });
-      const item = await puter.fs.upload([testFile], { directory: 'jarvis-attachments/_test' });
-      const checkItem = Array.isArray(item) ? item[0] : item;
-      const url = await puter.fs.getReadURL(checkItem.path);
-      alert('✅ Puter works!\n\nTest URL: ' + url + '\n\nFile uploads will use Puter by default.');
-      toast('Puter OK ✓');
-      return;
-    } catch (putErr) {
-      console.warn('Puter test failed:', putErr);
-      toast('Puter failed — testing Firebase fallback…', true);
-    }
-  } else {
-    toast('Puter SDK not loaded — testing Firebase…', true);
+  /* Quick Litterbox diagnostic first */
+  toast('Testing Litterbox upload…');
+  try {
+    const testBlob = new Blob(['test-' + Date.now()], { type: 'text/plain' });
+    const testFile = new File([testBlob], 'test.txt', { type: 'text/plain' });
+    const fd = new FormData();
+    fd.append('reqtype', 'fileupload');
+    fd.append('time', '1h'); // short expiry for the test
+    fd.append('fileToUpload', testFile);
+    const res = await fetch('https://litterbox.catbox.moe/resources/internals/api.php', {
+      method: 'POST',
+      body: fd
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const url = (await res.text()).trim();
+    if (!url || !url.startsWith('http')) throw new Error('Litterbox returned invalid URL');
+    alert('✅ Litterbox works!\n\nTest URL: ' + url + '\n\nFile uploads will use Litterbox by default.');
+    toast('Litterbox OK ✓');
+    return;
+  } catch (litterErr) {
+    console.warn('Litterbox test failed:', litterErr);
+    toast('Litterbox failed — testing Firebase fallback…', true);
   }
 
   /* Firebase Storage test */
@@ -788,7 +792,7 @@ $('storageCheckBtn').addEventListener('click', async () => {
   } else if (/retry-limit|network/i.test(code)) {
     hint = 'Network or CORS issue.\n\nRun in Cloud Shell:\ngsutil cors set cors.json gs://jarvis-tracker-a8136.firebasestorage.app';
   }
-  alert('❌ Both upload methods failed!\n\nPuter: ' + (typeof puter === 'undefined' ? 'SDK not loaded' : 'failed') + '\nFirebase: ' + code + ' — ' + msg + '\n\n' + hint);
+  alert('❌ Both upload methods failed!\n\nLitterbox: failed\nFirebase: ' + code + ' — ' + msg + '\n\n' + hint);
   toast('All storage failed', true);
 });
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
@@ -1255,58 +1259,55 @@ function compressImg(file, maxDim, q) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   UPLOAD — Puter.js first, Firebase Storage as fallback
+   UPLOAD — Litterbox first (free, no signup), Firebase fallback
    ═══════════════════════════════════════════════════════════ */
 async function doUpload(file, recipient, type, displayName) {
   const bar = $('uploadBar'), fill = $('uploadBarFill');
   bar.classList.add('show'); fill.style.width = '0%';
 
-  /* ── 1) Try Puter.js ──────────────────────────────────────── */
-  if (typeof puter !== 'undefined' && puter.fs && typeof puter.fs.upload === 'function') {
-    try {
-      fill.style.width = '15%';
+  /* ── 1) Try Litterbox (free, no auth, no billing) ─────────── */
+  try {
+    fill.style.width = '15%';
 
-      // Ensure the file has a name (Puter needs it for storage)
-      let uploadFile = file;
-      if (!uploadFile.name || uploadFile.name === 'blob') {
-        const ext = (displayName && displayName.match(/\.[^.]+$/)?.[0]) || '';
-        uploadFile = new File([file], (displayName || 'upload') + ext, { type: file.type || 'application/octet-stream' });
-      }
+    // Litterbox accepts files up to 1 GB. We cap at 50 MB (MAX_BYTES) upstream.
+    const fd = new FormData();
+    fd.append('reqtype', 'fileupload');
+    fd.append('time', '72h'); // 72 hours expiry — good for chat history
+    fd.append('fileToUpload', file);
 
-      // Upload — returns an FSItem (or array if multiple, but we pass one)
-      const uploaded = await puter.fs.upload([uploadFile], { directory: 'jarvis-attachments' });
-      fill.style.width = '70%';
+    const res = await fetch('https://litterbox.catbox.moe/resources/internals/api.php', {
+      method: 'POST',
+      body: fd
+    });
 
-      const item = Array.isArray(uploaded) ? uploaded[0] : uploaded;
-      if (!item || !item.path) throw new Error('Puter upload returned no path');
+    if (!res.ok) throw new Error(`Litterbox HTTP ${res.status}`);
 
-      // Get a shareable read URL (default 1 hour expiry)
-      const url = await puter.fs.getReadURL(item.path);
-      if (!url) throw new Error('Puter returned no read URL');
+    const url = (await res.text()).trim();
+    if (!url || !url.startsWith('http')) throw new Error('Litterbox did not return a valid URL');
 
-      fill.style.width = '100%';
-      const cid = chatIdFor(App.mySlug, recipient);
-      const attObj = {
-        type,
-        name: displayName || uploadFile.name || 'file',
-        size: file.size,
-        mime: file.type || 'application/octet-stream',
-        url,
-        storagePath: item.path,
-        provider: 'puter'
-      };
-      await push(dbRef(db, 'chats/' + cid + '/messages'), {
-        from: App.mySlug, to: recipient, text: '', time: Date.now(), attachment: attObj
-      });
-      setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 700);
-      toast('Sent ✓');
-      playSentSound();
-      return;
-    } catch (err) {
-      console.warn('Puter upload failed, falling back to Firebase:', err);
-      fill.style.width = '0%';
-      // fall through
-    }
+    fill.style.width = '100%';
+    const cid = chatIdFor(App.mySlug, recipient);
+    const attObj = {
+      type,
+      name: displayName || file.name || 'file',
+      size: file.size,
+      mime: file.type || 'application/octet-stream',
+      url,
+      storagePath: 'litterbox',
+      provider: 'litterbox'
+    };
+    await push(dbRef(db, 'chats/' + cid + '/messages'), {
+      from: App.mySlug, to: recipient, text: '', time: Date.now(), attachment: attObj
+    });
+    setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 700);
+    toast('Sent ✓');
+    playSentSound();
+    return;
+
+  } catch (err) {
+    console.warn('Litterbox upload failed, falling back to Firebase:', err);
+    fill.style.width = '0%';
+    // fall through to Firebase
   }
 
   /* ── 2) Fallback: Firebase Storage ───────────────────────── */
