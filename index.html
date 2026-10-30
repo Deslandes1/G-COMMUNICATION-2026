@@ -595,12 +595,13 @@ window.addEventListener('load', () => {
   const savedPhoto = LS.get('avatar', null);
   if (savedPhoto) App.myPhoto = savedPhoto;
   
-  if (savedSlug && savedName) { 
-    nameInput.value = savedName;
-    App.mySlug = savedSlug; 
-    App.myName = savedName; 
-    setTimeout(() => startMainApp(), 100);
+  // Pre-fill the username input with last used account so you can easily change or log in
+  if (savedName || savedSlug) { 
+    nameInput.value = savedName || savedSlug;
   }
+  
+  // Keep screen on the onboard screen so users can choose or switch account handles
+  showScreen('screen-onboard');
 });
 
 function startMainApp() {
