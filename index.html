@@ -93,7 +93,9 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .msg{max-width:78%;padding:9px 13px;border-radius:16px;font-size:14.5px;line-height:1.4;margin-bottom:8px;word-wrap:break-word}
 .msg.out{background:linear-gradient(135deg,#d4fbc9 0%,#bef5b1 100%);margin-left:auto;border-bottom-right-radius:4px;box-shadow:0 2px 8px rgba(74,177,80,.22),0 1px 2px rgba(74,177,80,.12)}
 .msg.in{background:#ffffff;margin-right:auto;border-bottom-left-radius:4px;box-shadow:0 2px 10px rgba(11,42,74,.10),0 1px 2px rgba(11,42,74,.06);border:1px solid rgba(11,42,74,.05)}
-.msg .time{font-size:10px;color:var(--muted);display:block;margin-top:3px;text-align:right}
+.msg .time{font-size:10px;color:var(--muted);display:block;margin-top:3px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:4px}
+.tick{font-size:11px;font-weight:700;letter-spacing:-1.5px;color:#9aa5b1}
+.tick.read{color:#0d7a8c}
 .msg.has-attachment{padding:6px;max-width:80%}
 .msg.has-attachment .msg-caption{padding:5px 8px 0}
 .msg.has-attachment .time{padding:0 8px 3px}
@@ -106,16 +108,27 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .msg .attach-file .file-info{flex:1;min-width:0}
 .msg .attach-file .file-name{font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .msg .attach-file .file-size{font-size:11px;color:var(--muted);margin-top:1px}
-.chat-input-bar{background:rgba(255,255,255,.98);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:8px;align-items:center;flex-shrink:0;position:relative}
+.chat-input-bar{background:rgba(255,255,255,.98);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:6px;align-items:center;flex-shrink:0;position:relative}
 .chat-input-bar input[type="text"]{flex:1;padding:11px 16px;border:1px solid var(--border);border-radius:22px;font-size:15px;outline:none;background:#f7f9fb;min-width:0;transition:border-color .15s}
 .chat-input-bar input[type="text"]:focus{border-color:var(--accent)}
-.attach-btn{background:transparent;border:none;font-size:22px;color:var(--accent);width:40px;height:40px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s}
-.attach-btn:active{background:#e5ecf2}
+.emoji-btn,.attach-btn,.quick-love-btn{background:transparent;border:none;font-size:22px;width:38px;height:38px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .12s;color:var(--accent)}
+.emoji-btn:active,.attach-btn:active,.quick-love-btn:active{background:#e5ecf2}
+.quick-love-btn:active{background:#ffe5e8;transform:scale(1.15)}
 .chat-input-bar .send-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:20px;cursor:pointer;flex-shrink:0;box-shadow:0 3px 10px rgba(13,122,140,.35)}
 .chat-input-bar .send-btn:disabled{opacity:.4;box-shadow:none}
 .upload-bar{position:absolute;top:-1px;left:0;right:0;height:3px;background:#e1e7ed;border-radius:2px;overflow:hidden;display:none}
 .upload-bar.show{display:block}
 .upload-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .2s}
+#emojiPalette{position:absolute;bottom:calc(100% + 8px);left:8px;right:8px;background:linear-gradient(180deg,#ffffff 0%,#fdfaf3 100%);border-radius:14px;box-shadow:0 12px 40px rgba(11,42,74,.28),0 0 0 1px rgba(11,42,74,.06);padding:12px;z-index:25;display:none;flex-direction:column;gap:8px;max-height:min(380px,50vh);overflow-y:auto}
+#emojiPalette.show{display:flex;animation:paletteIn .18s ease-out}
+@keyframes paletteIn{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
+.emoji-section-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);padding:2px 4px}
+.emoji-quick-row{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
+.emoji-quick{height:44px;font-size:26px;background:linear-gradient(180deg,#f7f9fb 0%,#eef2f6 100%);border:1px solid var(--border);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .12s,background .12s}
+.emoji-quick:active{transform:scale(.85);background:#e5ecf2}
+.emoji-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:2px;max-height:220px;overflow-y:auto;padding:2px 0}
+.emoji-item{font-size:22px;height:38px;background:transparent;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s}
+.emoji-item:active{background:#e5ecf2}
 #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;flex-direction:column}
 #lightbox.show{display:flex}
 #lightbox img{max-width:100%;max-height:85vh;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
@@ -322,8 +335,34 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
   <div id="messagesArea" class="messages"></div>
   <div class="chat-input-bar">
     <div class="upload-bar" id="uploadBar"><div class="upload-bar-fill" id="uploadBarFill"></div></div>
-    <button class="attach-btn" id="attachBtn" title="Attach photo, video, audio, or file" type="button">📎</button>
+    <div id="emojiPalette">
+      <div class="emoji-section-title">Quick reactions — tap to send</div>
+      <div class="emoji-quick-row">
+        <button class="emoji-quick" data-emoji="👍">👍</button>
+        <button class="emoji-quick" data-emoji="❤️">❤️</button>
+        <button class="emoji-quick" data-emoji="😂">😂</button>
+        <button class="emoji-quick" data-emoji="😮">😮</button>
+        <button class="emoji-quick" data-emoji="😢">😢</button>
+        <button class="emoji-quick" data-emoji="🔥">🔥</button>
+        <button class="emoji-quick" data-emoji="🎉">🎉</button>
+        <button class="emoji-quick" data-emoji="👏">👏</button>
+      </div>
+      <div class="emoji-section-title">Tap to add to your message</div>
+      <div class="emoji-grid">
+        <button class="emoji-item">😀</button><button class="emoji-item">😂</button><button class="emoji-item">🥰</button><button class="emoji-item">😍</button><button class="emoji-item">😎</button><button class="emoji-item">🤔</button><button class="emoji-item">😢</button><button class="emoji-item">😭</button>
+        <button class="emoji-item">😡</button><button class="emoji-item">😱</button><button class="emoji-item">🤯</button><button class="emoji-item">🥳</button><button class="emoji-item">😴</button><button class="emoji-item">🤗</button><button class="emoji-item">🤩</button><button class="emoji-item">😊</button>
+        <button class="emoji-item">😉</button><button class="emoji-item">😋</button><button class="emoji-item">🙃</button><button class="emoji-item">😅</button><button class="emoji-item">😇</button><button class="emoji-item">🤐</button><button class="emoji-item">🥺</button><button class="emoji-item">😏</button>
+        <button class="emoji-item">👍</button><button class="emoji-item">👎</button><button class="emoji-item">👏</button><button class="emoji-item">🙏</button><button class="emoji-item">💪</button><button class="emoji-item">🤝</button><button class="emoji-item">✌️</button><button class="emoji-item">🤞</button>
+        <button class="emoji-item">❤️</button><button class="emoji-item">🧡</button><button class="emoji-item">💛</button><button class="emoji-item">💚</button><button class="emoji-item">💙</button><button class="emoji-item">💜</button><button class="emoji-item">🖤</button><button class="emoji-item">💔</button>
+        <button class="emoji-item">🔥</button><button class="emoji-item">✨</button><button class="emoji-item">🎉</button><button class="emoji-item">🎊</button><button class="emoji-item">🎁</button><button class="emoji-item">🎈</button><button class="emoji-item">💐</button><button class="emoji-item">🌹</button>
+        <button class="emoji-item">☀️</button><button class="emoji-item">🌙</button><button class="emoji-item">⭐</button><button class="emoji-item">⚡</button><button class="emoji-item">🌈</button><button class="emoji-item">☕</button><button class="emoji-item">🍕</button><button class="emoji-item">🎮</button>
+        <button class="emoji-item">🎯</button><button class="emoji-item">🏆</button><button class="emoji-item">⚽</button><button class="emoji-item">🚀</button><button class="emoji-item">✈️</button><button class="emoji-item">💯</button><button class="emoji-item">💥</button><button class="emoji-item">🌊</button>
+      </div>
+    </div>
+    <button class="emoji-btn" id="emojiBtn" title="Emojis">😊</button>
+    <button class="attach-btn" id="attachBtn" title="Attach file">📎</button>
     <input id="chatInput" type="text" placeholder="Message…" autocomplete="off">
+    <button class="quick-love-btn" id="quickLoveBtn" title="Send love">❤️</button>
     <button class="send-btn" id="sendBtn" disabled>➤</button>
   </div>
 </section>
@@ -367,8 +406,8 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
     <p>
       <strong>1.</strong> Your name is your address — e.g. <em>gesner</em>.<br><br>
       <strong>2.</strong> Anyone types that name in "Add contact" to reach you.<br><br>
-      <strong>3.</strong> Chat, send photos / videos / audio / files (up to 50 MB), or leave a voice note.<br><br>
-      <strong>4.</strong> Voice calls work best when both people are online at the same time.<br><br>
+      <strong>3.</strong> Chat, send emojis, photos, videos, audio, files, or a voice note.<br><br>
+      <strong>4.</strong> ✓ means sent, ✓✓ means read. Tap 😊 for emojis or ❤️ to send love.<br><br>
       <strong>5.</strong> If file upload fails, open <strong>Profile → Check file storage</strong>.
     </p>
     <div class="modal-actions"><button class="confirm" id="helpClose">Got it</button></div>
@@ -478,21 +517,45 @@ function unlockAudio() { const ctx = getAudioCtx(); if (ctx && ctx.state === 'su
 document.addEventListener('click', unlockAudio);
 document.addEventListener('touchstart', unlockAudio, { passive: true });
 document.addEventListener('keydown', unlockAudio);
+
+/* ═══════════ SOUND EFFECTS ═══════════ */
 function playMessageSound() {
   if (!App.soundEnabled) return;
   const ctx = getAudioCtx(); if (!ctx) return;
   if (ctx.state === 'suspended') ctx.resume().catch(() => {});
   const now = ctx.currentTime;
-  [880, 1320].forEach((freq, i) => {
-    const osc = ctx.createOscillator(); const gain = ctx.createGain();
-    osc.type = 'sine'; osc.frequency.value = freq;
-    const start = now + i * 0.11;
+  [880, 1320, 1760].forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    const start = now + i * 0.09;
     gain.gain.setValueAtTime(0, start);
-    gain.gain.linearRampToValueAtTime(0.18, start + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.35);
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(start); osc.stop(start + 0.4);
+    gain.gain.linearRampToValueAtTime(0.22, start + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.4);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(start);
+    osc.stop(start + 0.42);
   });
+}
+function playSentSound() {
+  if (!App.soundEnabled) return;
+  const ctx = getAudioCtx(); if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(900, now);
+  osc.frequency.exponentialRampToValueAtTime(600, now + 0.08);
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(0.05, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.12);
 }
 function playCallRingPattern() {
   if (!App.soundEnabled) return;
@@ -888,24 +951,35 @@ function setupGlobalMessageListener(slug) {
       const prev = App.lastMsgTime[slug];
       const isNew = last && (last.time || 0) > (prev || 0) && last.from !== App.mySlug;
       if (last) App.lastMsgTime[slug] = last.time || Date.now();
-      if (isNew && (App.activeChat !== slug || document.hidden)) {
+      if (isNew) {
+        playMessageSound();
         const cname = App.contacts.find(x => x.slug === slug)?.name || slug;
         const preview = previewText(last);
-        playMessageSound();
-        if (App.vibrationEnabled && navigator.vibrate) navigator.vibrate([80, 40, 80]);
-        toast(`💬 ${cname}: ${preview.substring(0, 40)}`);
-        showBrowserNotification(`💬 ${cname}`, preview.substring(0, 120), `msg-${slug}`);
-        if (document.hidden) {
-          const total = Object.values(App.unread).reduce((s, n) => s + (n || 0), 0) + 1;
-          startTitleFlash(`(${total})`);
+        if (App.activeChat !== slug || document.hidden) {
+          if (App.vibrationEnabled && navigator.vibrate) navigator.vibrate([80, 40, 80]);
+          toast(`💬 ${cname}: ${preview.substring(0, 40)}`);
+          showBrowserNotification(`💬 ${cname}`, preview.substring(0, 120), `msg-${slug}`);
+          if (document.hidden) {
+            const total = Object.values(App.unread).reduce((s, n) => s + (n || 0), 0) + 1;
+            startTitleFlash(`(${total})`);
+          }
         }
       }
     }
     App.lastMessages[slug] = msgs;
-    if (App.activeChat === slug) {
-      renderMessages(slug, msgs);
-      if (last) { App.lastRead[slug] = Math.max(App.lastRead[slug] || 0, last.time || 0); saveLastRead(); }
+    const isActiveVisible = App.activeChat === slug && !document.hidden;
+    if (isActiveVisible) {
+      App.lastRead[slug] = Date.now();
+      saveLastRead();
       App.unread[slug] = 0;
+      for (const m of msgs) {
+        if (m.from !== App.mySlug && !m.readAt) {
+          set(dbRef(db, 'chats/' + cid + '/messages/' + m._k + '/readAt'), Date.now()).catch(() => {});
+        }
+      }
+      renderMessages(slug, msgs);
+    } else if (App.activeChat === slug) {
+      renderMessages(slug, msgs);
     } else {
       const lr = App.lastRead[slug] || 0;
       App.unread[slug] = msgs.filter(m => m.from !== App.mySlug && (m.time || 0) > lr).length;
@@ -941,7 +1015,8 @@ function renderMessages(slug, msgs) {
     const aHtml = hasA ? renderAttachment(m) : '';
     const cHtml = (hasA && m.text) ? `<div class="msg-caption">${esc(m.text)}</div>` : '';
     const tHtml = (!hasA && m.text) ? esc(m.text) : '';
-    return `<div class="${cls}">${aHtml}${cHtml}${tHtml}<span class="time">${t}</span></div>`;
+    const tick = out ? `<span class="tick${m.readAt ? ' read' : ''}">${m.readAt ? '✓✓' : '✓'}</span>` : '';
+    return `<div class="${cls}">${aHtml}${cHtml}${tHtml}<span class="time">${t}${tick}</span></div>`;
   }).join('');
   area.scrollTop = area.scrollHeight;
 }
@@ -984,26 +1059,93 @@ document.querySelectorAll('.nav-item').forEach(btn => {
   });
 });
 function updateChatHeader(c) { $('chatName').textContent = c.name; $('chatAvatar').innerHTML = avatarInner(c.photo, c.name); }
-function openChat(slug) {
+async function openChat(slug) {
   const c = App.contacts.find(x => x.slug === slug); if (!c) return;
   App.activeChat = slug;
   updateChatHeader(c); $('sendBtn').disabled = false;
   App.lastRead[slug] = Date.now(); saveLastRead(); App.unread[slug] = 0; updateUnreadBadges();
+  $('emojiPalette').classList.remove('show');
   showScreen('screen-chat');
-  if (App.lastMessages[slug]) renderMessages(slug, App.lastMessages[slug]);
+  const msgs = App.lastMessages[slug] || [];
+  if (msgs.length) renderMessages(slug, msgs);
   else $('messagesArea').innerHTML = '<div class="empty"><p style="font-size:13px;">Say hello 👋</p></div>';
+  const cid = chatIdFor(App.mySlug, slug);
+  for (const m of msgs) {
+    if (m.from !== App.mySlug && !m.readAt) {
+      try { await set(dbRef(db, 'chats/' + cid + '/messages/' + m._k + '/readAt'), Date.now()); } catch {}
+    }
+  }
 }
 async function sendMessage() {
   const input = $('chatInput'); const text = input.value.trim();
   if (!text || !App.activeChat) return;
   const cid = chatIdFor(App.mySlug, App.activeChat);
-  try { await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: App.activeChat, text, time: Date.now() }); input.value = ''; }
-  catch { toast('Send failed'); }
+  try {
+    await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: App.activeChat, text, time: Date.now() });
+    input.value = '';
+    playSentSound();
+  } catch { toast('Send failed'); }
 }
 $('sendBtn').addEventListener('click', sendMessage);
 $('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
-$('chatBackBtn').addEventListener('click', () => { App.activeChat = null; showScreen('screen-main'); updateUnreadBadges(); });
+$('chatBackBtn').addEventListener('click', () => { App.activeChat = null; $('emojiPalette').classList.remove('show'); showScreen('screen-main'); updateUnreadBadges(); });
 $('callFromChatBtn').addEventListener('click', () => { if (App.activeChat) startCall(App.activeChat); });
+
+/* ═══════════ EMOJI PICKER ═══════════ */
+$('emojiBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  if (!App.activeChat) return;
+  $('emojiPalette').classList.toggle('show');
+});
+document.querySelectorAll('.emoji-quick').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    if (!App.activeChat) return;
+    const emoji = btn.dataset.emoji;
+    const cid = chatIdFor(App.mySlug, App.activeChat);
+    try {
+      await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: App.activeChat, text: emoji, time: Date.now() });
+      playSentSound();
+      $('emojiPalette').classList.remove('show');
+    } catch { toast('Send failed'); }
+  });
+});
+document.querySelectorAll('.emoji-item').forEach(btn => {
+  btn.addEventListener('mousedown', e => e.preventDefault());
+  btn.addEventListener('click', () => {
+    const inp = $('chatInput');
+    const start = inp.selectionStart ?? inp.value.length;
+    const end = inp.selectionEnd ?? inp.value.length;
+    const emoji = btn.textContent;
+    inp.value = inp.value.slice(0, start) + emoji + inp.value.slice(end);
+    const newPos = start + emoji.length;
+    inp.setSelectionRange(newPos, newPos);
+    if (document.activeElement !== inp) inp.focus();
+    if (inp.value.trim()) $('sendBtn').disabled = false;
+  });
+});
+document.addEventListener('click', (e) => {
+  const pal = $('emojiPalette');
+  if (!pal.classList.contains('show')) return;
+  if (pal.contains(e.target)) return;
+  if (e.target.closest('#emojiBtn')) return;
+  pal.classList.remove('show');
+});
+$('chatInput').addEventListener('input', () => {
+  $('sendBtn').disabled = !$('chatInput').value.trim();
+});
+$('quickLoveBtn').addEventListener('click', async () => {
+  if (!App.activeChat) return;
+  const cid = chatIdFor(App.mySlug, App.activeChat);
+  try {
+    await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: App.activeChat, text: '❤️', time: Date.now() });
+    playSentSound();
+    const btn = $('quickLoveBtn');
+    btn.style.transform = 'scale(1.4)';
+    setTimeout(() => btn.style.transform = '', 200);
+  } catch { toast('Send failed'); }
+});
+
+/* ═══════════ ATTACHMENTS ═══════════ */
 const MAX_BYTES = 50 * 1024 * 1024;
 $('attachBtn').addEventListener('click', (e) => {
   e.preventDefault();
@@ -1087,6 +1229,7 @@ function doUpload(file, recipient, type, displayName) {
           await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: recipient, text: '', time: Date.now(), attachment: attObj });
           setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 700);
           toast('Sent ✓');
+          playSentSound();
           resolve();
         } catch (e) { bar.classList.remove('show'); reject(e); }
       }
@@ -1123,41 +1266,19 @@ recordBtn.addEventListener('click', async () => {
     }, 30000);
   } catch { toast('Microphone denied', true); }
 });
-
-/* ═══════════ VOICEMAIL — now appears in chat thread too ═══════════ */
 function sendVoicemail(blob, recipient) {
   if (blob.size > 700000) return toast('Too large — keep it under 30 seconds', true);
   const r = new FileReader();
   r.onload = async () => {
     try {
-      // 1. Save to the recipient's voicemail inbox (Voicemail tab)
       await push(dbRef(db, 'voicemails/' + recipient), {
-        from: App.mySlug,
-        fromName: App.myName,
-        data: r.result,
-        mime: blob.type || 'audio/webm',
-        time: Date.now()
+        from: App.mySlug, fromName: App.myName, data: r.result, mime: blob.type || 'audio/webm', time: Date.now()
       });
-
-      // 2. ALSO push as an audio message in the chat thread
       const cid = chatIdFor(App.mySlug, recipient);
-      const attObj = {
-        type: 'audio',
-        name: '🎤 Voice message',
-        size: blob.size,
-        mime: blob.type || 'audio/webm',
-        url: r.result,
-        storagePath: 'inline-voicemail'
-      };
-      await push(dbRef(db, 'chats/' + cid + '/messages'), {
-        from: App.mySlug,
-        to: recipient,
-        text: '',
-        time: Date.now(),
-        attachment: attObj
-      });
-
+      const attObj = { type: 'audio', name: '🎤 Voice message', size: blob.size, mime: blob.type || 'audio/webm', url: r.result, storagePath: 'inline-voicemail' };
+      await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: recipient, text: '', time: Date.now(), attachment: attObj });
       toast('Voicemail sent ✓');
+      playSentSound();
     } catch (e) {
       console.error('Voicemail failed:', e);
       toast('Failed to send voicemail', true);
@@ -1165,7 +1286,6 @@ function sendVoicemail(blob, recipient) {
   };
   r.readAsDataURL(blob);
 }
-
 function listenVoicemails() {
   if (!App.mySlug) return;
   if (App.vmUnsub) { try { App.vmUnsub(); } catch {} }
