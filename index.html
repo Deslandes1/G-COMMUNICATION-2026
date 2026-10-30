@@ -281,7 +281,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 
 <div class="action-sheet" id="actionSheet">
   <div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Message Options</div>
-  <button class="action-btn" id="actEditBtn">✏️ Edit Message</button>
+  <button class="action-btn" id="actEditBtn">✏️ Edit Message / Media</button>
   <button class="action-btn danger" id="actDeleteForMeBtn">🗑️ Delete for Me</button>
   <button class="action-btn danger" id="actDeleteEveryoneBtn">💥 Delete for Everyone</button>
   <button class="action-btn" id="actCancelBtn" style="background:#e1e7ed;text-align:center;justify-content:center;">Cancel</button>
@@ -354,11 +354,27 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 
 <div class="modal-overlay" id="editMsgModal">
   <div class="modal">
-    <h3>Edit Message</h3>
-    <input id="editMsgInput" type="text" autocomplete="off">
+    <h3>Edit Message / Media</h3>
+    <input id="editMsgInput" type="text" placeholder="Edit caption or text..." autocomplete="off" style="margin-bottom:10px;">
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;display:block;margin-bottom:4px">Replace Attached Media (Optional):</label>
+      <input type="file" id="editMediaInput" accept="image/*,video/*,audio/*">
+    </div>
     <div class="modal-actions">
       <button class="cancel" id="editMsgCancel">Cancel</button>
       <button class="confirm" id="editMsgConfirm">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="statusCommentsModal">
+  <div class="modal" style="max-width:400px;">
+    <h3>Status Comments (Direct to Owner)</h3>
+    <div id="statusCommentsList" style="max-height:220px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:8px;"></div>
+    <input id="statusCommentInput" type="text" placeholder="Write comment to owner's DM..." autocomplete="off">
+    <div class="modal-actions">
+      <button class="cancel" id="statusCommentCancel">Close</button>
+      <button class="confirm" id="statusCommentSend">Send DM</button>
     </div>
   </div>
 </div>
@@ -398,8 +414,8 @@ const App = {
   mySlug: null, myName: '', myPhoto: null,
   contacts: [], groups: [], activeChat: null, activeIsGroup: false,
   lastMessages: {}, globalUnsubs: {}, deletedLocally: {},
-  statusMediaFile: null, selectedMsgKey: null, selectedMsgObj: null,
-  audioCtx: null
+  statusMediaFile: null, editMediaFile: null, selectedMsgKey: null, selectedMsgObj: null,
+  activeStatusObj: null, audioCtx: null
 };
 
 const $ = id => document.getElementById(id);
@@ -621,7 +637,7 @@ function renderMessages(id, msgs, isGroup) {
     const senderTag = (isGroup && !out) ? `<span class="sender-tag">@${esc(m.fromName || m.from)}</span>` : '';
     const editedTag = m.edited ? `<span class="edited-tag">(edited)</span>` : '';
 
-    return `<div class="msg ${out ? 'out' : 'in'}" onclick="window.__openActionSheet('${m._k}', ${out}, '${esc(m.text || '')}')">
+    return `<div class="msg ${out ? 'out' : 'in'}" onclick="window.__openActionSheet('${m._k}', ${out})">
       ${senderTag}
       ${attHtml}
       ${m.text ? `<div>${esc(m.text)}${editedTag}</div>` : ''}
@@ -631,10 +647,10 @@ function renderMessages(id, msgs, isGroup) {
   area.scrollTop = area.scrollHeight;
 }
 
-window.__openActionSheet = (msgKey, isMine, text) => {
+window.__openActionSheet = (msgKey, isMine) => {
   App.selectedMsgKey = msgKey;
   App.selectedMsgObj = (App.lastMessages[App.activeChat] || []).find(m => m._k === msgKey);
-  $('actEditBtn').style.display = (isMine && text) ? 'flex' : 'none';
+  $('actEditBtn').style.display = isMine ? 'flex' : 'none';
   $('actDeleteEveryoneBtn').style.display = isMine ? 'flex' : 'none';
   $('actionSheet').classList.add('show');
 };
@@ -648,6 +664,7 @@ $('actDeleteForMeBtn').addEventListener('click', () => {
   saveDeletedLocally();
   renderMessages(App.activeChat, App.lastMessages[App.activeChat] || [], App.activeIsGroup);
   $('actionSheet').classList.remove('show');
+  toast('Deleted for you');
 });
 
 $('actDeleteEveryoneBtn').addEventListener('click', async () => {
@@ -655,22 +672,35 @@ $('actDeleteEveryoneBtn').addEventListener('click', async () => {
   const path = App.activeIsGroup ? `group_chats/${App.activeChat}/messages/${App.selectedMsgKey}` : `chats/${chatIdFor(App.mySlug, App.activeChat)}/messages/${App.selectedMsgKey}`;
   await remove(dbRef(db, path));
   $('actionSheet').classList.remove('show');
+  toast('Deleted for everyone ✓');
 });
 
 $('actEditBtn').addEventListener('click', () => {
   $('actionSheet').classList.remove('show');
   if (App.selectedMsgObj) {
     $('editMsgInput').value = App.selectedMsgObj.text || '';
+    App.editMediaFile = null;
+    $('editMediaInput').value = '';
     $('editMsgModal').classList.add('show');
   }
 });
 $('editMsgCancel').addEventListener('click', () => $('editMsgModal').classList.remove('show'));
+$('editMediaInput').addEventListener('change', e => {
+  if (e.target.files && e.target.files[0]) App.editMediaFile = e.target.files[0];
+});
 $('editMsgConfirm').addEventListener('click', async () => {
   const newText = $('editMsgInput').value.trim();
-  if (App.selectedMsgKey && newText) {
+  if (App.selectedMsgKey) {
     const path = App.activeIsGroup ? `group_chats/${App.activeChat}/messages/${App.selectedMsgKey}` : `chats/${chatIdFor(App.mySlug, App.activeChat)}/messages/${App.selectedMsgKey}`;
+    let updates = { text: newText, edited: true };
+    if (App.editMediaFile) {
+      const url = await fileToBase64(App.editMediaFile);
+      const type = detectFileType(App.editMediaFile);
+      updates.attachment = { type, url, name: App.editMediaFile.name, size: App.editMediaFile.size };
+    }
     await set(dbRef(db, path + '/text'), newText);
     await set(dbRef(db, path + '/edited'), true);
+    if (updates.attachment) await set(dbRef(db, path + '/attachment'), updates.attachment);
     $('editMsgModal').classList.remove('show');
     toast('Message updated ✓');
   }
@@ -793,17 +823,74 @@ function listenUserStatuses() {
       const mediaHtml = p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" class="status-media">` : `<video src="${p.mediaUrl}" controls class="status-media"></video>`) : '';
       const linkHtml = p.link ? `<a href="${p.link}" target="_blank" rel="noopener" class="status-link">🔗 ${esc(p.link)}</a>` : '';
       const textHtml = p.text ? `<div class="status-content-box" style="background:${p.bgColor || '#0d7a8c'}">${esc(p.text)}</div>` : '';
-      return `<div class="status-card">
+      const commentCount = p.comments ? Object.keys(p.comments).length : 0;
+      return `<div class="status-card" data-key="${p._k}">
         <div class="status-card-header">
           <div class="avatar" style="width:36px;height:36px;font-size:14px">${avatarInner(p.authorPhoto, p.authorName)}</div>
           <div style="flex:1"><div style="font-weight:700">${esc(p.authorName)}</div><small style="color:var(--muted)">${new Date(p.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small></div>
           ${isMine ? `<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px" onclick="window.__delStatus('${p._k}')">🗑</button>` : ''}
         </div>
         ${textHtml}${mediaHtml}${linkHtml}
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;border-top:1px solid #f0f0f0;padding-top:8px;">
+          <button style="background:#eef2f6;border:none;padding:6px 12px;border-radius:14px;font-size:12px;font-weight:600;cursor:pointer;" onclick="window.__openStatusComments('${p._k}')">💬 Comments (${commentCount})</button>
+        </div>
       </div>`;
     }).join('');
+    window._cachedPosts = posts;
   });
 }
+
+window.__openStatusComments = (statusKey) => {
+  const posts = window._cachedPosts || [];
+  const post = posts.find(p => p._k === statusKey);
+  if (!post) return;
+  App.activeStatusObj = post;
+  $('statusCommentInput').value = '';
+  renderStatusCommentsLocal();
+  $('statusCommentsModal').classList.add('show');
+};
+
+function renderStatusCommentsLocal() {
+  if (!App.activeStatusObj) return;
+  const data = App.activeStatusObj.comments || {};
+  const comments = Object.values(data).sort((a, b) => a.time - b.time);
+  const list = $('statusCommentsList');
+  if (!comments.length) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:10px;">No comments yet.</div>';
+    return;
+  }
+  list.innerHTML = comments.map(c => `
+    <div style="background:#f7f9fb;padding:8px 12px;border-radius:8px;font-size:13px;">
+      <strong style="color:var(--accent);">@${esc(c.author)}:</strong> ${esc(c.text)}
+    </div>`).join('');
+}
+
+$('statusCommentCancel').addEventListener('click', () => $('statusCommentsModal').classList.remove('show'));
+$('statusCommentSend').addEventListener('click', async () => {
+  const text = $('statusCommentInput').value.trim();
+  if (!text || !App.activeStatusObj) return;
+  const statusKey = App.activeStatusObj._k;
+  const ownerSlug = App.activeStatusObj.authorSlug;
+
+  // 1. Post comment on the status itself
+  await push(dbRef(db, `user_statuses/${statusKey}/comments`), {
+    author: App.mySlug, text, time: Date.now()
+  });
+
+  // 2. Send comment directly to owner's DM inbox as well if owner is not me
+  if (ownerSlug !== App.mySlug) {
+    const chatPath = `chats/${chatIdFor(App.mySlug, ownerSlug)}/messages`;
+    await push(dbRef(db, chatPath), {
+      from: App.mySlug, fromName: App.myName,
+      text: `💬 Comment on your status: "${text}"`,
+      time: Date.now()
+    });
+  }
+
+  $('statusCommentInput').value = '';
+  $('statusCommentsModal').classList.remove('show');
+  toast('Comment sent to owner ✓');
+});
 
 window.__delStatus = async (key) => {
   if (confirm('Delete status?')) { await remove(dbRef(db, 'user_statuses/' + key)); toast('Deleted'); }
