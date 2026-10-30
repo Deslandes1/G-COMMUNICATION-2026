@@ -66,13 +66,14 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .fab{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(13,122,140,.4)}
 .fab.gold{background:linear-gradient(135deg,#f0d369 0%,#d4af37 100%);color:var(--navy)}
 
-.chat-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px;min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0;z-index:5}
+.chat-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px;min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0;z-index:5}
 .chat-header .back-btn{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:0 4px}
 .chat-header .chat-avatar{width:36px;height:36px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0;overflow:hidden}
 .chat-header .chat-avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .chat-header .chat-title{flex:1;min-width:0}
 .chat-header .chat-title h3{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chat-header .chat-title small{font-size:11px;color:var(--green);display:block}
+.chat-header .header-call-btn{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:4px 6px;border-radius:50%;background:rgba(255,255,255,.1)}
 
 .messages{flex:1;overflow-y:auto;padding:16px 14px;position:relative;background:#fdf6ec;scroll-behavior:smooth}
 .messages::-webkit-scrollbar{display:none}
@@ -125,15 +126,23 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 #lightbox .close-lb{position:absolute;top:20px;right:20px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;border:none;font-size:22px;cursor:pointer}
 #lightbox .dl-lb{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:20px;background:var(--gold);color:var(--navy);font-weight:700;text-decoration:none}
 
-#screen-call{background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;justify-content:center;align-items:center;padding:40px 24px;text-align:center;position:relative}
-.call-avatar{width:110px;height:110px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:800;margin-bottom:20px;overflow:hidden}
-.call-actions{display:flex;gap:28px}
-.call-btn{width:64px;height:64px;border-radius:50%;border:none;font-size:26px;cursor:pointer}
+/* Video & Voice Call Screen */
+#screen-call{background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;justify-content:center;align-items:center;padding:20px;text-align:center;position:relative;z-index:150}
+.call-video-container{position:absolute;inset:0;width:100%;height:100%;background:#000;display:none;z-index:1}
+.call-video-container.active{display:block}
+#remoteVideo{width:100%;height:100%;object-fit:cover;display:block}
+#localVideo{position:absolute;top:20px;right:20px;width:100px;height:140px;object-fit:cover;border-radius:12px;border:2px solid var(--gold);z-index:2;background:#222;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+
+.call-overlay-ui{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%;width:100%;padding:40px 20px}
+.call-avatar{width:110px;height:110px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:800;margin-bottom:20px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.call-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.call-actions{display:flex;gap:20px;margin-top:auto;z-index:4}
+.call-btn{width:60px;height:60px;border-radius:50%;border:none;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.3)}
 .call-btn.end{background:#ff4757;color:#fff}
 .call-btn.accept{background:#4aff7a;color:#0b2a4a}
 .call-btn.mute{background:rgba(255,255,255,.2);color:#fff}
 
-#incoming-call{position:fixed;inset:0;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:150;padding:40px 24px;text-align:center}
+#incoming-call{position:fixed;inset:0;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;padding:40px 24px;text-align:center}
 #incoming-call.show{display:flex}
 
 .profile-card{background:#fff;margin:16px;border-radius:14px;padding:24px 20px;text-align:center;border:1px solid var(--border)}
@@ -199,7 +208,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
     <div id="statusFeedList" class="status-feed"></div>
   </div>
   <div id="tabCalls" class="tab-content" style="display:none;">
-    <div class="section-title">Start a Call</div>
+    <div class="section-title">Peer-to-Peer Calling</div>
     <div id="callContactsList"></div>
   </div>
   <div id="tabVoicemail" class="tab-content" style="display:none;">
@@ -252,7 +261,8 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
       <h3 id="chatName">—</h3>
       <small id="chatStatus">online</small>
     </div>
-    <button class="back-btn" id="callFromChatBtn">📞</button>
+    <button class="header-call-btn" id="voiceCallFromChatBtn" title="Voice Call">📞</button>
+    <button class="header-call-btn" id="videoCallFromChatBtn" title="Video Call">📹</button>
   </header>
   <div id="messagesArea" class="messages"></div>
 
@@ -292,19 +302,29 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 </div>
 
 <section id="screen-call" class="screen">
-  <div class="call-avatar" id="callAvatar">G</div>
-  <div style="font-size:22px;font-weight:700;margin-bottom:6px" id="callName">—</div>
-  <div style="font-size:14px;opacity:.8;margin-bottom:40px" id="callStatus">Calling…</div>
-  <div class="call-actions">
-    <button class="call-btn mute" id="muteBtn">🎤</button>
-    <button class="call-btn end" id="endCallBtn">📵</button>
+  <div class="call-video-container" id="videoContainer">
+    <video id="remoteVideo" autoplay playsinline></video>
+    <video id="localVideo" autoplay playsinline muted></video>
+  </div>
+  
+  <div class="call-overlay-ui">
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <div class="call-avatar" id="callAvatar">G</div>
+      <div style="font-size:22px;font-weight:700;margin-bottom:6px" id="callName">—</div>
+      <div style="font-size:14px;opacity:.8" id="callStatus">Calling…</div>
+    </div>
+    
+    <div class="call-actions">
+      <button class="call-btn mute" id="muteBtn" title="Mute Microphone">🎤</button>
+      <button class="call-btn end" id="endCallBtn" title="End Call">📵</button>
+    </div>
   </div>
 </section>
 
 <div id="incoming-call">
   <div class="call-avatar" id="incomingAvatar">G</div>
   <div style="font-size:22px;font-weight:700;margin-bottom:6px" id="incomingName">—</div>
-  <div style="font-size:14px;opacity:.8;margin-bottom:40px">Incoming Call…</div>
+  <div style="font-size:14px;opacity:.8;margin-bottom:40px" id="incomingType">Incoming Call…</div>
   <div class="call-actions">
     <button class="call-btn end" id="rejectCallBtn">📵</button>
     <button class="call-btn accept" id="acceptCallBtn">📞</button>
@@ -425,7 +445,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref as dbRef, push, onValue, remove, set, get, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref as dbRef, push, onValue, remove, set, get, query, limitToLast, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBfqTPdNq31MegFF_vh08D2K_6-2GMeIrY",
@@ -440,12 +460,22 @@ const firebaseConfig = {
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
 
+const ICE_SERVERS = {
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" }
+  ]
+};
+
 const App = {
   mySlug: null, myName: '', myPhoto: null,
   contacts: [], groups: [], activeChat: null, activeIsGroup: false,
   lastMessages: {}, globalUnsubs: {}, deletedLocally: {},
   statusMediaFile: null, editMediaFile: null, selectedMsgKey: null, selectedMsgObj: null,
-  activeStatusObj: null, audioCtx: null
+  activeStatusObj: null, audioCtx: null,
+  
+  // Call state
+  peerConn: null, localStream: null, activeCallId: null, isVideoCall: false, currentCallTarget: null
 };
 
 const $ = id => document.getElementById(id);
@@ -548,7 +578,6 @@ enterBtn.addEventListener('click', async () => {
     LS.set('myName', App.myName);
     startMainApp();
   } catch (e) { 
-    // Fallback un-stuck entry
     App.mySlug = slug; 
     App.myName = rawVal || slug;
     LS.set('mySlug', slug); 
@@ -570,7 +599,6 @@ window.addEventListener('load', () => {
     nameInput.value = savedName;
     App.mySlug = savedSlug; 
     App.myName = savedName; 
-    // Automatically transition off welcome screen if session exists
     setTimeout(() => startMainApp(), 100);
   }
 });
@@ -580,6 +608,7 @@ function startMainApp() {
   updateProfileHeader();
   buildUI();
   listenUserStatuses();
+  listenIncomingCalls();
   App.contacts.forEach(c => setupMessageListener(c.slug, false));
   App.groups.forEach(g => setupGroupMessageListener(g.id));
 }
@@ -591,7 +620,6 @@ function updateProfileHeader() {
   if (App.myPhoto) { img.src = App.myPhoto; img.style.display = 'block'; letter.style.display = 'none'; box.classList.add('has-photo'); }
   else { img.src = ''; img.style.display = 'none'; letter.style.display = 'inline'; letter.textContent = App.myName.charAt(0).toUpperCase(); box.classList.remove('has-photo'); }
 
-  // Check if owner (@gesnerdeslandes)
   if (App.mySlug === 'gesnerdeslandes' || App.mySlug === 'gesner') {
     $('ownerPortalTrigger').style.display = 'block';
   } else {
@@ -755,10 +783,13 @@ function buildUI() {
   cl.innerHTML = html;
 
   ccl.innerHTML = App.contacts.map(c => `
-    <div class="list-item" onclick="toast('Select chat to call')">
+    <div class="list-item">
       <div class="avatar accent">${avatarInner(c.photo, c.name)}</div>
-      <div class="list-item-body"><div class="list-item-title">${esc(c.name)}</div></div>
-      <div class="list-item-action">📞</div>
+      <div class="list-item-body"><div class="list-item-title">${esc(c.name)}</div><div class="list-item-sub">@${c.slug}</div></div>
+      <div style="display:flex;gap:10px;">
+        <button class="header-call-btn" style="color:var(--navy);background:#e0f2fe;padding:8px 12px;border-radius:18px;font-size:14px;font-weight:600;" onclick="window.startCall('${c.slug}', false)">📞 Voice</button>
+        <button class="header-call-btn" style="color:var(--navy);background:#dcfce7;padding:8px 12px;border-radius:18px;font-size:14px;font-weight:600;" onclick="window.startCall('${c.slug}', true)">📹 Video</button>
+      </div>
     </div>`).join('');
 
   vmSel.innerHTML = '<option value="">Select recipient</option>' + App.contacts.map(c => `<option value="${c.slug}">${esc(c.name)}</option>`).join('');
@@ -769,6 +800,11 @@ window.__openChat = (id, isGroup) => {
   const target = isGroup ? App.groups.find(g => g.id === id) : App.contacts.find(c => c.slug === id);
   $('chatName').textContent = target ? target.name : id;
   $('chatAvatar').innerHTML = isGroup ? '👥' : avatarInner(target?.photo, target?.name);
+  
+  // Toggle call buttons visibility for group vs direct chat
+  $('voiceCallFromChatBtn').style.display = isGroup ? 'none' : 'block';
+  $('videoCallFromChatBtn').style.display = isGroup ? 'none' : 'block';
+
   showScreen('screen-chat');
   renderMessages(id, App.lastMessages[id] || [], isGroup);
 };
@@ -974,7 +1010,6 @@ $('modalConfirm').addEventListener('click', async () => {
   const slug = slugify($('modalName').value);
   const rawInputName = $('modalName').value.trim().toLowerCase();
 
-  // Check if user is already in contacts list (by username/slug or name)
   const exists = App.contacts.some(c => 
     c.slug === slug || (c.name && c.name.trim().toLowerCase() === rawInputName)
   );
@@ -985,7 +1020,6 @@ $('modalConfirm').addEventListener('click', async () => {
 
   const friendName = snap.val().displayName || slug;
 
-  // Double check if display name matches an existing contact name
   if (App.contacts.some(c => c.name.trim().toLowerCase() === friendName.trim().toLowerCase())) {
     return toast('A contact with this name already exists', true);
   }
@@ -1015,6 +1049,219 @@ $('groupModalConfirm').addEventListener('click', async () => {
   App.groups.push({ id: groupId, name, members });
   saveGroups(); setupGroupMessageListener(groupId); buildUI();
   $('groupModal').classList.remove('show'); toast('Group created ✓');
+});
+
+/* Peer-to-Peer Voice & Video WebRTC Calling Engine */
+window.startCall = async (targetSlug, isVideo) => {
+  if (!targetSlug || targetSlug === App.mySlug) return toast('Select a valid contact to call', true);
+  App.currentCallTarget = targetSlug;
+  App.isVideoCall = isVideo;
+  App.activeCallId = `call_${chatIdFor(App.mySlug, targetSlug)}`;
+
+  const contactObj = App.contacts.find(c => c.slug === targetSlug);
+  const targetName = contactObj ? contactObj.name : targetSlug;
+
+  $('callName').textContent = targetName;
+  $('callStatus').textContent = isVideo ? 'Initiating Video Call…' : 'Initiating Voice Call…';
+  $('callAvatar').innerHTML = avatarInner(contactObj?.photo, targetName);
+  
+  if (isVideo) {
+    $('videoContainer').classList.add('active');
+  } else {
+    $('videoContainer').classList.remove('active');
+  }
+
+  showScreen('screen-call');
+
+  try {
+    const constraints = { audio: true, video: isVideo };
+    App.localStream = await navigator.mediaDevices.getUserMedia(constraints);
+    if (isVideo && $('localVideo')) {
+      $('localVideo').srcObject = App.localStream;
+    }
+
+    App.peerConn = new RTCPeerConnection(ICE_SERVERS);
+    App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
+
+    App.peerConn.ontrack = e => {
+      if (e.streams && e.streams[0]) {
+        $('remoteVideo').srcObject = e.streams[0];
+      }
+    };
+
+    // Firebase Signaling Setup
+    const callRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}`);
+    const offerCandidatesRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}/offerCandidates`);
+
+    App.peerConn.onicecandidate = e => {
+      if (e.candidate) {
+        push(offerCandidatesRef, e.candidate.toJSON());
+      }
+    };
+
+    const offer = await App.peerConn.createOffer();
+    await App.peerConn.setLocalDescription(offer);
+
+    await set(callRef, {
+      caller: App.mySlug,
+      callerName: App.myName,
+      type: isVideo ? 'video' : 'voice',
+      sdp: offer.sdp,
+      status: 'calling',
+      time: Date.now()
+    });
+
+    // Listen for Answer
+    onValue(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/answer`), async snap => {
+      const answer = snap.val();
+      if (answer && App.peerConn && !App.peerConn.currentRemoteDescription) {
+        await App.peerConn.setRemoteDescription(new RTCSessionDescription(answer));
+        $('callStatus').textContent = 'Connected';
+      }
+    });
+
+    // Listen for Answer ICE Candidates
+    const answerCandidatesRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}/answerCandidates`);
+    onChildAdded(answerCandidatesRef, snap => {
+      const candidate = new RTCIceCandidate(snap.val());
+      if (App.peerConn) App.peerConn.addIceCandidate(candidate);
+    });
+
+    // Listen for Call Rejection/End
+    onValue(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/status`), snap => {
+      if (snap.val() === 'ended' || snap.val() === 'rejected') {
+        endCallLocally();
+      }
+    });
+
+  } catch (err) {
+    console.error(err);
+    toast('Could not access microphone/camera', true);
+    endCallLocally();
+  }
+};
+
+function listenIncomingCalls() {
+  const myCallsRef = dbRef(db, `calls/${App.mySlug}`);
+  onChildAdded(myCallsRef, snap => {
+    const callData = snap.val();
+    if (!callData || callData.status !== 'calling') return;
+
+    App.activeCallId = snap.key;
+    App.currentCallTarget = callData.caller;
+    App.isVideoCall = callData.type === 'video';
+
+    $('incomingName').textContent = callData.callerName || callData.caller;
+    $('incomingAvatar').innerHTML = avatarInner(null, callData.callerName || callData.caller);
+    $('incomingType').textContent = `Incoming ${callData.type === 'video' ? '📹 Video' : '📞 Voice'} Call…`;
+    $('incoming-call').classList.add('show');
+
+    // Store incoming call reference for answering
+    window._incomingCallData = callData;
+  });
+}
+
+$('acceptCallBtn').addEventListener('click', async () => {
+  $('incoming-call').classList.remove('show');
+  const callData = window._incomingCallData;
+  if (!callData) return;
+
+  const isVideo = callData.type === 'video';
+  $('callName').textContent = callData.callerName || callData.caller;
+  $('callStatus').textContent = 'Connecting…';
+  $('callAvatar').innerHTML = avatarInner(null, callData.callerName);
+
+  if (isVideo) {
+    $('videoContainer').classList.add('active');
+  } else {
+    $('videoContainer').classList.remove('active');
+  }
+
+  showScreen('screen-call');
+
+  try {
+    const constraints = { audio: true, video: isVideo };
+    App.localStream = await navigator.mediaDevices.getUserMedia(constraints);
+    if (isVideo && $('localVideo')) {
+      $('localVideo').srcObject = App.localStream;
+    }
+
+    App.peerConn = new RTCPeerConnection(ICE_SERVERS);
+    App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
+
+    App.peerConn.ontrack = e => {
+      if (e.streams && e.streams[0]) {
+        $('remoteVideo').srcObject = e.streams[0];
+      }
+    };
+
+    const answerCandidatesRef = dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/answerCandidates`);
+    App.peerConn.onicecandidate = e => {
+      if (e.candidate) {
+        push(answerCandidatesRef, e.candidate.toJSON());
+      }
+    };
+
+    await App.peerConn.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: callData.sdp }));
+    const answer = await App.peerConn.createAnswer();
+    await App.peerConn.setLocalDescription(answer);
+
+    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/answer`), {
+      type: answer.type,
+      sdp: answer.sdp
+    });
+
+    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'connected');
+    $('callStatus').textContent = 'Connected';
+
+    // Listen for Caller ICE Candidates
+    const offerCandidatesRef = dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/offerCandidates`);
+    onChildAdded(offerCandidatesRef, snap => {
+      const candidate = new RTCIceCandidate(snap.val());
+      if (App.peerConn) App.peerConn.addIceCandidate(candidate);
+    });
+
+  } catch (err) {
+    console.error(err);
+    toast('Error answering call', true);
+    endCallLocally();
+  }
+});
+
+$('rejectCallBtn').addEventListener('click', async () => {
+  $('incoming-call').classList.remove('show');
+  if (App.activeCallId) {
+    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'rejected');
+  }
+});
+
+function endCallLocally() {
+  if (App.localStream) {
+    App.localStream.getTracks().forEach(t => t.stop());
+    App.localStream = null;
+  }
+  if (App.peerConn) {
+    App.peerConn.close();
+    App.peerConn = null;
+  }
+  $('videoContainer').classList.remove('active');
+  showScreen('screen-main');
+}
+
+$('endCallBtn').addEventListener('click', async () => {
+  if (App.activeCallId && App.currentCallTarget) {
+    await set(dbRef(db, `calls/${App.currentCallTarget}/${App.activeCallId}/status`), 'ended');
+    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'ended');
+  }
+  endCallLocally();
+});
+
+$('voiceCallFromChatBtn').addEventListener('click', () => {
+  if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, false);
+});
+
+$('videoCallFromChatBtn').addEventListener('click', () => {
+  if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, true);
 });
 
 /* Status Feed */
@@ -1106,12 +1353,10 @@ $('statusCommentSend').addEventListener('click', async () => {
   const statusKey = App.activeStatusObj._k;
   const ownerSlug = App.activeStatusObj.authorSlug;
 
-  // 1. Post comment on the status itself
   await push(dbRef(db, `user_statuses/${statusKey}/comments`), {
     author: App.mySlug, text, time: Date.now()
   });
 
-  // 2. Send comment directly to owner's DM inbox as well if owner is not me
   if (ownerSlug !== App.mySlug) {
     const chatPath = `chats/${chatIdFor(App.mySlug, ownerSlug)}/messages`;
     await push(dbRef(db, chatPath), {
