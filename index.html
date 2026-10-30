@@ -947,10 +947,28 @@ $('modalName').addEventListener('input', () => {
 });
 $('modalConfirm').addEventListener('click', async () => {
   const slug = slugify($('modalName').value);
-  if (App.contacts.find(c => c.slug === slug)) return toast('Already added');
+  const rawInputName = $('modalName').value.trim().toLowerCase();
+
+  // Check if user is already in contacts list (by username/slug or name)
+  const exists = App.contacts.some(c => 
+    c.slug === slug || (c.name && c.name.trim().toLowerCase() === rawInputName)
+  );
+  if (exists) return toast('This friend is already in your contact list', true);
+
   const snap = await get(dbRef(db, 'users/' + slug));
   if (!snap.exists()) return toast('User not found', true);
-  App.contacts.push({ slug, name: snap.val().displayName || slug, photo: snap.val().photo || null });
+
+  const friendName = snap.val().displayName || slug;
+
+  // Double check if display name matches an existing contact name
+  if (App.contacts.some(c => c.name.trim().toLowerCase() === friendName.trim().toLowerCase())) {
+    return toast('A contact with this name already exists', true);
+  }
+
+  App.contacts.push({ slug, name: friendName, photo: snap.val().photo || null });
+  saveContacts(); setupMessageListener(slug, false); buildUI();
+  $('addModal').classList.remove('show'); toast('Added @' + slug + ' ✓');
+});
   saveContacts(); setupMessageListener(slug, false); buildUI();
   $('addModal').classList.remove('show'); toast('Added @' + slug);
 });
