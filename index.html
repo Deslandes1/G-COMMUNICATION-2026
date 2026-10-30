@@ -269,7 +269,8 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
   <div class="chat-input-bar">
     <div class="upload-bar" id="uploadBar"><div class="upload-bar-fill" id="uploadBarFill"></div></div>
     <button class="emoji-btn" id="emojiBtn">😊</button>
-    <button class="attach-btn" id="attachBtn">📎</button>
+    <button class="attach-btn" id="attachBtn" title="Attach Photo/Video/File">📎</button>
+    <button class="attach-btn" id="chatRecordBtn" title="Hold/Tap to Record Voice Note" style="font-size:20px;color:#ff4757;">🎙️</button>
     <input id="chatInput" type="text" placeholder="Message…" autocomplete="off">
     <button class="send-btn" id="sendBtn" disabled>➤</button>
   </div>
@@ -872,6 +873,45 @@ $('fileInput').addEventListener('change', async e => {
     toast('Upload failed', true);
   }
   e.target.value = '';
+});
+
+/* Chat Voice Note Recording Button */
+let chatMediaRecorder = null, chatAudioChunks = [], chatRecTimer = null;
+$('chatRecordBtn').addEventListener('click', async () => {
+  if (!App.activeChat) return;
+  const btn = $('chatRecordBtn');
+  if (!chatMediaRecorder || chatMediaRecorder.state === 'inactive') {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      chatAudioChunks = [];
+      chatMediaRecorder = new MediaRecorder(stream);
+      chatMediaRecorder.ondataavailable = e => { if (e.data.size > 0) chatAudioChunks.push(e.data); };
+      chatMediaRecorder.onstop = async () => {
+        const blob = new Blob(chatAudioChunks, { type: 'audio/webm' });
+        const url = await fileToBase64(blob);
+        await sendMessage({ type: 'audio', url, name: 'Voice Note.webm' });
+        btn.style.color = '#ff4757';
+        btn.style.transform = 'scale(1)';
+        stream.getTracks().forEach(t => t.stop());
+        toast('Voice note sent ✓');
+      };
+      chatMediaRecorder.start();
+      btn.style.color = '#0d7a8c';
+      btn.style.transform = 'scale(1.2)';
+      toast('Recording voice note (max 30s)…');
+      clearTimeout(chatRecTimer);
+      chatRecTimer = setTimeout(() => {
+        if (chatMediaRecorder && chatMediaRecorder.state === 'recording') {
+          chatMediaRecorder.stop();
+        }
+      }, 30000);
+    } catch {
+      toast('Microphone permission denied', true);
+    }
+  } else if (chatMediaRecorder && chatMediaRecorder.state === 'recording') {
+    clearTimeout(chatRecTimer);
+    chatMediaRecorder.stop();
+  }
 });
 
 /* Contact & Group Modals */
