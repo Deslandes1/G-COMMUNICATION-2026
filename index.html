@@ -177,10 +177,10 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 <section id="screen-onboard" class="screen active">
   <div class="onboard-logo">G</div>
   <h1>JARVIS</h1>
-  <p>Pick your username to connect across all devices.</p>
-  <input id="nameInput" class="onboard-input" type="text" placeholder="Your username (e.g. gesner)" maxlength="20" autocomplete="off" autocapitalize="none">
+  <p>Enter or update your username handle to continue.</p>
+  <input id="nameInput" class="onboard-input" type="text" placeholder="Your username (e.g. gesner)" maxlength="30" autocomplete="off" autocapitalize="none">
   <div class="name-status" id="nameStatus">Lowercase letters and numbers only</div>
-  <button id="enterBtn" class="btn-primary" disabled>Enter Portal</button>
+  <button id="enterBtn" class="btn-primary">Enter Portal</button>
 </section>
 
 <section id="screen-main" class="screen">
@@ -506,40 +506,53 @@ function playSentSound() {
 }
 
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
-let nameCheckTimer = null, nameCheckOk = false;
+let nameCheckTimer = null, nameCheckOk = true;
 
 nameInput.addEventListener('input', () => {
-  enterBtn.disabled = true; nameCheckOk = false;
   const slug = slugify(nameInput.value);
-  if (!slug) { nameStatus.textContent = 'Lowercase letters and numbers only'; nameStatus.className = 'name-status'; return; }
+  if (!slug) { 
+    nameStatus.textContent = 'Enter a valid username'; 
+    nameStatus.className = 'name-status'; 
+    return; 
+  }
   nameStatus.textContent = 'Checking availability…'; nameStatus.className = 'name-status';
   clearTimeout(nameCheckTimer);
   nameCheckTimer = setTimeout(async () => {
     try {
       const snap = await get(dbRef(db, 'users/' + slug));
-      nameStatus.textContent = `"${slug}" available ✓`; nameStatus.className = 'name-status ok'; nameCheckOk = true; enterBtn.disabled = false;
-    } catch { nameStatus.textContent = 'Connection error'; nameStatus.className = 'name-status bad'; }
-  }, 350);
+      nameStatus.textContent = `"${slug}" ready ✓`; 
+      nameStatus.className = 'name-status ok'; 
+      nameCheckOk = true; 
+    } catch { 
+      nameStatus.textContent = 'Local handle ready'; 
+      nameStatus.className = 'name-status ok'; 
+      nameCheckOk = true; 
+    }
+  }, 250);
 });
 
 enterBtn.addEventListener('click', async () => {
-  if (!nameCheckOk) return;
-  const slug = slugify(nameInput.value);
-  enterBtn.disabled = true;
+  const rawVal = nameInput.value.trim();
+  const slug = slugify(rawVal);
+  if (!slug) return toast('Please enter a valid username', true);
+  
   try {
     const userRef = dbRef(db, 'users/' + slug);
     const snap = await get(userRef);
     if (!snap.exists()) {
-      await set(userRef, { slug, displayName: nameInput.value.trim() || slug, createdAt: Date.now(), photo: null });
+      await set(userRef, { slug, displayName: rawVal || slug, createdAt: Date.now(), photo: App.myPhoto || null });
     }
-    App.mySlug = slug; App.myName = snap.exists() ? (snap.val().displayName || slug) : nameInput.value.trim();
-    App.myPhoto = LS.get('avatar', null);
-    LS.set('mySlug', slug); LS.set('myName', App.myName);
+    App.mySlug = slug; 
+    App.myName = rawVal || slug;
+    LS.set('mySlug', slug); 
+    LS.set('myName', App.myName);
     startMainApp();
-  } catch { 
-    // Fallback login if offline or network slow
-    App.mySlug = slug; App.myName = nameInput.value.trim() || slug;
-    LS.set('mySlug', slug); LS.set('myName', App.myName);
+  } catch (e) { 
+    // Fallback un-stuck entry
+    App.mySlug = slug; 
+    App.myName = rawVal || slug;
+    LS.set('mySlug', slug); 
+    LS.set('myName', App.myName);
     startMainApp();
   }
 });
@@ -552,9 +565,13 @@ window.addEventListener('load', () => {
   const savedName = LS.get('myName', null);
   const savedPhoto = LS.get('avatar', null);
   if (savedPhoto) App.myPhoto = savedPhoto;
+  
   if (savedSlug && savedName) { 
-    App.mySlug = savedSlug; App.myName = savedName; 
-    setTimeout(() => startMainApp(), 50);
+    nameInput.value = savedName;
+    App.mySlug = savedSlug; 
+    App.myName = savedName; 
+    // Automatically transition off welcome screen if session exists
+    setTimeout(() => startMainApp(), 100);
   }
 });
 
