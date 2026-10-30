@@ -170,6 +170,20 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 @keyframes recordPulse{0%,100%{opacity:1}50%{opacity:.7}}
 .vm-target{background:#fff;margin:0 20px 12px;border-radius:10px;padding:12px 16px;border:1px solid var(--border);font-size:14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(11,42,74,.04)}
 .vm-target select{border:1px solid var(--border);padding:8px 12px;border-radius:8px;font-size:14px;background:#f7f9fb;color:var(--text);max-width:60%}
+/* STATUS STYLES */
+.status-feed{padding:12px;display:flex;flex-direction:column;gap:12px}
+.status-card{background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(11,42,74,.05)}
+.status-card-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.status-content-box{border-radius:10px;padding:12px;color:#fff;font-weight:600;font-size:15px;text-align:center;word-break:break-word;margin-bottom:8px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.status-media{width:100%;border-radius:10px;margin-bottom:8px;max-height:300px;object-fit:cover}
+.status-link{display:block;background:#f0f4f8;padding:10px;border-radius:8px;color:var(--accent);font-weight:600;text-decoration:none;word-break:break-all;font-size:13px;margin-bottom:8px;border:1px dashed var(--accent)}
+/* CONTEXT MENU / MODAL STYLES */
+.action-sheet{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top-left-radius:20px;border-top-right-radius:20px;padding:20px;z-index:999;box-shadow:0 -10px 30px rgba(0,0,0,.2);display:none;flex-direction:column;gap:10px}
+.action-sheet.show{display:flex;animation:slideUp .2s ease-out}
+@keyframes slideUp{0%{transform:translateY(100%)}100%{transform:translateY(0)}}
+.action-btn{padding:14px;border-radius:10px;border:none;background:#f2f5f8;font-size:15px;font-weight:600;color:var(--text);cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px}
+.action-btn.danger{background:#fff0f0;color:var(--red)}
+.msg-edited-tag{font-size:10px;opacity:.7;font-style:italic;margin-left:4px}
 .profile-card{background:linear-gradient(180deg,#ffffff 0%,#fdfaf3 100%);margin:16px;border-radius:14px;padding:24px 20px;box-shadow:0 4px 20px rgba(11,42,74,.08);text-align:center;border:1px solid rgba(11,42,74,.04)}
 .profile-card .avatar-big{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;margin:0 auto 14px;position:relative;cursor:pointer;overflow:hidden;box-shadow:0 6px 20px rgba(11,42,74,.2)}
 .profile-card .avatar-big img{width:100%;height:100%;object-fit:cover;display:block}
@@ -269,6 +283,14 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
     <div class="section-title">Start a call</div>
     <div id="callContactsList"></div>
   </div>
+  <!-- STATUS TAB -->
+  <div id="tabStatus" class="tab-content" style="display:none;">
+    <div class="section-title">User Status Updates</div>
+    <div style="padding:0 16px 12px;">
+      <button class="btn-primary" id="openPostStatusBtn" style="width:100%;max-width:none;padding:12px;">✍️ Post Status Update</button>
+    </div>
+    <div id="statusList" class="status-feed"></div>
+  </div>
   <div id="tabVoicemail" class="tab-content" style="display:none;">
     <div class="section-title">Send a voicemail</div>
     <div class="vm-target"><span>To:</span><select id="vmRecipient"><option value="">Select contact</option></select></div>
@@ -318,6 +340,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
   <button id="addContactFab" class="fab">＋</button>
   <nav class="bottom-nav">
     <button class="nav-item active" data-tab="chats"><span class="icon">💬</span>Chats</button>
+    <button class="nav-item" data-tab="status"><span class="icon">🌟</span>Status</button>
     <button class="nav-item" data-tab="calls"><span class="icon">📞</span>Calls</button>
     <button class="nav-item" data-tab="voicemail"><span class="icon">🎙</span>Voicemail</button>
     <button class="nav-item" data-tab="profile"><span class="icon">👤</span>Profile</button>
@@ -332,8 +355,8 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
       <small id="chatStatus">online</small>
     </div>
     <button class="icon-btn" id="callFromChatBtn">📞</button>
-  </header>
-  <div id="messagesArea" class="messages"></div>
+</header>
+<div id="messagesArea" class="messages"></div>
   <div class="quick-reactions" id="quickReactions">
     <button class="quick-reaction" data-emoji="👍">👍</button>
     <button class="quick-reaction" data-emoji="❤️">❤️</button>
@@ -380,63 +403,64 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
     <button class="emoji-item">🔥</button><button class="emoji-item">✨</button><button class="emoji-item">🎉</button><button class="emoji-item">🎊</button><button class="emoji-item">🎁</button><button class="emoji-item">🎈</button><button class="emoji-item">💐</button><button class="emoji-item">🌹</button>
     <button class="emoji-item">☀️</button><button class="emoji-item">🌙</button><button class="emoji-item">⭐</button><button class="emoji-item">⚡</button><button class="emoji-item">🌈</button><button class="emoji-item">☕</button><button class="emoji-item">🍕</button><button class="emoji-item">🎮</button>
     <button class="emoji-item">🎯</button><button class="emoji-item">🏆</button><button class="emoji-item">⚽</button><button class="emoji-item">🚀</button><button class="emoji-item">✈️</button><button class="emoji-item">💯</button><button class="emoji-item">💥</button><button class="emoji-item">🌊</button>
-    <button class="emoji-item">💋</button><button class="emoji-item">💌</button><button class="emoji-item">💝</button><button class="emoji-item">💞</button><button class="emoji-item">🥂</button><button class="emoji-item">🍾</button><button class="emoji-item">🎂</button><button class="emoji-item">🎵</button>
-  </div>
-</div>
-<section id="screen-call" class="screen">
-  <div class="call-avatar" id="callAvatar">G</div>
-  <div class="call-name" id="callName">—</div>
-  <div class="call-status" id="callStatus">Calling…</div>
-  <div class="call-actions">
-    <button class="call-btn mute" id="muteBtn">🎤</button>
-    <button class="call-btn end" id="endCallBtn">📵</button>
-  </div>
-</section>
-<div id="incoming-call">
-  <div class="call-avatar" id="incomingAvatar">G</div>
-  <div class="call-name" id="incomingName">—</div>
-  <div class="call-status" id="incomingStatus">Incoming call…</div>
-  <div class="call-actions">
-    <button class="call-btn end" id="rejectCallBtn">📵</button>
-    <button class="call-btn accept" id="acceptCallBtn">📞</button>
-  </div>
-</div>
-<div class="modal-overlay" id="addModal">
+<!-- CREATE GROUP MODAL -->
+<div class="modal-overlay" id="groupModal">
   <div class="modal">
-    <h3>Add by name</h3>
-    <p>Type the name of the person you want to reach.</p>
-    <input id="modalName" type="text" placeholder="their name" maxlength="20" autocomplete="off" autocapitalize="none">
-    <div class="modal-status" id="modalStatus"></div>
+    <h3>Create Group Chat</h3>
+    <p>Give your group a name and select members.</p>
+    <input id="groupNameInput" type="text" placeholder="Group Name" maxlength="30" autocomplete="off">
+    <div class="section-title" style="padding:8px 0;">Select Members</div>
+    <div id="groupMembersSelection" style="max-height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
     <div class="modal-actions">
-      <button class="cancel" id="modalCancel">Cancel</button>
-      <button class="confirm" id="modalConfirm" disabled>Add</button>
+      <button class="cancel" id="groupModalCancel">Cancel</button>
+      <button class="confirm" id="groupModalConfirm">Create Group</button>
     </div>
   </div>
 </div>
-<div class="modal-overlay" id="helpModal">
+
+<!-- POST STATUS MODAL -->
+<div class="modal-overlay" id="statusModal">
   <div class="modal">
-    <h3>How it works</h3>
-    <p>
-      <strong>1.</strong> Your name is your address — e.g. <em>gesner</em>.<br><br>
-      <strong>2.</strong> Anyone types that name in "Add contact" to reach you.<br><br>
-      <strong>3.</strong> Tap any emoji in the strip above the input to send it instantly. Tap 😊 for the full palette.<br><br>
-      <strong>4.</strong> ✓ means sent, ✓✓ means read.<br><br>
-      <strong>5.</strong> Media attachments are auto-compressed and stored seamlessly across mobile & desktop browsers.
-    </p>
-    <div class="modal-actions"><button class="confirm" id="helpClose">Got it</button></div>
-  </div>
-</div>
-<div class="modal-overlay" id="installModal">
-  <div class="modal">
-    <div class="install-hero">
-      <div class="install-app-icon">G</div>
-      <h3>Install JARVIS</h3>
-      <p id="installSubtitle">Add the app to your home screen for instant access</p>
+    <h3>New Status Post</h3>
+    <p>Share text, media, or a link with your contacts.</p>
+    <input id="statusTextInput" type="text" placeholder="What's on your mind?" autocomplete="off">
+    <input id="statusLinkInput" type="text" placeholder="Optional URL Link (https://...)" autocomplete="off">
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Background Color (for text):</label>
+      <input id="statusBgColor" type="color" value="#0d7a8c" style="width:100%;height:38px;padding:2px;border-radius:8px;cursor:pointer;">
     </div>
-    <div id="installBody"></div>
-    <div class="modal-actions"><button class="cancel" id="installClose">Close</button></div>
+    <button class="btn-primary" id="statusMediaSelectBtn" style="width:100%;padding:10px;font-size:13px;margin-bottom:12px;background:#143a5f;color:#fff;">📷 Select Optional Photo/Video</button>
+    <div id="statusMediaName" style="font-size:12px;color:var(--accent);margin-bottom:12px;word-break:break-all;"></div>
+    <div class="modal-actions">
+      <button class="cancel" id="statusModalCancel">Cancel</button>
+      <button class="confirm" id="statusModalConfirm">Post</button>
+    </div>
   </div>
 </div>
+
+<!-- MESSAGE ACTIONS SHEET (EDIT / DELETE) -->
+<div class="modal-overlay" id="msgActionsModal">
+  <div class="action-sheet" id="actionSheet">
+    <div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Message Options</div>
+    <button class="action-btn" id="actEditBtn">✏️ Edit Message</button>
+    <button class="action-btn danger" id="actDeleteForMeBtn">🗑️ Delete for Me</button>
+    <button class="action-btn danger" id="actDeleteEveryoneBtn">💥 Delete for Everyone</button>
+    <button class="action-btn" id="actCancelBtn" style="background:#e1e7ed;text-align:center;justify-content:center;margin-top:6px;">Cancel</button>
+  </div>
+</div>
+
+<!-- EDIT MESSAGE MODAL -->
+<div class="modal-overlay" id="editMsgModal">
+  <div class="modal">
+    <h3>Edit Message</h3>
+    <input id="editMsgInput" type="text" autocomplete="off">
+    <div class="modal-actions">
+      <button class="cancel" id="editMsgCancel">Cancel</button>
+      <button class="confirm" id="editMsgConfirm">Save</button>
+    </div>
+  </div>
+</div>
+
 <div id="lightbox">
   <button class="close-lb" id="lightboxClose">✕</button>
   <img id="lightboxImg" alt="">
@@ -445,6 +469,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 <div class="toast" id="toast"></div>
 <input type="file" id="avatarInput" accept="image/*" style="display:none;">
 <input type="file" id="fileInput" style="display:none;">
+<input type="file" id="statusMediaInput" accept="image/*,video/*" style="display:none;">
 </div>
 
 <script type="module">
@@ -468,17 +493,19 @@ const ICE_SERVERS = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { u
 
 const App = {
   mySlug: null, myName: '', myPhoto: null,
-  contacts: [], activeChat: null,
+  contacts: [], groups: [], activeChat: null, activeIsGroup: false,
   lastRead: {}, unread: {}, lastMessages: {}, lastMsgTime: {},
-  globalSubscribed: {}, globalUnsubs: {}, contactPhotoUnsubs: {},
-  vmUnsub: null,
+  deletedLocally: {},
+  globalSubscribed: {}, globalUnsubs: {}, contactPhotoUnsubs: {}, groupUnsubs: {},
+  vmUnsub: null, statusUnsub: null,
   pc: null, localStream: null, activeCall: null,
   incomingCallData: null, callUnsubs: [], muted: false,
   mediaRecorder: null, recordedChunks: [], recordTimer: null,
   installPrompt: null, isInstalled: false,
   soundEnabled: true, vibrationEnabled: true,
   audioCtx: null, ringInterval: null, titleFlashInterval: null, callRingTimeout: null,
-  originalTitle: 'JARVIS'
+  originalTitle: 'JARVIS',
+  selectedMsgKey: null, selectedMsgObj: null, statusMediaFile: null
 };
 
 const $ = id => document.getElementById(id);
@@ -751,135 +778,231 @@ function resizeImage(file, size) {
 
 function loadContacts() { App.contacts = LS.get('contacts', []); }
 function saveContacts() { LS.set('contacts', App.contacts); }
+function loadGroups() { App.groups = LS.get('groups', []); }
+function saveGroups() { LS.set('groups', App.groups); }
+function loadDeletedLocally() { App.deletedLocally = LS.get('deletedLocally', {}); }
+function saveDeletedLocally() { LS.set('deletedLocally', App.deletedLocally); }
 function loadLastRead() { App.lastRead = LS.get('lastRead', {}); }
 function saveLastRead() { LS.set('lastRead', App.lastRead); }
 
-function addContactBySlug(slug, displayName) {
-  if (slug === App.mySlug) return toast("That's you");
-  if (App.contacts.find(c => c.slug === slug)) return toast('Already added');
-  App.contacts.push({ slug, name: displayName, addedAt: Date.now(), photo: null });
-  saveContacts(); listenContactPhoto(slug); setupGlobalMessageListener(slug);
-  buildUI(); toast('Added @' + slug);
+window.addEventListener('load', () => {
+  updateToggleUI();
+  updatePermStatus();
+  loadContacts();
+  loadGroups();
+  loadDeletedLocally();
+  loadLastRead();
+  const savedSlug = LS.get('mySlug', null);
+  const savedName = LS.get('myName', null);
+  const savedPhoto = LS.get('avatar', null);
+  if (savedPhoto) App.myPhoto = savedPhoto;
+  if (savedSlug && savedName) { App.mySlug = savedSlug; App.myName = savedName; startMainApp(); }
+  document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); });
+  });
+});
+
+function startMainApp() {
+  showScreen('screen-main');
+  updateProfileHeader();
+  buildUI();
+  listenForIncomingCalls();
+  listenVoicemails();
+  listenUserStatuses();
+  App.contacts.forEach(c => { listenContactPhoto(c.slug); setupGlobalMessageListener(c.slug); });
+  App.groups.forEach(g => { setupGroupMessageListener(g.id); });
+  updatePermStatus();
 }
 
-let addLookupTimer = null, addLookupResult = null;
+/* GROUPS CREATION & HANDLING */
 $('addContactFab').addEventListener('click', () => {
+  // Present choice or direct lookup modal
   $('modalName').value = ''; $('modalStatus').textContent = ''; $('modalStatus').className = 'modal-status';
   $('modalConfirm').disabled = true; addLookupResult = null;
   $('addModal').classList.add('show');
 });
-$('modalCancel').addEventListener('click', () => $('addModal').classList.remove('show'));
 
-$('modalName').addEventListener('input', () => {
-  $('modalConfirm').disabled = true; addLookupResult = null;
-  const slug = slugify($('modalName').value);
-  if (!slug) { $('modalStatus').textContent = ''; return; }
-  $('modalStatus').textContent = 'Searching…'; $('modalStatus').className = 'modal-status';
-  clearTimeout(addLookupTimer);
-  addLookupTimer = setTimeout(async () => {
-    try {
-      if (slug === App.mySlug) { $('modalStatus').textContent = "That's your own name"; $('modalStatus').className = 'modal-status bad'; return; }
-      const snap = await get(dbRef(db, 'users/' + slug));
-      if (!snap.exists()) { $('modalStatus').textContent = `No one called @${slug}`; $('modalStatus').className = 'modal-status bad'; return; }
-      const data = snap.val();
-      addLookupResult = { slug, displayName: data.displayName || slug };
-      $('modalStatus').textContent = `Found: ${addLookupResult.displayName} (@${slug})`;
-      $('modalStatus').className = 'modal-status ok'; $('modalConfirm').disabled = false;
-    } catch { $('modalStatus').textContent = 'Lookup failed'; $('modalStatus').className = 'modal-status bad'; }
-  }, 350);
-});
-
-$('modalConfirm').addEventListener('click', () => {
-  if (!addLookupResult) return;
-  addContactBySlug(addLookupResult.slug, addLookupResult.displayName);
-  $('addModal').classList.remove('show');
-});
-
-function listenContactPhoto(slug) {
-  if (App.contactPhotoUnsubs[slug]) return;
-  App.contactPhotoUnsubs[slug] = onValue(dbRef(db, 'users/' + slug + '/photo'), snap => {
-    const photo = snap.val();
-    const c = App.contacts.find(x => x.slug === slug);
-    if (!c) return;
-    if (c.photo !== photo) { c.photo = photo || null; saveContacts(); buildUI(); if (App.activeChat === slug) updateChatHeader(c); }
+// Add Create Group option in Add Modal
+const modalContent = document.querySelector('#addModal .modal');
+if (modalContent && !$('openGroupModalBtn')) {
+  const gBtn = document.createElement('button');
+  gBtn.id = 'openGroupModalBtn';
+  gBtn.className = 'btn-primary';
+  gBtn.style.cssText = 'width:100%;max-width:none;margin-bottom:14px;padding:10px;font-size:13.5px;background:#0d7a8c;color:#fff;';
+  gBtn.textContent = '👥 Create New Group Chat instead';
+  modalContent.insertBefore(gBtn, modalContent.firstChild);
+  gBtn.addEventListener('click', () => {
+    $('addModal').classList.remove('show');
+    openGroupCreationModal();
   });
 }
 
-function updateUnreadBadges() {
-  const total = Object.values(App.unread).reduce((s, n) => s + (n || 0), 0);
-  const chatsBtn = document.querySelector('.nav-item[data-tab="chats"]');
-  if (chatsBtn) {
-    let b = chatsBtn.querySelector('.nav-badge');
-    if (!b) { b = document.createElement('span'); b.className = 'nav-badge'; chatsBtn.appendChild(b); }
-    if (total > 0) { b.textContent = total > 99 ? '99+' : String(total); b.classList.add('show'); }
-    else b.classList.remove('show');
+function openGroupCreationModal() {
+  $('groupNameInput').value = '';
+  const container = $('groupMembersSelection');
+  if (!App.contacts.length) {
+    container.innerHTML = '<div style="font-size:12px;color:var(--muted);">Add contacts first to create a group.</div>';
+  } else {
+    container.innerHTML = App.contacts.map(c => `
+      <label style="display:flex;align-items:center;gap:10px;background:#f7f9fb;padding:8px 12px;border-radius:8px;cursor:pointer;">
+        <input type="checkbox" class="group-member-checkbox" value="${c.slug}" style="width:18px;height:18px;">
+        <span style="font-size:14px;font-weight:600;">${esc(c.name)} (@${c.slug})</span>
+      </label>
+    `).join('');
   }
+  $('groupModal').classList.add('show');
 }
+$('groupModalCancel').addEventListener('click', () => $('groupModal').classList.remove('show'));
 
-function setupGlobalMessageListener(slug) {
-  if (App.globalUnsubs[slug]) return;
-  const cid = chatIdFor(App.mySlug, slug);
-  const q = query(dbRef(db, 'chats/' + cid + '/messages'), limitToLast(150));
-  App.globalUnsubs[slug] = onValue(q, snap => {
+$('groupModalConfirm').addEventListener('click', async () => {
+  const name = $('groupNameInput').value.trim();
+  if (!name) return toast('Enter a group name', true);
+  const checked = Array.from(document.querySelectorAll('.group-member-checkbox:checked')).map(cb => cb.value);
+  if (checked.length === 0) return toast('Select at least 1 member', true);
+  
+  const members = [App.mySlug, ...checked];
+  const groupId = 'group_' + Date.now();
+  const groupData = { id: groupId, name, members, createdBy: App.mySlug, createdAt: Date.now() };
+
+  try {
+    await set(dbRef(db, 'groups/' + groupId), groupData);
+    App.groups.push(groupData);
+    saveGroups();
+    setupGroupMessageListener(groupId);
+    buildUI();
+    $('groupModal').classList.remove('show');
+    toast('Group created ✓');
+  } catch (e) {
+    toast('Failed to create group', true);
+  }
+});
+
+function setupGroupMessageListener(groupId) {
+  if (App.groupUnsubs[groupId]) return;
+  const q = query(dbRef(db, 'group_chats/' + groupId + '/messages'), limitToLast(150));
+  App.groupUnsubs[groupId] = onValue(q, snap => {
     const data = snap.val() || {};
     const msgs = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (a.time || 0) - (b.time || 0));
-    const last = msgs[msgs.length - 1];
-    if (!App.globalSubscribed[slug]) {
-      App.globalSubscribed[slug] = true;
-      App.lastMsgTime[slug] = last ? (last.time || 0) : 0;
-      if (App.lastRead[slug] === undefined) { App.lastRead[slug] = last ? (last.time || Date.now()) : Date.now(); saveLastRead(); }
-    } else {
-      const prev = App.lastMsgTime[slug];
-      const isNew = last && (last.time || 0) > (prev || 0) && last.from !== App.mySlug;
-      if (last) App.lastMsgTime[slug] = last.time || Date.now();
-      if (isNew) {
-        playMessageSound();
-        const cname = App.contacts.find(x => x.slug === slug)?.name || slug;
-        const preview = previewText(last);
-        if (App.activeChat !== slug || document.hidden) {
-          if (App.vibrationEnabled && navigator.vibrate) navigator.vibrate([80, 40, 80]);
-          toast(`💬 ${cname}: ${preview.substring(0, 40)}`);
-          showBrowserNotification(`💬 ${cname}`, preview.substring(0, 120), `msg-${slug}`);
-        }
-      }
+    App.lastMessages[groupId] = msgs;
+    if (App.activeChat === groupId) {
+      renderMessages(groupId, msgs, true);
     }
-    App.lastMessages[slug] = msgs;
-    const isActiveVisible = App.activeChat === slug && !document.hidden;
-    if (isActiveVisible) {
-      App.lastRead[slug] = Date.now(); saveLastRead(); App.unread[slug] = 0;
-      for (const m of msgs) {
-        if (m.from !== App.mySlug && !m.readAt) {
-          set(dbRef(db, 'chats/' + cid + '/messages/' + m._k + '/readAt'), Date.now()).catch(() => {});
-        }
-      }
-      renderMessages(slug, msgs);
-    } else if (App.activeChat === slug) {
-      renderMessages(slug, msgs);
-    } else {
-      const lr = App.lastRead[slug] || 0;
-      App.unread[slug] = msgs.filter(m => m.from !== App.mySlug && (m.time || 0) > lr).length;
-    }
-    updateUnreadBadges();
+    buildUI();
   });
 }
 
-function renderAttachment(m) {
-  const a = m.attachment; if (!a) return '';
-  const safeUrl = String(a.url || '').replace(/"/g, '&quot;');
-  if (a.type === 'image') return `<img class="attach-img" src="${safeUrl}" loading="lazy" onclick="window.__lb('${safeUrl}','${esc(a.name||'photo')}')">`;
-  if (a.type === 'video') return `<video class="attach-video" controls playsinline webkit-playsinline preload="metadata" src="${safeUrl}"></video>`;
-  if (a.type === 'audio') return `<audio class="attach-audio" controls preload="metadata" src="${safeUrl}"></audio>`;
-  return `<a class="attach-file" href="${safeUrl}" target="_blank" rel="noopener" download="${esc(a.name||'file')}">
-    <span class="file-icon">📄</span>
-    <span class="file-info"><span class="file-name">${esc(a.name||'File')}</span><span class="file-size">${fmtBytes(a.size)}</span></span>
-    <span style="font-size:20px;color:var(--muted)">⬇</span>
-  </a>`;
+/* USER STATUS FEED */
+$('openPostStatusBtn').addEventListener('click', () => {
+  $('statusTextInput').value = '';
+  $('statusLinkInput').value = '';
+  $('statusMediaName').textContent = '';
+  App.statusMediaFile = null;
+  $('statusModal').classList.add('show');
+});
+$('statusModalCancel').addEventListener('click', () => $('statusModal').classList.remove('show'));
+
+$('statusMediaSelectBtn').addEventListener('click', () => $('statusMediaInput').click());
+$('statusMediaInput').addEventListener('change', e => {
+  const file = e.target.files && e.target.files[0];
+  if (file) {
+    App.statusMediaFile = file;
+    $('statusMediaName').textContent = `Selected: ${file.name} (${fmtBytes(file.size)})`;
+  }
+});
+
+$('statusModalConfirm').addEventListener('click', async () => {
+  const text = $('statusTextInput').value.trim();
+  const link = $('statusLinkInput').value.trim();
+  const bgColor = $('statusBgColor').value;
+
+  if (!text && !link && !App.statusMediaFile) return toast('Add some content to post', true);
+  toast('Posting status…');
+
+  try {
+    let mediaUrl = null;
+    let mediaType = null;
+    if (App.statusMediaFile) {
+      mediaType = detectFileType(App.statusMediaFile);
+      if (mediaType === 'image') mediaUrl = await compressImgToDataUrl(App.statusMediaFile, 1000, 0.7);
+      else mediaUrl = await fileToDataUrl(App.statusMediaFile);
+    }
+
+    const postObj = {
+      authorSlug: App.mySlug,
+      authorName: App.myName,
+      authorPhoto: App.myPhoto || null,
+      text,
+      link,
+      bgColor,
+      mediaUrl,
+      mediaType,
+      time: Date.now()
+    };
+
+    await push(dbRef(db, 'user_statuses'), postObj);
+    $('statusModal').classList.remove('show');
+    toast('Status posted ✓');
+  } catch (e) {
+    toast('Failed to post status', true);
+  }
+});
+
+function listenUserStatuses() {
+  if (App.statusUnsub) return;
+  const q = query(dbRef(db, 'user_statuses'), limitToLast(40));
+  App.statusUnsub = onValue(q, snap => {
+    const data = snap.val() || {};
+    const posts = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (b.time || 0) - (a.time || 0));
+    renderStatusFeed(posts);
+  });
 }
 
-function renderMessages(slug, msgs) {
+function renderStatusFeed(posts) {
+  const container = $('statusList'); if (!container) return;
+  if (!posts.length) {
+    container.innerHTML = '<div class="empty"><p>No status updates yet. Be the first to post!</p></div>';
+    return;
+  }
+  container.innerHTML = posts.map(p => {
+    const isMine = p.authorSlug === App.mySlug;
+    const mediaHtml = p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" class="status-media" loading="lazy">` : `<video src="${p.mediaUrl}" controls class="status-media"></video>`) : '';
+    const linkHtml = p.link ? `<a href="${p.link}" target="_blank" rel="noopener" class="status-link">🔗 ${esc(p.link)}</a>` : '';
+    const textHtml = p.text ? `<div class="status-content-box" style="background:${p.bgColor || '#0d7a8c'};">${esc(p.text)}</div>` : '';
+    
+    return `<div class="status-card">
+      <div class="status-card-header">
+        <div class="avatar" style="width:36px;height:36px;font-size:14px;">${avatarInner(p.authorPhoto, p.authorName)}</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:14px;">${esc(p.authorName)} <span style="font-size:11px;color:var(--muted);font-weight:400;">(@${p.authorSlug})</span></div>
+          <div style="font-size:10px;color:var(--muted);">${new Date(p.time).toLocaleString()}</div>
+        </div>
+        ${isMine ? `<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;" onclick="window.__delStatus('${p._k}')">🗑</button>` : ''}
+      </div>
+      ${textHtml}
+      ${mediaHtml}
+      ${linkHtml}
+    </div>`;
+  }).join('');
+}
+
+window.__delStatus = async (key) => {
+  if (confirm('Delete this status update?')) {
+    try {
+      await remove(dbRef(db, 'user_statuses/' + key));
+      toast('Status deleted');
+    } catch { toast('Failed to delete'); }
+  }
+};
+
+/* RENDER MESSAGES WITH EDIT/DELETE CONTEXT MENU */
+function renderMessages(slugOrGroupId, msgs, isGroup = false) {
   const area = $('messagesArea'); if (!area) return;
-  if (!msgs.length) { area.innerHTML = '<div class="empty"><p style="font-size:13px;">Say hello 👋</p></div>'; return; }
-  area.innerHTML = msgs.map(m => {
+  const deletedKeys = App.deletedLocally[slugOrGroupId] || [];
+  const visibleMsgs = msgs.filter(m => !deletedKeys.includes(m._k));
+
+  if (!visibleMsgs.length) { area.innerHTML = '<div class="empty"><p style="font-size:13px;">Say hello 👋</p></div>'; return; }
+
+  area.innerHTML = visibleMsgs.map(m => {
     const out = m.from === App.mySlug;
     const t = m.time ? new Date(m.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
     const hasA = !!m.attachment;
@@ -887,185 +1010,214 @@ function renderMessages(slug, msgs) {
     const aHtml = hasA ? renderAttachment(m) : '';
     const cHtml = (hasA && m.text) ? `<div class="msg-caption">${esc(m.text)}</div>` : '';
     const tHtml = (!hasA && m.text) ? esc(m.text) : '';
+    const editedHtml = m.edited ? `<span class="msg-edited-tag">(edited)</span>` : '';
+    const senderHtml = isGroup && !out ? `<div style="font-size:10px;font-weight:700;color:var(--accent);margin-bottom:2px;">@${esc(m.fromName || m.from)}</div>` : '';
     const tick = out ? `<span class="tick ${m.readAt ? 'read' : ''}">${m.readAt ? '✓✓' : '✓'}</span>` : '';
-    return `<div class="${cls}">${aHtml}${cHtml}${tHtml}<span class="time">${t} ${tick}</span></div>`;
+
+    return `<div class="${cls}" data-msg-key="${m._k}" onclick="window.__openMsgOpts('${m._k}')" style="cursor:pointer;">
+      ${senderHtml}${aHtml}${cHtml}${tHtml}${editedHtml}<span class="time">${t} ${tick}</span>
+    </div>`;
   }).join('');
   area.scrollTop = area.scrollHeight;
 }
 
+window.__openMsgOpts = (msgKey) => {
+  const active = App.activeChat; if (!active) return;
+  const msgs = App.lastMessages[active] || [];
+  const msgObj = msgs.find(m => m._k === msgKey);
+  if (!msgObj) return;
+
+  App.selectedMsgKey = msgKey;
+  App.selectedMsgObj = msgObj;
+
+  const isMine = msgObj.from === App.mySlug;
+  $('actEditBtn').style.display = isMine ? 'flex' : 'none';
+  $('actDeleteEveryoneBtn').style.display = isMine ? 'flex' : 'none';
+  $('msgActionsModal').classList.add('show');
+  $('actionSheet').classList.add('show');
+};
+
+function closeMsgOpts() {
+  $('msgActionsModal').classList.remove('show');
+  $('actionSheet').classList.remove('show');
+}
+$('actCancelBtn').addEventListener('click', closeMsgOpts);
+
+$('actDeleteForMeBtn').addEventListener('click', () => {
+  const active = App.activeChat; const key = App.selectedMsgKey;
+  if (active && key) {
+    if (!App.deletedLocally[active]) App.deletedLocally[active] = [];
+    App.deletedLocally[active].push(key);
+    saveDeletedLocally();
+    renderMessages(active, App.lastMessages[active] || [], App.activeIsGroup);
+    toast('Deleted for you');
+  }
+  closeMsgOpts();
+});
+
+$('actDeleteEveryoneBtn').addEventListener('click', async () => {
+  const active = App.activeChat; const key = App.selectedMsgKey;
+  if (active && key) {
+    try {
+      const path = App.activeIsGroup ? `group_chats/${active}/messages/${key}` : `chats/${chatIdFor(App.mySlug, active)}/messages/${key}`;
+      await remove(dbRef(db, path));
+      toast('Deleted for everyone');
+    } catch { toast('Delete failed', true); }
+  }
+  closeMsgOpts();
+});
+
+$('actEditBtn').addEventListener('click', () => {
+  closeMsgOpts();
+  if (App.selectedMsgObj) {
+    $('editMsgInput').value = App.selectedMsgObj.text || '';
+    $('editMsgModal').classList.add('show');
+  }
+});
+$('editMsgCancel').addEventListener('click', () => $('editMsgModal').classList.remove('show'));
+
+$('editMsgConfirm').addEventListener('click', async () => {
+  const active = App.activeChat; const key = App.selectedMsgKey;
+  const newText = $('editMsgInput').value.trim();
+  if (active && key && newText) {
+    try {
+      const path = App.activeIsGroup ? `group_chats/${active}/messages/${key}` : `chats/${chatIdFor(App.mySlug, active)}/messages/${key}`;
+      await set(dbRef(db, path + '/text'), newText);
+      await set(dbRef(db, path + '/edited'), true);
+      $('editMsgModal').classList.remove('show');
+      toast('Message updated ✓');
+    } catch { toast('Edit failed', true); }
+  }
+});
+
+/* CHAT SELECTION & SENDING OVERLOAD FOR GROUPS */
 function buildUI() {
   const cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient');
-  if (!App.contacts.length) {
-    cl.innerHTML = '<div class="empty"><div class="empty-icon">💬</div><p>No contacts yet.<br>Tap <strong>＋</strong> and type someone\'s name.</p></div>';
-    ccl.innerHTML = '<div class="empty"><div class="empty-icon">📞</div><p>Add a contact to call them.</p></div>';
-    vmSel.innerHTML = '<option value="">Select contact</option>';
-    updateUnreadBadges(); return;
+  
+  let html = '';
+  if (App.groups.length) {
+    html += '<div class="section-title" style="padding:10px 20px 4px;">Group Chats</div>';
+    html += App.groups.map(g => `
+      <div class="list-item" data-group-id="${g.id}">
+        <div class="avatar accent">👥</div>
+        <div class="list-item-body">
+          <div class="list-item-title">${esc(g.name)}</div>
+          <div class="list-item-sub">${g.members.length} members</div>
+        </div>
+        <div class="list-item-action">›</div>
+      </div>
+    `).join('');
   }
-  cl.innerHTML = App.contacts.map(c => {
-    const n = App.unread[c.slug] || 0;
-    const last = App.lastMessages[c.slug] && App.lastMessages[c.slug].length ? App.lastMessages[c.slug][App.lastMessages[c.slug].length - 1] : null;
-    let sub = previewText(last); sub = sub.length > 34 ? sub.slice(0, 34) + '…' : sub;
-    return `<div class="list-item" data-contact-slug="${c.slug}">
-      <div class="avatar">${avatarInner(c.photo, c.name)}</div>
-      <div class="list-item-body"><div class="list-item-title ${n>0?'unread':''}">${esc(c.name)}</div><div class="list-item-sub ${n>0?'unread':''}">${esc(sub)}</div></div>
-      <div class="unread-badge ${n>0?'show':''}">${n>99?'99+':n}</div>
-      <div class="list-item-action">›</div></div>`;
-  }).join('');
+
+  if (App.contacts.length) {
+    html += '<div class="section-title" style="padding:10px 20px 4px;">Direct Messages</div>';
+    html += App.contacts.map(c => {
+      const n = App.unread[c.slug] || 0;
+      const last = App.lastMessages[c.slug] && App.lastMessages[c.slug].length ? App.lastMessages[c.slug][App.lastMessages[c.slug].length - 1] : null;
+      let sub = previewText(last); sub = sub.length > 34 ? sub.slice(0, 34) + '…' : sub;
+      return `<div class="list-item" data-contact-slug="${c.slug}">
+        <div class="avatar">${avatarInner(c.photo, c.name)}</div>
+        <div class="list-item-body"><div class="list-item-title ${n>0?'unread':''}">${esc(c.name)}</div><div class="list-item-sub ${n>0?'unread':''}">${esc(sub)}</div></div>
+        <div class="unread-badge ${n>0?'show':''}">${n>99?'99+':n}</div>
+        <div class="list-item-action">›</div></div>`;
+    }).join('');
+  }
+
+  if (!html) {
+    cl.innerHTML = '<div class="empty"><div class="empty-icon">💬</div><p>No contacts or groups yet.<br>Tap <strong>＋</strong> to begin.</p></div>';
+  } else {
+    cl.innerHTML = html;
+  }
+
   ccl.innerHTML = App.contacts.map(c => `
     <div class="list-item" data-call-slug="${c.slug}">
       <div class="avatar accent">${avatarInner(c.photo, c.name)}</div>
       <div class="list-item-body"><div class="list-item-title">${esc(c.name)}</div><div class="list-item-sub">Tap to call</div></div>
       <div class="list-item-action">📞</div></div>`).join('');
   vmSel.innerHTML = '<option value="">Select contact</option>' + App.contacts.map(c => `<option value="${c.slug}">${esc(c.name)}</option>`).join('');
-  cl.querySelectorAll('[data-contact-slug]').forEach(el => el.addEventListener('click', () => openChat(el.dataset.contactSlug)));
+
+  cl.querySelectorAll('[data-contact-slug]').forEach(el => el.addEventListener('click', () => openChat(el.dataset.contactSlug, false)));
+  cl.querySelectorAll('[data-group-id]').forEach(el => el.addEventListener('click', () => openChat(el.dataset.groupId, true)));
   ccl.querySelectorAll('[data-call-slug]').forEach(el => el.addEventListener('click', () => startCall(el.dataset.callSlug)));
   updateUnreadBadges();
 }
 
-document.querySelectorAll('.nav-item').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const tab = btn.dataset.tab;
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b === btn));
-    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
-    $('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = 'block';
-    $('headerTitle').textContent = { chats: 'Chats', calls: 'Calls', voicemail: 'Voicemail', profile: 'Profile' }[tab];
-    $('addContactFab').style.display = (tab === 'chats' || tab === 'calls') ? 'flex' : 'none';
-  });
-});
+async function openChat(id, isGroup = false) {
+  App.activeChat = id;
+  App.activeIsGroup = isGroup;
+  $('sendBtn').disabled = false;
 
-function updateChatHeader(c) { $('chatName').textContent = c.name; $('chatAvatar').innerHTML = avatarInner(c.photo, c.name); }
+  if (isGroup) {
+    const g = App.groups.find(x => x.id === id); if (!g) return;
+    $('chatName').textContent = g.name;
+    $('chatAvatar').innerHTML = '👥';
+    $('chatStatus').textContent = `${g.members.length} members`;
+  } else {
+    const c = App.contacts.find(x => x.slug === id); if (!c) return;
+    updateChatHeader(c);
+    App.lastRead[id] = Date.now(); saveLastRead(); App.unread[id] = 0; updateUnreadBadges();
+  }
 
-async function openChat(slug) {
-  const c = App.contacts.find(x => x.slug === slug); if (!c) return;
-  App.activeChat = slug;
-  updateChatHeader(c); $('sendBtn').disabled = false;
-  App.lastRead[slug] = Date.now(); saveLastRead(); App.unread[slug] = 0; updateUnreadBadges();
   $('emojiPalette').classList.remove('show');
   showScreen('screen-chat');
-  const msgs = App.lastMessages[slug] || [];
-  if (msgs.length) renderMessages(slug, msgs);
-  else $('messagesArea').innerHTML = '<div class="empty"><p style="font-size:13px;">Say hello 👋</p></div>';
-  const cid = chatIdFor(App.mySlug, slug);
-  for (const m of msgs) {
-    if (m.from !== App.mySlug && !m.readAt) {
-      try { await set(dbRef(db, 'chats/' + cid + '/messages/' + m._k + '/readAt'), Date.now()); } catch {}
-    }
-  }
+  const msgs = App.lastMessages[id] || [];
+  renderMessages(id, msgs, isGroup);
 }
 
 async function sendMessage() {
   const input = $('chatInput'); const text = input.value.trim();
   if (!text || !App.activeChat) return;
-  const cid = chatIdFor(App.mySlug, App.activeChat);
+
   try {
-    await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: App.activeChat, text, time: Date.now() });
+    if (App.activeIsGroup) {
+      await push(dbRef(db, 'group_chats/' + App.activeChat + '/messages'), {
+        from: App.mySlug, fromName: App.myName, text, time: Date.now()
+      });
+    } else {
+      const cid = chatIdFor(App.mySlug, App.activeChat);
+      await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: App.activeChat, text, time: Date.now() });
+    }
     input.value = '';
     $('sendBtn').disabled = true;
     playSentSound();
   } catch { toast('Send failed'); }
 }
 
-$('sendBtn').addEventListener('click', sendMessage);
-$('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
-$('chatBackBtn').addEventListener('click', () => { App.activeChat = null; $('emojiPalette').classList.remove('show'); showScreen('screen-main'); updateUnreadBadges(); });
-$('callFromChatBtn').addEventListener('click', () => { if (App.activeChat) startCall(App.activeChat); });
-
-$('emojiBtn').addEventListener('click', (e) => {
-  e.preventDefault();
-  if (!App.activeChat) { toast('Open a chat first', true); return; }
-  $('emojiPalette').classList.toggle('show');
-});
-
-/* EMOJI EVENT HANDLERS */
-document.querySelectorAll('.emoji-quick, .quick-reaction').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    if (!App.activeChat) { toast('Open a chat first', true); return; }
-    const emoji = btn.dataset.emoji || btn.textContent.trim();
-    const cid = chatIdFor(App.mySlug, App.activeChat);
-    try {
-      await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: App.activeChat, text: emoji, time: Date.now() });
-      playSentSound();
-      $('emojiPalette').classList.remove('show');
-    } catch { toast('Send failed'); }
-  });
-});
-
-document.querySelectorAll('.emoji-item').forEach(btn => {
-  btn.addEventListener('mousedown', e => e.preventDefault());
-  btn.addEventListener('click', () => {
-    const inp = $('chatInput');
-    const start = inp.selectionStart ?? inp.value.length;
-    const end = inp.selectionEnd ?? inp.value.length;
-    const emoji = btn.textContent.trim();
-    inp.value = inp.value.slice(0, start) + emoji + inp.value.slice(end);
-    const newPos = start + emoji.length;
-    inp.setSelectionRange(newPos, newPos);
-    if (document.activeElement !== inp) inp.focus();
-    $('sendBtn').disabled = false;
-  });
-});
-
-document.addEventListener('click', (e) => {
-  const pal = $('emojiPalette');
-  if (!pal.classList.contains('show')) return;
-  if (pal.contains(e.target) || e.target.closest('#emojiBtn')) return;
-  pal.classList.remove('show');
-});
-
-$('chatInput').addEventListener('input', () => {
-  $('sendBtn').disabled = !$('chatInput').value.trim();
-});
-
-/* MEDIA ATTACHMENTS (Base64 Encoding) */
-const MAX_BYTES = 10 * 1024 * 1024;
-$('attachBtn').addEventListener('click', (e) => {
-  e.preventDefault();
-  if (!App.activeChat) { toast('Open a chat first', true); return; }
-  const inp = $('fileInput'); inp.value = ''; inp.click();
-});
-
+/* OVERLOAD ATTACHMENTS FOR GROUP SUPPORT */
 $('fileInput').addEventListener('change', async (e) => {
   const file = e.target.files && e.target.files[0];
-  if (!file) return;
-  if (!App.activeChat) { toast('Chat closed — try again', true); e.target.value = ''; return; }
+  if (!file || !App.activeChat) return;
   if (file.size > MAX_BYTES) { toast(`File too large: ${fmtBytes(file.size)} (max 10MB)`, true); e.target.value = ''; return; }
 
   const type = detectFileType(file);
-  const recipient = App.activeChat;
+  const target = App.activeChat;
   toast(`Processing ${type}…`);
   const bar = $('uploadBar'), fill = $('uploadBarFill');
   bar.classList.add('show'); fill.style.width = '30%';
 
   try {
-    let dataUrl = '';
-    if (type === 'image') {
-      dataUrl = await compressImgToDataUrl(file, 1200, 0.75);
-    } else {
-      dataUrl = await fileToDataUrl(file);
-    }
+    let dataUrl = type === 'image' ? await compressImgToDataUrl(file, 1200, 0.75) : await fileToDataUrl(file);
     fill.style.width = '70%';
 
-    const cid = chatIdFor(App.mySlug, recipient);
-    const attObj = {
-      type,
-      name: file.name || type,
-      size: file.size,
-      mime: file.type || 'application/octet-stream',
-      url: dataUrl
-    };
+    const attObj = { type, name: file.name || type, size: file.size, mime: file.type || 'application/octet-stream', url: dataUrl };
 
-    await push(dbRef(db, 'chats/' + cid + '/messages'), {
-      from: App.mySlug, to: recipient, text: '', time: Date.now(), attachment: attObj
-    });
+    if (App.activeIsGroup) {
+      await push(dbRef(db, 'group_chats/' + target + '/messages'), {
+        from: App.mySlug, fromName: App.myName, text: '', time: Date.now(), attachment: attObj
+      });
+    } else {
+      const cid = chatIdFor(App.mySlug, target);
+      await push(dbRef(db, 'chats/' + cid + '/messages'), {
+        from: App.mySlug, to: target, text: '', time: Date.now(), attachment: attObj
+      });
+    }
 
     fill.style.width = '100%';
     setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 500);
     toast('Sent ✓');
     playSentSound();
   } catch (err) {
-    fill.style.width = '0%';
-    bar.classList.remove('show');
-    toast('Attachment failed', true);
+    fill.style.width = '0%'; bar.classList.remove('show'); toast('Attachment failed', true);
   }
   e.target.value = '';
 });
