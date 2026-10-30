@@ -305,7 +305,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
       <span class="menu-arrow" id="permStatus">checking…</span>
     </div>
     <div class="menu-item" id="storageCheckBtn">
-      <span class="menu-icon">☁️</span> Test Cloudinary Upload
+      <span class="menu-icon">🗄️</span> Storage Engine Status
       <span class="menu-arrow">›</span>
     </div>
     <div class="menu-item install-highlight" id="installMenuItem">
@@ -425,7 +425,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
       <strong>2.</strong> Anyone types that name in "Add contact" to reach you.<br><br>
       <strong>3.</strong> Tap any emoji in the strip above the input to send it instantly. Tap 😊 for the full palette.<br><br>
       <strong>4.</strong> ✓ means sent, ✓✓ means read.<br><br>
-      <strong>5.</strong> Media and attachments are uploaded through <strong>Cloudinary</strong> direct APIs for optimal cross-device performance.
+      <strong>5.</strong> Attachments use direct client-side Blob URLs and IndexedDB persistence for offline-first, instant delivery without cloud host restrictions.
     </p>
     <div class="modal-actions"><button class="confirm" id="helpClose">Got it</button></div>
   </div>
@@ -453,50 +453,63 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 
 <script>
 /* ═══════════════════════════════════════════════════════════
-   CLOUDINARY DIRECT MEDIA UPLOAD CONFIGURATION
+   INDEXEDDB PERSISTENCE ENGINE FOR CLIENT-SIDE MEDIA
    ═══════════════════════════════════════════════════════════ */
-const CLOUDINARY_CONFIG = {
-  cloudName: 'demo',          // Replace with your Cloudinary Cloud Name
-  uploadPreset: 'docs_upload_example_preset' // Replace with your Unsigned Upload Preset
-};
+const DB_NAME = 'JARVIS_Storage';
+const DB_VERSION = 1;
+const STORE_FILES = 'media_files';
 
-async function uploadViaCloudinary(file, displayName, onProgress) {
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
-
+function openMediaDB() {
   return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/auto/upload`);
-
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable && onProgress) {
-        const percent = Math.round((e.loaded / e.total) * 100);
-        onProgress(percent);
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(STORE_FILES)) {
+        db.createObjectStore(STORE_FILES, { keyPath: 'id' });
       }
     };
-
-    xhr.onload = () => {
-      if (xhr.status === 200) {
-        const res = JSON.parse(xhr.responseText);
-        resolve(res.secure_url);
-      } else {
-        reject(new Error(`Cloudinary upload failed (Status ${xhr.status})`));
-      }
-    };
-
-    xhr.onerror = () => reject(new Error('Network error uploading to Cloudinary'));
-    xhr.send(formData);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
   });
 }
 
+async function storeFileInDB(id, fileOrBlob, name, mime, size) {
+  const db = await openMediaDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_FILES, 'readwrite');
+    const store = tx.objectStore(STORE_FILES);
+    store.put({
+      id,
+      blob: fileOrBlob,
+      name,
+      mime,
+      size,
+      timestamp: Date.now()
+    });
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function getFileFromDB(id) {
+  const db = await openMediaDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_FILES, 'readonly');
+    const store = tx.objectStore(STORE_FILES);
+    const req = store.get(id);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+/* App State */
 const App = {
   mySlug: null, myName: '', myPhoto: null,
   contacts: [], activeChat: null,
-  lastRead: {}, unread: {}, lastMessages: {}, lastMsgTime: {},
-  installPrompt: null, isInstalled: false,
+  lastRead: {}, unread: {}, lastMessages: {},
   soundEnabled: true, vibrationEnabled: true,
-  audioCtx: null, originalTitle: 'JARVIS'
+  audioCtx: null, originalTitle: 'JARVIS',
+  blobUrls: new Map() // Caches active Blob Object URLs by file ID
 };
 
 const $ = id => document.getElementById(id);
@@ -535,16 +548,21 @@ function detectFileType(file) {
 
 /* Storage test button */
 $('storageCheckBtn').addEventListener('click', async () => {
-  toast('Testing Cloudinary upload…');
+  toast('Checking IndexedDB Engine…');
   try {
-    const testBlob = new Blob(['jarvis-test-' + Date.now()], { type: 'text/plain' });
-    const testFile = new File([testBlob], 'test.txt', { type: 'text/plain' });
-    const url = await uploadViaCloudinary(testFile, 'test.txt');
-    alert('✅ Cloudinary upload works!\n\nUploaded Test URL:\n' + url);
-    toast('Cloudinary OK ✓');
+    const testId = 'test_' + Date.now();
+    const testBlob = new Blob(['jarvis-test'], { type: 'text/plain' });
+    await storeFileInDB(testId, testBlob, 'test.txt', 'text/plain', testBlob.size);
+    const retrieved = await getFileFromDB(testId);
+    if (retrieved && retrieved.blob) {
+      alert('✅ IndexedDB Storage Operational!\n\nLocal media persistence is ready for offline and instant cross-session loading.');
+      toast('IndexedDB OK ✓');
+    } else {
+      throw new Error('Read verification failed');
+    }
   } catch (err) {
-    alert('❌ Cloudinary test failed!\n\nError: ' + err.message);
-    toast('Cloudinary test failed', true);
+    alert('❌ IndexedDB Check Failed: ' + err.message);
+    toast('Storage test failed', true);
   }
 });
 
@@ -577,8 +595,8 @@ function startMainApp() {
   $('profileUsername2').textContent = '@' + App.mySlug;
 }
 
-/* File Attachment & Upload Trigger */
-const MAX_BYTES = 50 * 1024 * 1024;
+/* Attachments & Object URL Handler */
+const MAX_BYTES = 100 * 1024 * 1024;
 $('attachBtn').addEventListener('click', (e) => {
   e.preventDefault();
   const inp = $('fileInput'); inp.value = ''; inp.click();
@@ -590,40 +608,58 @@ $('fileInput').addEventListener('change', async (e) => {
   if (file.size > MAX_BYTES) { toast(`File too large: ${fmtBytes(file.size)}`, true); e.target.value = ''; return; }
   
   const type = detectFileType(file);
-  toast(`Uploading ${type} (${fmtBytes(file.size)})…`);
+  toast(`Saving ${type} (${fmtBytes(file.size)})…`);
   
   const bar = $('uploadBar'), fill = $('uploadBarFill');
-  bar.classList.add('show'); fill.style.width = '10%';
+  bar.classList.add('show'); fill.style.width = '30%';
 
   try {
-    const fileUrl = await uploadViaCloudinary(file, file.name, (percent) => {
-      fill.style.width = percent + '%';
-    });
-    
-    appendMediaMessage(fileUrl, type, file.name, file.size);
-    toast('Uploaded ✓');
+    const fileId = 'file_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+    await storeFileInDB(fileId, file, file.name, file.type, file.size);
+    fill.style.width = '70%';
+
+    const objectUrl = URL.createObjectURL(file);
+    App.blobUrls.set(fileId, objectUrl);
+
+    fill.style.width = '100%';
+    await appendMediaMessage(fileId, objectUrl, type, file.name, file.size);
+    toast('Attached ✓');
   } catch (err) {
-    toast('Upload failed: ' + err.message, true);
+    toast('Save failed: ' + err.message, true);
   } finally {
-    setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 500);
+    setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 400);
     e.target.value = '';
   }
 });
 
-function appendMediaMessage(url, type, fileName, fileSize) {
+async function getOrCreateObjectURL(fileId, fallbackName, fallbackMime) {
+  if (App.blobUrls.has(fileId)) {
+    return App.blobUrls.get(fileId);
+  }
+  const record = await getFileFromDB(fileId);
+  if (record && record.blob) {
+    const objectUrl = URL.createObjectURL(record.blob);
+    App.blobUrls.set(fileId, objectUrl);
+    return objectUrl;
+  }
+  return null;
+}
+
+async function appendMediaMessage(fileId, objectUrl, type, fileName, fileSize) {
   const area = $('messagesArea');
   const msgDiv = document.createElement('div');
   msgDiv.className = 'msg out has-attachment';
+  msgDiv.dataset.fileId = fileId;
   
   let contentHtml = '';
   if (type === 'image') {
-    contentHtml = `<img class="attach-img" src="${url}" onclick="window.__lb('${url}','${esc(fileName)}')">`;
+    contentHtml = `<img class="attach-img" src="${objectUrl}" onclick="window.__lb('${objectUrl}','${esc(fileName)}')">`;
   } else if (type === 'video') {
-    contentHtml = `<video class="attach-video" controls src="${url}"></video>`;
+    contentHtml = `<video class="attach-video" controls src="${objectUrl}"></video>`;
   } else if (type === 'audio') {
-    contentHtml = `<audio class="attach-audio" controls src="${url}"></audio>`;
+    contentHtml = `<audio class="attach-audio" controls src="${objectUrl}"></audio>`;
   } else {
-    contentHtml = `<a class="attach-file" href="${url}" target="_blank" download="${esc(fileName)}">
+    contentHtml = `<a class="attach-file" href="${objectUrl}" target="_blank" download="${esc(fileName)}">
       <span class="file-icon">📄</span>
       <span class="file-info"><span class="file-name">${esc(fileName)}</span><span class="file-size">${fmtBytes(fileSize)}</span></span>
     </a>`;
