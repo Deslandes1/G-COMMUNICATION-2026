@@ -304,10 +304,6 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
       <span class="menu-icon">📢</span> Browser notifications
       <span class="menu-arrow" id="permStatus">checking…</span>
     </div>
-    <div class="menu-item" id="storageCheckBtn">
-      <span class="menu-icon">🗄️</span> Storage Engine Status
-      <span class="menu-arrow">›</span>
-    </div>
     <div class="menu-item install-highlight" id="installMenuItem">
       <span class="menu-icon">⬇️</span> Install app on this phone
       <span class="menu-arrow">›</span>
@@ -425,7 +421,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
       <strong>2.</strong> Anyone types that name in "Add contact" to reach you.<br><br>
       <strong>3.</strong> Tap any emoji in the strip above the input to send it instantly. Tap 😊 for the full palette.<br><br>
       <strong>4.</strong> ✓ means sent, ✓✓ means read.<br><br>
-      <strong>5.</strong> Attachments use direct client-side Blob URLs and IndexedDB persistence for offline-first delivery.
+      <strong>5.</strong> Media attachments are auto-compressed and stored seamlessly across mobile & desktop browsers.
     </p>
     <div class="modal-actions"><button class="confirm" id="helpClose">Got it</button></div>
   </div>
@@ -451,58 +447,38 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 <input type="file" id="fileInput" style="display:none;">
 </div>
 
-<script>
-/* ═══════════════════════════════════════════════════════════
-   INDEXEDDB PERSISTENCE ENGINE FOR CLIENT-SIDE MEDIA
-   ═══════════════════════════════════════════════════════════ */
-const DB_NAME = 'JARVIS_Storage';
-const DB_VERSION = 1;
-const STORE_FILES = 'media_files';
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref as dbRef, push, onValue, onChildAdded, remove, set, get, runTransaction, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-function openMediaDB() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onupgradeneeded = (e) => {
-      const db = e.target.result;
-      if (!db.objectStoreNames.contains(STORE_FILES)) {
-        db.createObjectStore(STORE_FILES, { keyPath: 'id' });
-      }
-    };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
-}
+/* FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "AIzaSyBfqTPdNq31MegFF_vh08D2K_6-2GMeIrY",
+  authDomain: "jarvis-tracker-a8136.firebaseapp.com",
+  databaseURL: "https://jarvis-tracker-a8136-default-rtdb.firebaseio.com",
+  projectId: "jarvis-tracker-a8136",
+  storageBucket: "jarvis-tracker-a8136.firebasestorage.app",
+  messagingSenderId: "994161558903",
+  appId: "1:994161558903:web:c978951c451a305b6d0d72",
+  measurementId: "G-80G2TGRQTZ"
+};
+const fbApp = initializeApp(firebaseConfig);
+const db = getDatabase(fbApp);
+const ICE_SERVERS = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] };
 
-async function storeFileInDB(id, fileOrBlob, name, mime, size) {
-  const db = await openMediaDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_FILES, 'readwrite');
-    const store = tx.objectStore(STORE_FILES);
-    store.put({ id, blob: fileOrBlob, name, mime, size, timestamp: Date.now() });
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error);
-  });
-}
-
-async function getFileFromDB(id) {
-  const db = await openMediaDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_FILES, 'readonly');
-    const store = tx.objectStore(STORE_FILES);
-    const req = store.get(id);
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
-}
-
-/* App State */
 const App = {
   mySlug: null, myName: '', myPhoto: null,
   contacts: [], activeChat: null,
-  lastRead: {}, unread: {}, lastMessages: {},
+  lastRead: {}, unread: {}, lastMessages: {}, lastMsgTime: {},
+  globalSubscribed: {}, globalUnsubs: {}, contactPhotoUnsubs: {},
+  vmUnsub: null,
+  pc: null, localStream: null, activeCall: null,
+  incomingCallData: null, callUnsubs: [], muted: false,
+  mediaRecorder: null, recordedChunks: [], recordTimer: null,
+  installPrompt: null, isInstalled: false,
   soundEnabled: true, vibrationEnabled: true,
-  audioCtx: null, originalTitle: 'JARVIS',
-  blobUrls: new Map()
+  audioCtx: null, ringInterval: null, titleFlashInterval: null, callRingTimeout: null,
+  originalTitle: 'JARVIS'
 };
 
 const $ = id => document.getElementById(id);
@@ -522,10 +498,22 @@ function toast(msg, isError) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), isError ? 5000 : 2600);
 }
+
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function slugify(name) { return String(name).toLowerCase().trim().replace(/[^a-z0-9]/g, '').slice(0, 20); }
+function chatIdFor(a, b) { const [x, y] = [a, b].sort(); return `${x}__${y}`; }
 function avatarInner(photo, name) { return photo ? `<img src="${photo}" alt="">` : esc((name || '?').charAt(0).toUpperCase()); }
 function fmtBytes(b) { if (!b) return ''; if (b < 1024) return b + ' B'; if (b < 1048576) return (b / 1024).toFixed(1) + ' KB'; return (b / 1048576).toFixed(1) + ' MB'; }
+
+function previewText(last) {
+  if (!last) return 'Tap to chat';
+  if (last.attachment) {
+    const a = last.attachment;
+    const tag = a.type === 'image' ? '📷 Photo' : a.type === 'video' ? '🎥 Video' : a.type === 'audio' ? '🎤 Audio' : '📎 ' + (a.name || 'File');
+    return last.text ? tag + ' · ' + last.text : tag;
+  }
+  return last.text || '';
+}
 
 function detectFileType(file) {
   const mime = (file.type || '').toLowerCase();
@@ -533,10 +521,69 @@ function detectFileType(file) {
   if (mime.startsWith('video/')) return 'video';
   if (mime.startsWith('audio/')) return 'audio';
   const name = (file.name || '').toLowerCase();
-  if (/\.(jpg|jpeg|png|gif|webp|svg)$/.test(name)) return 'image';
+  if (/\.(jpg|jpeg|png|gif|webp|bmp|heic|svg)$/.test(name)) return 'image';
   if (/\.(mp4|mov|webm|avi|mkv)$/.test(name)) return 'video';
-  if (/\.(mp3|wav|ogg|m4a|aac)$/.test(name)) return 'audio';
+  if (/\.(mp3|wav|ogg|m4a|aac|flac)$/.test(name)) return 'audio';
   return 'file';
+}
+
+function getAudioCtx() { if (!App.audioCtx) { try { App.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch {} } return App.audioCtx; }
+function unlockAudio() { const ctx = getAudioCtx(); if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {}); }
+document.addEventListener('click', unlockAudio);
+document.addEventListener('touchstart', unlockAudio, { passive: true });
+
+function playMessageSound() {
+  if (!App.soundEnabled) return;
+  const ctx = getAudioCtx(); if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+  const now = ctx.currentTime;
+  [880, 1320, 1760].forEach((freq, i) => {
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.type = 'sine'; osc.frequency.value = freq;
+    const start = now + i * 0.09;
+    gain.gain.setValueAtTime(0, start);
+    gain.gain.linearRampToValueAtTime(0.22, start + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.4);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(start); osc.stop(start + 0.42);
+  });
+}
+
+function playSentSound() {
+  if (!App.soundEnabled) return;
+  const ctx = getAudioCtx(); if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator(); const gain = ctx.createGain();
+  osc.type = 'sine'; osc.frequency.setValueAtTime(900, now);
+  osc.frequency.exponentialRampToValueAtTime(600, now + 0.08);
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(0.05, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(now); osc.stop(now + 0.12);
+}
+
+function startCallRing() {
+  stopCallRing();
+  if (App.vibrationEnabled && navigator.vibrate) navigator.vibrate([600, 400, 600]);
+  App.ringInterval = setInterval(() => {
+    if (App.vibrationEnabled && navigator.vibrate) navigator.vibrate([600, 400, 600]);
+  }, 2500);
+}
+
+function stopCallRing() {
+  if (App.ringInterval) { clearInterval(App.ringInterval); App.ringInterval = null; }
+  if (navigator.vibrate) navigator.vibrate(0);
+}
+
+function showBrowserNotification(title, body, tag) {
+  if (!('Notification' in window) || Notification.permission !== 'granted' || !document.hidden) return;
+  try {
+    const n = new Notification(title, { body: body || '', icon: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNjYiIGZpbGw9IiNkNGFlMzciLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5MiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzBiMmE0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RzwvdGV4dD48L3N2Zz4=', tag: tag || 'jarvis', renotify: true, silent: true });
+    n.onclick = () => { window.focus(); n.close(); };
+    setTimeout(() => { try { n.close(); } catch {} }, 8000);
+  } catch (e) { console.warn('Notification failed:', e); }
 }
 
 function updatePermStatus() {
@@ -555,6 +602,29 @@ async function requestNotificationPermission() {
   try { return await Notification.requestPermission(); } catch { return 'error'; }
 }
 
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+App.soundEnabled = LS.get('soundEnabled', true);
+App.vibrationEnabled = LS.get('vibrationEnabled', true);
+
+function updateToggleUI() {
+  $('toggleSound').classList.toggle('on', App.soundEnabled);
+  $('toggleVibration').classList.toggle('on', App.vibrationEnabled);
+}
+
+$('toggleSound').addEventListener('click', () => {
+  App.soundEnabled = !App.soundEnabled; LS.set('soundEnabled', App.soundEnabled); updateToggleUI();
+  if (App.soundEnabled) playMessageSound();
+  toast(App.soundEnabled ? 'Sound on' : 'Sound off');
+});
+
+$('toggleVibration').addEventListener('click', () => {
+  App.vibrationEnabled = !App.vibrationEnabled; LS.set('vibrationEnabled', App.vibrationEnabled); updateToggleUI();
+  if (App.vibrationEnabled && navigator.vibrate) navigator.vibrate(80);
+  toast(App.vibrationEnabled ? 'Vibration on' : 'Vibration off');
+});
+
 $('permBtn').addEventListener('click', async () => {
   const result = await requestNotificationPermission();
   updatePermStatus();
@@ -563,80 +633,160 @@ $('permBtn').addEventListener('click', async () => {
   else toast('Notification permission: ' + result);
 });
 
-/* Contact & Storage Persistence */
+/* Onboarding */
+const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
+let nameCheckTimer = null, nameCheckOk = false;
+
+nameInput.addEventListener('input', () => {
+  enterBtn.disabled = true; nameCheckOk = false;
+  const slug = slugify(nameInput.value);
+  if (!slug) { nameStatus.textContent = 'Lowercase letters and numbers only'; nameStatus.className = 'name-status'; return; }
+  nameStatus.textContent = 'Checking availability…'; nameStatus.className = 'name-status';
+  clearTimeout(nameCheckTimer);
+  nameCheckTimer = setTimeout(async () => {
+    try {
+      const snap = await get(dbRef(db, 'users/' + slug));
+      if (snap.exists()) { nameStatus.textContent = `"${slug}" is taken — try another`; nameStatus.className = 'name-status bad'; }
+      else { nameStatus.textContent = `"${slug}" is available ✓`; nameStatus.className = 'name-status ok'; nameCheckOk = true; enterBtn.disabled = false; }
+    } catch { nameStatus.textContent = 'Error checking username'; nameStatus.className = 'name-status bad'; }
+  }, 400);
+});
+
+enterBtn.addEventListener('click', async () => {
+  if (!nameCheckOk) return;
+  unlockAudio();
+  await requestNotificationPermission();
+  updatePermStatus();
+  const slug = slugify(nameInput.value);
+  enterBtn.disabled = true; enterBtn.textContent = 'Reserving…';
+  try {
+    const userRef = dbRef(db, 'users/' + slug);
+    const result = await runTransaction(userRef, current => {
+      if (current === null) return { slug, displayName: nameInput.value.trim() || slug, createdAt: Date.now(), photo: null };
+      return;
+    });
+    if (!result.committed) { toast('That name was just taken'); enterBtn.disabled = false; enterBtn.textContent = 'Enter Portal'; return; }
+    App.mySlug = slug;
+    App.myName = result.snapshot.val().displayName;
+    App.myPhoto = LS.get('avatar', null);
+    if (App.myPhoto) await set(dbRef(db, 'users/' + slug + '/photo'), App.myPhoto);
+    LS.set('mySlug', slug); LS.set('myName', App.myName);
+    startMainApp();
+  } catch (e) { console.error(e); toast('Try again'); enterBtn.disabled = false; enterBtn.textContent = 'Enter Portal'; }
+});
+
+window.addEventListener('load', () => {
+  updateToggleUI();
+  updatePermStatus();
+  loadContacts();
+  loadLastRead();
+  const savedSlug = LS.get('mySlug', null);
+  const savedName = LS.get('myName', null);
+  const savedPhoto = LS.get('avatar', null);
+  if (savedPhoto) App.myPhoto = savedPhoto;
+  if (savedSlug && savedName) { App.mySlug = savedSlug; App.myName = savedName; startMainApp(); }
+  document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); });
+  });
+});
+
+function startMainApp() {
+  showScreen('screen-main');
+  updateProfileHeader();
+  buildUI();
+  listenForIncomingCalls();
+  listenVoicemails();
+  App.contacts.forEach(c => { listenContactPhoto(c.slug); setupGlobalMessageListener(c.slug); });
+  updatePermStatus();
+}
+
+function updateProfileHeader() {
+  $('profileName').textContent = App.myName;
+  $('profileUsername').textContent = '@' + App.mySlug;
+  $('profileUsername2').textContent = '@' + App.mySlug;
+  const box = $('profileAvatar'), img = $('profileAvatarImg'), letter = $('profileAvatarLetter');
+  if (App.myPhoto) { img.src = App.myPhoto; img.style.display = 'block'; letter.style.display = 'none'; box.classList.add('has-photo'); }
+  else { img.src = ''; img.style.display = 'none'; letter.style.display = 'inline'; letter.textContent = App.myName.charAt(0).toUpperCase(); box.classList.remove('has-photo'); }
+}
+
+$('profileAvatar').addEventListener('click', e => { if (e.target === $('avatarRemove')) return; $('avatarInput').click(); });
+$('avatarRemove').addEventListener('click', async e => {
+  e.stopPropagation();
+  if (!confirm('Remove profile photo?')) return;
+  App.myPhoto = null; LS.del('avatar'); updateProfileHeader();
+  try { await remove(dbRef(db, 'users/' + App.mySlug + '/photo')); } catch {}
+  toast('Photo removed');
+});
+
+$('avatarInput').addEventListener('change', async e => {
+  const file = e.target.files && e.target.files[0]; if (!file) return;
+  if (!file.type.startsWith('image/')) { toast('Pick an image'); return; }
+  try {
+    toast('Processing…');
+    const dataUrl = await resizeImage(file, 240);
+    App.myPhoto = dataUrl; LS.set('avatar', dataUrl); updateProfileHeader();
+    await set(dbRef(db, 'users/' + App.mySlug + '/photo'), dataUrl);
+    toast('Photo updated');
+  } catch { toast('Failed'); }
+  e.target.value = '';
+});
+
+function resizeImage(file, size) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader(); r.onerror = reject;
+    r.onload = ev => {
+      const img = new Image(); img.onerror = reject;
+      img.onload = () => {
+        const c = document.createElement('canvas'); c.width = size; c.height = size;
+        const ctx = c.getContext('2d');
+        const min = Math.min(img.width, img.height);
+        ctx.drawImage(img, (img.width - min) / 2, (img.height - min) / 2, min, min, 0, 0, size, size);
+        resolve(c.toDataURL('image/jpeg', 0.82));
+      };
+      img.src = ev.target.result;
+    };
+    r.readAsDataURL(file);
+  });
+}
+
 function loadContacts() { App.contacts = LS.get('contacts', []); }
 function saveContacts() { LS.set('contacts', App.contacts); }
-
-function buildUI() {
-  const cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient');
-  if (!App.contacts.length) {
-    cl.innerHTML = '<div class="empty"><div class="empty-icon">💬</div><p>No contacts yet.<br>Tap <strong>＋</strong> and type someone\'s name.</p></div>';
-    ccl.innerHTML = '<div class="empty"><div class="empty-icon">📞</div><p>Add a contact to call them.</p></div>';
-    vmSel.innerHTML = '<option value="">Select contact</option>';
-    return;
-  }
-  cl.innerHTML = App.contacts.map(c => `
-    <div class="list-item" data-contact-slug="${c.slug}">
-      <div class="avatar">${avatarInner(c.photo, c.name)}</div>
-      <div class="list-item-body">
-        <div class="list-item-title">${esc(c.name)}</div>
-        <div class="list-item-sub">@${esc(c.slug)}</div>
-      </div>
-      <div class="list-item-action">›</div>
-    </div>`).join('');
-    
-  ccl.innerHTML = App.contacts.map(c => `
-    <div class="list-item" data-call-slug="${c.slug}">
-      <div class="avatar accent">${avatarInner(c.photo, c.name)}</div>
-      <div class="list-item-body"><div class="list-item-title">${esc(c.name)}</div><div class="list-item-sub">Tap to call</div></div>
-      <div class="list-item-action">📞</div>
-    </div>`).join('');
-
-  vmSel.innerHTML = '<option value="">Select contact</option>' + App.contacts.map(c => `<option value="${c.slug}">${esc(c.name)}</option>`).join('');
-
-  cl.querySelectorAll('[data-contact-slug]').forEach(el => el.addEventListener('click', () => openChat(el.dataset.contactSlug)));
-}
+function loadLastRead() { App.lastRead = LS.get('lastRead', {}); }
+function saveLastRead() { LS.set('lastRead', App.lastRead); }
 
 function addContactBySlug(slug, displayName) {
   if (slug === App.mySlug) return toast("That's you");
   if (App.contacts.find(c => c.slug === slug)) return toast('Already added');
   App.contacts.push({ slug, name: displayName, addedAt: Date.now(), photo: null });
-  saveContacts();
-  buildUI();
-  toast('Added @' + slug);
+  saveContacts(); listenContactPhoto(slug); setupGlobalMessageListener(slug);
+  buildUI(); toast('Added @' + slug);
 }
 
-/* Modal Behavior */
-let addLookupResult = null;
+let addLookupTimer = null, addLookupResult = null;
 $('addContactFab').addEventListener('click', () => {
-  $('modalName').value = '';
-  $('modalStatus').textContent = '';
-  $('modalStatus').className = 'modal-status';
-  $('modalConfirm').disabled = true;
-  addLookupResult = null;
+  $('modalName').value = ''; $('modalStatus').textContent = ''; $('modalStatus').className = 'modal-status';
+  $('modalConfirm').disabled = true; addLookupResult = null;
   $('addModal').classList.add('show');
 });
-
 $('modalCancel').addEventListener('click', () => $('addModal').classList.remove('show'));
 
 $('modalName').addEventListener('input', () => {
+  $('modalConfirm').disabled = true; addLookupResult = null;
   const slug = slugify($('modalName').value);
-  if (!slug) {
-    $('modalStatus').textContent = 'Enter a valid name';
-    $('modalStatus').className = 'modal-status bad';
-    $('modalConfirm').disabled = true;
-    return;
-  }
-  if (slug === App.mySlug) {
-    $('modalStatus').textContent = "That's your own name";
-    $('modalStatus').className = 'modal-status bad';
-    $('modalConfirm').disabled = true;
-    return;
-  }
-  addLookupResult = { slug, displayName: $('modalName').value.trim() || slug };
-  $('modalStatus').textContent = `Ready to add @${slug}`;
-  $('modalStatus').className = 'modal-status ok';
-  $('modalConfirm').disabled = false;
+  if (!slug) { $('modalStatus').textContent = ''; return; }
+  $('modalStatus').textContent = 'Searching…'; $('modalStatus').className = 'modal-status';
+  clearTimeout(addLookupTimer);
+  addLookupTimer = setTimeout(async () => {
+    try {
+      if (slug === App.mySlug) { $('modalStatus').textContent = "That's your own name"; $('modalStatus').className = 'modal-status bad'; return; }
+      const snap = await get(dbRef(db, 'users/' + slug));
+      if (!snap.exists()) { $('modalStatus').textContent = `No one called @${slug}`; $('modalStatus').className = 'modal-status bad'; return; }
+      const data = snap.val();
+      addLookupResult = { slug, displayName: data.displayName || slug };
+      $('modalStatus').textContent = `Found: ${addLookupResult.displayName} (@${slug})`;
+      $('modalStatus').className = 'modal-status ok'; $('modalConfirm').disabled = false;
+    } catch { $('modalStatus').textContent = 'Lookup failed'; $('modalStatus').className = 'modal-status bad'; }
+  }, 350);
 });
 
 $('modalConfirm').addEventListener('click', () => {
@@ -645,140 +795,495 @@ $('modalConfirm').addEventListener('click', () => {
   $('addModal').classList.remove('show');
 });
 
-function openChat(slug) {
-  const c = App.contacts.find(x => x.slug === slug);
-  if (!c) return;
-  App.activeChat = slug;
-  $('chatName').textContent = c.name;
-  $('chatAvatar').innerHTML = avatarInner(c.photo, c.name);
-  showScreen('screen-chat');
-  renderMessages(slug);
+function listenContactPhoto(slug) {
+  if (App.contactPhotoUnsubs[slug]) return;
+  App.contactPhotoUnsubs[slug] = onValue(dbRef(db, 'users/' + slug + '/photo'), snap => {
+    const photo = snap.val();
+    const c = App.contacts.find(x => x.slug === slug);
+    if (!c) return;
+    if (c.photo !== photo) { c.photo = photo || null; saveContacts(); buildUI(); if (App.activeChat === slug) updateChatHeader(c); }
+  });
 }
 
-function renderMessages(slug) {
-  const area = $('messagesArea');
-  const msgs = App.lastMessages[slug] || [];
-  if (!msgs.length) {
-    area.innerHTML = '<div class="empty"><p style="font-size:13px;">Say hello 👋</p></div>';
-    return;
+function updateUnreadBadges() {
+  const total = Object.values(App.unread).reduce((s, n) => s + (n || 0), 0);
+  const chatsBtn = document.querySelector('.nav-item[data-tab="chats"]');
+  if (chatsBtn) {
+    let b = chatsBtn.querySelector('.nav-badge');
+    if (!b) { b = document.createElement('span'); b.className = 'nav-badge'; chatsBtn.appendChild(b); }
+    if (total > 0) { b.textContent = total > 99 ? '99+' : String(total); b.classList.add('show'); }
+    else b.classList.remove('show');
   }
-  area.innerHTML = msgs.map(m => `
-    <div class="msg ${m.from === App.mySlug ? 'out' : 'in'}">
-      ${esc(m.text)}
-      <span class="time">${new Date(m.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
-    </div>`).join('');
+}
+
+function setupGlobalMessageListener(slug) {
+  if (App.globalUnsubs[slug]) return;
+  const cid = chatIdFor(App.mySlug, slug);
+  const q = query(dbRef(db, 'chats/' + cid + '/messages'), limitToLast(150));
+  App.globalUnsubs[slug] = onValue(q, snap => {
+    const data = snap.val() || {};
+    const msgs = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (a.time || 0) - (b.time || 0));
+    const last = msgs[msgs.length - 1];
+    if (!App.globalSubscribed[slug]) {
+      App.globalSubscribed[slug] = true;
+      App.lastMsgTime[slug] = last ? (last.time || 0) : 0;
+      if (App.lastRead[slug] === undefined) { App.lastRead[slug] = last ? (last.time || Date.now()) : Date.now(); saveLastRead(); }
+    } else {
+      const prev = App.lastMsgTime[slug];
+      const isNew = last && (last.time || 0) > (prev || 0) && last.from !== App.mySlug;
+      if (last) App.lastMsgTime[slug] = last.time || Date.now();
+      if (isNew) {
+        playMessageSound();
+        const cname = App.contacts.find(x => x.slug === slug)?.name || slug;
+        const preview = previewText(last);
+        if (App.activeChat !== slug || document.hidden) {
+          if (App.vibrationEnabled && navigator.vibrate) navigator.vibrate([80, 40, 80]);
+          toast(`💬 ${cname}: ${preview.substring(0, 40)}`);
+          showBrowserNotification(`💬 ${cname}`, preview.substring(0, 120), `msg-${slug}`);
+        }
+      }
+    }
+    App.lastMessages[slug] = msgs;
+    const isActiveVisible = App.activeChat === slug && !document.hidden;
+    if (isActiveVisible) {
+      App.lastRead[slug] = Date.now(); saveLastRead(); App.unread[slug] = 0;
+      for (const m of msgs) {
+        if (m.from !== App.mySlug && !m.readAt) {
+          set(dbRef(db, 'chats/' + cid + '/messages/' + m._k + '/readAt'), Date.now()).catch(() => {});
+        }
+      }
+      renderMessages(slug, msgs);
+    } else if (App.activeChat === slug) {
+      renderMessages(slug, msgs);
+    } else {
+      const lr = App.lastRead[slug] || 0;
+      App.unread[slug] = msgs.filter(m => m.from !== App.mySlug && (m.time || 0) > lr).length;
+    }
+    updateUnreadBadges();
+  });
+}
+
+function renderAttachment(m) {
+  const a = m.attachment; if (!a) return '';
+  const safeUrl = String(a.url || '').replace(/"/g, '&quot;');
+  if (a.type === 'image') return `<img class="attach-img" src="${safeUrl}" loading="lazy" onclick="window.__lb('${safeUrl}','${esc(a.name||'photo')}')">`;
+  if (a.type === 'video') return `<video class="attach-video" controls playsinline webkit-playsinline preload="metadata" src="${safeUrl}"></video>`;
+  if (a.type === 'audio') return `<audio class="attach-audio" controls preload="metadata" src="${safeUrl}"></audio>`;
+  return `<a class="attach-file" href="${safeUrl}" target="_blank" rel="noopener" download="${esc(a.name||'file')}">
+    <span class="file-icon">📄</span>
+    <span class="file-info"><span class="file-name">${esc(a.name||'File')}</span><span class="file-size">${fmtBytes(a.size)}</span></span>
+    <span style="font-size:20px;color:var(--muted)">⬇</span>
+  </a>`;
+}
+
+function renderMessages(slug, msgs) {
+  const area = $('messagesArea'); if (!area) return;
+  if (!msgs.length) { area.innerHTML = '<div class="empty"><p style="font-size:13px;">Say hello 👋</p></div>'; return; }
+  area.innerHTML = msgs.map(m => {
+    const out = m.from === App.mySlug;
+    const t = m.time ? new Date(m.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+    const hasA = !!m.attachment;
+    const cls = `msg ${out ? 'out' : 'in'}${hasA ? ' has-attachment' : ''}`;
+    const aHtml = hasA ? renderAttachment(m) : '';
+    const cHtml = (hasA && m.text) ? `<div class="msg-caption">${esc(m.text)}</div>` : '';
+    const tHtml = (!hasA && m.text) ? esc(m.text) : '';
+    const tick = out ? `<span class="tick ${m.readAt ? 'read' : ''}">${m.readAt ? '✓✓' : '✓'}</span>` : '';
+    return `<div class="${cls}">${aHtml}${cHtml}${tHtml}<span class="time">${t} ${tick}</span></div>`;
+  }).join('');
   area.scrollTop = area.scrollHeight;
 }
 
-$('sendBtn').addEventListener('click', sendMessage);
-$('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
-$('chatInput').addEventListener('input', () => { $('sendBtn').disabled = !$('chatInput').value.trim(); });
-
-function sendMessage() {
-  const input = $('chatInput');
-  const text = input.value.trim();
-  if (!text || !App.activeChat) return;
-  if (!App.lastMessages[App.activeChat]) App.lastMessages[App.activeChat] = [];
-  App.lastMessages[App.activeChat].push({ from: App.mySlug, text, time: Date.now() });
-  LS.set('lastMessages', App.lastMessages);
-  input.value = '';
-  $('sendBtn').disabled = true;
-  renderMessages(App.activeChat);
-}
-
-$('chatBackBtn').addEventListener('click', () => { App.activeChat = null; showScreen('screen-main'); });
-
-/* Onboarding Logic */
-const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
-nameInput.addEventListener('input', () => {
-  const slug = slugify(nameInput.value);
-  if (!slug) { nameStatus.textContent = 'Lowercase letters and numbers only'; nameStatus.className = 'name-status'; enterBtn.disabled = true; return; }
-  nameStatus.textContent = `Username: @${slug}`; nameStatus.className = 'name-status ok'; enterBtn.disabled = false;
-});
-
-enterBtn.addEventListener('click', () => {
-  const slug = slugify(nameInput.value);
-  App.mySlug = slug;
-  App.myName = nameInput.value.trim() || slug;
-  LS.set('mySlug', slug); LS.set('myName', App.myName);
-  startMainApp();
-});
-
-window.addEventListener('load', () => {
-  updatePermStatus();
-  loadContacts();
-  App.lastMessages = LS.get('lastMessages', {});
-  const savedSlug = LS.get('mySlug', null);
-  const savedName = LS.get('myName', null);
-  if (savedSlug && savedName) { App.mySlug = savedSlug; App.myName = savedName; startMainApp(); }
-});
-
-function startMainApp() {
-  showScreen('screen-main');
-  $('profileName').textContent = App.myName;
-  $('profileUsername').textContent = '@' + App.mySlug;
-  $('profileUsername2').textContent = '@' + App.mySlug;
-  buildUI();
-}
-
-/* Attachments */
-const MAX_BYTES = 100 * 1024 * 1024;
-$('attachBtn').addEventListener('click', (e) => {
-  e.preventDefault();
-  const inp = $('fileInput'); inp.value = ''; inp.click();
-});
-
-$('fileInput').addEventListener('change', async (e) => {
-  const file = e.target.files && e.target.files[0];
-  if (!file) return;
-  if (file.size > MAX_BYTES) { toast(`File too large: ${fmtBytes(file.size)}`, true); e.target.value = ''; return; }
-  
-  const type = detectFileType(file);
-  toast(`Saving ${type} (${fmtBytes(file.size)})…`);
-  const bar = $('uploadBar'), fill = $('uploadBarFill');
-  bar.classList.add('show'); fill.style.width = '30%';
-
-  try {
-    const fileId = 'file_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
-    await storeFileInDB(fileId, file, file.name, file.type, file.size);
-    fill.style.width = '70%';
-    const objectUrl = URL.createObjectURL(file);
-    App.blobUrls.set(fileId, objectUrl);
-    fill.style.width = '100%';
-    
-    if (!App.lastMessages[App.activeChat]) App.lastMessages[App.activeChat] = [];
-    App.lastMessages[App.activeChat].push({ from: App.mySlug, text: `[Attachment: ${file.name}]`, time: Date.now() });
-    LS.set('lastMessages', App.lastMessages);
-    renderMessages(App.activeChat);
-    toast('Attached ✓');
-  } catch (err) {
-    toast('Save failed: ' + err.message, true);
-  } finally {
-    setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 400);
-    e.target.value = '';
+function buildUI() {
+  const cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient');
+  if (!App.contacts.length) {
+    cl.innerHTML = '<div class="empty"><div class="empty-icon">💬</div><p>No contacts yet.<br>Tap <strong>＋</strong> and type someone\'s name.</p></div>';
+    ccl.innerHTML = '<div class="empty"><div class="empty-icon">📞</div><p>Add a contact to call them.</p></div>';
+    vmSel.innerHTML = '<option value="">Select contact</option>';
+    updateUnreadBadges(); return;
   }
-});
+  cl.innerHTML = App.contacts.map(c => {
+    const n = App.unread[c.slug] || 0;
+    const last = App.lastMessages[c.slug] && App.lastMessages[c.slug].length ? App.lastMessages[c.slug][App.lastMessages[c.slug].length - 1] : null;
+    let sub = previewText(last); sub = sub.length > 34 ? sub.slice(0, 34) + '…' : sub;
+    return `<div class="list-item" data-contact-slug="${c.slug}">
+      <div class="avatar">${avatarInner(c.photo, c.name)}</div>
+      <div class="list-item-body"><div class="list-item-title ${n>0?'unread':''}">${esc(c.name)}</div><div class="list-item-sub ${n>0?'unread':''}">${esc(sub)}</div></div>
+      <div class="unread-badge ${n>0?'show':''}">${n>99?'99+':n}</div>
+      <div class="list-item-action">›</div></div>`;
+  }).join('');
+  ccl.innerHTML = App.contacts.map(c => `
+    <div class="list-item" data-call-slug="${c.slug}">
+      <div class="avatar accent">${avatarInner(c.photo, c.name)}</div>
+      <div class="list-item-body"><div class="list-item-title">${esc(c.name)}</div><div class="list-item-sub">Tap to call</div></div>
+      <div class="list-item-action">📞</div></div>`).join('');
+  vmSel.innerHTML = '<option value="">Select contact</option>' + App.contacts.map(c => `<option value="${c.slug}">${esc(c.name)}</option>`).join('');
+  cl.querySelectorAll('[data-contact-slug]').forEach(el => el.addEventListener('click', () => openChat(el.dataset.contactSlug)));
+  ccl.querySelectorAll('[data-call-slug]').forEach(el => el.addEventListener('click', () => startCall(el.dataset.callSlug)));
+  updateUnreadBadges();
+}
 
-/* Tab Navigation */
 document.querySelectorAll('.nav-item').forEach(btn => {
   btn.addEventListener('click', () => {
     const tab = btn.dataset.tab;
     document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b === btn));
     document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
     $('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = 'block';
-    $('headerTitle').textContent = tab.charAt(0).toUpperCase() + tab.slice(1);
+    $('headerTitle').textContent = { chats: 'Chats', calls: 'Calls', voicemail: 'Voicemail', profile: 'Profile' }[tab];
+    $('addContactFab').style.display = (tab === 'chats' || tab === 'calls') ? 'flex' : 'none';
   });
 });
+
+function updateChatHeader(c) { $('chatName').textContent = c.name; $('chatAvatar').innerHTML = avatarInner(c.photo, c.name); }
+
+async function openChat(slug) {
+  const c = App.contacts.find(x => x.slug === slug); if (!c) return;
+  App.activeChat = slug;
+  updateChatHeader(c); $('sendBtn').disabled = false;
+  App.lastRead[slug] = Date.now(); saveLastRead(); App.unread[slug] = 0; updateUnreadBadges();
+  $('emojiPalette').classList.remove('show');
+  showScreen('screen-chat');
+  const msgs = App.lastMessages[slug] || [];
+  if (msgs.length) renderMessages(slug, msgs);
+  else $('messagesArea').innerHTML = '<div class="empty"><p style="font-size:13px;">Say hello 👋</p></div>';
+  const cid = chatIdFor(App.mySlug, slug);
+  for (const m of msgs) {
+    if (m.from !== App.mySlug && !m.readAt) {
+      try { await set(dbRef(db, 'chats/' + cid + '/messages/' + m._k + '/readAt'), Date.now()); } catch {}
+    }
+  }
+}
+
+async function sendMessage() {
+  const input = $('chatInput'); const text = input.value.trim();
+  if (!text || !App.activeChat) return;
+  const cid = chatIdFor(App.mySlug, App.activeChat);
+  try {
+    await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: App.activeChat, text, time: Date.now() });
+    input.value = '';
+    $('sendBtn').disabled = true;
+    playSentSound();
+  } catch { toast('Send failed'); }
+}
+
+$('sendBtn').addEventListener('click', sendMessage);
+$('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+$('chatBackBtn').addEventListener('click', () => { App.activeChat = null; $('emojiPalette').classList.remove('show'); showScreen('screen-main'); updateUnreadBadges(); });
+$('callFromChatBtn').addEventListener('click', () => { if (App.activeChat) startCall(App.activeChat); });
+
+$('emojiBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  if (!App.activeChat) { toast('Open a chat first', true); return; }
+  $('emojiPalette').classList.toggle('show');
+});
+
+/* EMOJI EVENT HANDLERS */
+document.querySelectorAll('.emoji-quick, .quick-reaction').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    if (!App.activeChat) { toast('Open a chat first', true); return; }
+    const emoji = btn.dataset.emoji || btn.textContent.trim();
+    const cid = chatIdFor(App.mySlug, App.activeChat);
+    try {
+      await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: App.activeChat, text: emoji, time: Date.now() });
+      playSentSound();
+      $('emojiPalette').classList.remove('show');
+    } catch { toast('Send failed'); }
+  });
+});
+
+document.querySelectorAll('.emoji-item').forEach(btn => {
+  btn.addEventListener('mousedown', e => e.preventDefault());
+  btn.addEventListener('click', () => {
+    const inp = $('chatInput');
+    const start = inp.selectionStart ?? inp.value.length;
+    const end = inp.selectionEnd ?? inp.value.length;
+    const emoji = btn.textContent.trim();
+    inp.value = inp.value.slice(0, start) + emoji + inp.value.slice(end);
+    const newPos = start + emoji.length;
+    inp.setSelectionRange(newPos, newPos);
+    if (document.activeElement !== inp) inp.focus();
+    $('sendBtn').disabled = false;
+  });
+});
+
+document.addEventListener('click', (e) => {
+  const pal = $('emojiPalette');
+  if (!pal.classList.contains('show')) return;
+  if (pal.contains(e.target) || e.target.closest('#emojiBtn')) return;
+  pal.classList.remove('show');
+});
+
+$('chatInput').addEventListener('input', () => {
+  $('sendBtn').disabled = !$('chatInput').value.trim();
+});
+
+/* MEDIA ATTACHMENTS (Base64 Encoding) */
+const MAX_BYTES = 10 * 1024 * 1024;
+$('attachBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  if (!App.activeChat) { toast('Open a chat first', true); return; }
+  const inp = $('fileInput'); inp.value = ''; inp.click();
+});
+
+$('fileInput').addEventListener('change', async (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  if (!App.activeChat) { toast('Chat closed — try again', true); e.target.value = ''; return; }
+  if (file.size > MAX_BYTES) { toast(`File too large: ${fmtBytes(file.size)} (max 10MB)`, true); e.target.value = ''; return; }
+
+  const type = detectFileType(file);
+  const recipient = App.activeChat;
+  toast(`Processing ${type}…`);
+  const bar = $('uploadBar'), fill = $('uploadBarFill');
+  bar.classList.add('show'); fill.style.width = '30%';
+
+  try {
+    let dataUrl = '';
+    if (type === 'image') {
+      dataUrl = await compressImgToDataUrl(file, 1200, 0.75);
+    } else {
+      dataUrl = await fileToDataUrl(file);
+    }
+    fill.style.width = '70%';
+
+    const cid = chatIdFor(App.mySlug, recipient);
+    const attObj = {
+      type,
+      name: file.name || type,
+      size: file.size,
+      mime: file.type || 'application/octet-stream',
+      url: dataUrl
+    };
+
+    await push(dbRef(db, 'chats/' + cid + '/messages'), {
+      from: App.mySlug, to: recipient, text: '', time: Date.now(), attachment: attObj
+    });
+
+    fill.style.width = '100%';
+    setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 500);
+    toast('Sent ✓');
+    playSentSound();
+  } catch (err) {
+    fill.style.width = '0%';
+    bar.classList.remove('show');
+    toast('Attachment failed', true);
+  }
+  e.target.value = '';
+});
+
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onerror = reject;
+    r.onload = () => resolve(r.result);
+    r.readAsDataURL(file);
+  });
+}
+
+function compressImgToDataUrl(file, maxDim, q) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onerror = reject;
+    r.onload = ev => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > h && w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; }
+        else if (h >= w && h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; }
+        const c = document.createElement('canvas'); c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(c.toDataURL('image/jpeg', q));
+      };
+      img.src = ev.target.result;
+    };
+    r.readAsDataURL(file);
+  });
+}
+
+window.__lb = (url, name) => { $('lightboxImg').src = url; $('lightboxDownload').href = url; $('lightboxDownload').download = name || 'photo'; $('lightbox').classList.add('show'); };
+$('lightboxClose').addEventListener('click', () => $('lightbox').classList.remove('show'));
+$('lightbox').addEventListener('click', e => { if (e.target === $('lightbox')) $('lightbox').classList.remove('show'); });
+
+/* Voicemail */
+const recordBtn = $('recordBtn');
+recordBtn.addEventListener('click', async () => {
+  if (App.mediaRecorder && App.mediaRecorder.state === 'recording') { App.mediaRecorder.stop(); return; }
+  const recipient = $('vmRecipient').value;
+  if (!recipient) return toast('Select a recipient', true);
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    App.recordedChunks = [];
+    App.mediaRecorder = new MediaRecorder(stream);
+    App.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) App.recordedChunks.push(e.data); };
+    App.mediaRecorder.onstop = async () => {
+      clearTimeout(App.recordTimer);
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(App.recordedChunks, { type: 'audio/webm' });
+      await sendVoicemail(blob, recipient);
+      recordBtn.textContent = '⬤ Tap to Record (max 30s)';
+      recordBtn.classList.remove('recording');
+    };
+    App.mediaRecorder.start();
+    recordBtn.textContent = '⬛ Tap to Stop';
+    recordBtn.classList.add('recording');
+    toast('Recording…');
+    App.recordTimer = setTimeout(() => {
+      if (App.mediaRecorder && App.mediaRecorder.state === 'recording') { App.mediaRecorder.stop(); toast('30s — sending'); }
+    }, 30000);
+  } catch { toast('Microphone denied', true); }
+});
+
+function sendVoicemail(blob, recipient) {
+  if (blob.size > 700000) return toast('Too large — keep under 30s', true);
+  const r = new FileReader();
+  r.onload = async () => {
+    try {
+      await push(dbRef(db, 'voicemails/' + recipient), {
+        from: App.mySlug, fromName: App.myName, data: r.result, mime: blob.type || 'audio/webm', time: Date.now()
+      });
+      const cid = chatIdFor(App.mySlug, recipient);
+      const attObj = { type: 'audio', name: '🎤 Voice message', size: blob.size, mime: blob.type || 'audio/webm', url: r.result };
+      await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: recipient, text: '', time: Date.now(), attachment: attObj });
+      toast('Voicemail sent ✓');
+      playSentSound();
+    } catch { toast('Failed to send voicemail', true); }
+  };
+  r.readAsDataURL(blob);
+}
+
+function listenVoicemails() {
+  if (!App.mySlug) return;
+  if (App.vmUnsub) { try { App.vmUnsub(); } catch {} }
+  App.vmUnsub = onValue(dbRef(db, 'voicemails/' + App.mySlug), snap => {
+    const data = snap.val(); const listEl = $('voicemailList'); if (!listEl) return;
+    if (!data) { listEl.innerHTML = '<div class="empty"><p>No voicemails.</p></div>'; return; }
+    const vms = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (b.time || 0) - (a.time || 0));
+    listEl.innerHTML = vms.map((v, i) => `
+      <div class="vm-item">
+        <button class="vm-play" data-i="${i}">▶</button>
+        <div class="vm-body"><div class="vm-title">From: ${esc(v.fromName || v.from)}</div><div class="vm-meta">${new Date(v.time || 0).toLocaleString()}</div></div>
+        <button class="vm-del" data-del="${v._k}">🗑</button>
+      </div>`).join('');
+    listEl.querySelectorAll('[data-i]').forEach(btn => btn.addEventListener('click', () => { const v = vms[parseInt(btn.dataset.i)]; try { new Audio(v.data).play().catch(() => toast('Cannot play')); toast('Playing…'); } catch {} }));
+    listEl.querySelectorAll('[data-del]').forEach(btn => btn.addEventListener('click', async () => { try { await remove(dbRef(db, 'voicemails/' + App.mySlug + '/' + btn.dataset.del)); } catch {} }));
+  });
+}
+
+/* Calls */
+async function startCall(calleeSlug) {
+  if (App.activeCall) return toast('Already in a call');
+  const c = App.contacts.find(x => x.slug === calleeSlug); if (!c) return;
+  try { App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { return toast('Microphone denied', true); }
+  $('callName').textContent = c.name; $('callAvatar').innerHTML = avatarInner(c.photo, c.name);
+  $('callStatus').textContent = 'Calling…'; $('callStatus').classList.remove('active');
+  showScreen('screen-call');
+  App.activeCall = { peerSlug: calleeSlug, isCaller: true, callRefPath: `calls/${calleeSlug}/${App.mySlug}` };
+  const pc = new RTCPeerConnection(ICE_SERVERS); App.pc = pc;
+  App.localStream.getTracks().forEach(t => pc.addTrack(t, App.localStream));
+  pc.ontrack = e => { const a = new Audio(); a.srcObject = e.streams[0]; a.autoplay = true; a.play().catch(() => {}); };
+  pc.onicecandidate = e => { if (e.candidate) push(dbRef(db, `${App.activeCall.callRefPath}/callerCandidates`), e.candidate.toJSON()).catch(() => {}); };
+  pc.onconnectionstatechange = () => {
+    if (pc.connectionState === 'connected') { $('callStatus').textContent = 'In call'; $('callStatus').classList.add('active'); }
+    if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') endCallCleanup();
+  };
+  const offer = await pc.createOffer(); await pc.setLocalDescription(offer);
+  await set(dbRef(db, App.activeCall.callRefPath), { offer: { type: offer.type, sdp: offer.sdp }, callerName: App.myName, callerSlug: App.mySlug, status: 'ringing', createdAt: Date.now() });
+  App.callUnsubs.push(onValue(dbRef(db, App.activeCall.callRefPath + '/answer'), async snap => {
+    const ans = snap.val();
+    if (ans && pc && !pc.currentRemoteDescription) { try { await pc.setRemoteDescription(new RTCSessionDescription(ans)); } catch {} }
+  }));
+  App.callUnsubs.push(onChildAdded(dbRef(db, App.activeCall.callRefPath + '/calleeCandidates'), snap => { const cand = snap.val(); if (cand && pc) pc.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {}); }));
+  App.callUnsubs.push(onValue(dbRef(db, App.activeCall.callRefPath + '/status'), snap => {
+    const st = snap.val(); if (st === 'rejected') { toast('Call rejected'); endCallCleanup(); } if (st === 'ended') endCallCleanup();
+  }));
+}
+
+function listenForIncomingCalls() {
+  if (!App.mySlug) return;
+  onValue(dbRef(db, 'calls/' + App.mySlug), snap => {
+    const calls = snap.val();
+    if (!calls) { App.incomingCallData = null; $('incoming-call').classList.remove('show'); stopCallRing(); return; }
+    let ringing = null;
+    for (const [callerSlug, call] of Object.entries(calls)) { if (call && call.status === 'ringing' && call.offer && callerSlug !== App.mySlug) { ringing = { callerSlug, call }; break; } }
+    if (ringing && !App.incomingCallData && !App.activeCall) {
+      App.incomingCallData = ringing;
+      const c = App.contacts.find(x => x.slug === ringing.callerSlug);
+      const name = c ? c.name : (ringing.call.callerName || ringing.call.callerSlug);
+      $('incomingName').textContent = name;
+      $('incomingAvatar').innerHTML = c ? avatarInner(c.photo, c.name) : esc(name.charAt(0).toUpperCase());
+      $('incomingStatus').textContent = 'Incoming call…';
+      $('incoming-call').classList.add('show');
+      startCallRing();
+      showBrowserNotification(`📞 Incoming call`, `${name} is calling you`, 'incoming-call');
+    }
+  });
+}
+
+$('acceptCallBtn').addEventListener('click', async () => {
+  stopCallRing();
+  const ic = App.incomingCallData; if (!ic) return;
+  $('incoming-call').classList.remove('show');
+  const { callerSlug, call } = ic; App.incomingCallData = null;
+  try { App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { return toast('Microphone denied', true); }
+  const pc = new RTCPeerConnection(ICE_SERVERS); App.pc = pc;
+  App.localStream.getTracks().forEach(t => pc.addTrack(t, App.localStream));
+  pc.ontrack = e => { const a = new Audio(); a.srcObject = e.streams[0]; a.autoplay = true; a.play().catch(() => {}); };
+  pc.onicecandidate = e => { if (e.candidate) push(dbRef(db, `calls/${App.mySlug}/${callerSlug}/calleeCandidates`), e.candidate.toJSON()).catch(() => {}); };
+  pc.onconnectionstatechange = () => {
+    if (pc.connectionState === 'connected') { $('callStatus').textContent = 'In call'; $('callStatus').classList.add('active'); }
+    if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') endCallCleanup();
+  };
+  await pc.setRemoteDescription(new RTCSessionDescription(call.offer));
+  const answer = await pc.createAnswer(); await pc.setLocalDescription(answer);
+  await set(dbRef(db, `calls/${App.mySlug}/${callerSlug}/answer`), { type: answer.type, sdp: answer.sdp });
+  await set(dbRef(db, `calls/${App.mySlug}/${callerSlug}/status`), 'accepted');
+  App.activeCall = { peerSlug: callerSlug, isCaller: false, callRefPath: `calls/${App.mySlug}/${callerSlug}` };
+  const c = App.contacts.find(x => x.slug === callerSlug);
+  $('callName').textContent = c ? c.name : (call.callerName || callerSlug);
+  $('callAvatar').innerHTML = c ? avatarInner(c.photo, c.name) : esc((call.callerName || 'C').charAt(0).toUpperCase());
+  showScreen('screen-call');
+  App.callUnsubs.push(onChildAdded(dbRef(db, App.activeCall.callRefPath + '/callerCandidates'), snap => { const cand = snap.val(); if (cand && pc) pc.addIceCandidate(new RTCIceCandidate(cand)).catch(() => {}); }));
+  App.callUnsubs.push(onValue(dbRef(db, App.activeCall.callRefPath + '/status'), snap => { if (snap.val() === 'ended') endCallCleanup(); }));
+});
+
+$('rejectCallBtn').addEventListener('click', async () => {
+  stopCallRing();
+  const ic = App.incomingCallData;
+  if (ic) { try { await set(dbRef(db, `calls/${App.mySlug}/${ic.callerSlug}/status`), 'rejected'); } catch {} try { await remove(dbRef(db, `calls/${App.mySlug}/${ic.callerSlug}`)); } catch {} }
+  App.incomingCallData = null; $('incoming-call').classList.remove('show');
+});
+
+$('endCallBtn').addEventListener('click', async () => {
+  stopCallRing();
+  if (App.activeCall) { try { await set(dbRef(db, App.activeCall.callRefPath + '/status'), 'ended'); } catch {} }
+  endCallCleanup();
+});
+
+$('muteBtn').addEventListener('click', function() {
+  if (!App.localStream) return;
+  App.muted = !App.muted;
+  App.localStream.getAudioTracks().forEach(t => t.enabled = !App.muted);
+  this.classList.toggle('muted', App.muted);
+  this.textContent = App.muted ? '🔇' : '🎤';
+});
+
+async function endCallCleanup() {
+  stopCallRing();
+  if (App.pc) { try { App.pc.close(); } catch {} App.pc = null; }
+  if (App.localStream) { App.localStream.getTracks().forEach(t => t.stop()); App.localStream = null; }
+  App.callUnsubs.forEach(u => { try { u(); } catch {} }); App.callUnsubs = [];
+  if (App.activeCall) { try { await remove(dbRef(db, App.activeCall.callRefPath)); } catch {} }
+  App.activeCall = null; App.muted = false;
+  showScreen('screen-main'); toast('Call ended');
+}
 
 $('helpBtn').addEventListener('click', () => $('helpModal').classList.add('show'));
 $('helpClose').addEventListener('click', () => $('helpModal').classList.remove('show'));
 $('clearBtn').addEventListener('click', () => {
-  if (!confirm('Clear local data?')) return;
-  localStorage.clear();
-  App.contacts = [];
-  App.lastMessages = {};
-  buildUI();
-  toast('Cleared');
+  if (!confirm('Clear contacts and chat data on this device?')) return;
+  LS.del('contacts'); LS.del('lastRead'); LS.del('avatar');
+  App.contacts = []; App.lastRead = {}; App.unread = {}; App.lastMessages = {};
+  buildUI(); toast('Cleared');
 });
 </script>
 </body>
