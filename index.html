@@ -738,7 +738,27 @@ $('permBtn').addEventListener('click', async () => {
   else toast('Notification permission: ' + result);
 });
 $('storageCheckBtn').addEventListener('click', async () => {
-  toast(typeof puter !== 'undefined' ? 'Puter loaded ✓ — testing Firebase too…' : 'Testing storage…');
+  /* Quick Puter diagnostic first */
+  if (typeof puter !== 'undefined' && puter.fs) {
+    try {
+      const testBlob = new Blob(['test-' + Date.now()], { type: 'text/plain' });
+      const testFile = new File([testBlob], 'test.txt', { type: 'text/plain' });
+      const item = await puter.fs.upload([testFile], { directory: 'jarvis-attachments/_test' });
+      const checkItem = Array.isArray(item) ? item[0] : item;
+      const url = await puter.fs.getReadURL(checkItem.path);
+      alert('✅ Puter works!\n\nTest URL: ' + url + '\n\nFile uploads will use Puter by default.');
+      toast('Puter OK ✓');
+      return;
+    } catch (putErr) {
+      console.warn('Puter test failed:', putErr);
+      toast('Puter failed — testing Firebase fallback…', true);
+    }
+  } else {
+    toast('Puter SDK not loaded — testing Firebase…', true);
+  }
+
+  /* Firebase Storage test */
+  toast('Testing Firebase Storage…');
   const bucketsToTry = [firebaseConfig.storageBucket, firebaseConfig.projectId + '.appspot.com', firebaseConfig.projectId + '.firebasestorage.app'].filter((v, i, arr) => arr.indexOf(v) === i);
   let lastErr = null;
   for (const bucket of bucketsToTry) {
@@ -749,8 +769,8 @@ $('storageCheckBtn').addEventListener('click', async () => {
       await new Promise((resolve, reject) => { task.on('state_changed', null, reject, resolve); });
       const url = await getDownloadURL(task.snapshot.ref);
       try { await task.snapshot.ref.delete(); } catch {}
-      alert('✅ Storage works!\n\nBucket in use: ' + firebaseConfig.storageBucket + '\n\nUploads to /attachments/ will now succeed.');
-      toast('Storage OK'); return;
+      alert('✅ Firebase Storage works!\n\nBucket in use: ' + firebaseConfig.storageBucket + '\n\nUploads to /attachments/ will succeed as fallback.');
+      toast('Firebase Storage OK'); return;
     } catch (err) {
       lastErr = err;
       const code = (err && err.code) ? String(err.code) : '';
@@ -768,8 +788,8 @@ $('storageCheckBtn').addEventListener('click', async () => {
   } else if (/retry-limit|network/i.test(code)) {
     hint = 'Network or CORS issue.\n\nRun in Cloud Shell:\ngsutil cors set cors.json gs://jarvis-tracker-a8136.firebasestorage.app';
   }
-  alert('❌ Firebase Storage test failed!\n\nError: ' + code + '\nMessage: ' + msg + '\n\n' + hint + '\n\nNote: The app will still try Puter.js first for uploads.');
-  toast('Firebase storage failed', true);
+  alert('❌ Both upload methods failed!\n\nPuter: ' + (typeof puter === 'undefined' ? 'SDK not loaded' : 'failed') + '\nFirebase: ' + code + ' — ' + msg + '\n\n' + hint);
+  toast('All storage failed', true);
 });
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
 let nameCheckTimer = null, nameCheckOk = false;
@@ -1233,45 +1253,46 @@ function compressImg(file, maxDim, q) {
     r.readAsDataURL(file);
   });
 }
+
+/* ═══════════════════════════════════════════════════════════
+   UPLOAD — Puter.js first, Firebase Storage as fallback
+   ═══════════════════════════════════════════════════════════ */
 async function doUpload(file, recipient, type, displayName) {
   const bar = $('uploadBar'), fill = $('uploadBarFill');
   bar.classList.add('show'); fill.style.width = '0%';
 
-  /* ── 1) Try Puter.js — no Firebase Storage setup needed ───────────── */
-  if (typeof puter !== 'undefined' && puter.fs && typeof puter.fs.write === 'function') {
+  /* ── 1) Try Puter.js ──────────────────────────────────────── */
+  if (typeof puter !== 'undefined' && puter.fs && typeof puter.fs.upload === 'function') {
     try {
       fill.style.width = '15%';
-      const ext  = (file.name || '').match(/\.[^.]+$/)?.[0] || '';
-      const base = (displayName || file.name || 'file')
-                     .replace(/[^\w.\-]+/g, '_').slice(0, 60) || 'file';
-      const path = `jarvis-attachments/${Date.now()}-${Math.random().toString(36).slice(2,8)}-${base}${ext}`;
 
-      const puterFile = await puter.fs.write(path, file);
+      // Ensure the file has a name (Puter needs it for storage)
+      let uploadFile = file;
+      if (!uploadFile.name || uploadFile.name === 'blob') {
+        const ext = (displayName && displayName.match(/\.[^.]+$/)?.[0]) || '';
+        uploadFile = new File([file], (displayName || 'upload') + ext, { type: file.type || 'application/octet-stream' });
+      }
+
+      // Upload — returns an FSItem (or array if multiple, but we pass one)
+      const uploaded = await puter.fs.upload([uploadFile], { directory: 'jarvis-attachments' });
       fill.style.width = '70%';
 
-      // Puter SDK versions differ on how to get a URL — try them in order.
-      let url = null;
-      if (typeof puter.fs.getReadURL === 'function') {
-        try { url = await puter.fs.getReadURL(puterFile.path || path); } catch {}
-      }
-      if (!url && typeof puter.fs.getURL === 'function') {
-        try { url = await puter.fs.getURL(puterFile.path || path); } catch {}
-      }
-      if (!url && puterFile && typeof puterFile.getURL === 'function') {
-        try { url = await puterFile.getURL(); } catch {}
-      }
-      if (!url && puterFile && puterFile.url) url = puterFile.url;
-      if (!url) throw new Error('Puter did not return a URL');
+      const item = Array.isArray(uploaded) ? uploaded[0] : uploaded;
+      if (!item || !item.path) throw new Error('Puter upload returned no path');
+
+      // Get a shareable read URL (default 1 hour expiry)
+      const url = await puter.fs.getReadURL(item.path);
+      if (!url) throw new Error('Puter returned no read URL');
 
       fill.style.width = '100%';
       const cid = chatIdFor(App.mySlug, recipient);
       const attObj = {
         type,
-        name: displayName || file.name || 'file',
+        name: displayName || uploadFile.name || 'file',
         size: file.size,
         mime: file.type || 'application/octet-stream',
         url,
-        storagePath: puterFile.path || path,
+        storagePath: item.path,
         provider: 'puter'
       };
       await push(dbRef(db, 'chats/' + cid + '/messages'), {
@@ -1282,13 +1303,13 @@ async function doUpload(file, recipient, type, displayName) {
       playSentSound();
       return;
     } catch (err) {
-      console.warn('Puter upload failed, falling back to Firebase Storage:', err);
+      console.warn('Puter upload failed, falling back to Firebase:', err);
       fill.style.width = '0%';
-      // fall through to Firebase
+      // fall through
     }
   }
 
-  /* ── 2) Fallback: Firebase Storage (original logic) ───────────────── */
+  /* ── 2) Fallback: Firebase Storage ───────────────────────── */
   return new Promise((resolve, reject) => {
     const cid = chatIdFor(App.mySlug, recipient);
     const safeName = (displayName || 'file').replace(/[^\w.\-]+/g, '_').slice(0, 80) || 'file';
