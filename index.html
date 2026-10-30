@@ -536,7 +536,12 @@ enterBtn.addEventListener('click', async () => {
     App.myPhoto = LS.get('avatar', null);
     LS.set('mySlug', slug); LS.set('myName', App.myName);
     startMainApp();
-  } catch { toast('Error signing in'); enterBtn.disabled = false; }
+  } catch { 
+    // Fallback login if offline or network slow
+    App.mySlug = slug; App.myName = nameInput.value.trim() || slug;
+    LS.set('mySlug', slug); LS.set('myName', App.myName);
+    startMainApp();
+  }
 });
 
 window.addEventListener('load', () => {
@@ -547,7 +552,10 @@ window.addEventListener('load', () => {
   const savedName = LS.get('myName', null);
   const savedPhoto = LS.get('avatar', null);
   if (savedPhoto) App.myPhoto = savedPhoto;
-  if (savedSlug && savedName) { App.mySlug = savedSlug; App.myName = savedName; startMainApp(); }
+  if (savedSlug && savedName) { 
+    App.mySlug = savedSlug; App.myName = savedName; 
+    setTimeout(() => startMainApp(), 50);
+  }
 });
 
 function startMainApp() {
@@ -968,9 +976,6 @@ $('modalConfirm').addEventListener('click', async () => {
   App.contacts.push({ slug, name: friendName, photo: snap.val().photo || null });
   saveContacts(); setupMessageListener(slug, false); buildUI();
   $('addModal').classList.remove('show'); toast('Added @' + slug + ' ✓');
-});
-  saveContacts(); setupMessageListener(slug, false); buildUI();
-  $('addModal').classList.remove('show'); toast('Added @' + slug);
 });
 
 $('addGroupFab').addEventListener('click', () => {
