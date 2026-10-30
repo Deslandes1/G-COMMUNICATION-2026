@@ -434,7 +434,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
       <strong>2.</strong> Anyone types that name in "Add contact" to reach you.<br><br>
       <strong>3.</strong> Tap any emoji in the strip above the input to send it instantly. Tap 😊 for the full palette.<br><br>
       <strong>4.</strong> ✓ means sent, ✓✓ means read.<br><br>
-      <strong>5.</strong> Files are uploaded to tmpfiles.org — completely free and anonymous.
+      <strong>5.</strong> Files are uploaded to Catbox (permanent) or Litterbox (temporary) — free and anonymous.
     </p>
     <div class="modal-actions"><button class="confirm" id="helpClose">Got it</button></div>
   </div>
@@ -483,6 +483,12 @@ const firebaseConfig = {
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
 const ICE_SERVERS = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] };
+
+/* ═══════════════════════════════════════════════════════════
+   MEDIA HOSTS — Catbox (permanent) & Litterbox (temporary)
+   ═══════════════════════════════════════════════════════════ */
+const CATBOX_API = 'https://catbox.moe/user/api.php';
+const LITTERBOX_API = 'https://litterbox.catbox.moe/resources/internals/api.php';
 
 const App = {
   mySlug: null, myName: '', myPhoto: null,
@@ -735,25 +741,21 @@ $('permBtn').addEventListener('click', async () => {
   else toast('Notification permission: ' + result);
 });
 $('storageCheckBtn').addEventListener('click', async () => {
-  toast('Testing tmpfiles.org upload…');
+  toast('Testing Catbox upload…');
   try {
     const testBlob = new Blob(['test-' + Date.now()], { type: 'text/plain' });
     const testFile = new File([testBlob], 'test.txt', { type: 'text/plain' });
-    const body = new FormData();
-    body.append('file', testFile);
-    const res = await fetch('https://tmpfiles.org/api/v1/upload', {
-      method: 'POST',
-      body: body
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    const rawUrl = json.data.url;
-    const directUrl = rawUrl.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
-    alert('✅ tmpfiles.org works!\n\nTest URL: ' + directUrl + '\n\nFile uploads will use this service.');
-    toast('tmpfiles.org OK ✓');
+    let url;
+    try {
+      url = await uploadToCatbox(testFile);
+    } catch (e) {
+      url = await uploadToLitterbox(testFile);
+    }
+    alert('✅ Media host works!\n\nTest URL: ' + url + '\n\nUploads will use Catbox (permanent) with Litterbox fallback.');
+    toast('Media host OK ✓');
   } catch (err) {
-    alert('❌ tmpfiles.org upload failed!\n\nError: ' + err.message + '\n\nPlease check your internet connection or try again later.');
-    toast('Storage test failed', true);
+    alert('❌ Upload test failed!\n\nError: ' + err.message + '\n\nPlease check your internet connection or try again later.');
+    toast('Upload test failed', true);
   }
 });
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
@@ -1215,30 +1217,47 @@ function compressImg(file, maxDim, q) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   UPLOAD — tmpfiles.org (free, anonymous, no signup)
+   UPLOAD HELPERS — Catbox (permanent) & Litterbox (temporary)
    ═══════════════════════════════════════════════════════════ */
+async function uploadToCatbox(file) {
+  const form = new FormData();
+  form.append('reqtype', 'fileupload');
+  form.append('fileToUpload', file);
+  const res = await fetch(CATBOX_API, { method: 'POST', body: form });
+  if (!res.ok) throw new Error(`Catbox HTTP ${res.status}`);
+  const text = await res.text();
+  if (!text.startsWith('https://')) throw new Error('Catbox returned invalid response: ' + text.slice(0, 120));
+  return text.trim();
+}
+async function uploadToLitterbox(file) {
+  const form = new FormData();
+  form.append('reqtype', 'fileupload');
+  form.append('time', '72h');
+  form.append('fileToUpload', file);
+  const res = await fetch(LITTERBOX_API, { method: 'POST', body: form });
+  if (!res.ok) throw new Error(`Litterbox HTTP ${res.status}`);
+  const text = await res.text();
+  if (!text.startsWith('https://')) throw new Error('Litterbox returned invalid response: ' + text.slice(0, 120));
+  return text.trim();
+}
 async function doUpload(file, recipient, type, displayName) {
   const bar = $('uploadBar'), fill = $('uploadBarFill');
-  bar.classList.add('show'); fill.style.width = '0%';
+  bar.classList.add('show'); fill.style.width = '10%';
 
   try {
-    fill.style.width = '20%';
-
-    const body = new FormData();
-    body.append('file', file);
-
-    const res = await fetch('https://tmpfiles.org/api/v1/upload', {
-      method: 'POST',
-      body: body
-    });
-
-    if (!res.ok) throw new Error(`tmpfiles HTTP ${res.status}`);
-
-    const json = await res.json();
-    const rawUrl = json.data.url;
-
-    // Convert to direct download link
-    const directUrl = rawUrl.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+    fill.style.width = '30%';
+    let directUrl;
+    if (file.size <= 200 * 1024 * 1024) {
+      try {
+        directUrl = await uploadToCatbox(file);
+      } catch (catboxErr) {
+        console.warn('Catbox failed, falling back to Litterbox:', catboxErr);
+        fill.style.width = '50%';
+        directUrl = await uploadToLitterbox(file);
+      }
+    } else {
+      directUrl = await uploadToLitterbox(file);
+    }
 
     fill.style.width = '100%';
 
@@ -1249,8 +1268,8 @@ async function doUpload(file, recipient, type, displayName) {
       size: file.size,
       mime: file.type || 'application/octet-stream',
       url: directUrl,
-      storagePath: 'tmpfiles',
-      provider: 'tmpfiles'
+      storagePath: directUrl.includes('catbox.moe') ? 'catbox' : 'litterbox',
+      provider: directUrl.includes('catbox.moe') ? 'catbox' : 'litterbox'
     };
 
     await push(dbRef(db, 'chats/' + cid + '/messages'), {
@@ -1266,7 +1285,7 @@ async function doUpload(file, recipient, type, displayName) {
     console.error('Upload failed:', err);
     fill.style.width = '0%';
     bar.classList.remove('show');
-    throw err; // Re-throw so handleUploadError can show the alert
+    throw err;
   }
 }
 window.__lb = (url, name) => { $('lightboxImg').src = url; $('lightboxDownload').href = url; $('lightboxDownload').download = name || 'photo'; $('lightbox').classList.add('show'); };
