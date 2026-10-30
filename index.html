@@ -108,27 +108,36 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .msg .attach-file .file-info{flex:1;min-width:0}
 .msg .attach-file .file-name{font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .msg .attach-file .file-size{font-size:11px;color:var(--muted);margin-top:1px}
+.quick-reactions{display:flex;gap:6px;padding:8px 12px;background:linear-gradient(180deg,#ffffff 0%,#fdfaf3 100%);border-top:1px solid var(--border);flex-shrink:0;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.quick-reactions::-webkit-scrollbar{display:none}
+.quick-reaction{font-size:24px;width:40px;height:40px;background:linear-gradient(180deg,#f7f9fb 0%,#eef2f6 100%);border:1px solid var(--border);border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .12s,background .12s;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.quick-reaction:active{transform:scale(1.25);background:#ffe5e8;border-color:var(--gold)}
 .chat-input-bar{background:rgba(255,255,255,.98);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:6px;align-items:center;flex-shrink:0;position:relative}
 .chat-input-bar input[type="text"]{flex:1;padding:11px 16px;border:1px solid var(--border);border-radius:22px;font-size:15px;outline:none;background:#f7f9fb;min-width:0;transition:border-color .15s}
 .chat-input-bar input[type="text"]:focus{border-color:var(--accent)}
-.emoji-btn,.attach-btn,.quick-love-btn{background:transparent;border:none;font-size:22px;width:38px;height:38px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .12s;color:var(--accent)}
-.emoji-btn:active,.attach-btn:active,.quick-love-btn:active{background:#e5ecf2}
-.quick-love-btn:active{background:#ffe5e8;transform:scale(1.15)}
+.emoji-btn{background:linear-gradient(135deg,#fff8e7,#fdf3d8);border:1.5px solid var(--gold);font-size:22px;width:42px;height:42px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .12s,background .15s;box-shadow:0 2px 6px rgba(212,175,55,.3);font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.emoji-btn:active{transform:scale(.92);background:#fdf3d8}
+.attach-btn{background:transparent;border:none;font-size:22px;color:var(--accent);width:38px;height:38px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.attach-btn:active{background:#e5ecf2}
 .chat-input-bar .send-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:20px;cursor:pointer;flex-shrink:0;box-shadow:0 3px 10px rgba(13,122,140,.35)}
 .chat-input-bar .send-btn:disabled{opacity:.4;box-shadow:none}
 .upload-bar{position:absolute;top:-1px;left:0;right:0;height:3px;background:#e1e7ed;border-radius:2px;overflow:hidden;display:none}
 .upload-bar.show{display:block}
 .upload-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .2s}
-#emojiPalette{position:absolute;bottom:calc(100% + 8px);left:8px;right:8px;background:linear-gradient(180deg,#ffffff 0%,#fdfaf3 100%);border-radius:14px;box-shadow:0 12px 40px rgba(11,42,74,.28),0 0 0 1px rgba(11,42,74,.06);padding:12px;z-index:25;display:none;flex-direction:column;gap:8px;max-height:min(380px,50vh);overflow-y:auto}
-#emojiPalette.show{display:flex;animation:paletteIn .18s ease-out}
-@keyframes paletteIn{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
-.emoji-section-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);padding:2px 4px}
-.emoji-quick-row{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
-.emoji-quick{height:44px;font-size:26px;background:linear-gradient(180deg,#f7f9fb 0%,#eef2f6 100%);border:1px solid var(--border);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .12s,background .12s}
-.emoji-quick:active{transform:scale(.85);background:#e5ecf2}
-.emoji-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:2px;max-height:220px;overflow-y:auto;padding:2px 0}
-.emoji-item{font-size:22px;height:38px;background:transparent;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s}
-.emoji-item:active{background:#e5ecf2}
+#emojiPalette{position:fixed;bottom:calc(140px + env(safe-area-inset-bottom));left:16px;right:16px;background:linear-gradient(180deg,#ffffff 0%,#fdfaf3 100%);border-radius:16px;box-shadow:0 20px 60px rgba(11,42,74,.4),0 0 0 1.5px rgba(212,175,55,.5);padding:14px;z-index:9999;display:none;flex-direction:column;gap:10px;max-height:min(420px,55vh);overflow-y:auto}
+#emojiPalette.show{display:flex;animation:paletteIn .2s ease-out}
+@keyframes paletteIn{0%{opacity:0;transform:translateY(16px) scale(.96)}100%{opacity:1;transform:translateY(0) scale(1)}}
+.emoji-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);padding:2px 4px;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.emoji-quick-row{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+.emoji-quick{height:48px;font-size:28px;background:linear-gradient(180deg,#f7f9fb 0%,#eef2f6 100%);border:1px solid var(--border);border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .12s,background .12s;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.emoji-quick:active{transform:scale(.85);background:#ffe5e8}
+.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;padding:2px 0}
+.emoji-item{font-size:24px;height:42px;background:transparent;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,transform .1s;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.emoji-item:active{background:#e5ecf2;transform:scale(1.15)}
+@media (min-width: 640px){
+  #emojiPalette{left:50%;right:auto;transform:translateX(-50%);width:520px;max-width:calc(100vw - 32px)}
+  #emojiPalette.show{transform:translateX(-50%) translateY(0) scale(1)}
+}
 #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;flex-direction:column}
 #lightbox.show{display:flex}
 #lightbox img{max-width:100%;max-height:85vh;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
@@ -208,7 +217,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .install-hero h3{font-size:20px;margin-bottom:4px;color:var(--navy)}
 .install-hero p{font-size:13px;color:var(--muted);margin:0}
 .install-cta{width:100%;padding:14px;border-radius:12px;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#b8912a);color:var(--navy);border:none;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:.3px;margin-bottom:10px;box-shadow:0 4px 14px rgba(212,175,55,.35)}
-.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(60px);background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:200;max-width:90%;text-align:center}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(60px);background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:10000;max-width:90%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #incoming-call{position:fixed;inset:0;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:150;padding:40px 24px;text-align:center;overflow:hidden}
 #incoming-call.show{display:flex}
@@ -333,39 +342,56 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
     <button class="icon-btn" id="callFromChatBtn">📞</button>
   </header>
   <div id="messagesArea" class="messages"></div>
+  <div class="quick-reactions" id="quickReactions">
+    <button class="quick-reaction" data-emoji="👍">👍</button>
+    <button class="quick-reaction" data-emoji="❤️">❤️</button>
+    <button class="quick-reaction" data-emoji="😂">😂</button>
+    <button class="quick-reaction" data-emoji="😮">😮</button>
+    <button class="quick-reaction" data-emoji="😢">😢</button>
+    <button class="quick-reaction" data-emoji="🔥">🔥</button>
+    <button class="quick-reaction" data-emoji="🎉">🎉</button>
+    <button class="quick-reaction" data-emoji="👏">👏</button>
+    <button class="quick-reaction" data-emoji="💯">💯</button>
+    <button class="quick-reaction" data-emoji="🙏">🙏</button>
+    <button class="quick-reaction" data-emoji="💋">💋</button>
+    <button class="quick-reaction" data-emoji="🥰">🥰</button>
+    <button class="quick-reaction" data-emoji="✨">✨</button>
+    <button class="quick-reaction" data-emoji="💐">💐</button>
+  </div>
   <div class="chat-input-bar">
     <div class="upload-bar" id="uploadBar"><div class="upload-bar-fill" id="uploadBarFill"></div></div>
-    <div id="emojiPalette">
-      <div class="emoji-section-title">Quick reactions — tap to send</div>
-      <div class="emoji-quick-row">
-        <button class="emoji-quick" data-emoji="👍">👍</button>
-        <button class="emoji-quick" data-emoji="❤️">❤️</button>
-        <button class="emoji-quick" data-emoji="😂">😂</button>
-        <button class="emoji-quick" data-emoji="😮">😮</button>
-        <button class="emoji-quick" data-emoji="😢">😢</button>
-        <button class="emoji-quick" data-emoji="🔥">🔥</button>
-        <button class="emoji-quick" data-emoji="🎉">🎉</button>
-        <button class="emoji-quick" data-emoji="👏">👏</button>
-      </div>
-      <div class="emoji-section-title">Tap to add to your message</div>
-      <div class="emoji-grid">
-        <button class="emoji-item">😀</button><button class="emoji-item">😂</button><button class="emoji-item">🥰</button><button class="emoji-item">😍</button><button class="emoji-item">😎</button><button class="emoji-item">🤔</button><button class="emoji-item">😢</button><button class="emoji-item">😭</button>
-        <button class="emoji-item">😡</button><button class="emoji-item">😱</button><button class="emoji-item">🤯</button><button class="emoji-item">🥳</button><button class="emoji-item">😴</button><button class="emoji-item">🤗</button><button class="emoji-item">🤩</button><button class="emoji-item">😊</button>
-        <button class="emoji-item">😉</button><button class="emoji-item">😋</button><button class="emoji-item">🙃</button><button class="emoji-item">😅</button><button class="emoji-item">😇</button><button class="emoji-item">🤐</button><button class="emoji-item">🥺</button><button class="emoji-item">😏</button>
-        <button class="emoji-item">👍</button><button class="emoji-item">👎</button><button class="emoji-item">👏</button><button class="emoji-item">🙏</button><button class="emoji-item">💪</button><button class="emoji-item">🤝</button><button class="emoji-item">✌️</button><button class="emoji-item">🤞</button>
-        <button class="emoji-item">❤️</button><button class="emoji-item">🧡</button><button class="emoji-item">💛</button><button class="emoji-item">💚</button><button class="emoji-item">💙</button><button class="emoji-item">💜</button><button class="emoji-item">🖤</button><button class="emoji-item">💔</button>
-        <button class="emoji-item">🔥</button><button class="emoji-item">✨</button><button class="emoji-item">🎉</button><button class="emoji-item">🎊</button><button class="emoji-item">🎁</button><button class="emoji-item">🎈</button><button class="emoji-item">💐</button><button class="emoji-item">🌹</button>
-        <button class="emoji-item">☀️</button><button class="emoji-item">🌙</button><button class="emoji-item">⭐</button><button class="emoji-item">⚡</button><button class="emoji-item">🌈</button><button class="emoji-item">☕</button><button class="emoji-item">🍕</button><button class="emoji-item">🎮</button>
-        <button class="emoji-item">🎯</button><button class="emoji-item">🏆</button><button class="emoji-item">⚽</button><button class="emoji-item">🚀</button><button class="emoji-item">✈️</button><button class="emoji-item">💯</button><button class="emoji-item">💥</button><button class="emoji-item">🌊</button>
-      </div>
-    </div>
-    <button class="emoji-btn" id="emojiBtn" title="Emojis">😊</button>
-    <button class="attach-btn" id="attachBtn" title="Attach file">📎</button>
+    <button class="emoji-btn" id="emojiBtn" title="Open emoji palette" type="button">😊</button>
+    <button class="attach-btn" id="attachBtn" title="Attach file" type="button">📎</button>
     <input id="chatInput" type="text" placeholder="Message…" autocomplete="off">
-    <button class="quick-love-btn" id="quickLoveBtn" title="Send love">❤️</button>
     <button class="send-btn" id="sendBtn" disabled>➤</button>
   </div>
 </section>
+
+<div id="emojiPalette">
+  <div class="emoji-section-title">Quick reactions — tap to send instantly</div>
+  <div class="emoji-quick-row">
+    <button class="emoji-quick" data-emoji="👍">👍</button>
+    <button class="emoji-quick" data-emoji="❤️">❤️</button>
+    <button class="emoji-quick" data-emoji="😂">😂</button>
+    <button class="emoji-quick" data-emoji="😮">😮</button>
+    <button class="emoji-quick" data-emoji="😢">😢</button>
+    <button class="emoji-quick" data-emoji="🔥">🔥</button>
+    <button class="emoji-quick" data-emoji="🎉">🎉</button>
+    <button class="emoji-quick" data-emoji="👏">👏</button>
+  </div>
+  <div class="emoji-section-title">Tap to add to your message</div>
+  <div class="emoji-grid">
+    <button class="emoji-item">😀</button><button class="emoji-item">😂</button><button class="emoji-item">🥰</button><button class="emoji-item">😍</button><button class="emoji-item">😎</button><button class="emoji-item">🤔</button><button class="emoji-item">😢</button><button class="emoji-item">😭</button>
+    <button class="emoji-item">😡</button><button class="emoji-item">😱</button><button class="emoji-item">🤯</button><button class="emoji-item">🥳</button><button class="emoji-item">😴</button><button class="emoji-item">🤗</button><button class="emoji-item">🤩</button><button class="emoji-item">😊</button>
+    <button class="emoji-item">😉</button><button class="emoji-item">😋</button><button class="emoji-item">🙃</button><button class="emoji-item">😅</button><button class="emoji-item">😇</button><button class="emoji-item">🤐</button><button class="emoji-item">🥺</button><button class="emoji-item">😏</button>
+    <button class="emoji-item">👍</button><button class="emoji-item">👎</button><button class="emoji-item">👏</button><button class="emoji-item">🙏</button><button class="emoji-item">💪</button><button class="emoji-item">🤝</button><button class="emoji-item">✌️</button><button class="emoji-item">🤞</button>
+    <button class="emoji-item">❤️</button><button class="emoji-item">🧡</button><button class="emoji-item">💛</button><button class="emoji-item">💚</button><button class="emoji-item">💙</button><button class="emoji-item">💜</button><button class="emoji-item">🖤</button><button class="emoji-item">💔</button>
+    <button class="emoji-item">🔥</button><button class="emoji-item">✨</button><button class="emoji-item">🎉</button><button class="emoji-item">🎊</button><button class="emoji-item">🎁</button><button class="emoji-item">🎈</button><button class="emoji-item">💐</button><button class="emoji-item">🌹</button>
+    <button class="emoji-item">☀️</button><button class="emoji-item">🌙</button><button class="emoji-item">⭐</button><button class="emoji-item">⚡</button><button class="emoji-item">🌈</button><button class="emoji-item">☕</button><button class="emoji-item">🍕</button><button class="emoji-item">🎮</button>
+    <button class="emoji-item">🎯</button><button class="emoji-item">🏆</button><button class="emoji-item">⚽</button><button class="emoji-item">🚀</button><button class="emoji-item">✈️</button><button class="emoji-item">💯</button><button class="emoji-item">💥</button><button class="emoji-item">🌊</button>
+    <button class="emoji-item">💋</button><button class="emoji-item">💌</button><button class="emoji-item">💝</button><button class="emoji-item">💞</button><button class="emoji-item">🥂</button><button class="emoji-item">🍾</button><button class="emoji-item">🎂</button><button class="emoji-item">🎵</button>
+  </div>
+</div>
 
 <section id="screen-call" class="screen">
   <div class="call-avatar" id="callAvatar">G</div>
@@ -406,8 +432,8 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
     <p>
       <strong>1.</strong> Your name is your address — e.g. <em>gesner</em>.<br><br>
       <strong>2.</strong> Anyone types that name in "Add contact" to reach you.<br><br>
-      <strong>3.</strong> Chat, send emojis, photos, videos, audio, files, or a voice note.<br><br>
-      <strong>4.</strong> ✓ means sent, ✓✓ means read. Tap 😊 for emojis or ❤️ to send love.<br><br>
+      <strong>3.</strong> Tap any emoji in the strip above the input to send it instantly. Tap 😊 for the full palette.<br><br>
+      <strong>4.</strong> ✓ means sent, ✓✓ means read.<br><br>
       <strong>5.</strong> If file upload fails, open <strong>Profile → Check file storage</strong>.
     </p>
     <div class="modal-actions"><button class="confirm" id="helpClose">Got it</button></div>
@@ -442,6 +468,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getDatabase, ref as dbRef, push, onValue, onChildAdded, remove, set, get, runTransaction, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import { getStorage, ref as stRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
+/* ═══════════════════════════════════════════════════════════
+   FIREBASE CONFIG — "G Jarvis" web app (new registration)
+   ═══════════════════════════════════════════════════════════ */
 const firebaseConfig = {
   apiKey: "AIzaSyBfqTPdNq31MegFF_vh08D2K_6-2GMeIrY",
   authDomain: "jarvis-tracker-a8136.firebaseapp.com",
@@ -449,8 +478,8 @@ const firebaseConfig = {
   projectId: "jarvis-tracker-a8136",
   storageBucket: "jarvis-tracker-a8136.firebasestorage.app",
   messagingSenderId: "994161558903",
-  appId: "1:994161558903:web:a2bed95e40221b4b6d0d72",
-  measurementId: "G-1XX0TZNG1R"
+  appId: "1:994161558903:web:c978951c451a305b6d0d72",
+  measurementId: "G-80G2TGRQTZ"
 };
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
@@ -517,8 +546,6 @@ function unlockAudio() { const ctx = getAudioCtx(); if (ctx && ctx.state === 'su
 document.addEventListener('click', unlockAudio);
 document.addEventListener('touchstart', unlockAudio, { passive: true });
 document.addEventListener('keydown', unlockAudio);
-
-/* ═══════════ SOUND EFFECTS ═══════════ */
 function playMessageSound() {
   if (!App.soundEnabled) return;
   const ctx = getAudioCtx(); if (!ctx) return;
@@ -1090,11 +1117,9 @@ $('sendBtn').addEventListener('click', sendMessage);
 $('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
 $('chatBackBtn').addEventListener('click', () => { App.activeChat = null; $('emojiPalette').classList.remove('show'); showScreen('screen-main'); updateUnreadBadges(); });
 $('callFromChatBtn').addEventListener('click', () => { if (App.activeChat) startCall(App.activeChat); });
-
-/* ═══════════ EMOJI PICKER ═══════════ */
 $('emojiBtn').addEventListener('click', (e) => {
   e.preventDefault();
-  if (!App.activeChat) return;
+  if (!App.activeChat) { toast('Open a chat first', true); return; }
   $('emojiPalette').classList.toggle('show');
 });
 document.querySelectorAll('.emoji-quick').forEach(btn => {
@@ -1123,6 +1148,19 @@ document.querySelectorAll('.emoji-item').forEach(btn => {
     if (inp.value.trim()) $('sendBtn').disabled = false;
   });
 });
+document.querySelectorAll('.quick-reaction').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    if (!App.activeChat) { toast('Open a chat first', true); return; }
+    const emoji = btn.dataset.emoji;
+    const cid = chatIdFor(App.mySlug, App.activeChat);
+    try {
+      await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: App.activeChat, text: emoji, time: Date.now() });
+      playSentSound();
+      btn.style.transform = 'scale(1.3)';
+      setTimeout(() => btn.style.transform = '', 200);
+    } catch { toast('Send failed'); }
+  });
+});
 document.addEventListener('click', (e) => {
   const pal = $('emojiPalette');
   if (!pal.classList.contains('show')) return;
@@ -1133,19 +1171,6 @@ document.addEventListener('click', (e) => {
 $('chatInput').addEventListener('input', () => {
   $('sendBtn').disabled = !$('chatInput').value.trim();
 });
-$('quickLoveBtn').addEventListener('click', async () => {
-  if (!App.activeChat) return;
-  const cid = chatIdFor(App.mySlug, App.activeChat);
-  try {
-    await push(dbRef(db, 'chats/' + cid + '/messages'), { from: App.mySlug, to: App.activeChat, text: '❤️', time: Date.now() });
-    playSentSound();
-    const btn = $('quickLoveBtn');
-    btn.style.transform = 'scale(1.4)';
-    setTimeout(() => btn.style.transform = '', 200);
-  } catch { toast('Send failed'); }
-});
-
-/* ═══════════ ATTACHMENTS ═══════════ */
 const MAX_BYTES = 50 * 1024 * 1024;
 $('attachBtn').addEventListener('click', (e) => {
   e.preventDefault();
