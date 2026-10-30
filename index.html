@@ -877,6 +877,22 @@ $('fileInput').addEventListener('change', async e => {
 
 /* Chat Voice Note Recording Button */
 let chatMediaRecorder = null, chatAudioChunks = [], chatRecTimer = null;
+
+function getSupportedMimeType() {
+  if (typeof MediaRecorder === 'undefined') return '';
+  const types = [
+    'audio/mp4',
+    'audio/aac',
+    'audio/webm;codecs=opus',
+    'audio/webm',
+    'audio/ogg;codecs=opus'
+  ];
+  for (const t of types) {
+    if (MediaRecorder.isTypeSupported(t)) return t;
+  }
+  return '';
+}
+
 $('chatRecordBtn').addEventListener('click', async () => {
   if (!App.activeChat) return;
   const btn = $('chatRecordBtn');
@@ -885,31 +901,22 @@ $('chatRecordBtn').addEventListener('click', async () => {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       chatAudioChunks = [];
       
-      // Determine supported MIME type for mobile compatibility (iOS Safari vs Android Chrome/Desktop)
-      let options = { mimeType: 'audio/webm' };
-      if (!MediaRecorder.isTypeSupported('audio/webm')) {
-        if (MediaRecorder.isTypeSupported('audio/mp4')) {
-          options = { mimeType: 'audio/mp4' };
-        } else if (MediaRecorder.isTypeSupported('audio/aac')) {
-          options = { mimeType: 'audio/aac' };
-        } else {
-          options = {}; // Fallback to default browser codec
-        }
-      }
+      const mimeType = getSupportedMimeType();
+      const options = mimeType ? { mimeType } : {};
 
       chatMediaRecorder = new MediaRecorder(stream, options);
       chatMediaRecorder.ondataavailable = e => { if (e.data.size > 0) chatAudioChunks.push(e.data); };
       chatMediaRecorder.onstop = async () => {
-        const mime = chatMediaRecorder.mimeType || 'audio/webm';
+        const mime = chatMediaRecorder.mimeType || mimeType || 'audio/mp4';
         const blob = new Blob(chatAudioChunks, { type: mime });
         const url = await fileToBase64(blob);
-        await sendMessage({ type: 'audio', url, name: 'Voice Note.webm' });
+        await sendMessage({ type: 'audio', url, name: 'Voice Note' });
         btn.style.color = '#ff4757';
         btn.style.transform = 'scale(1)';
         stream.getTracks().forEach(t => t.stop());
         toast('Voice note sent ✓');
       };
-      chatMediaRecorder.start();
+      chatMediaRecorder.start(100);
       btn.style.color = '#0d7a8c';
       btn.style.transform = 'scale(1.2)';
       toast('Recording voice note (max 30s)…');
@@ -1103,21 +1110,13 @@ $('recordBtn').addEventListener('click', async () => {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       audioChunks = [];
 
-      let options = { mimeType: 'audio/webm' };
-      if (!MediaRecorder.isTypeSupported('audio/webm')) {
-        if (MediaRecorder.isTypeSupported('audio/mp4')) {
-          options = { mimeType: 'audio/mp4' };
-        } else if (MediaRecorder.isTypeSupported('audio/aac')) {
-          options = { mimeType: 'audio/aac' };
-        } else {
-          options = {};
-        }
-      }
+      const mimeType = getSupportedMimeType();
+      const options = mimeType ? { mimeType } : {};
 
       mediaRecorder = new MediaRecorder(stream, options);
       mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
       mediaRecorder.onstop = async () => {
-        const mime = mediaRecorder.mimeType || 'audio/webm';
+        const mime = mediaRecorder.mimeType || mimeType || 'audio/mp4';
         const blob = new Blob(audioChunks, { type: mime });
         const url = await fileToBase64(blob);
         await push(dbRef(db, `voicemails/${recipient}`), {
@@ -1128,7 +1127,7 @@ $('recordBtn').addEventListener('click', async () => {
         btn.style.background = '#ff4757';
         stream.getTracks().forEach(t => t.stop());
       };
-      mediaRecorder.start();
+      mediaRecorder.start(100);
       btn.textContent = '■ Stop Recording (Recording...)';
       btn.style.background = '#0d7a8c';
       toast('Recording audio…');
@@ -1161,7 +1160,7 @@ function listenVoicemails() {
     list.innerHTML = items.map(v => `
       <div style="background:#fff;margin:8px 16px;padding:12px;border-radius:10px;border:1px solid var(--border);">
         <div style="font-size:13px;font-weight:700;margin-bottom:6px;">From: @${esc(v.fromName || v.from)}</div>
-        <audio controls src="${v.url}" style="width:100%;"></audio>
+        <audio controls playsinline preload="metadata" src="${v.url}" style="width:100%;"></audio>
       </div>`).join('');
   });
 }
