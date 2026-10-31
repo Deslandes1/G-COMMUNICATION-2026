@@ -7,11 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JARVIS">
 <title>JARVIS</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNjYiIGZpbGw9IiNkNGFlMzciLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5MiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzBiMmE0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RzwvdGV4dD48L3N2Zz4=">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNjYiIGZpbGw9IiNkNGFlMzciLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5MiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzBiMmE0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RzwvdGV4dCB4PSP0eHQ+PC9zdmc+">
 <style>
 :root{--navy:#0b2a4a;--navy-light:#143a5f;--accent:#0d7a8c;--gold:#d4af37;--green:#4aff7a;--red:#ff4757;--bg:#f2f5f8;--card:#fff;--text:#1e2a33;--muted:#6b7a87;--border:#e1e7ed}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Calibri,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
 #app{height:100%;width:100%;display:flex;flex-direction:column;max-width:100%;margin:0 auto;background:var(--bg);position:relative;box-shadow:0 0 40px rgba(0,0,0,.15);overflow:hidden}
 .screen{flex:1;display:none;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);position:relative}
 .screen.active{display:flex}
@@ -26,10 +26,10 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 #screen-onboard{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 25%,#0d7a8c 55%,#143a5f 80%,#0b2a4a 100%);color:#fff;justify-content:center;align-items:center;padding:32px 28px;text-align:center;position:relative}
 .onboard-logo{width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 50%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:54px;font-weight:800;margin-bottom:24px;box-shadow:0 16px 50px rgba(212,175,55,.55)}
 #screen-onboard h1{font-size:32px;letter-spacing:4px;margin-bottom:8px;font-weight:800}
-#screen-onboard p{font-size:14px;opacity:.9;line-height:1.5;max-width:320px;margin-bottom:24px}
-.onboard-input{width:100%;max-width:320px;padding:15px 18px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.14);border-radius:12px;font-size:16px;color:#fff;outline:none;margin-bottom:12px;text-align:center}
+#screen-onboard p{font-size:15px;opacity:.9;line-height:1.5;max-width:320px;margin-bottom:24px}
+.onboard-input{width:100%;max-width:320px;padding:15px 18px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.14);border-radius:12px;font-size:17px;color:#fff;outline:none;margin-bottom:12px;text-align:center}
 .onboard-input::placeholder{color:rgba(255,255,255,.55)}
-.name-status{font-size:12px;color:rgba(255,255,255,.8);margin-bottom:14px;min-height:18px}
+.name-status{font-size:13px;color:rgba(255,255,255,.8);margin-bottom:14px;min-height:18px}
 .name-status.ok{color:#4aff7a;font-weight:600}
 .name-status.bad{color:#ff8b8b;font-weight:600}
 .btn-primary{width:100%;max-width:320px;padding:15px;border:none;border-radius:12px;background:linear-gradient(135deg,#f0d369 0%,#d4af37 50%,#b8912a 100%);color:var(--navy);font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(212,175,55,.4)}
@@ -38,26 +38,26 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 #screen-main{background-color:#f4efe6;background-image:linear-gradient(180deg,#f7f2e8 0%,#ede6d8 100%);position:relative;overflow:hidden}
 .app-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0;z-index:5}
 .app-header .logo{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;flex-shrink:0}
-.app-header h2{font-size:17px;font-weight:700;flex:1}
+.app-header h2{font-size:18px;font-weight:700;flex:1}
 .app-header .online-dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
 
 .tab-content{flex:1;overflow-y:auto;padding-bottom:80px;position:relative;z-index:1}
 .tab-content::-webkit-scrollbar{display:none}
 .bottom-nav{position:absolute;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-top:1px solid rgba(11,42,74,.08);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:10;box-shadow:0 -4px 20px rgba(11,42,74,.06)}
-.nav-item{flex:1;padding:10px 0 12px;text-align:center;font-size:10px;color:var(--muted);cursor:pointer;font-weight:600;border:none;background:none;position:relative}
+.nav-item{flex:1;padding:10px 0 12px;text-align:center;font-size:11px;color:var(--muted);cursor:pointer;font-weight:600;border:none;background:none;position:relative}
 .nav-item .icon{display:block;font-size:20px;margin-bottom:2px}
 .nav-item.active{color:var(--navy)}
 
-.section-title{font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:16px 20px 8px}
+.section-title{font-size:13px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:16px 20px 8px}
 .list-item{background:#fff;padding:14px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;border-bottom:1px solid var(--border)}
 .list-item:active{background:#f8f9fa}
-.avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0;overflow:hidden}
+.avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:19px;flex-shrink:0;overflow:hidden}
 .avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .avatar.accent{background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%)}
 .avatar.group{background:linear-gradient(135deg,#d4af37 0%,#a8872f 100%);color:var(--navy)}
 .list-item-body{flex:1;min-width:0}
-.list-item-title{font-weight:600;font-size:15px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.list-item-sub{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-item-title{font-weight:600;font-size:16px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-item-sub{font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 .empty{text-align:center;padding:50px 30px;color:var(--muted)}
 .empty .empty-icon{font-size:42px;margin-bottom:10px;opacity:.5}
@@ -77,12 +77,12 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 
 .messages{flex:1;overflow-y:auto;padding:16px 14px;position:relative;background:#fdf6ec;scroll-behavior:smooth}
 .messages::-webkit-scrollbar{display:none}
-.msg{max-width:80%;padding:9px 13px;border-radius:16px;font-size:14.5px;line-height:1.4;margin-bottom:8px;word-wrap:break-word;position:relative;cursor:pointer}
+.msg{max-width:80%;padding:10px 14px;border-radius:16px;font-size:15.5px;line-height:1.45;margin-bottom:8px;word-wrap:break-word;position:relative;cursor:pointer}
 .msg.out{background:linear-gradient(135deg,#d4fbc9 0%,#bef5b1 100%);margin-left:auto;border-bottom-right-radius:4px;box-shadow:0 2px 6px rgba(74,177,80,.15)}
 .msg.in{background:#ffffff;margin-right:auto;border-bottom-left-radius:4px;box-shadow:0 2px 8px rgba(11,42,74,.08);border:1px solid rgba(11,42,74,.05)}
-.msg .sender-tag{font-size:11px;font-weight:700;color:var(--accent);margin-bottom:3px;display:block}
-.msg .edited-tag{font-size:10px;opacity:.6;font-style:italic;margin-left:4px}
-.msg .time{font-size:10px;color:var(--muted);margin-top:3px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:4px}
+.msg .sender-tag{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:3px;display:block}
+.msg .edited-tag{font-size:11px;opacity:.6;font-style:italic;margin-left:4px}
+.msg .time{font-size:11px;color:var(--muted);margin-top:4px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:4px}
 .msg.has-attachment{padding:6px;max-width:82%}
 .msg .attach-img{max-width:100%;width:100%;display:block;border-radius:10px;cursor:pointer;background:#dfe6ed}
 .msg .attach-video{max-width:100%;width:100%;display:block;border-radius:10px;background:#000}
@@ -113,12 +113,12 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .action-btn{padding:14px;border-radius:10px;border:none;background:#f2f5f8;font-size:15px;font-weight:600;color:var(--text);cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px}
 .action-btn.danger{background:#fff0f0;color:var(--red)}
 
-.status-feed{padding:12px;display:flex;flex-direction:column;gap:12px}
-.status-card{background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(11,42,74,.05)}
-.status-card-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.status-content-box{border-radius:10px;padding:12px;color:#fff;font-weight:600;font-size:15px;text-align:center;word-break:break-word;margin-bottom:8px}
-.status-media{width:100%;border-radius:10px;margin-bottom:8px;max-height:300px;object-fit:cover}
-.status-link{display:block;background:#f0f4f8;padding:10px;border-radius:8px;color:var(--accent);font-weight:600;text-decoration:none;word-break:break-all;font-size:13px;margin-bottom:8px;border:1px dashed var(--accent)}
+.status-feed{padding:12px;display:flex;flex-direction:column;gap:14px}
+.status-card{background:#fff;border-radius:16px;padding:16px;border:1px solid var(--border);box-shadow:0 4px 12px rgba(11,42,74,.06)}
+.status-card-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.status-content-box{border-radius:12px;padding:16px;color:#fff;font-weight:600;font-size:18px;line-height:1.4;text-align:center;word-break:break-word;margin-bottom:10px}
+.status-media{width:100%;border-radius:12px;margin-bottom:10px;max-height:480px;object-fit:contain;background:#000;display:block}
+.status-link{display:block;background:#f0f4f8;padding:12px;border-radius:10px;color:var(--accent);font-weight:600;text-decoration:none;word-break:break-all;font-size:14px;margin-bottom:10px;border:1px dashed var(--accent)}
 
 #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;flex-direction:column}
 #lightbox.show{display:flex}
@@ -162,7 +162,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
 .group-select-list{max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px;margin-bottom:12px}
 .group-select-item{display:flex;align-items:center;gap:10px;padding:8px;border-bottom:1px solid #f0f0f0}
 
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:10000;max-width:90%;text-align:center}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:12px 22px;border-radius:10px;font-size:14px;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:10000;max-width:90%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 @media (min-width: 640px) {
@@ -225,7 +225,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
         <img id="profileAvatarImg" alt="" style="display:none;">
       </div>
       <h3 id="profileName">—</h3>
-      <div style="font-size:13px;color:var(--accent);font-weight:600" id="profileUsername">@—</div>
+      <div style="font-size:14px;color:var(--accent);font-weight:600" id="profileUsername">@—</div>
     </div>
     <div style="padding:0 20px">
       <div style="background:#fff;padding:14px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center" id="permBtn">
@@ -435,7 +435,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Robot
   <a class="dl-lb" id="lightboxDownload" download target="_blank">⬇ Download</a>
 </div>
 
-<div class="toast" id="toast"></div>
+<div id="toast" class="toast"></div>
 
 <input type="file" id="avatarInput" accept="image/*" style="display:none;">
 <input type="file" id="fileInput" style="display:none;">
@@ -676,7 +676,7 @@ function loadOwnerStatuses() {
         <span>User: @${esc(p.authorSlug)} (${esc(p.authorName)})</span>
         <span style="color:var(--muted);">${new Date(p.time).toLocaleString()}</span>
       </div>
-      <div style="font-size:14px;margin-bottom:6px;">${esc(p.text || '[Media/Link Status]')}</div>
+      <div style="font-size:15px;margin-bottom:6px;">${esc(p.text || '[Media/Link Status]')}</div>
       ${p.mediaUrl ? `<img src="${p.mediaUrl}" style="max-width:100%;max-height:150px;border-radius:6px;margin-bottom:6px;display:block;">` : ''}
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
         <button class="btn-primary" style="max-width:none;padding:6px 12px;font-size:12px;background:#ff4757;color:#fff;" onclick="window.__ownerReportStatus('${p._k}', '@${esc(p.authorSlug)}')">🚩 Upload Violation Report (Nudes/Violence)</button>
@@ -1312,13 +1312,13 @@ function listenUserStatuses() {
       const commentCount = p.comments ? Object.keys(p.comments).length : 0;
       return `<div class="status-card" data-key="${p._k}">
         <div class="status-card-header">
-          <div class="avatar" style="width:36px;height:36px;font-size:14px">${avatarInner(p.authorPhoto, p.authorName)}</div>
-          <div style="flex:1"><div style="font-weight:700">${esc(p.authorName)} <small style="color:var(--accent)">(@${esc(p.authorSlug)})</small></div><small style="color:var(--muted)">${new Date(p.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small></div>
-          ${isMine ? `<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px" onclick="window.__delStatus('${p._k}')">🗑</button>` : ''}
+          <div class="avatar" style="width:40px;height:40px;font-size:16px">${avatarInner(p.authorPhoto, p.authorName)}</div>
+          <div style="flex:1"><div style="font-weight:700;font-size:15px">${esc(p.authorName)} <small style="color:var(--accent)">(@${esc(p.authorSlug)})</small></div><small style="color:var(--muted)">${new Date(p.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small></div>
+          ${isMine ? `<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:18px" onclick="window.__delStatus('${p._k}')">🗑</button>` : ''}
         </div>
         ${textHtml}${mediaHtml}${linkHtml}
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;border-top:1px solid #f0f0f0;padding-top:8px;">
-          <button style="background:#eef2f6;border:none;padding:6px 12px;border-radius:14px;font-size:12px;font-weight:600;cursor:pointer;" onclick="window.__openStatusComments('${p._k}')">💬 Comments (${commentCount})</button>
+          <button style="background:#eef2f6;border:none;padding:8px 14px;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window.__openStatusComments('${p._k}')">💬 Comments (${commentCount})</button>
         </div>
       </div>`;
     }).join('');
@@ -1342,11 +1342,11 @@ function renderStatusCommentsLocal() {
   const comments = Object.values(data).sort((a, b) => a.time - b.time);
   const list = $('statusCommentsList');
   if (!comments.length) {
-    list.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:10px;">No comments yet.</div>';
+    list.innerHTML = '<div style="font-size:13px;color:var(--muted);text-align:center;padding:10px;">No comments yet.</div>';
     return;
   }
   list.innerHTML = comments.map(c => `
-    <div style="background:#f7f9fb;padding:8px 12px;border-radius:8px;font-size:13px;">
+    <div style="background:#f7f9fb;padding:8px 12px;border-radius:8px;font-size:14px;">
       <strong style="color:var(--accent);">@${esc(c.author)}:</strong> ${esc(c.text)}
     </div>`).join('');
 }
