@@ -141,6 +141,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 .group-select-list{max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px;margin-bottom:12px}
 .group-select-item{display:flex;align-items:center;gap:10px;padding:8px;border-bottom:1px solid #f0f0f0;font-size:15.5px}
 .owner-video-player{width:100%;max-height:380px;object-fit:contain;background:#000;border-radius:10px;margin-top:8px;display:block}
+.owner-img-player{width:100%;max-height:380px;object-fit:contain;background:#000;border-radius:10px;margin-top:8px;display:block}
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:12px 22px;border-radius:10px;font-size:15px;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:10000;max-width:90%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media (min-width: 640px) {
@@ -569,7 +570,7 @@ function loadOwnerStatuses() {
         <span style="color:var(--muted);">${new Date(p.time).toLocaleString()}</span>
       </div>
       <div style="font-size:15px;margin-bottom:6px;">${esc(p.text || '[Media/Link Status]')}</div>
-      ${p.mediaUrl ? `<video src="${p.mediaUrl}" controls playsinline preload="metadata" class="owner-video-player"></video>` : ''}
+      ${p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" class="owner-img-player">` : `<video src="${p.mediaUrl}" controls playsinline preload="metadata" class="owner-video-player"></video>`) : ''}
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
         <button class="btn-primary" style="max-width:none;padding:6px 12px;font-size:13px;background:#ff4757;color:#fff;" onclick="window.__ownerReportStatus('${p._k}', '@${esc(p.authorSlug)}')">🚩 Upload Violation Report</button>
         <button class="btn-primary" style="max-width:none;padding:6px 12px;font-size:13px;background:#333;color:#fff;" onclick="window.__ownerDeleteStatus('${p._k}')">🗑️ Remove</button>
