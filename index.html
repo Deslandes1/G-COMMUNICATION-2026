@@ -29,7 +29,6 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 .onboard-input::placeholder{color:rgba(255,255,255,.55)}
 .name-status{font-size:13.5px;color:rgba(255,255,255,.8);margin-bottom:14px;min-height:18px}
 .name-status.ok{color:#4aff7a;font-weight:600}
-.name-status.bad{color:#ff8b8b;font-weight:600}
 .btn-primary{width:100%;max-width:320px;padding:15px;border:none;border-radius:12px;background:linear-gradient(135deg,#f0d369 0%,#d4af37 50%,#b8912a 100%);color:var(--navy);font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(212,175,55,.4)}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
 #screen-main{background-color:#f4efe6;background-image:linear-gradient(180deg,#f7f2e8 0%,#ede6d8 100%);position:relative;overflow:hidden}
@@ -572,15 +571,15 @@ function loadOwnerStatuses() {
       <div style="font-size:15px;margin-bottom:6px;">${esc(p.text || '')}</div>
       ${p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" class="owner-img-player" alt="User Photo">` : `<video src="${p.mediaUrl}" controls playsinline preload="metadata" class="owner-video-player"></video>`) : ''}
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
-        <button class="btn-primary" style="max-width:none;padding:6px 12px;font-size:13px;background:#ff4757;color:#fff;" onclick="window.__ownerReportStatus('${p._k}', '@${esc(p.authorSlug)}')">🚩 Upload Violation Report</button>
-        <button class="btn-primary" style="max-width:none;padding:6px 12px;font-size:13px;background:#333;color:#fff;" onclick="window.__ownerDeleteStatus('${p._k}')">🗑️ Remove</button>
+        <button class="btn-primary" style="max-width:none;padding:6px 12px;font-size:13px;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus('${p._k}')">🗑️ Delete (Text/Media)</button>
+        <button class="btn-primary" style="max-width:none;padding:6px 12px;font-size:13px;background:#143a5f;color:#fff;" onclick="window.__ownerReportStatus('${p._k}', '@${esc(p.authorSlug)}')">🚩 Report Violation</button>
       </div>
     </div>`).join('');
 }
 window.__ownerDeleteStatus = async (key) => {
-  if (confirm('Owner Action: Remove this status?')) {
+  if (confirm('Owner Action: Permanently delete this status post and its media?')) {
     await remove(dbRef(db, 'user_statuses/' + key));
-    toast('Status removed by owner');
+    toast('Status post deleted by Owner ✓');
     loadOwnerStatuses();
   }
 };
@@ -608,15 +607,25 @@ function loadOwnerReports() {
       return;
     }
     area.innerHTML = `<div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px;">🔒 P2P Private Message Monitor (All Chats)</div>` + allDMs.slice(0, 50).map(m => `
-      <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px;font-size:14px;">
+      <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px;font-size:14px;margin-bottom:6px;">
         <div style="display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-bottom:4px;">
           <span>Chat ID: ${esc(m.chatId)}</span>
           <span>${new Date(m.time || Date.now()).toLocaleString()}</span>
         </div>
         <div><strong>@${esc(m.fromName || m.from)}:</strong> ${esc(m.text || '[Attachment]')}</div>
+        <div style="display:flex;justify-content:flex-end;margin-top:4px;">
+          <button style="background:#ff4757;color:#fff;border:none;padding:4px 8px;border-radius:6px;font-size:12px;cursor:pointer;" onclick="window.__ownerDeleteP2PMessage('${m.chatId}', '${m._k}')">🗑️ Delete Message</button>
+        </div>
       </div>`).join('');
   }, { onlyOnce: true });
 }
+window.__ownerDeleteP2PMessage = async (chatId, msgKey) => {
+  if (confirm('Owner Action: Delete this private message?')) {
+    await remove(dbRef(db, `chats/${chatId}/messages/${msgKey}`));
+    toast('Private message removed by Owner ✓');
+    loadOwnerReports();
+  }
+};
 $('profileAvatar').addEventListener('click', () => $('avatarInput').click());
 $('avatarInput').addEventListener('change', async e => {
   const file = e.target.files && e.target.files[0]; if (!file) return;
