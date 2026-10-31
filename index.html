@@ -1,1299 +1,613 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#0b2a4a">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="JARVIS">
-<title>JARVIS</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNjYiIGZpbGw9IiNkNGFlMzciLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5MiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzBiMmE0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RzwvdGV4dD48L3N2Zz4=">
-<style>
-:root{--navy:#0b2a4a;--navy-light:#143a5f;--accent:#0d7a8c;--gold:#d4af37;--green:#4aff7a;--red:#ff4757;--bg:#f2f5f8;--card:#fff;--text:#1e2a33;--muted:#6b7a87;--border:#e1e7ed}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;font-family:-apple-system,"Segoe UI",Calibri,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
-#app{height:100%;width:100%;display:flex;flex-direction:column;max-width:100%;margin:0 auto;background:var(--bg);position:relative;box-shadow:0 0 40px rgba(0,0,0,.15);overflow:hidden}
-.screen{flex:1;display:none;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);position:relative}
-.screen.active{display:flex}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>JARVIS - Next-Gen Communication</title>
+  
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    * {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-.install-banner{background:linear-gradient(90deg,#0b2a4a 0%,#143a5f 40%,#0d7a8c 100%);color:#fff;padding:10px 14px;display:none;align-items:center;gap:10px;font-size:13px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.1);position:relative;z-index:20}
-.install-banner.show{display:flex}
-.install-banner .inst-icon{width:32px;height:32px;border-radius:8px;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0}
-.install-banner .inst-text{flex:1;line-height:1.35}
-.install-banner button{background:#fff;color:var(--navy);border:none;padding:8px 14px;border-radius:18px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0}
-.install-banner .inst-close{background:transparent;color:#fff;padding:4px 6px;font-size:16px;border:none;cursor:pointer;flex-shrink:0;opacity:.7}
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background-color: #0f172a;
+      color: #f8fafc;
+      overflow: hidden;
+    }
 
-#screen-onboard{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 25%,#0d7a8c 55%,#143a5f 80%,#0b2a4a 100%);color:#fff;justify-content:center;align-items:center;padding:32px 28px;text-align:center;position:relative}
-.onboard-logo{width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 50%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:54px;font-weight:800;margin-bottom:24px;box-shadow:0 16px 50px rgba(212,175,55,.55)}
-#screen-onboard h1{font-size:32px;letter-spacing:4px;margin-bottom:8px;font-weight:800}
-#screen-onboard p{font-size:15px;opacity:.9;line-height:1.5;max-width:320px;margin-bottom:24px}
-.onboard-input{width:100%;max-width:320px;padding:15px 18px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.14);border-radius:12px;font-size:17px;color:#fff;outline:none;margin-bottom:12px;text-align:center}
-.onboard-input::placeholder{color:rgba(255,255,255,.55)}
-.name-status{font-size:13px;color:rgba(255,255,255,.8);margin-bottom:14px;min-height:18px}
-.name-status.ok{color:#4aff7a;font-weight:600}
-.name-status.bad{color:#ff8b8b;font-weight:600}
-.btn-primary{width:100%;max-width:320px;padding:15px;border:none;border-radius:12px;background:linear-gradient(135deg,#f0d369 0%,#d4af37 50%,#b8912a 100%);color:var(--navy);font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(212,175,55,.4)}
-.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+    /* Screen Transitions */
+    .screen {
+      display: none;
+      height: 100%;
+      width: 100%;
+      flex-direction: column;
+    }
+    .screen.active {
+      display: flex;
+    }
 
-#screen-main{background-color:#f4efe6;background-image:linear-gradient(180deg,#f7f2e8 0%,#ede6d8 100%);position:relative;overflow:hidden}
-.app-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0;z-index:5}
-.app-header .logo{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;flex-shrink:0}
-.app-header h2{font-size:18px;font-weight:700;flex:1}
-.app-header .online-dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+    /* Welcome / Onboard Screen */
+    #screen-onboard {
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    }
+    .onboard-logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: 700;
+      box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.5);
+      margin-bottom: 1.5rem;
+    }
+    .onboard-input {
+      width: 100%;
+      max-width: 320px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      padding: 0.875rem 1.25rem;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.2s;
+      margin-bottom: 0.5rem;
+    }
+    .onboard-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    .name-status {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-bottom: 1.5rem;
+    }
+    .name-status.ok { color: #10b981; }
+    .btn-primary {
+      width: 100%;
+      max-width: 320px;
+      background: #3b82f6;
+      color: white;
+      font-weight: 600;
+      padding: 0.875rem;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover { background: #2563eb; }
 
-.tab-content{flex:1;overflow-y:auto;padding-bottom:80px;position:relative;z-index:1}
-.tab-content::-webkit-scrollbar{display:none}
-.bottom-nav{position:absolute;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-top:1px solid rgba(11,42,74,.08);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:10;box-shadow:0 -4px 20px rgba(11,42,74,.06)}
-.nav-item{flex:1;padding:10px 0 12px;text-align:center;font-size:11px;color:var(--muted);cursor:pointer;font-weight:600;border:none;background:none;position:relative}
-.nav-item .icon{display:block;font-size:20px;margin-bottom:2px}
-.nav-item.active{color:var(--navy)}
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
 
-.section-title{font-size:13px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:16px 20px 8px}
-.list-item{background:#fff;padding:14px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;border-bottom:1px solid var(--border)}
-.list-item:active{background:#f8f9fa}
-.avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:19px;flex-shrink:0;overflow:hidden}
-.avatar img{width:100%;height:100%;object-fit:cover;display:block}
-.avatar.accent{background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%)}
-.avatar.group{background:linear-gradient(135deg,#d4af37 0%,#a8872f 100%);color:var(--navy)}
-.list-item-body{flex:1;min-width:0}
-.list-item-title{font-weight:600;font-size:16px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.list-item-sub{font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    /* Video player object-fit fix */
+    video {
+      object-fit: contain !important;
+      background-color: #000;
+    }
 
-.empty{text-align:center;padding:50px 30px;color:var(--muted)}
-.empty .empty-icon{font-size:42px;margin-bottom:10px;opacity:.5}
-
-.fab-container{position:absolute;bottom:84px;right:20px;display:flex;flex-direction:column;gap:10px;z-index:9}
-.fab{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(13,122,140,.4)}
-.fab.gold{background:linear-gradient(135deg,#f0d369 0%,#d4af37 100%);color:var(--navy)}
-
-.chat-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px;min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0;z-index:5}
-.chat-header .back-btn{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:0 4px}
-.chat-header .chat-avatar{width:36px;height:36px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0;overflow:hidden}
-.chat-header .chat-avatar img{width:100%;height:100%;object-fit:cover;display:block}
-.chat-header .chat-title{flex:1;min-width:0}
-.chat-header .chat-title h3{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.chat-header .chat-title small{font-size:11px;color:var(--green);display:block}
-.chat-header .header-call-btn{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:4px 6px;border-radius:50%;background:rgba(255,255,255,.1)}
-
-.messages{flex:1;overflow-y:auto;padding:16px 14px;position:relative;background:#fdf6ec;scroll-behavior:smooth}
-.messages::-webkit-scrollbar{display:none}
-.msg{max-width:80%;padding:10px 14px;border-radius:16px;font-size:15.5px;line-height:1.45;margin-bottom:8px;word-wrap:break-word;position:relative;cursor:pointer}
-.msg.out{background:linear-gradient(135deg,#d4fbc9 0%,#bef5b1 100%);margin-left:auto;border-bottom-right-radius:4px;box-shadow:0 2px 6px rgba(74,177,80,.15)}
-.msg.in{background:#ffffff;margin-right:auto;border-bottom-left-radius:4px;box-shadow:0 2px 8px rgba(11,42,74,.08);border:1px solid rgba(11,42,74,.05)}
-.msg .sender-tag{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:3px;display:block}
-.msg .edited-tag{font-size:11px;opacity:.6;font-style:italic;margin-left:4px}
-.msg .time{font-size:11px;color:var(--muted);margin-top:4px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:4px}
-.msg.has-attachment{padding:6px;max-width:82%}
-.msg .attach-img{max-width:100%;width:100%;display:block;border-radius:10px;cursor:pointer;background:#dfe6ed}
-.msg .attach-video{max-width:100%;width:100%;display:block;border-radius:10px;background:#000;object-fit:contain}
-.msg .attach-audio{width:100%;max-width:280px;margin-top:2px}
-.msg .attach-file{display:flex;align-items:center;gap:10px;padding:10px;background:#f2f7fb;border-radius:10px;text-decoration:none;color:var(--text)}
-
-.quick-reactions{display:flex;gap:6px;padding:8px 12px;background:#fff;border-top:1px solid var(--border);flex-shrink:0;overflow-x:auto}
-.quick-reactions::-webkit-scrollbar{display:none}
-.quick-reaction{font-size:22px;width:38px;height:38px;background:#f7f9fb;border:1px solid var(--border);border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-
-.chat-input-bar{background:rgba(255,255,255,.98);border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:6px;align-items:center;flex-shrink:0;position:relative}
-.chat-input-bar input[type="text"]{flex:1;padding:11px 16px;border:1px solid var(--border);border-radius:22px;font-size:15px;outline:none;background:#f7f9fb;min-width:0}
-.emoji-btn,.attach-btn{background:transparent;border:none;font-size:22px;color:var(--accent);width:38px;height:38px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.chat-input-bar .send-btn{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:18px;cursor:pointer;flex-shrink:0}
-.chat-input-bar .send-btn:disabled{opacity:.4}
-
-.upload-bar{position:absolute;top:-3px;left:0;right:0;height:3px;background:#e1e7ed;display:none}
-.upload-bar.show{display:block}
-.upload-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .2s}
-
-#emojiPalette{position:fixed;bottom:calc(120px + env(safe-area-inset-bottom));left:16px;right:16px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(11,42,74,.4);padding:14px;z-index:9999;display:none;flex-direction:column;gap:10px;max-height:50vh;overflow-y:auto}
-#emojiPalette.show{display:flex}
-.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
-.emoji-item{font-size:22px;height:38px;background:transparent;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-
-.action-sheet{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top-left-radius:20px;border-top-right-radius:20px;padding:20px;z-index:10000;box-shadow:0 -10px 30px rgba(0,0,0,.2);display:none;flex-direction:column;gap:10px}
-.action-sheet.show{display:flex}
-.action-btn{padding:14px;border-radius:10px;border:none;background:#f2f5f8;font-size:15px;font-weight:600;color:var(--text);cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px}
-.action-btn.danger{background:#fff0f0;color:var(--red)}
-
-.status-feed{padding:12px;display:flex;flex-direction:column;gap:14px}
-.status-card{background:#fff;border-radius:16px;padding:16px;border:1px solid var(--border);box-shadow:0 4px 12px rgba(11,42,74,.06)}
-.status-card-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.status-content-box{border-radius:12px;padding:18px;color:#fff;font-weight:600;font-size:19px;line-height:1.45;text-align:center;word-break:break-word;margin-bottom:10px;font-family:Calibri,Roboto,sans-serif}
-.status-media{width:100%;border-radius:12px;margin-bottom:10px;max-height:480px;object-fit:contain;background:#000;display:block}
-.status-link{display:block;background:#f0f4f8;padding:12px;border-radius:10px;color:var(--accent);font-weight:600;text-decoration:none;word-break:break-all;font-size:14px;margin-bottom:10px;border:1px dashed var(--accent)}
-
-#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;flex-direction:column}
-#lightbox.show{display:flex}
-#lightbox img{max-width:100%;max-height:85vh;border-radius:8px}
-#lightbox .close-lb{position:absolute;top:20px;right:20px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;border:none;font-size:22px;cursor:pointer}
-#lightbox .dl-lb{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:20px;background:var(--gold);color:var(--navy);font-weight:700;text-decoration:none}
-
-/* Video & Voice Call Screen */
-#screen-call{background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;justify-content:center;align-items:center;padding:20px;text-align:center;position:relative;z-index:150}
-.call-video-container{position:absolute;inset:0;width:100%;height:100%;background:#000;display:none;z-index:1}
-.call-video-container.active{display:block}
-#remoteVideo{width:100%;height:100%;object-fit:cover;display:block}
-#localVideo{position:absolute;top:20px;right:20px;width:100px;height:140px;object-fit:cover;border-radius:12px;border:2px solid var(--gold);z-index:2;background:#222;box-shadow:0 8px 24px rgba(0,0,0,.5)}
-
-.call-overlay-ui{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%;width:100%;padding:40px 20px}
-.call-avatar{width:110px;height:110px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:800;margin-bottom:20px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
-.call-avatar img{width:100%;height:100%;object-fit:cover;display:block}
-.call-actions{display:flex;gap:20px;margin-top:auto;z-index:4}
-.call-btn{width:60px;height:60px;border-radius:50%;border:none;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.3)}
-.call-btn.end{background:#ff4757;color:#fff}
-.call-btn.accept{background:#4aff7a;color:#0b2a4a}
-.call-btn.mute{background:rgba(255,255,255,.2);color:#fff}
-
-#incoming-call{position:fixed;inset:0;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;padding:40px 24px;text-align:center}
-#incoming-call.show{display:flex}
-
-.profile-card{background:#fff;margin:16px;border-radius:14px;padding:24px 20px;text-align:center;border:1px solid var(--border)}
-.profile-card .avatar-big{width:90px;height:90px;border-radius:50%;background:#0b2a4a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:700;margin:0 auto 12px;position:relative;cursor:pointer;overflow:hidden}
-.profile-card .avatar-big img{width:100%;height:100%;object-fit:cover;display:block}
-
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:24px}
-.modal-overlay.show{display:flex}
-.modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:360px;max-height:85vh;overflow-y:auto}
-.modal h3{font-size:18px;margin-bottom:8px}
-.modal input[type="text"],.modal textarea{width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;margin-bottom:12px;outline:none}
-.modal-actions{display:flex;gap:10px;margin-top:10px}
-.modal-actions button{flex:1;padding:12px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;border:none}
-.modal-actions .cancel{background:#eef2f6;color:var(--text)}
-.modal-actions .confirm{background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff}
-
-.group-select-list{max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px;margin-bottom:12px}
-.group-select-item{display:flex;align-items:center;gap:10px;padding:8px;border-bottom:1px solid #f0f0f0}
-
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:12px 22px;border-radius:10px;font-size:14px;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:10000;max-width:90%;text-align:center}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-@media (min-width: 640px) {
-  body { padding: 16px; background: #e4e9ef; }
-  #app { height: calc(100% - 0px); max-width: 900px; border-radius: 20px; box-shadow: 0 24px 80px rgba(11,42,74,.32); }
-  .msg { max-width: 65%; }
-  #tabChats, #tabCalls, #tabVoicemail, #tabStatus, #tabProfile { max-width: 720px; margin: 0 auto; width: 100%; }
-}
-</style>
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: #334155;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 9999;
+    }
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
 </head>
 <body>
-<div id="app">
 
-<div class="install-banner" id="installBanner">
-  <div class="inst-icon">G</div>
-  <div class="inst-text"><strong>Install JARVIS</strong></div>
-  <button id="installBannerBtn">Install</button>
-  <button class="inst-close" id="installBannerClose">✕</button>
-</div>
-
-<section id="screen-onboard" class="screen active">
-  <div class="onboard-logo">G</div>
-  <h1>JARVIS</h1>
-  <p>Enter or update your username handle to continue.</p>
-  <input id="nameInput" class="onboard-input" type="text" placeholder="Your username (e.g. gesner)" maxlength="30" autocomplete="off" autocapitalize="none">
-  <div class="name-status" id="nameStatus">Lowercase letters and numbers only</div>
-  <button id="enterBtn" class="btn-primary">Enter Portal</button>
-</section>
-
-<section id="screen-main" class="screen">
-  <header class="app-header">
-    <div class="logo">G</div>
-    <h2 id="headerTitle">Chats</h2>
-    <div class="online-dot"></div>
-  </header>
-
-  <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
-  <div id="tabStatus" class="tab-content" style="display:none;">
-    <div class="status-card">
-      <button class="btn-primary" id="openPostStatusBtn" style="width:100%">+ Post User Status</button>
-    </div>
-    <div class="section-title">Friend Updates & Posts</div>
-    <div id="statusFeedList" class="status-feed"></div>
-  </div>
-  <div id="tabCalls" class="tab-content" style="display:none;">
-    <div class="section-title">Peer-to-Peer Calling</div>
-    <div id="callContactsList"></div>
-  </div>
-  <div id="tabVoicemail" class="tab-content" style="display:none;">
-    <div class="section-title">Send Voicemail</div>
-    <div style="padding:0 20px 10px"><select id="vmRecipient" style="width:100%;padding:10px;border-radius:8px"><option value="">Select recipient</option></select></div>
-    <button id="recordBtn" class="btn-primary" style="margin:0 20px 20px;width:calc(100% - 40px);background:#ff4757;color:#fff">⬤ Record (max 30s)</button>
-    <div class="section-title">Inbox</div>
-    <div id="voicemailList"></div>
-  </div>
-  <div id="tabProfile" class="tab-content" style="display:none;">
-    <div class="profile-card">
-      <div class="avatar-big" id="profileAvatar" title="Tap to upload profile photo">
-        <span id="profileAvatarLetter">G</span>
-        <img id="profileAvatarImg" alt="" style="display:none;">
-      </div>
-      <h3 id="profileName">—</h3>
-      <div style="font-size:14px;color:var(--accent);font-weight:600" id="profileUsername">@—</div>
-    </div>
-    <div style="padding:0 20px">
-      <div style="background:#fff;padding:14px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center" id="permBtn">
-        <span>📢 Browser Notifications</span>
-        <span id="permStatus" style="font-size:13px;font-weight:600;color:var(--gold)">checking…</span>
-      </div>
-      <div id="ownerPortalTrigger" style="display:none;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;padding:14px;border-radius:10px;margin-bottom:10px;text-align:center;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(11,42,74,.3);">
-        🛡️ Owner Security & Monitoring Space
-      </div>
-      <button class="btn-primary" id="clearBtn" style="background:#ff4757;color:#fff;width:100%">Clear Local Data</button>
-    </div>
+  <!-- Toast Element -->
+  <div id="toast" class="text-sm font-medium flex items-center gap-2">
+    <i class="fa-solid fa-circle-info text-blue-400"></i>
+    <span id="toastMsg">Notification</span>
   </div>
 
-  <div class="fab-container">
-    <button id="addGroupFab" class="fab gold" title="Create Group Chat">👥</button>
-    <button id="addContactFab" class="fab" title="Add Contact">＋</button>
-  </div>
-
-  <nav class="bottom-nav">
-    <button class="nav-item active" data-tab="chats"><span class="icon">💬</span>Chats</button>
-    <button class="nav-item" data-tab="status"><span class="icon">⭕</span>Status</button>
-    <button class="nav-item" data-tab="calls"><span class="icon">📞</span>Calls</button>
-    <button class="nav-item" data-tab="voicemail"><span class="icon">🎙</span>Voicemail</button>
-    <button class="nav-item" data-tab="profile"><span class="icon">👤</span>Profile</button>
-  </nav>
-</section>
-
-<section id="screen-chat" class="screen">
-  <header class="chat-header">
-    <button class="back-btn" id="chatBackBtn">‹</button>
-    <div class="chat-avatar" id="chatAvatar">G</div>
-    <div class="chat-title">
-      <h3 id="chatName">—</h3>
-      <small id="chatStatus">online</small>
-    </div>
-    <button class="header-call-btn" id="voiceCallFromChatBtn" title="Voice Call">📞</button>
-    <button class="header-call-btn" id="videoCallFromChatBtn" title="Video Call">📹</button>
-  </header>
-  <div id="messagesArea" class="messages"></div>
-
-  <div class="quick-reactions">
-    <button class="quick-reaction" data-emoji="👍">👍</button>
-    <button class="quick-reaction" data-emoji="❤️">❤️</button>
-    <button class="quick-reaction" data-emoji="😂">😂</button>
-    <button class="quick-reaction" data-emoji="😮">😮</button>
-    <button class="quick-reaction" data-emoji="😢">😢</button>
-    <button class="quick-reaction" data-emoji="🔥">🔥</button>
-    <button class="quick-reaction" data-emoji="🎉">🎉</button>
-  </div>
-
-  <div class="chat-input-bar">
-    <div class="upload-bar" id="uploadBar"><div class="upload-bar-fill" id="uploadBarFill"></div></div>
-    <button class="emoji-btn" id="emojiBtn">😊</button>
-    <button class="attach-btn" id="attachBtn" title="Attach Photo/Video/File">📎</button>
-    <button class="attach-btn" id="chatRecordBtn" title="Hold/Tap to Record Voice Note" style="font-size:20px;color:#ff4757;">🎙️</button>
-    <input id="chatInput" type="text" placeholder="Message…" autocomplete="off">
-    <button class="send-btn" id="sendBtn" disabled>➤</button>
-  </div>
-</section>
-
-<div id="emojiPalette">
-  <div class="emoji-grid">
-    <button class="emoji-item">😀</button><button class="emoji-item">😂</button><button class="emoji-item">🥰</button><button class="emoji-item">😍</button><button class="emoji-item">😎</button><button class="emoji-item">🤔</button><button class="emoji-item">😢</button><button class="emoji-item">😭</button>
-    <button class="emoji-item">😡</button><button class="emoji-item">😱</button><button class="emoji-item">👍</button><button class="emoji-item">❤️</button><button class="emoji-item">🔥</button><button class="emoji-item">✨</button><button class="emoji-item">🎉</button><button class="emoji-item">💯</button>
-  </div>
-</div>
-
-<div class="action-sheet" id="actionSheet">
-  <div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Message Options</div>
-  <button class="action-btn" id="actEditBtn">✏️ Edit Message / Media</button>
-  <button class="action-btn danger" id="actDeleteForMeBtn">🗑️ Delete for Me</button>
-  <button class="action-btn danger" id="actDeleteEveryoneBtn">💥 Delete for Everyone</button>
-  <button class="action-btn" id="actCancelBtn" style="background:#e1e7ed;text-align:center;justify-content:center;">Cancel</button>
-</div>
-
-<section id="screen-call" class="screen">
-  <div class="call-video-container" id="videoContainer">
-    <video id="remoteVideo" autoplay playsinline></video>
-    <video id="localVideo" autoplay playsinline muted></video>
-  </div>
-  
-  <div class="call-overlay-ui">
-    <div style="display:flex;flex-direction:column;align-items:center;">
-      <div class="call-avatar" id="callAvatar">G</div>
-      <div style="font-size:22px;font-weight:700;margin-bottom:6px" id="callName">—</div>
-      <div style="font-size:14px;opacity:.8" id="callStatus">Calling…</div>
-    </div>
+  <!-- 1. WELCOME / LOGIN SCREEN -->
+  <section id="screen-onboard" class="screen active">
+    <div class="onboard-logo">J</div>
+    <h1 class="text-2xl font-bold text-white mb-1">Welcome to JARVIS</h1>
+    <p class="text-slate-400 text-sm mb-6 text-center max-w-xs">Enter your name or handle to switch or sign into your account.</p>
     
-    <div class="call-actions">
-      <button class="call-btn mute" id="muteBtn" title="Mute Microphone">🎤</button>
-      <button class="call-btn end" id="endCallBtn" title="End Call">📵</button>
-    </div>
-  </div>
-</section>
+    <input id="nameInput" class="onboard-input" type="text" placeholder="Username / Email (e.g. gesner)" maxlength="50" autocomplete="off" autocapitalize="none">
+    <div class="name-status" id="nameStatus">Supports handles and emails</div>
+    
+    <button id="enterBtn" class="btn-primary flex items-center justify-center gap-2">
+      <span>Enter Portal</span>
+      <i class="fa-solid fa-arrow-right text-sm"></i>
+    </button>
+  </section>
 
-<div id="incoming-call">
-  <div class="call-avatar" id="incomingAvatar">G</div>
-  <div style="font-size:22px;font-weight:700;margin-bottom:6px" id="incomingName">—</div>
-  <div style="font-size:14px;opacity:.8;margin-bottom:40px" id="incomingType">Incoming Call…</div>
-  <div class="call-actions">
-    <button class="call-btn end" id="rejectCallBtn">📵</button>
-    <button class="call-btn accept" id="acceptCallBtn">📞</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="addModal">
-  <div class="modal">
-    <h3>Add Contact</h3>
-    <input id="modalName" type="text" placeholder="Enter username" maxlength="20" autocapitalize="none">
-    <div id="modalStatus" style="font-size:12px;margin-bottom:10px"></div>
-    <div class="modal-actions">
-      <button class="cancel" id="modalCancel">Cancel</button>
-      <button class="confirm" id="modalConfirm" disabled>Add</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="groupModal">
-  <div class="modal">
-    <h3>Create Group Chat</h3>
-    <input id="groupNameInput" type="text" placeholder="Group Name" maxlength="30">
-    <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Select Members:</div>
-    <div class="group-select-list" id="groupMembersSelection"></div>
-    <div class="modal-actions">
-      <button class="cancel" id="groupModalCancel">Cancel</button>
-      <button class="confirm" id="groupModalConfirm">Create</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="statusModal">
-  <div class="modal">
-    <h3>Post User Status</h3>
-    <textarea id="statusTextInput" rows="2" placeholder="Write status text..."></textarea>
-    <input id="statusLinkInput" type="text" placeholder="Optional URL Link (https://...)" style="margin-top:8px;">
-    <div style="margin-bottom:10px">
-      <label style="font-size:12px;display:block;margin-bottom:4px">Background Color:</label>
-      <input type="color" id="statusBgColor" value="#0d7a8c" style="width:100%;height:36px;border-radius:6px;padding:2px;cursor:pointer;">
-    </div>
-    <div style="margin-bottom:10px">
-      <button class="btn-primary" id="statusMediaSelectBtn" style="width:100%;max-width:none;padding:10px;font-size:13px;background:#143a5f;color:#fff;">📷 Select Optional Photo/Video</button>
-      <div id="statusMediaName" style="font-size:11px;color:var(--accent);margin-top:4px;word-break:break-all;"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="cancel" id="statusModalCancel">Cancel</button>
-      <button class="confirm" id="statusModalConfirm">Post</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="editMsgModal">
-  <div class="modal">
-    <h3>Edit Message / Media</h3>
-    <input id="editMsgInput" type="text" placeholder="Edit caption or text..." autocomplete="off" style="margin-bottom:10px;">
-    <div style="margin-bottom:12px">
-      <label style="font-size:12px;display:block;margin-bottom:4px">Replace Attached Media (Optional):</label>
-      <input type="file" id="editMediaInput" accept="image/*,video/*,audio/*">
-    </div>
-    <div class="modal-actions">
-      <button class="cancel" id="editMsgCancel">Cancel</button>
-      <button class="confirm" id="editMsgConfirm">Save</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="statusCommentsModal">
-  <div class="modal" style="max-width:400px;">
-    <h3>Status Comments (Direct to Owner)</h3>
-    <div id="statusCommentsList" style="max-height:220px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:8px;"></div>
-    <input id="statusCommentInput" type="text" placeholder="Write comment to owner's DM..." autocomplete="off">
-    <div class="modal-actions">
-      <button class="cancel" id="statusCommentCancel">Close</button>
-      <button class="confirm" id="statusCommentSend">Send DM</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="ownerAuthModal">
-  <div class="modal">
-    <h3>Owner Authentication</h3>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">Enter owner password to unlock monitoring space:</p>
-    <input id="ownerPassInput" type="password" placeholder="Password..." autocomplete="off">
-    <div class="modal-actions">
-      <button class="cancel" id="ownerAuthCancel">Cancel</button>
-      <button class="confirm" id="ownerAuthConfirm">Unlock</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="ownerSpaceModal">
-  <div class="modal" style="max-width:600px;max-height:90vh;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <h3 style="margin:0;">🛡️ Owner Monitoring Space</h3>
-      <button id="ownerSpaceClose" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
-    </div>
-    <div style="display:flex;gap:6px;margin-bottom:12px;">
-      <button class="btn-primary" id="ownerTabStatusBtn" style="flex:1;max-width:none;padding:8px;font-size:13px;">Monitor Statuses</button>
-      <button class="btn-primary" id="ownerTabChatsBtn" style="flex:1;max-width:none;padding:8px;font-size:13px;background:#143a5f;">Monitor P2P & Reports</button>
-    </div>
-    <div id="ownerContentArea" style="max-height:55vh;overflow-y:auto;display:flex;flex-direction:column;gap:10px;"></div>
-  </div>
-</div>
-
-<div id="lightbox">
-  <button class="close-lb" id="lightboxClose">✕</button>
-  <img id="lightboxImg" alt="">
-  <a class="dl-lb" id="lightboxDownload" download target="_blank">⬇ Download</a>
-</div>
-
-<div id="toast" class="toast"></div>
-
-<input type="file" id="avatarInput" accept="image/*" style="display:none;">
-<input type="file" id="fileInput" style="display:none;">
-<input type="file" id="statusMediaInput" accept="image/*,video/*" style="display:none;">
-
-</div>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref as dbRef, push, onValue, remove, set, get, query, limitToLast, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBfqTPdNq31MegFF_vh08D2K_6-2GMeIrY",
-  authDomain: "jarvis-tracker-a8136.firebaseapp.com",
-  databaseURL: "https://jarvis-tracker-a8136-default-rtdb.firebaseio.com",
-  projectId: "jarvis-tracker-a8136",
-  storageBucket: "jarvis-tracker-a8136.firebasestorage.app",
-  messagingSenderId: "994161558903",
-  appId: "1:994161558903:web:c978951c451a305b6d0d72"
-};
-
-const fbApp = initializeApp(firebaseConfig);
-const db = getDatabase(fbApp);
-
-const ICE_SERVERS = {
-  iceServers: [
-    { urls: "stun:stun.l.google.com:19302" },
-    { urls: "stun:stun1.l.google.com:19302" }
-  ]
-};
-
-const App = {
-  mySlug: null, myName: '', myPhoto: null,
-  contacts: [], groups: [], activeChat: null, activeIsGroup: false,
-  lastMessages: {}, globalUnsubs: {}, deletedLocally: {},
-  statusMediaFile: null, editMediaFile: null, selectedMsgKey: null, selectedMsgObj: null,
-  activeStatusObj: null, audioCtx: null,
-  
-  // Call state
-  peerConn: null, localStream: null, activeCallId: null, isVideoCall: false, currentCallTarget: null
-};
-
-const $ = id => document.getElementById(id);
-const LS = {
-  get: (k, d) => { try { return JSON.parse(localStorage.getItem('gcp_' + k)) ?? d; } catch { return d; } },
-  set: (k, v) => { try { localStorage.setItem('gcp_' + k, JSON.stringify(v)); } catch {} },
-  del: (k) => localStorage.removeItem('gcp_' + k)
-};
-
-function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
-let toastTimer;
-function toast(msg, isError) {
-  const t = $('toast'); t.textContent = msg;
-  t.style.borderColor = isError ? '#ff4757' : '#d4af37';
-  t.classList.add('show'); clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
-}
-
-function esc(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function slugify(name) { return String(name).toLowerCase().trim().replace(/[^a-z0-9]/g, '').slice(0, 20); }
-function chatIdFor(a, b) { const [x, y] = [a, b].sort(); return `${x}__${y}`; }
-function avatarInner(photo, name) { return photo ? `<img src="${photo}">` : esc((name || '?').charAt(0).toUpperCase()); }
-
-function detectFileType(file) {
-  const mime = (file.type || '').toLowerCase();
-  if (mime.startsWith('image/')) return 'image';
-  if (mime.startsWith('video/')) return 'video';
-  if (mime.startsWith('audio/')) return 'audio';
-  return 'file';
-}
-
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-function getAudioCtx() { if (!App.audioCtx) { try { App.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch {} } return App.audioCtx; }
-function unlockAudio() { const ctx = getAudioCtx(); if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {}); }
-document.addEventListener('click', unlockAudio);
-document.addEventListener('touchstart', unlockAudio, { passive: true });
-
-function playSentSound() {
-  const ctx = getAudioCtx(); if (!ctx) return;
-  if (ctx.state === 'suspended') ctx.resume().catch(() => {});
-  const now = ctx.currentTime;
-  const osc = ctx.createOscillator(); const gain = ctx.createGain();
-  osc.type = 'sine'; osc.frequency.setValueAtTime(900, now);
-  osc.frequency.exponentialRampToValueAtTime(600, now + 0.08);
-  gain.gain.setValueAtTime(0, now);
-  gain.gain.linearRampToValueAtTime(0.05, now + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-  osc.connect(gain); gain.connect(ctx.destination);
-  osc.start(now); osc.stop(now + 0.12);
-}
-
-const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
-let nameCheckTimer = null, nameCheckOk = true;
-
-nameInput.addEventListener('input', () => {
-  const slug = slugify(nameInput.value);
-  if (!slug) { 
-    nameStatus.textContent = 'Enter a valid username'; 
-    nameStatus.className = 'name-status'; 
-    return; 
-  }
-  nameStatus.textContent = 'Checking availability…'; nameStatus.className = 'name-status';
-  clearTimeout(nameCheckTimer);
-  nameCheckTimer = setTimeout(async () => {
-    try {
-      const snap = await get(dbRef(db, 'users/' + slug));
-      nameStatus.textContent = `"${slug}" ready ✓`; 
-      nameStatus.className = 'name-status ok'; 
-      nameCheckOk = true; 
-    } catch { 
-      nameStatus.textContent = 'Local handle ready'; 
-      nameStatus.className = 'name-status ok'; 
-      nameCheckOk = true; 
-    }
-  }, 250);
-});
-
-enterBtn.addEventListener('click', async () => {
-  const rawVal = nameInput.value.trim();
-  const slug = slugify(rawVal);
-  if (!slug) return toast('Please enter a valid username', true);
-  
-  try {
-    const userRef = dbRef(db, 'users/' + slug);
-    const snap = await get(userRef);
-    if (!snap.exists()) {
-      await set(userRef, { slug, displayName: rawVal || slug, createdAt: Date.now(), photo: App.myPhoto || null });
-    }
-    App.mySlug = slug; 
-    App.myName = rawVal || slug;
-    LS.set('mySlug', slug); 
-    LS.set('myName', App.myName);
-    startMainApp();
-  } catch (e) { 
-    App.mySlug = slug; 
-    App.myName = rawVal || slug;
-    LS.set('mySlug', slug); 
-    LS.set('myName', App.myName);
-    startMainApp();
-  }
-});
-
-window.addEventListener('load', () => {
-  App.contacts = LS.get('contacts', []);
-  App.groups = LS.get('groups', []);
-  App.deletedLocally = LS.get('deletedLocally', {});
-  const savedSlug = LS.get('mySlug', null);
-  const savedName = LS.get('myName', null);
-  const savedPhoto = LS.get('avatar', null);
-  if (savedPhoto) App.myPhoto = savedPhoto;
-  
-  if (savedName || savedSlug) { 
-    nameInput.value = savedName || savedSlug;
-  }
-  
-  showScreen('screen-onboard');
-});
-
-function startMainApp() {
-  showScreen('screen-main');
-  updateProfileHeader();
-  buildUI();
-  listenUserStatuses();
-  listenIncomingCalls();
-  App.contacts.forEach(c => setupMessageListener(c.slug, false));
-  App.groups.forEach(g => setupGroupMessageListener(g.id));
-}
-
-function updateProfileHeader() {
-  $('profileName').textContent = App.myName;
-  $('profileUsername').textContent = '@' + App.mySlug;
-  const box = $('profileAvatar'), img = $('profileAvatarImg'), letter = $('profileAvatarLetter');
-  if (App.myPhoto) { img.src = App.myPhoto; img.style.display = 'block'; letter.style.display = 'none'; box.classList.add('has-photo'); }
-  else { img.src = ''; img.style.display = 'none'; letter.style.display = 'inline'; letter.textContent = App.myName.charAt(0).toUpperCase(); box.classList.remove('has-photo'); }
-
-  if (App.mySlug === 'gesnerdeslandes' || App.mySlug === 'gesner') {
-    $('ownerPortalTrigger').style.display = 'block';
-  } else {
-    $('ownerPortalTrigger').style.display = 'none';
-  }
-}
-
-$('ownerPortalTrigger').addEventListener('click', () => {
-  $('ownerPassInput').value = '';
-  $('ownerAuthModal').classList.add('show');
-});
-$('ownerAuthCancel').addEventListener('click', () => $('ownerAuthModal').classList.remove('show'));
-$('ownerAuthConfirm').addEventListener('click', () => {
-  const pwd = $('ownerPassInput').value;
-  if (pwd === 'a20carterpilar08B!') {
-    $('ownerAuthModal').classList.remove('show');
-    openOwnerSpace();
-  } else {
-    toast('Invalid owner password', true);
-  }
-});
-
-function openOwnerSpace() {
-  loadOwnerStatuses();
-  $('ownerSpaceModal').classList.add('show');
-}
-$('ownerSpaceClose').addEventListener('click', () => $('ownerSpaceModal').classList.remove('show'));
-
-$('ownerTabStatusBtn').addEventListener('click', () => {
-  $('ownerTabStatusBtn').style.background = 'linear-gradient(135deg,#f0d369,#d4af37)';
-  $('ownerTabStatusBtn').style.color = 'var(--navy)';
-  $('ownerTabChatsBtn').style.background = '#143a5f';
-  $('ownerTabChatsBtn').style.color = '#fff';
-  loadOwnerStatuses();
-});
-
-$('ownerTabChatsBtn').addEventListener('click', () => {
-  $('ownerTabChatsBtn').style.background = 'linear-gradient(135deg,#f0d369,#d4af37)';
-  $('ownerTabChatsBtn').style.color = 'var(--navy)';
-  $('ownerTabStatusBtn').style.background = '#143a5f';
-  $('ownerTabStatusBtn').style.color = '#fff';
-  loadOwnerReports();
-});
-
-function loadOwnerStatuses() {
-  const area = $('ownerContentArea');
-  const posts = window._cachedPosts || [];
-  if (!posts.length) {
-    area.innerHTML = '<div class="empty"><p>No user statuses found.</p></div>';
-    return;
-  }
-  area.innerHTML = posts.map(p => `
-    <div style="background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:12px;">
-      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:6px;">
-        <span>User: @${esc(p.authorSlug)} (${esc(p.authorName)})</span>
-        <span style="color:var(--muted);">${new Date(p.time).toLocaleString()}</span>
-      </div>
-      <div style="font-size:15px;margin-bottom:6px;">${esc(p.text || '[Media/Link Status]')}</div>
-      ${p.mediaUrl ? (p.mediaType === 'video' || (p.mediaUrl.startsWith('data:video/') || p.mediaUrl.endsWith('.mp4')) ? `<video src="${p.mediaUrl}" controls playsinline preload="metadata" style="max-width:100%;width:100%;max-height:240px;border-radius:8px;margin-bottom:6px;display:block;background:#000;object-fit:contain;"></video>` : `<img src="${p.mediaUrl}" style="max-width:100%;max-height:200px;border-radius:6px;margin-bottom:6px;display:block;object-fit:contain;">`) : ''}
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
-        <button class="btn-primary" style="max-width:none;padding:6px 12px;font-size:12px;background:#ff4757;color:#fff;" onclick="window.__ownerReportStatus('${p._k}', '@${esc(p.authorSlug)}')">🚩 Upload Violation Report</button>
-        <button class="btn-primary" style="max-width:none;padding:6px 12px;font-size:12px;background:#0b2a4a;color:#fff;" onclick="window.__ownerDeleteStatus('${p._k}')">🗑 Delete Post</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-window.__ownerReportStatus = async (key, user) => {
-  if (confirm(`Flag status from ${user} as explicit violation?`)) {
-    await push(dbRef(db, 'reports'), { targetUser: user, statusKey: key, reportedAt: Date.now(), reporter: App.mySlug });
-    toast('Violation logged to owner security feed');
-  }
-};
-
-window.__ownerDeleteStatus = async (key) => {
-  if (confirm('Delete this status post globally?')) {
-    await remove(dbRef(db, 'user_statuses/' + key));
-    toast('Status removed');
-    loadOwnerStatuses();
-  }
-};
-
-async function loadOwnerReports() {
-  const area = $('ownerContentArea');
-  const snap = await get(dbRef(db, 'reports'));
-  if (!snap.exists()) {
-    area.innerHTML = '<div class="empty"><p>No reported violations found.</p></div>';
-    return;
-  }
-  const reps = Object.values(snap.val());
-  area.innerHTML = reps.map(r => `
-    <div style="background:#fff0f0;border:1px solid #ff4757;border-radius:10px;padding:12px;">
-      <div style="font-size:14px;font-weight:700;color:#ff4757;">⚠️ Reported Account: ${esc(r.targetUser)}</div>
-      <div style="font-size:12px;color:var(--muted);">Reported By: @${esc(r.reporter)} | Time: ${new Date(r.reportedAt).toLocaleString()}</div>
-    </div>
-  `).join('');
-}
-
-function buildUI() {
-  buildContactsList();
-  buildCallList();
-  buildVoicemailRecipientList();
-  buildVoicemailList();
-}
-
-function buildContactsList() {
-  const el = $('contactsList');
-  const items = [];
-  App.groups.forEach(g => { items.push({ id: g.id, name: g.name, isGroup: true, photo: null }); });
-  App.contacts.forEach(c => { items.push({ id: c.slug, name: c.name, isGroup: false, photo: c.photo }); });
-
-  if (!items.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-icon">💬</div><p>No contacts or group chats yet.<br>Tap ＋ to add a friend or 👥 to form a group.</p></div>`;
-    return;
-  }
-
-  el.innerHTML = items.map(item => {
-    const lm = App.lastMessages[item.id];
-    let preview = 'No messages yet';
-    let timeStr = '';
-    if (lm) {
-      preview = esc(lm.text || (lm.fileType ? `[${lm.fileType.toUpperCase()}]` : 'Attachment'));
-      timeStr = new Date(lm.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-    return `
-      <div class="list-item" onclick="openChat('${item.id}', ${item.isGroup})">
-        <div class="avatar ${item.isGroup ? 'group' : ''}">${avatarInner(item.photo, item.name)}</div>
-        <div class="list-item-body">
-          <div class="list-item-title">${esc(item.name)}</div>
-          <div class="list-item-sub">${preview}</div>
+  <!-- 2. MAIN DASHBOARD SCREEN -->
+  <section id="screen-main" class="screen">
+    <!-- Top Header -->
+    <header class="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-4 shrink-0">
+      <div class="flex items-center gap-3">
+        <div id="userAvatar" class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white uppercase">
+          U
         </div>
-        ${timeStr ? `<div style="font-size:11px;color:var(--muted);">${timeStr}</div>` : ''}
+        <div>
+          <h2 id="userDisplayName" class="font-semibold text-white text-sm leading-tight">User</h2>
+          <p id="userHandle" class="text-xs text-slate-400">@handle</p>
+        </div>
       </div>
-    `;
-  }).join('');
-}
-
-function buildCallList() {
-  const el = $('callContactsList');
-  if (!App.contacts.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-icon">📞</div><p>Add contacts to start peer-to-peer voice and video calls.</p></div>`;
-    return;
-  }
-  el.innerHTML = App.contacts.map(c => `
-    <div class="list-item">
-      <div class="avatar">${avatarInner(c.photo, c.name)}</div>
-      <div class="list-item-body">
-        <div class="list-item-title">${esc(c.name)}</div>
-        <div class="list-item-sub">@${esc(c.slug)}</div>
+      
+      <div class="flex items-center gap-2">
+        <button id="btnOwnerSpace" class="p-2 text-slate-400 hover:text-amber-400 transition" title="Owner Space">
+          <i class="fa-solid fa-shield-halved text-lg"></i>
+        </button>
+        <button id="btnAddFriend" class="p-2 text-slate-400 hover:text-blue-400 transition" title="Add Contact">
+          <i class="fa-solid fa-user-plus text-lg"></i>
+        </button>
+        <button id="btnSwitchUser" class="p-2 text-slate-400 hover:text-red-400 transition" title="Switch Account">
+          <i class="fa-solid fa-right-from-bracket text-lg"></i>
+        </button>
       </div>
-      <button class="header-call-btn" style="color:var(--navy);background:#eef2f6;margin-right:6px;" onclick="initiateCall('${c.slug}', false)">📞</button>
-      <button class="header-call-btn" style="color:var(--navy);background:#eef2f6;" onclick="initiateCall('${c.slug}', true)">📹</button>
-    </div>
-  `).join('');
-}
+    </header>
 
-function buildVoicemailRecipientList() {
-  const select = $('vmRecipient');
-  select.innerHTML = '<option value="">Select recipient</option>' + 
-    App.contacts.map(c => `<option value="${c.slug}">${esc(c.name)} (@${esc(c.slug)})</option>`).join('');
-}
+    <!-- Main Navigation Tabs -->
+    <nav class="flex bg-slate-900 border-b border-slate-800 shrink-0">
+      <button id="tabChats" class="flex-1 py-3 text-center text-sm font-medium border-b-2 border-blue-500 text-blue-500">
+        <i class="fa-solid fa-comments mr-2"></i>Chats
+      </button>
+      <button id="tabStatus" class="flex-1 py-3 text-center text-sm font-medium text-slate-400 border-b-2 border-transparent">
+        <i class="fa-solid fa-circle-notch mr-2"></i>Status
+      </button>
+      <button id="tabVoicemail" class="flex-1 py-3 text-center text-sm font-medium text-slate-400 border-b-2 border-transparent">
+        <i class="fa-solid fa-voicemail mr-2"></i>Voicemail
+      </button>
+    </nav>
 
-function buildVoicemailList() {
-  const area = $('voicemailList');
-  const vms = LS.get('voicemails_' + App.mySlug, []);
-  if (!vms.length) {
-    area.innerHTML = `<div class="empty"><div class="empty-icon">🎙</div><p>Your voicemail inbox is empty.</p></div>`;
-    return;
-  }
-  area.innerHTML = vms.map(v => `
-    <div class="list-item" style="flex-direction:column;align-items:flex-start;gap:8px;">
-      <div style="display:flex;justify-content:space-between;width:100%;font-size:13px;font-weight:600;">
-        <span>From: @${esc(v.from)}</span>
-        <span style="color:var(--muted);">${new Date(v.time).toLocaleString()}</span>
-      </div>
-      <audio src="${v.audioUrl}" controls playsinline preload="metadata" style="width:100%;"></audio>
-    </div>
-  `).join('');
-}
-
-// Contact Modal duplicate protection
-const addModal = $('addModal'), modalName = $('modalName'), modalConfirm = $('modalConfirm');
-$('addContactFab').addEventListener('click', () => { modalName.value = ''; $('modalStatus').textContent = ''; modalConfirm.disabled = true; addModal.classList.add('show'); });
-$('modalCancel').addEventListener('click', () => addModal.classList.remove('show'));
-
-modalName.addEventListener('input', () => {
-  const slug = slugify(modalName.value);
-  if (!slug) { $('modalStatus').textContent = ''; modalConfirm.disabled = true; return; }
-  if (slug === App.mySlug) { $('modalStatus').textContent = 'Cannot add yourself'; modalConfirm.disabled = true; return; }
-  $('modalStatus').textContent = `Ready to add @${slug}`;
-  modalConfirm.disabled = false;
-});
-
-modalConfirm.addEventListener('click', async () => {
-  const rawName = modalName.value.trim();
-  const slug = slugify(rawName);
-  if (!slug) return;
-
-  const existing = App.contacts.find(c => c.slug === slug || c.name.toLowerCase() === rawName.toLowerCase());
-  if (existing) {
-    toast(`"${rawName}" is already in your contact list!`, true);
-    addModal.classList.remove('show');
-    return;
-  }
-
-  let photo = null;
-  try {
-    const snap = await get(dbRef(db, 'users/' + slug));
-    if (snap.exists()) photo = snap.val().photo || null;
-  } catch {}
-
-  App.contacts.push({ slug, name: rawName || slug, photo });
-  LS.set('contacts', App.contacts);
-  setupMessageListener(slug, false);
-  buildUI();
-  addModal.classList.remove('show');
-  toast(`Added @${slug} to contacts`);
-});
-
-// Group Modal
-const groupModal = $('groupModal');
-$('addGroupFab').addEventListener('click', () => {
-  $('groupNameInput').value = '';
-  const list = $('groupMembersSelection');
-  if (!App.contacts.length) {
-    list.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:8px;">Add contacts first to include them in a group.</div>';
-  } else {
-    list.innerHTML = App.contacts.map(c => `
-      <label class="group-select-item">
-        <input type="checkbox" value="${c.slug}">
-        <span>${esc(c.name)} (@${esc(c.slug)})</span>
-      </label>
-    `).join('');
-  }
-  groupModal.classList.add('show');
-});
-$('groupModalCancel').addEventListener('click', () => groupModal.classList.remove('show'));
-$('groupModalConfirm').addEventListener('click', () => {
-  const name = $('groupNameInput').value.trim();
-  if (!name) return toast('Enter group name', true);
-  const checked = Array.from(document.querySelectorAll('#groupMembersSelection input:checked')).map(cb => cb.value);
-  checked.push(App.mySlug);
-  const id = 'group_' + Date.now();
-  const newGroup = { id, name, members: checked };
-  App.groups.push(newGroup);
-  LS.set('groups', App.groups);
-  setupGroupMessageListener(id);
-  buildUI();
-  groupModal.classList.remove('show');
-  toast('Group created');
-});
-
-// User Status Management
-function listenUserStatuses() {
-  onValue(dbRef(db, 'user_statuses'), (snap) => {
-    const data = snap.val() || {};
-    const feed = $('statusFeedList');
-    const posts = [];
-    Object.keys(data).forEach(k => {
-      posts.push({ _k: k, ...data[k] });
-    });
-    posts.sort((a, b) => b.time - a.time);
-    window._cachedPosts = posts;
-
-    if (!posts.length) {
-      feed.innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No user status updates posted yet.</p></div>';
-      return;
-    }
-
-    feed.innerHTML = posts.map(p => `
-      <div class="status-card">
-        <div class="status-card-header">
-          <div class="avatar">${avatarInner(p.authorPhoto, p.authorName)}</div>
-          <div>
-            <div style="font-weight:700;font-size:15px;">${esc(p.authorName)}</div>
-            <div style="font-size:11px;color:var(--muted);">@${esc(p.authorSlug)} • ${new Date(p.time).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div>
+    <!-- Content Sections -->
+    <div class="flex-1 overflow-hidden relative">
+      
+      <!-- CHATS PANEL -->
+      <div id="panelChats" class="h-full flex flex-col md:flex-row">
+        <!-- Friends List -->
+        <div id="contactsSidebar" class="w-full md:w-80 bg-slate-900/50 border-r border-slate-800 flex flex-col h-full">
+          <div class="p-3 border-b border-slate-800">
+            <input id="searchContacts" type="text" placeholder="Search friends..." class="w-full bg-slate-800 text-slate-200 text-sm px-3 py-2 rounded-lg outline-none border border-slate-700 focus:border-blue-500">
+          </div>
+          <div id="contactsList" class="flex-1 overflow-y-auto divide-y divide-slate-800/50">
+            <div class="p-4 text-center text-slate-500 text-sm">No friends added yet. Click '+' to add a friend!</div>
           </div>
         </div>
-        ${p.text ? `<div class="status-content-box" style="background:${p.bgColor || '#0d7a8c'};">${esc(p.text)}</div>` : ''}
-        ${p.mediaUrl ? (p.mediaType === 'video' || (p.mediaUrl.startsWith('data:video/') || p.mediaUrl.endsWith('.mp4')) ? `<video src="${p.mediaUrl}" controls playsinline preload="metadata" class="status-media"></video>` : `<img src="${p.mediaUrl}" class="status-media" onclick="openLightbox('${p.mediaUrl}')">`) : ''}
-        ${p.linkUrl ? `<a href="${esc(p.linkUrl)}" target="_blank" class="status-link">🔗 ${esc(p.linkUrl)}</a>` : ''}
+
+        <!-- Chat View Area -->
+        <div id="chatWindow" class="flex-1 flex flex-col h-full bg-slate-950 hidden md:flex">
+          <!-- Active Chat Header -->
+          <div id="chatHeader" class="h-14 bg-slate-900/80 border-b border-slate-800 flex items-center justify-between px-4">
+            <div class="flex items-center gap-3">
+              <button id="btnBackToContacts" class="md:hidden text-slate-400 hover:text-white mr-1">
+                <i class="fa-solid fa-arrow-left text-lg"></i>
+              </button>
+              <div id="activeContactAvatar" class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center font-bold text-xs text-white">
+                ?
+              </div>
+              <div>
+                <h3 id="activeContactName" class="font-medium text-white text-sm">Select a contact</h3>
+                <p id="activeContactStatus" class="text-[10px] text-slate-400">Offline</p>
+              </div>
+            </div>
+
+            <!-- Action Buttons for Call -->
+            <div id="callActions" class="hidden items-center gap-2">
+              <button id="btnVoiceCall" class="p-2 text-slate-300 hover:text-green-400 hover:bg-slate-800 rounded-full transition" title="Voice Call">
+                <i class="fa-solid fa-phone text-base"></i>
+              </button>
+              <button id="btnVideoCall" class="p-2 text-slate-300 hover:text-blue-400 hover:bg-slate-800 rounded-full transition" title="Video Call">
+                <i class="fa-solid fa-video text-base"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Messages Container -->
+          <div id="messagesFeed" class="flex-1 overflow-y-auto p-4 space-y-3">
+            <div class="h-full flex items-center justify-center text-slate-600 text-sm">
+              Select a contact to start chatting
+            </div>
+          </div>
+
+          <!-- Chat Input Bar -->
+          <div id="chatInputBar" class="p-3 bg-slate-900 border-t border-slate-800 hidden items-center gap-2">
+            <label for="mediaUpload" class="p-2 text-slate-400 hover:text-blue-400 cursor-pointer">
+              <i class="fa-solid fa-paperclip text-lg"></i>
+            </label>
+            <input type="file" id="mediaUpload" class="hidden" accept="image/*,video/*,audio/*,.pdf,.txt">
+
+            <input id="messageInput" type="text" placeholder="Type a message..." class="flex-1 bg-slate-800 text-white text-sm px-4 py-2 rounded-full outline-none border border-slate-700 focus:border-blue-500">
+
+            <button id="btnRecordVoice" class="p-2 text-slate-400 hover:text-red-400 transition" title="Record Voice Note">
+              <i class="fa-solid fa-microphone text-lg"></i>
+            </button>
+            <button id="btnSendMessage" class="p-2 text-blue-500 hover:text-blue-400 transition">
+              <i class="fa-solid fa-paper-plane text-lg"></i>
+            </button>
+          </div>
+        </div>
       </div>
-    `).join('');
-  });
-}
 
-$('openPostStatusBtn').addEventListener('click', () => {
-  $('statusTextInput').value = '';
-  $('statusLinkInput').value = '';
-  App.statusMediaFile = null;
-  $('statusMediaName').textContent = '';
-  $('statusModal').classList.add('show');
-});
-$('statusModalCancel').addEventListener('click', () => $('statusModal').classList.remove('show'));
-$('statusMediaSelectBtn').addEventListener('click', () => $('statusMediaInput').click());
-$('statusMediaInput').addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    App.statusMediaFile = file;
-    $('statusMediaName').textContent = 'Selected: ' + file.name;
-  }
-});
+      <!-- STATUS PANEL -->
+      <div id="panelStatus" class="h-full flex-col p-4 overflow-y-auto hidden">
+        <div class="max-w-xl mx-auto w-full space-y-4">
+          <!-- Status Creator -->
+          <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+            <h3 class="text-sm font-semibold text-white mb-2">Create Status Update</h3>
+            <textarea id="statusText" placeholder="What's on your mind?" class="w-full bg-slate-800 text-white text-base p-3 rounded-lg outline-none border border-slate-700 resize-none h-24 mb-3"></textarea>
+            
+            <div class="flex items-center justify-between">
+              <label for="statusMedia" class="text-slate-400 hover:text-white text-xs flex items-center gap-2 cursor-pointer bg-slate-800 px-3 py-2 rounded-lg border border-slate-700">
+                <i class="fa-solid fa-camera text-blue-400"></i>
+                <span>Attach Photo / Video</span>
+              </label>
+              <input type="file" id="statusMedia" class="hidden" accept="image/*,video/*">
 
-$('statusModalConfirm').addEventListener('click', async () => {
-  const text = $('statusTextInput').value.trim();
-  const linkUrl = $('statusLinkInput').value.trim();
-  const bgColor = $('statusBgColor').value;
-  let mediaUrl = null, mediaType = null;
+              <button id="btnPostStatus" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">
+                Post Status
+              </button>
+            </div>
+          </div>
 
-  if (App.statusMediaFile) {
-    mediaType = detectFileType(App.statusMediaFile);
-    mediaUrl = await fileToBase64(App.statusMediaFile);
-  }
+          <!-- Status Feed -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Friends Status Updates</h4>
+            <div id="statusFeed" class="space-y-4">
+              <div class="p-4 text-center text-slate-500 text-xs">No status updates yet.</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-  if (!text && !mediaUrl && !linkUrl) return toast('Add content to your status', true);
+      <!-- VOICEMAIL PANEL -->
+      <div id="panelVoicemail" class="h-full flex-col p-4 overflow-y-auto hidden">
+        <div class="max-w-xl mx-auto w-full">
+          <h3 class="text-lg font-semibold text-white mb-4">Voicemails Inbox</h3>
+          <div id="voicemailFeed" class="space-y-3">
+            <div class="p-4 text-center text-slate-500 text-sm">No voicemails received.</div>
+          </div>
+        </div>
+      </div>
 
-  await push(dbRef(db, 'user_statuses'), {
-    authorSlug: App.mySlug,
-    authorName: App.myName,
-    authorPhoto: App.myPhoto || null,
-    text, linkUrl, bgColor, mediaUrl, mediaType,
-    time: Date.now()
-  });
+    </div>
+  </section>
 
-  $('statusModal').classList.remove('show');
-  toast('Status posted to feed!');
-});
+  <!-- WEBRTC CALL OVERLAY MODAL -->
+  <div id="callOverlay" class="fixed inset-0 bg-slate-950/95 z-50 hidden flex-col items-center justify-between p-6">
+    <div class="text-center mt-8">
+      <div id="callAvatar" class="w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center font-bold text-2xl text-white mx-auto mb-3 shadow-lg">
+        ?
+      </div>
+      <h2 id="callTargetName" class="text-xl font-bold text-white">Contact Name</h2>
+      <p id="callStatusText" class="text-sm text-blue-400 animate-pulse mt-1">Connecting...</p>
+    </div>
 
-// P2P Voice and Video Call WebRTC Logic
-async function getMediaStream(video = false) {
-  try {
-    return await navigator.mediaDevices.getUserMedia({ audio: true, video: video });
-  } catch (err) {
-    toast('Camera/Microphone access failed', true);
-    throw err;
-  }
-}
+    <!-- Video Containers -->
+    <div id="videoContainer" class="relative w-full max-w-md h-64 bg-black rounded-2xl overflow-hidden border border-slate-800 my-auto hidden">
+      <video id="remoteVideo" autoplay playsinline class="w-full h-full object-contain"></video>
+      <video id="localVideo" autoplay playsinline muted class="absolute bottom-3 right-3 w-28 h-20 object-cover rounded-lg border-2 border-slate-700"></video>
+    </div>
 
-async function initiateCall(targetSlug, video = false) {
-  App.currentCallTarget = targetSlug;
-  App.isVideoCall = video;
-  App.activeCallId = chatIdFor(App.mySlug, targetSlug);
-  
-  const targetUser = App.contacts.find(c => c.slug === targetSlug) || { name: targetSlug };
-  $('callName').textContent = targetUser.name;
-  $('callStatus').textContent = video ? 'Initiating Video Call…' : 'Calling…';
-  $('callAvatar').innerHTML = avatarInner(targetUser.photo, targetUser.name);
-  
-  if (video) {
-    $('videoContainer').classList.add('active');
-  } else {
-    $('videoContainer').classList.remove('active');
-  }
+    <!-- Call Control Buttons -->
+    <div class="flex items-center gap-6 mb-8">
+      <button id="btnEndCall" class="w-14 h-14 bg-red-600 hover:bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg transition">
+        <i class="fa-solid fa-phone-slash text-xl"></i>
+      </button>
+    </div>
+  </div>
 
-  showScreen('screen-call');
+  <!-- ADD FRIEND MODAL -->
+  <div id="modalAddFriend" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-md">
+      <h3 class="text-lg font-bold text-white mb-2">Add Friend</h3>
+      <p class="text-xs text-slate-400 mb-4">Enter your friend's unique handle or name to connect.</p>
+      <input id="addFriendInput" type="text" placeholder="e.g. alex" class="w-full bg-slate-800 border border-slate-700 text-white text-sm px-4 py-3 rounded-xl outline-none focus:border-blue-500 mb-4">
+      <div class="flex justify-end gap-3">
+        <button id="btnCancelAddFriend" class="px-4 py-2 text-sm text-slate-400 hover:text-white">Cancel</button>
+        <button id="btnConfirmAddFriend" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl">Add Friend</button>
+      </div>
+    </div>
+  </div>
 
-  App.localStream = await getMediaStream(video);
-  if (video) $('localVideo').srcObject = App.localStream;
+  <!-- OWNER SPACE MODAL -->
+  <div id="modalOwnerSpace" class="fixed inset-0 bg-black/75 z-50 hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-lg max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+        <h3 class="text-lg font-bold text-amber-400 flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved"></i> Owner Security Space
+        </h3>
+        <button id="btnCloseOwnerSpace" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
 
-  App.peerConn = new RTCPeerConnection(ICE_SERVERS);
-  App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
+      <div id="ownerAuthForm" class="space-y-4 py-4">
+        <p class="text-xs text-slate-400">Enter access key to open monitoring controls.</p>
+        <input id="ownerPassInput" type="password" placeholder="Passcode" class="w-full bg-slate-800 border border-slate-700 text-white text-sm px-4 py-3 rounded-xl outline-none">
+        <button id="btnAuthOwner" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-semibold py-2.5 rounded-xl text-sm">Unlock Panel</button>
+      </div>
 
-  App.peerConn.ontrack = (evt) => {
-    $('remoteVideo').srcObject = evt.streams[0];
-  };
+      <div id="ownerContent" class="hidden flex-1 overflow-y-auto space-y-4">
+        <h4 class="text-xs font-bold text-slate-300 uppercase">System Telemetry & Storage</h4>
+        <div id="ownerMetrics" class="bg-slate-950 p-4 rounded-xl text-xs space-y-2 text-slate-300">
+          <div><strong class="text-slate-400">Registered Friends:</strong> <span id="metricContacts">0</span></div>
+          <div><strong class="text-slate-400">Voicemails Stored:</strong> <span id="metricVoicemails">0</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  App.peerConn.onicecandidate = (evt) => {
-    if (evt.candidate) {
-      push(dbRef(db, `calls/${App.activeCallId}/candidates/${targetSlug}`), evt.candidate.toJSON());
-    }
-  };
+  <!-- Firebase Script Integration -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set, get, push, onValue, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-  const offer = await App.peerConn.createOffer();
-  await App.peerConn.setLocalDescription(offer);
-
-  await set(dbRef(db, `calls/${App.activeCallId}/signal`), {
-    from: App.mySlug,
-    to: targetSlug,
-    type: 'offer',
-    sdp: offer.sdp,
-    video: video
-  });
-
-  // Listen for answer
-  onValue(dbRef(db, `calls/${App.activeCallId}/signal`), async (snap) => {
-    const data = snap.val();
-    if (data && data.to === App.mySlug && data.type === 'answer') {
-      if (!App.peerConn.currentRemoteDescription) {
-        await App.peerConn.setRemoteDescription(new RTCSessionDescription(data));
-        $('callStatus').textContent = 'Connected';
-      }
-    }
-  });
-
-  // Listen for ICE candidates
-  onChildAdded(dbRef(db, `calls/${App.activeCallId}/candidates/${App.mySlug}`), (snap) => {
-    const cand = snap.val();
-    if (cand && App.peerConn) {
-      App.peerConn.addIceCandidate(new RTCIceCandidate(cand)).catch(()=>{});
-    }
-  });
-}
-
-function listenIncomingCalls() {
-  onValue(dbRef(db, 'calls'), (snap) => {
-    const calls = snap.val() || {};
-    Object.keys(calls).forEach(callId => {
-      const sig = calls[callId]?.signal;
-      if (sig && sig.to === App.mySlug && sig.type === 'offer' && !App.activeCallId) {
-        App.activeCallId = callId;
-        App.currentCallTarget = sig.from;
-        App.isVideoCall = !!sig.video;
-        
-        $('incomingName').textContent = `@${sig.from}`;
-        $('incomingType').textContent = sig.video ? 'Incoming Video Call…' : 'Incoming Voice Call…';
-        $('incoming-call').classList.add('show');
-      }
-    });
-  });
-}
-
-$('acceptCallBtn').addEventListener('click', async () => {
-  $('incoming-call').classList.remove('show');
-  
-  const targetSlug = App.currentCallTarget;
-  const video = App.isVideoCall;
-
-  const targetUser = App.contacts.find(c => c.slug === targetSlug) || { name: targetSlug };
-  $('callName').textContent = targetUser.name;
-  $('callStatus').textContent = 'Connecting…';
-  $('callAvatar').innerHTML = avatarInner(targetUser.photo, targetUser.name);
-
-  if (video) $('videoContainer').classList.add('active');
-  else $('videoContainer').classList.remove('active');
-
-  showScreen('screen-call');
-
-  App.localStream = await getMediaStream(video);
-  if (video) $('localVideo').srcObject = App.localStream;
-
-  App.peerConn = new RTCPeerConnection(ICE_SERVERS);
-  App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
-
-  App.peerConn.ontrack = (evt) => {
-    $('remoteVideo').srcObject = evt.streams[0];
-  };
-
-  App.peerConn.onicecandidate = (evt) => {
-    if (evt.candidate) {
-      push(dbRef(db, `calls/${App.activeCallId}/candidates/${targetSlug}`), evt.candidate.toJSON());
-    }
-  };
-
-  const offerSnap = await get(dbRef(db, `calls/${App.activeCallId}/signal`));
-  const offerSig = offerSnap.val();
-
-  await App.peerConn.setRemoteDescription(new RTCSessionDescription(offerSig));
-  const answer = await App.peerConn.createAnswer();
-  await App.peerConn.setLocalDescription(answer);
-
-  await set(dbRef(db, `calls/${App.activeCallId}/signal`), {
-    from: App.mySlug,
-    to: targetSlug,
-    type: 'answer',
-    sdp: answer.sdp
-  });
-
-  onChildAdded(dbRef(db, `calls/${App.activeCallId}/candidates/${App.mySlug}`), (snap) => {
-    const cand = snap.val();
-    if (cand && App.peerConn) {
-      App.peerConn.addIceCandidate(new RTCIceCandidate(cand)).catch(()=>{});
-    }
-  });
-
-  $('callStatus').textContent = 'Connected';
-});
-
-$('rejectCallBtn').addEventListener('click', () => {
-  if (App.activeCallId) remove(dbRef(db, `calls/${App.activeCallId}`));
-  App.activeCallId = null;
-  $('incoming-call').classList.remove('show');
-});
-
-$('endCallBtn').addEventListener('click', endActiveCall);
-function endActiveCall() {
-  if (App.localStream) {
-    App.localStream.getTracks().forEach(t => t.stop());
-    App.localStream = null;
-  }
-  if (App.peerConn) {
-    App.peerConn.close();
-    App.peerConn = null;
-  }
-  if (App.activeCallId) {
-    remove(dbRef(db, `calls/${App.activeCallId}`));
-    App.activeCallId = null;
-  }
-  showScreen('screen-main');
-}
-
-// Mobile Voicemail Recorder with Adaptive Codecs
-let vmRecorder = null, vmChunks = [];
-const recordBtn = $('recordBtn');
-recordBtn.addEventListener('click', async () => {
-  const recipient = $('vmRecipient').value;
-  if (!recipient) return toast('Select a recipient for voicemail', true);
-
-  if (vmRecorder && vmRecorder.state === 'recording') {
-    vmRecorder.stop();
-    recordBtn.textContent = '⬤ Record (max 30s)';
-    recordBtn.style.background = '#ff4757';
-    return;
-  }
-
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    let mimeType = 'audio/webm';
-    if (MediaRecorder.isTypeSupported('audio/mp4')) mimeType = 'audio/mp4';
-    else if (MediaRecorder.isTypeSupported('audio/aac')) mimeType = 'audio/aac';
-
-    vmRecorder = new MediaRecorder(stream, { mimeType });
-    vmChunks = [];
-
-    vmRecorder.ondataavailable = e => { if (e.data.size > 0) vmChunks.push(e.data); };
-    vmRecorder.onstop = async () => {
-      const blob = new Blob(vmChunks, { type: mimeType });
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const audioUrl = reader.result;
-        const vms = LS.get('voicemails_' + recipient, []);
-        vms.unshift({ from: App.mySlug, audioUrl, time: Date.now() });
-        LS.set('voicemails_' + recipient, vms);
-        toast(`Voicemail delivered to @${recipient}`);
-        buildVoicemailList();
-      };
-      reader.readAsDataURL(blob);
-      stream.getTracks().forEach(t => t.stop());
+    // Standard Client Configurations
+    const firebaseConfig = {
+      databaseURL: "https://jarvis-app-default-rtdb.firebaseio.com"
     };
 
-    vmRecorder.start(100);
-    recordBtn.textContent = '⏹ Stop & Send Voicemail';
-    recordBtn.style.background = '#0b2a4a';
-    setTimeout(() => {
-      if (vmRecorder && vmRecorder.state === 'recording') vmRecorder.stop();
-    }, 30000);
-  } catch {
-    toast('Audio recording permission denied', true);
-  }
-});
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-// Chat & Messaging Core
-window.openChat = (id, isGroup) => {
-  App.activeChat = id;
-  App.activeIsGroup = isGroup;
-  const target = isGroup ? App.groups.find(g => g.id === id) : App.contacts.find(c => c.slug === id);
-  $('chatName').textContent = target ? target.name : id;
-  $('chatAvatar').innerHTML = avatarInner(target?.photo, target?.name || id);
-  showScreen('screen-chat');
-  renderMessages();
-};
+    // Core Helpers
+    const $ = id => document.getElementById(id);
+    const showToast = (msg) => {
+      $('toastMsg').textContent = msg;
+      $('toast').classList.add('show');
+      setTimeout(() => $('toast').classList.remove('show'), 3000);
+    };
 
-$('chatBackBtn').addEventListener('click', () => { showScreen('screen-main'); App.activeChat = null; });
-$('voiceCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) initiateCall(App.activeChat, false); });
-$('videoCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) initiateCall(App.activeChat, true); });
+    const App = {
+      mySlug: '',
+      myName: '',
+      activeContact: null,
+      contacts: [],
+      voicemails: [],
+      statuses: []
+    };
 
-function setupMessageListener(otherSlug, isGroup) {
-  const path = isGroup ? `group_messages/${otherSlug}` : `messages/${chatIdFor(App.mySlug, otherSlug)}`;
-  onValue(dbRef(db, path), (snap) => {
-    const msgs = snap.val() || {};
-    const keys = Object.keys(msgs);
-    if (keys.length > 0) {
-      App.lastMessages[otherSlug] = msgs[keys[keys.length - 1]];
-      buildContactsList();
+    function slugify(name) {
+      let str = String(name || '').toLowerCase().trim();
+      if (str.includes('@')) {
+        str = str.split('@')[0];
+      }
+      return str.replace(/[^a-z0-9]/g, '').slice(0, 20);
     }
-    if (App.activeChat === otherSlug) renderMessages();
-  });
-}
 
-function setupGroupMessageListener(groupId) {
-  setupMessageListener(groupId, true);
-}
+    // App Initialization
+    const savedSlug = localStorage.getItem('jarvis_slug');
+    const savedName = localStorage.getItem('jarvis_name');
+    if (savedSlug) {
+      $('nameInput').value = savedName || savedSlug;
+    }
 
-function renderMessages() {
-  if (!App.activeChat) return;
-  const area = $('messagesArea');
-  const path = App.activeIsGroup ? `group_messages/${App.activeChat}` : `messages/${chatIdFor(App.mySlug, App.activeChat)}`;
+    $('nameInput').addEventListener('input', () => {
+      const slug = slugify($('nameInput').value);
+      if (!slug) {
+        $('nameStatus').textContent = 'Please enter a valid handle';
+        $('nameStatus').className = 'name-status';
+      } else {
+        $('nameStatus').textContent = `Handle target: "@${slug}" ✓`;
+        $('nameStatus').className = 'name-status ok';
+      }
+    });
 
-  get(dbRef(db, path)).then(snap => {
-    const data = snap.val() || {};
-    const msgs = Object.keys(data).map(k => ({ key: k, ...data[k] })).filter(m => !App.deletedLocally[m.key]);
+    $('enterBtn').addEventListener('click', () => {
+      const raw = $('nameInput').value.trim();
+      let slug = slugify(raw);
+      if (!slug) slug = 'gesner';
 
-    area.innerHTML = msgs.map(m => {
-      const isOut = m.sender === App.mySlug;
-      const timeStr = new Date(m.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      return `
-        <div class="msg ${isOut ? 'out' : 'in'} ${m.fileUrl ? 'has-attachment' : ''}" onclick="openActionSheet('${m.key}', '${m.sender}')">
-          ${App.activeIsGroup && !isOut ? `<span class="sender-tag">@${esc(m.sender)}</span>` : ''}
-          ${m.text ? `<div>${esc(m.text)}</div>` : ''}
-          ${m.fileUrl ? renderAttachment(m.fileType, m.fileUrl) : ''}
-          <div class="time">${timeStr} ${m.edited ? '<span class="edited-tag">(edited)</span>' : ''}</div>
+      App.mySlug = slug;
+      App.myName = raw || slug;
+
+      localStorage.setItem('jarvis_slug', App.mySlug);
+      localStorage.setItem('jarvis_name', App.myName);
+
+      startApp();
+    });
+
+    function startApp() {
+      $('screen-onboard').classList.remove('active');
+      $('screen-main').classList.add('active');
+
+      $('userDisplayName').textContent = App.myName;
+      $('userHandle').textContent = `@${App.mySlug}`;
+      $('userAvatar').textContent = App.myName.charAt(0).toUpperCase();
+
+      loadContacts();
+      loadStatuses();
+      loadVoicemails();
+    }
+
+    $('btnSwitchUser').addEventListener('click', () => {
+      $('screen-main').classList.remove('active');
+      $('screen-onboard').classList.add('active');
+    });
+
+    // Contact Logic - Prevents Duplicates
+    $('btnAddFriend').addEventListener('click', () => {
+      $('addFriendInput').value = '';
+      $('modalAddFriend').classList.remove('hidden');
+      $('modalAddFriend').classList.add('flex');
+    });
+
+    $('btnCancelAddFriend').addEventListener('click', () => {
+      $('modalAddFriend').classList.add('hidden');
+    });
+
+    $('btnConfirmAddFriend').addEventListener('click', () => {
+      const input = $('addFriendInput').value.trim();
+      const targetSlug = slugify(input);
+
+      if (!targetSlug) {
+        showToast("Please enter a valid name");
+        return;
+      }
+
+      if (targetSlug === App.mySlug) {
+        showToast("You cannot add yourself");
+        return;
+      }
+
+      // Check for Existing Duplicate
+      const exists = App.contacts.some(c => c.slug === targetSlug || c.name.toLowerCase() === input.toLowerCase());
+      if (exists) {
+        showToast("This friend is already in your contact list!");
+        $('modalAddFriend').classList.add('hidden');
+        return;
+      }
+
+      // Save Friend
+      const newContact = { slug: targetSlug, name: input || targetSlug };
+      App.contacts.push(newContact);
+      localStorage.setItem(`contacts_${App.mySlug}`, JSON.stringify(App.contacts));
+
+      renderContacts();
+      $('modalAddFriend').classList.add('hidden');
+      showToast(`Added @${targetSlug} to friends!`);
+    });
+
+    function loadContacts() {
+      const stored = localStorage.getItem(`contacts_${App.mySlug}`);
+      App.contacts = stored ? JSON.parse(stored) : [];
+      renderContacts();
+    }
+
+    function renderContacts() {
+      const container = $('contactsList');
+      if (App.contacts.length === 0) {
+        container.innerHTML = `<div class="p-4 text-center text-slate-500 text-sm">No friends added yet. Click '+' to add a friend!</div>`;
+        return;
+      }
+
+      container.innerHTML = App.contacts.map(c => `
+        <div onclick="window.selectContact('${c.slug}', '${c.name}')" class="p-3 hover:bg-slate-800/60 cursor-pointer flex items-center justify-between transition border-b border-slate-800/40">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold text-white text-sm">
+              ${c.name.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <h4 class="font-medium text-white text-sm">${c.name}</h4>
+              <p class="text-xs text-slate-400">@${c.slug}</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-xs text-slate-600"></i>
         </div>
-      `;
-    }).join('');
-    area.scrollTop = area.scrollHeight;
-  });
-}
+      `).join('');
+    }
 
-function renderAttachment(type, url) {
-  if (type === 'image') return `<img src="${url}" class="attach-img" onclick="openLightbox('${url}')">`;
-  if (type === 'video') return `<video src="${url}" controls playsinline preload="metadata" class="attach-video"></video>`;
-  if (type === 'audio') return `<audio src="${url}" controls playsinline preload="metadata" class="attach-audio"></audio>`;
-  return `<a href="${url}" download class="attach-file">📁 Download Attachment</a>`;
-}
+    window.selectContact = (slug, name) => {
+      App.activeContact = { slug, name };
+      $('activeContactName').textContent = name;
+      $('activeContactAvatar').textContent = name.charAt(0).toUpperCase();
+      $('chatWindow').classList.remove('hidden');
+      $('chatWindow').classList.add('flex');
+      $('callActions').classList.remove('hidden');
+      $('callActions').classList.add('flex');
+      $('chatInputBar').classList.remove('hidden');
+      $('chatInputBar').classList.add('flex');
+      
+      loadMessages();
+    };
 
-const chatInput = $('chatInput'), sendBtn = $('sendBtn');
-chatInput.addEventListener('input', () => { sendBtn.disabled = !chatInput.value.trim(); });
+    $('btnBackToContacts').addEventListener('click', () => {
+      $('chatWindow').classList.add('hidden');
+    });
 
-sendBtn.addEventListener('click', async () => {
-  const text = chatInput.value.trim();
-  if (!text || !App.activeChat) return;
-  chatInput.value = ''; sendBtn.disabled = true;
+    // Tab Navigation
+    $('tabChats').addEventListener('click', () => switchTab('Chats'));
+    $('tabStatus').addEventListener('click', () => switchTab('Status'));
+    $('tabVoicemail').addEventListener('click', () => switchTab('Voicemail'));
 
-  const path = App.activeIsGroup ? `group_messages/${App.activeChat}` : `messages/${chatIdFor(App.mySlug, App.activeChat)}`;
-  await push(dbRef(db, path), {
-    sender: App.mySlug,
-    text,
-    time: Date.now()
-  });
-  playSentSound();
-});
+    function switchTab(tab) {
+      ['Chats', 'Status', 'Voicemail'].forEach(t => {
+        $('tab' + t).className = `flex-1 py-3 text-center text-sm font-medium border-b-2 ${t === tab ? 'border-blue-500 text-blue-500' : 'border-transparent text-slate-400'}`;
+        $('panel' + t).classList.toggle('hidden', t !== tab);
+      });
+    }
 
-// Navigation Bar Switcher
-document.querySelectorAll('.nav-item').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    btn.classList.add('active');
-    const tab = btn.dataset.tab;
-    const tabMap = { chats: 'tabChats', status: 'tabStatus', calls: 'tabCalls', voicemail: 'tabVoicemail', profile: 'tabProfile' };
-    Object.keys(tabMap).forEach(k => { $(tabMap[k]).style.display = k === tab ? 'block' : 'none'; });
-    $('headerTitle').textContent = tab.charAt(0).toUpperCase() + tab.slice(1);
-  });
-});
+    // Status Feature
+    $('btnPostStatus').addEventListener('click', () => {
+      const txt = $('statusText').value.trim();
+      if (!txt) return;
 
-// Profile Avatar & Local Data
-$('profileAvatar').addEventListener('click', () => $('avatarInput').click());
-$('avatarInput').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    const base64 = await fileToBase64(file);
-    App.myPhoto = base64;
-    LS.set('avatar', base64);
-    await set(dbRef(db, `users/${App.mySlug}/photo`), base64);
-    updateProfileHeader();
-    toast('Profile photo updated');
-  }
-});
+      const newStatus = {
+        id: Date.now(),
+        author: App.myName,
+        slug: App.mySlug,
+        text: txt,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
 
-$('clearBtn').addEventListener('click', () => {
-  if (confirm('Clear local cache and resets configuration?')) {
-    localStorage.clear();
-    location.reload();
-  }
-});
+      App.statuses.unshift(newStatus);
+      renderStatuses();
+      $('statusText').value = '';
+      showToast("Status posted!");
+    });
 
-// Lightbox viewer
-window.openLightbox = (url) => {
-  $('lightboxImg').src = url;
-  $('lightboxDownload').href = url;
-  $('lightbox').classList.add('show');
-};
-$('lightboxClose').addEventListener('click', () => $('lightbox').classList.remove('show'));
+    function loadStatuses() {
+      renderStatuses();
+    }
 
-// Message Actions Sheet
-window.openActionSheet = (key, sender) => {
-  App.selectedMsgKey = key;
-  $('actionSheet').classList.add('show');
-};
-$('actCancelBtn').addEventListener
+    function renderStatuses() {
+      const feed = $('statusFeed');
+      if (App.statuses.length === 0) {
+        feed.innerHTML = `<div class="p-4 text-center text-slate-500 text-xs">No status updates yet.</div>`;
+        return;
+      }
+
+      feed.innerHTML = App.statuses.map(s => `
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-xs text-white">
+              ${s.author.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <h5 class="text-xs font-semibold text-white">${s.author}</h5>
+              <span class="text-[10px] text-slate-500">${s.timestamp}</span>
+            </div>
+          </div>
+          <p class="text-base text-slate-200 leading-relaxed">${s.text}</p>
+        </div>
+      `).join('');
+    }
+
+    function loadVoicemails() {
+      const feed = $('voicemailFeed');
+      feed.innerHTML = `<div class="p-4 text-center text-slate-500 text-sm
