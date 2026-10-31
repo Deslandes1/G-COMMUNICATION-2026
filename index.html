@@ -178,8 +178,9 @@ img.status-media{object-fit:cover;max-height:480px;background:#000}
   </div>
   <div id="tabProfile" class="tab-content" style="display:none;">
     <div class="profile-card">
-      <div class="avatar-big" id="profileAvatar">
+      <div class="avatar-big" id="profileAvatar" title="Tap to upload profile photo">
         <span id="profileAvatarLetter">G</span>
+        <img id="profileAvatarImg" alt="" style="display:none;">
       </div>
       <h3 id="profileName">—</h3>
       <div style="font-size:14px;color:var(--accent);font-weight:600" id="profileUsername">@—</div>
@@ -191,117 +192,9 @@ img.status-media{object-fit:cover;max-height:480px;background:#000}
       <button class="btn-primary" id="clearBtn" style="background:#ff4757;color:#fff;width:100%">Clear Local Cache</button>
     </div>
   </div>
-
-  <div class="fab-container">
-    <button id="addContactFab" class="fab" title="Add Contact">＋</button>
-  </div>
-
-  <nav class="bottom-nav">
-    <button class="nav-item active" data-tab="chats"><span class="icon">💬</span>Chats</button>
-    <button class="nav-item" data-tab="status"><span class="icon">⭕</span>Status</button>
-    <button class="nav-item" data-tab="calls"><span class="icon">📞</span>Calls</button>
-    <button class="nav-item" data-tab="voicemail"><span class="icon">🎙</span>Voicemail</button>
-    <button class="nav-item" data-tab="profile"><span class="icon">👤</span>Profile</button>
-  </nav>
-</section>
-
-<section id="screen-chat" class="screen">
-  <header class="chat-header">
-    <button class="back-btn" id="chatBackBtn">‹</button>
-    <div class="chat-avatar" id="chatAvatar">G</div>
-    <div class="chat-title">
-      <h3 id="chatName">—</h3>
-      <small id="chatStatus">online</small>
-    </div>
-    <button class="header-call-btn" id="voiceCallFromChatBtn" title="Voice Call">📞</button>
-    <button class="header-call-btn" id="videoCallFromChatBtn" title="Video Call">📹</button>
-  </header>
-  <div id="messagesArea" class="messages"></div>
-
-  <div class="chat-input-bar">
-    <input id="chatInput" type="text" placeholder="Message…" autocomplete="off">
-    <button class="send-btn" id="sendBtn" disabled>➤</button>
-  </div>
-</section>
-
-<section id="screen-call" class="screen">
-  <div class="call-video-container" id="videoContainer">
-    <video id="remoteVideo" autoplay playsinline></video>
-    <video id="localVideo" autoplay playsinline muted></video>
-  </div>
-  
-  <div class="call-overlay-ui">
-    <div style="display:flex;flex-direction:column;align-items:center;">
-      <div class="call-avatar" id="callAvatar">G</div>
-      <div style="font-size:22px;font-weight:700;margin-bottom:6px" id="callName">—</div>
-      <div style="font-size:15px;opacity:.8" id="callStatus">Calling…</div>
-    </div>
-    
-    <div class="call-actions">
-      <button class="call-btn end" id="endCallBtn" title="End Call">📵</button>
-    </div>
-  </div>
-</section>
-
-<div id="incoming-call">
-  <div class="call-avatar" id="incomingAvatar">G</div>
-  <div style="font-size:22px;font-weight:700;margin-bottom:6px" id="incomingName">—</div>
-  <div style="font-size:15px;opacity:.8;margin-bottom:40px" id="incomingType">Incoming Call…</div>
-  <div class="call-actions">
-    <button class="call-btn end" id="rejectCallBtn">📵</button>
-    <button class="call-btn accept" id="acceptCallBtn">📞</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="addModal">
-  <div class="modal">
-    <h3>Add Contact</h3>
-    <input id="modalName" type="text" placeholder="Enter handle or email" maxlength="40" autocapitalize="none">
-    <div class="modal-actions">
-      <button class="cancel" id="modalCancel">Cancel</button>
-      <button class="confirm" id="modalConfirm">Add</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="statusModal">
-  <div class="modal">
-    <h3>Post User Status</h3>
-    <textarea id="statusTextInput" rows="3" placeholder="Write status text..."></textarea>
-    <div style="margin-bottom:10px">
-      <label style="font-size:13px;display:block;margin-bottom:4px">Background Color:</label>
-      <input type="color" id="statusBgColor" value="#0d7a8c" style="width:100%;height:36px;border-radius:6px;padding:2px;cursor:pointer;">
-    </div>
-    <div class="modal-actions">
-      <button class="cancel" id="statusModalCancel">Cancel</button>
-      <button class="confirm" id="statusModalConfirm">Post</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="ownerAuthModal">
-  <div class="modal">
-    <h3>Owner Authentication</h3>
-    <p style="font-size:14px;color:var(--muted);margin-bottom:10px;">Enter owner password:</p>
-    <input id="ownerPassInput" type="password" placeholder="Password..." autocomplete="off">
-    <div class="modal-actions">
-      <button class="cancel" id="ownerAuthCancel">Cancel</button>
-      <button class="confirm" id="ownerAuthConfirm">Unlock</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="ownerSpaceModal">
-  <div class="modal" style="max-width:600px;max-height:90vh;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <h3 style="margin:0;">🛡️ Owner Monitoring Space</h3>
-      <button id="ownerSpaceClose" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
-    </div>
-    <div id="ownerContentArea" style="max-height:55vh;overflow-y:auto;display:flex;flex-direction:column;gap:10px;"></div>
-  </div>
-</div>
-
-<div id="toast" class="toast">Notification</div>
+<input type="file" id="avatarInput" accept="image/*" style="display:none;">
+<input type="file" id="fileInput" style="display:none;">
+<input type="file" id="statusMediaInput" accept="image/*,video/*" style="display:none;">
 
 </div>
 
@@ -327,6 +220,7 @@ const $ = id => document.getElementById(id);
 const AppState = {
   mySlug: '',
   myName: '',
+  avatarData: null,
   activeChat: null,
   contacts: [],
   peerConnection: null,
@@ -337,6 +231,170 @@ function normalizeSlug(val) {
   let str = String(val || '').toLowerCase().trim();
   if (str.includes('@')) str = str.split('@')[0];
   return str.replace(/[^a-z0-9]/g, '').slice(0, 30);
+}
+
+function showToast(msg) {
+  const toast = $('toast');
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+window.addEventListener('load', () => {
+  const savedSlug = localStorage.getItem('jarvis_slug');
+  const savedName = localStorage.getItem('jarvis_name');
+  if (savedSlug && $('nameInput')) {
+    $('nameInput').value = savedName || savedSlug;
+  }
+});
+
+if ($('enterBtn')) {
+  $('enterBtn').addEventListener('click', () => {
+    const rawVal = $('nameInput').value.trim();
+    let slug = normalizeSlug(rawVal);
+    if (!slug) slug = 'gesner';
+
+    AppState.mySlug = slug;
+    AppState.myName = rawVal || slug;
+
+    localStorage.setItem('jarvis_slug', AppState.mySlug);
+    localStorage.setItem('jarvis_name', AppState.myName);
+
+    initAppMain();
+  });
+}
+
+function initAppMain() {
+  $('screen-onboard').classList.remove('active');
+  $('screen-main').classList.add('active');
+
+  if ($('profileName')) $('profileName').textContent = AppState.myName;
+  if ($('profileUsername')) $('profileUsername').textContent = `@${AppState.mySlug}`;
+  if ($('profileAvatarLetter')) $('profileAvatarLetter').textContent = AppState.myName.charAt(0).toUpperCase();
+
+  // Load Saved Profile Photo
+  const savedAvatar = localStorage.getItem(`avatar_${AppState.mySlug}`);
+  if (savedAvatar) {
+    AppState.avatarData = savedAvatar;
+    if ($('profileAvatarImg')) {
+      $('profileAvatarImg').src = savedAvatar;
+      $('profileAvatarImg').style.display = 'block';
+    }
+    if ($('profileAvatarLetter')) $('profileAvatarLetter').style.display = 'none';
+  }
+
+  if (AppState.mySlug === 'gesner' || AppState.mySlug === 'deslandes78') {
+    if ($('ownerPortalTrigger')) $('ownerPortalTrigger').style.display = 'block';
+  }
+
+  loadContacts();
+  initStatusFeed();
+  initVoicemails();
+  listenIncomingCalls();
+}
+
+// Profile Picture Upload Handler
+if ($('profileAvatar')) {
+  $('profileAvatar').addEventListener('click', () => {
+    if ($('avatarInput')) $('avatarInput').click();
+  });
+}
+
+if ($('avatarInput')) {
+  $('avatarInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      AppState.avatarData = evt.target.result;
+      localStorage.setItem(`avatar_${AppState.mySlug}`, AppState.avatarData);
+      if ($('profileAvatarImg')) {
+        $('profileAvatarImg').src = AppState.avatarData;
+        $('profileAvatarImg').style.display = 'block';
+      }
+      if ($('profileAvatarLetter')) $('profileAvatarLetter').style.display = 'none';
+      showToast('Profile photo updated!');
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+if ($('addContactFab')) {
+  $('addContactFab').addEventListener('click', () => {
+    if ($('modalName')) $('modalName').value = '';
+    $('addModal').classList.add('show');
+  });
+}
+if ($('modalCancel')) $('modalCancel').addEventListener('click', () => $('addModal').classList.remove('show'));
+
+if ($('modalConfirm')) {
+  $('modalConfirm').addEventListener('click', () => {
+    const nameVal = $('modalName').value.trim();
+    const targetSlug = normalizeSlug(nameVal);
+
+    if (!targetSlug) {
+      showToast('Enter a valid handle');
+      return;
+    }
+    if (targetSlug === AppState.mySlug) {
+      showToast('You cannot add yourself');
+      return;
+    }
+
+    const duplicate = AppState.contacts.some(c => c.slug === targetSlug);
+    if (duplicate) {
+      showToast('User already in your contact list');
+      $('addModal').classList.remove('show');
+      return;
+    }
+
+    AppState.contacts.push({ slug: targetSlug, name: nameVal || targetSlug });
+    localStorage.setItem(`contacts_${AppState.mySlug}`, JSON.stringify(AppState.contacts));
+
+    renderContacts();
+    $('addModal').classList.remove('show');
+    showToast(`Added @${targetSlug}`);
+  });
+}
+
+function loadContacts() {
+  const stored = localStorage.getItem(`contacts_${AppState.mySlug}`);
+  AppState.contacts = stored ? JSON.parse(stored) : [];
+  
+  // Default contact backup if list is empty
+  if (AppState.contacts.length === 0 && AppState.mySlug !== 'gesner') {
+    AppState.contacts = [{ slug: 'gesner', name: 'Gesner Deslandes' }];
+    localStorage.setItem(`contacts_${AppState.mySlug}`, JSON.stringify(AppState.contacts));
+  }
+  
+  renderContacts();
+}
+
+function renderContacts() {
+  const list = $('contactsList');
+  if (!list) return;
+
+  if (AppState.contacts.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">👥</div>No contacts yet. Tap ＋ to add your friends!</div>`;
+    return;
+  }
+
+  list.innerHTML = AppState.contacts.map(c => {
+    const cAvatar = localStorage.getItem(`avatar_${c.slug}`);
+    return `
+      <div class="list-item" onclick="window.openChat('${c.slug}', '${c.name}')">
+        <div class="avatar">
+          ${cAvatar ? `<img src="${cAvatar}" alt="">` : c.name.charAt(0).toUpperCase()}
+        </div>
+        <div class="list-item-body">
+          <div class="list-item-title">${c.name}</div>
+          <div class="list-item-sub">@${c.slug}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 function showToast(msg) {
