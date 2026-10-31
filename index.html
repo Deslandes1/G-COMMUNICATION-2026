@@ -140,16 +140,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 .modal-actions .confirm{background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff}
 .group-select-list{max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px;margin-bottom:12px}
 .group-select-item{display:flex;align-items:center;gap:10px;padding:8px;border-bottom:1px solid #f0f0f0;font-size:15.5px}
-/* Owner Space MP4 Video Fix */
-.owner-video-player {
-  width: 100%;
-  max-height: 380px;
-  object-fit: contain;
-  background: #000;
-  border-radius: 10px;
-  margin-top: 8px;
-  display: block;
-}
+.owner-video-player{width:100%;max-height:380px;object-fit:contain;background:#000;border-radius:10px;margin-top:8px;display:block}
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:12px 22px;border-radius:10px;font-size:15px;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:10000;max-width:90%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media (min-width: 640px) {
@@ -185,9 +176,9 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
   <div id="tabStatus" class="tab-content" style="display:none;">
     <div class="status-card">
-      <button class="btn-primary" id="openPostStatusBtn" style="width:100%">+ Post User Status</button>
+      <button class="btn-primary" id="openPostStatusBtn" style="width:100%">+ Post Public Status Video / Photo</button>
     </div>
-    <div class="section-title">Friend Updates & Posts</div>
+    <div class="section-title">Public Friend Updates & Media Feed</div>
     <div id="statusFeedList" class="status-feed"></div>
   </div>
   <div id="tabCalls" class="tab-content" style="display:none;">
@@ -256,9 +247,9 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
   </div>
   <div class="chat-input-bar">
     <div class="upload-bar" id="uploadBar"><div class="upload-bar-fill" id="uploadBarFill"></div></div>
-    <button class="emoji-btn" id="emojiBtn">😊</button>
-    <button class="attach-btn" id="attachBtn" title="Attach Photo/Video/File">📎</button>
-    <button class="attach-btn" id="chatRecordBtn" title="Hold/Tap to Record Voice Note" style="font-size:20px;color:#ff4757;">🎙️</button>
+    <button class="emoji-btn" id="emojiBtn" title="Emoji Palette">😊</button>
+    <button class="attach-btn" id="attachBtn" title="Upload Media File (Photo/Video/Audio/Document)">📎</button>
+    <button class="attach-btn" id="chatRecordBtn" title="Hold/Tap to Record Voice Note Audio" style="font-size:20px;color:#ff4757;">🎙️</button>
     <input id="chatInput" type="text" placeholder="Message…" autocomplete="off">
     <button class="send-btn" id="sendBtn" disabled>➤</button>
   </div>
@@ -315,19 +306,19 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 </div>
 <div class="modal-overlay" id="groupModal">
   <div class="modal">
-    <h3>Create Group Chat</h3>
+    <h3>Create Group Chat (👥)</h3>
     <input id="groupNameInput" type="text" placeholder="Group Name" maxlength="30">
-    <div style="font-size:13.5px;color:var(--muted);margin-bottom:6px">Select Members:</div>
+    <div style="font-size:13.5px;color:var(--muted);margin-bottom:6px">Select Members from Friends:</div>
     <div class="group-select-list" id="groupMembersSelection"></div>
     <div class="modal-actions">
       <button class="cancel" id="groupModalCancel">Cancel</button>
-      <button class="confirm" id="groupModalConfirm">Create</button>
+      <button class="confirm" id="groupModalConfirm">Create Group</button>
     </div>
   </div>
 </div>
 <div class="modal-overlay" id="statusModal">
   <div class="modal">
-    <h3>Post User Status</h3>
+    <h3>Post Public Status (Video / Photo / Text)</h3>
     <textarea id="statusTextInput" rows="2" placeholder="Write status text..."></textarea>
     <input id="statusLinkInput" type="text" placeholder="Optional URL Link (https://...)" style="margin-top:8px;">
     <div style="margin-bottom:10px">
@@ -335,12 +326,12 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
       <input type="color" id="statusBgColor" value="#0d7a8c" style="width:100%;height:36px;border-radius:6px;padding:2px;cursor:pointer;">
     </div>
     <div style="margin-bottom:10px">
-      <button class="btn-primary" id="statusMediaSelectBtn" style="width:100%;max-width:none;padding:10px;font-size:15px;background:#143a5f;color:#fff;">📷 Select Optional Photo/Video</button>
+      <button class="btn-primary" id="statusMediaSelectBtn" style="width:100%;max-width:none;padding:10px;font-size:15px;background:#143a5f;color:#fff;">📹 Select Public Photo or Video Clip</button>
       <div id="statusMediaName" style="font-size:13px;color:var(--accent);margin-top:4px;word-break:break-all;"></div>
     </div>
     <div class="modal-actions">
       <button class="cancel" id="statusModalCancel">Cancel</button>
-      <button class="confirm" id="statusModalConfirm">Post</button>
+      <button class="confirm" id="statusModalConfirm">Post Publicly</button>
     </div>
   </div>
 </div>
@@ -360,9 +351,9 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 </div>
 <div class="modal-overlay" id="statusCommentsModal">
   <div class="modal" style="max-width:400px;">
-    <h3>Status Comments (Direct to Owner)</h3>
+    <h3>Status Comments & Direct DM to Owner</h3>
     <div id="statusCommentsList" style="max-height:220px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:8px;"></div>
-    <input id="statusCommentInput" type="text" placeholder="Write comment to owner's DM..." autocomplete="off">
+    <input id="statusCommentInput" type="text" placeholder="Write comment or send emoji to owner DM..." autocomplete="off">
     <div class="modal-actions">
       <button class="cancel" id="statusCommentCancel">Close</button>
       <button class="confirm" id="statusCommentSend">Send DM</button>
@@ -417,12 +408,7 @@ const firebaseConfig = {
 };
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
-const ICE_SERVERS = {
-  iceServers: [
-    { urls: "stun:stun.l.google.com:19302" },
-    { urls: "stun:stun1.l.google.com:19302" }
-  ]
-};
+const ICE_SERVERS = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] };
 const App = {
   mySlug: null, myName: '', myPhoto: null,
   contacts: [], groups: [], activeChat: null, activeIsGroup: false,
@@ -485,23 +471,17 @@ const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('en
 let nameCheckTimer = null;
 nameInput.addEventListener('input', () => {
   const slug = slugify(nameInput.value);
-  if (!slug) { 
-    nameStatus.textContent = 'Enter a valid username'; 
-    nameStatus.className = 'name-status'; 
-    return; 
-  }
+  if (!slug) { nameStatus.textContent = 'Enter a valid username'; nameStatus.className = 'name-status'; return; }
   nameStatus.textContent = 'Checking availability…'; nameStatus.className = 'name-status';
   clearTimeout(nameCheckTimer);
-  nameCheckTimer = setTimeout(async () => {
-    nameStatus.textContent = `"${slug}" ready ✓`; 
-    nameStatus.className = 'name-status ok';
+  nameCheckTimer = setTimeout(() => {
+    nameStatus.textContent = `"${slug}" ready ✓`; nameStatus.className = 'name-status ok';
   }, 250);
 });
 enterBtn.addEventListener('click', async () => {
   const rawVal = nameInput.value.trim();
   const slug = slugify(rawVal);
   if (!slug) return toast('Please enter a valid username', true);
-  
   try {
     const userRef = dbRef(db, 'users/' + slug);
     const snap = await get(userRef);
@@ -509,10 +489,8 @@ enterBtn.addEventListener('click', async () => {
       await set(userRef, { slug, displayName: rawVal || slug, createdAt: Date.now(), photo: App.myPhoto || null });
     }
   } catch {}
-  App.mySlug = slug; 
-  App.myName = rawVal || slug;
-  LS.set('mySlug', slug); 
-  LS.set('myName', App.myName);
+  App.mySlug = slug; App.myName = rawVal || slug;
+  LS.set('mySlug', slug); LS.set('myName', App.myName);
   startMainApp();
 });
 window.addEventListener('load', () => {
@@ -523,9 +501,7 @@ window.addEventListener('load', () => {
   const savedName = LS.get('myName', null);
   const savedPhoto = LS.get('avatar', null);
   if (savedPhoto) App.myPhoto = savedPhoto;
-  if (savedName || savedSlug) { 
-    nameInput.value = savedName || savedSlug;
-  }
+  if (savedName || savedSlug) nameInput.value = savedName || savedSlug;
   showScreen('screen-onboard');
 });
 function startMainApp() {
@@ -543,11 +519,8 @@ function updateProfileHeader() {
   const box = $('profileAvatar'), img = $('profileAvatarImg'), letter = $('profileAvatarLetter');
   if (App.myPhoto) { img.src = App.myPhoto; img.style.display = 'block'; letter.style.display = 'none'; box.classList.add('has-photo'); }
   else { img.src = ''; img.style.display = 'none'; letter.style.display = 'inline'; letter.textContent = App.myName.charAt(0).toUpperCase(); box.classList.remove('has-photo'); }
-  if (App.mySlug === 'gesnerdeslandes' || App.mySlug === 'gesner') {
-    $('ownerPortalTrigger').style.display = 'block';
-  } else {
-    $('ownerPortalTrigger').style.display = 'none';
-  }
+  if (App.mySlug === 'gesnerdeslandes' || App.mySlug === 'gesner') $('ownerPortalTrigger').style.display = 'block';
+  else $('ownerPortalTrigger').style.display = 'none';
 }
 $('ownerPortalTrigger').addEventListener('click', () => {
   $('ownerPassInput').value = '';
@@ -611,11 +584,9 @@ window.__ownerDeleteStatus = async (key) => {
   }
 };
 window.__ownerReportStatus = async (key, userTag) => {
-  const reason = prompt('Specify violation reason (e.g. Nudes / Violence / Harassment):', 'Nudes or Violence violation');
+  const reason = prompt('Specify violation reason:', 'Nudes or Violence violation');
   if (!reason) return;
-  await push(dbRef(db, 'owner_reports'), {
-    type: 'Status Violation', targetUser: userTag, reason, time: Date.now(), reporter: App.mySlug
-  });
+  await push(dbRef(db, 'owner_reports'), { type: 'Status Violation', targetUser: userTag, reason, time: Date.now(), reporter: App.mySlug });
   toast('Violation report uploaded to Owner Space ✓');
 };
 function loadOwnerReports() {
@@ -627,9 +598,7 @@ function loadOwnerReports() {
       area.innerHTML = '<div class="empty"><p>No violation reports uploaded yet.</p></div>';
       return;
     }
-    area.innerHTML = `
-      <div style="font-size:14px;font-weight:700;color:var(--red);margin-bottom:6px;">Active Owner Reports (Confidential)</div>
-      ` + reports.map(r => `
+    area.innerHTML = `<div style="font-size:14px;font-weight:700;color:var(--red);margin-bottom:6px;">Active Owner Reports</div>` + reports.map(r => `
       <div style="background:#fff0f0;border:1px solid #ffccd2;border-radius:10px;padding:12px;">
         <div style="font-weight:700;color:#d32f2f;margin-bottom:4px;">${esc(r.type)} — Target: ${esc(r.targetUser)}</div>
         <div style="font-size:14px;margin-bottom:4px;">Reason: <strong>${esc(r.reason)}</strong></div>
@@ -669,7 +638,7 @@ function buildUI() {
   const cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient');
   let html = '';
   if (App.groups.length) {
-    html += '<div class="section-title">Groups</div>';
+    html += '<div class="section-title">Groups (👥)</div>';
     html += App.groups.map(g => `
       <div class="list-item" onclick="window.__openChat('${g.id}', true)">
         <div class="avatar group">👥</div>
@@ -818,7 +787,7 @@ $('fileInput').addEventListener('change', async e => {
     const type = detectFileType(file);
     await sendMessage({ type, url, name: file.name, size: file.size });
     setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 500);
-    toast('Media sent ✓');
+    toast('Media uploaded and sent ✓');
   } catch {
     fill.style.width = '0%'; bar.classList.remove('show');
     toast('Upload failed', true);
@@ -846,16 +815,16 @@ $('chatRecordBtn').addEventListener('click', async () => {
         const mime = chatMediaRecorder.mimeType || mimeType || 'audio/mp4';
         const blob = new Blob(chatAudioChunks, { type: mime });
         const url = await fileToBase64(blob);
-        await sendMessage({ type: 'audio', url, name: 'Voice Note' });
+        await sendMessage({ type: 'audio', url, name: 'Voice Note Audio' });
         btn.style.color = '#ff4757';
         btn.style.transform = 'scale(1)';
         stream.getTracks().forEach(t => t.stop());
-        toast('Voice note sent ✓');
+        toast('Audio voice note sent ✓');
       };
       chatMediaRecorder.start(100);
       btn.style.color = '#0d7a8c';
       btn.style.transform = 'scale(1.2)';
-      toast('Recording voice note (max 30s)…');
+      toast('Recording audio voice note (max 30s)…');
       clearTimeout(chatRecTimer);
       chatRecTimer = setTimeout(() => {
         if (chatMediaRecorder && chatMediaRecorder.state === 'recording') chatMediaRecorder.stop();
@@ -892,20 +861,20 @@ $('addGroupFab').addEventListener('click', () => {
     <div class="group-select-item">
       <input type="checkbox" value="${c.slug}" id="chk_${c.slug}" style="width:18px;height:18px;">
       <label for="chk_${c.slug}">${esc(c.name)} (@${c.slug})</label>
-    </div>`).join('') : '<div style="font-size:14px;color:var(--muted)">Add contacts first.</div>';
+    </div>`).join('') : '<div style="font-size:14px;color:var(--muted)">Add contacts first to pick members.</div>';
   $('groupNameInput').value = ''; $('groupModal').classList.add('show');
 });
 $('groupModalCancel').addEventListener('click', () => $('groupModal').classList.remove('show'));
 $('groupModalConfirm').addEventListener('click', async () => {
   const name = $('groupNameInput').value.trim();
   const checked = Array.from(document.querySelectorAll('#groupMembersSelection input:checked')).map(i => i.value);
-  if (!name || !checked.length) return toast('Set group name & select members', true);
+  if (!name || !checked.length) return toast('Set group name & pick members', true);
   const groupId = 'group_' + Date.now();
   const members = [App.mySlug, ...checked];
   await set(dbRef(db, `group_chats/${groupId}`), { id: groupId, name, members, createdBy: App.mySlug });
   App.groups.push({ id: groupId, name, members });
   saveGroups(); setupGroupMessageListener(groupId); buildUI();
-  $('groupModal').classList.remove('show'); toast('Group created ✓');
+  $('groupModal').classList.remove('show'); toast('Group (👥) created ✓');
 });
 window.startCall = async (targetSlug, isVideo) => {
   if (!targetSlug || targetSlug === App.mySlug) return toast('Select a valid contact to call', true);
@@ -1020,7 +989,7 @@ $('endCallBtn').addEventListener('click', async () => {
 $('voiceCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, false); });
 $('videoCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, true); });
 
-/* Status Feed */
+/* Public Status Feed & Direct DM Interactions */
 $('openPostStatusBtn').addEventListener('click', () => {
   $('statusTextInput').value = ''; $('statusLinkInput').value = ''; $('statusMediaName').textContent = '';
   App.statusMediaFile = null; $('statusModal').classList.add('show');
@@ -1036,7 +1005,7 @@ $('statusModalConfirm').addEventListener('click', async () => {
   const link = $('statusLinkInput').value.trim();
   const bgColor = $('statusBgColor').value;
   if (!text && !link && !App.statusMediaFile) return toast('Add content to post', true);
-  toast('Posting status…');
+  toast('Posting public status…');
   try {
     let mediaUrl = null, mediaType = null;
     if (App.statusMediaFile) {
@@ -1047,19 +1016,18 @@ $('statusModalConfirm').addEventListener('click', async () => {
       authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto,
       text, link, bgColor, mediaUrl, mediaType, time: Date.now()
     });
-    $('statusModal').classList.remove('show'); toast('Status posted ✓');
+    $('statusModal').classList.remove('show'); toast('Public status posted ✓');
   } catch { toast('Failed to post', true); }
 });
 function listenUserStatuses() {
   onValue(query(dbRef(db, 'user_statuses'), limitToLast(50)), snap => {
     const data = snap.val() || {};
-    const friendSlugs = App.contacts.map(c => c.slug);
+    // Public to all friends & users
     const posts = Object.entries(data)
       .map(([k, v]) => ({ ...v, _k: k }))
-      .filter(p => p.authorSlug === App.mySlug || friendSlugs.includes(p.authorSlug) || App.mySlug === 'gesnerdeslandes' || App.mySlug === 'gesner')
       .sort((a, b) => b.time - a.time);
     if (!posts.length) {
-      $('statusFeedList').innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No recent friend status updates yet.</p></div>';
+      $('statusFeedList').innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No public status updates yet.</p></div>';
       window._cachedPosts = [];
       return;
     }
@@ -1068,7 +1036,11 @@ function listenUserStatuses() {
       const mediaHtml = p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" class="status-media">` : `<video src="${p.mediaUrl}" controls playsinline preload="metadata" class="status-media"></video>`) : '';
       const linkHtml = p.link ? `<a href="${p.link}" target="_blank" rel="noopener" class="status-link">🔗 ${esc(p.link)}</a>` : '';
       const textHtml = p.text ? `<div class="status-content-box" style="background:${p.bgColor || '#0d7a8c'}">${esc(p.text)}</div>` : '';
-      const commentCount = p.comments ? Object.keys(p.comments).length : 0;
+      const comments = p.comments || {};
+      const commentCount = Object.keys(comments).length;
+      const likes = p.likes || {};
+      const likeCount = Object.keys(likes).length;
+      const myLiked = likes[App.mySlug] ? true : false;
       return `<div class="status-card" data-key="${p._k}">
         <div class="status-card-header">
           <div class="avatar" style="width:36px;height:36px;font-size:14px">${avatarInner(p.authorPhoto, p.authorName)}</div>
@@ -1078,14 +1050,51 @@ function listenUserStatuses() {
         ${textHtml}
         ${mediaHtml}
         ${linkHtml}
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;border-top:1px solid #f0f0f0;padding-top:8px;">
+        <div style="display:flex;gap:10px;align-items:center;margin-top:10px;border-top:1px solid #f0f0f0;padding-top:8px;flex-wrap:wrap;">
+          <button style="background:${myLiked ? '#d4af37' : '#eef2f6'};color:${myLiked ? '#0b2a4a' : 'var(--text)'};border:none;padding:6px 12px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;" onclick="window.__toggleStatusLike('${p._k}')">👍 Like (${likeCount})</button>
           <button style="background:#eef2f6;border:none;padding:6px 12px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;" onclick="window.__openStatusComments('${p._k}')">💬 Comments (${commentCount})</button>
+          <button style="background:#eef2f6;border:none;padding:6px 12px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '❤️', '@${esc(p.authorSlug)}')">❤️</button>
+          <button style="background:#eef2f6;border:none;padding:6px 12px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '🔥', '@${esc(p.authorSlug)}')">🔥</button>
+          <button style="background:#eef2f6;border:none;padding:6px 12px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '😂', '@${esc(p.authorSlug)}')">😂</button>
         </div>
       </div>`;
     }).join('');
     window._cachedPosts = posts;
   });
 }
+window.__toggleStatusLike = async (statusKey) => {
+  const posts = window._cachedPosts || [];
+  const post = posts.find(p => p._k === statusKey);
+  if (!post) return;
+  const ownerSlug = post.authorSlug;
+  const likesRef = dbRef(db, `user_statuses/${statusKey}/likes/${App.mySlug}`);
+  const snap = await get(likesRef);
+  if (snap.exists()) {
+    await remove(likesRef);
+    toast('Like removed');
+  } else {
+    await set(likesRef, { time: Date.now() });
+    toast('Liked status 👍');
+    if (ownerSlug !== App.mySlug) {
+      await push(dbRef(db, `chats/${chatIdFor(App.mySlug, ownerSlug)}/messages`), {
+        from: App.mySlug, fromName: App.myName, text: `👍 Liked your status update.`, time: Date.now()
+      });
+    }
+  }
+};
+window.__sendQuickStatusEmoji = async (statusKey, emoji, ownerSlugTag) => {
+  const posts = window._cachedPosts || [];
+  const post = posts.find(p => p._k === statusKey);
+  if (!post) return;
+  const ownerSlug = post.authorSlug;
+  await push(dbRef(db, `user_statuses/${statusKey}/comments`), { author: App.mySlug, text: emoji, time: Date.now() });
+  if (ownerSlug !== App.mySlug) {
+    await push(dbRef(db, `chats/${chatIdFor(App.mySlug, ownerSlug)}/messages`), {
+      from: App.mySlug, fromName: App.myName, text: `💬 Reacted to your status with ${emoji}`, time: Date.now()
+    });
+  }
+  toast(`Sent ${emoji} to owner chat ✓`);
+};
 window.__openStatusComments = (statusKey) => {
   const posts = window._cachedPosts || [];
   const post = posts.find(p => p._k === statusKey);
@@ -1123,7 +1132,7 @@ $('statusCommentSend').addEventListener('click', async () => {
   }
   $('statusCommentInput').value = '';
   $('statusCommentsModal').classList.remove('show');
-  toast('Comment sent ✓');
+  toast('Comment & DM sent to owner ✓');
 });
 window.__delStatus = async (key) => {
   if (confirm('Delete status?')) { await remove(dbRef(db, 'user_statuses/' + key)); toast('Deleted'); }
