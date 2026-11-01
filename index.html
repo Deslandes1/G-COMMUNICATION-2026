@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JARVIS">
 <title>JARVIS</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNjYiIGZpbGw9IiNkNGFlMzciLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5MiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzBiMmE0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RgrvhdA8L3RleHQ+PC9zdmc+">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNjYiIGZpbGw9IiNkNGFlMzciLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQ2FsaWJyaSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjkyIiBmb250LXdlaWdodD0iODAwIiBmaWxsPSIjMGIyYTRhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5HPC90ZXh0Pjwvc3ZnPg==">
 <style>
 :root{--navy:#0b2a4a;--navy-light:#143a5f;--accent:#0d7a8c;--gold:#d4af37;--green:#4aff7a;--red:#ff4757;--bg:#f2f5f8;--card:#fff;--text:#1e2a33;--muted:#6b7a87;--border:#e1e7ed}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -17,13 +17,13 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 .screen.active{display:flex}
 .install-banner{background:linear-gradient(90deg,#0b2a4a 0%,#143a5f 40%,#0d7a8c 100%);color:#fff;padding:12px 16px;display:none;align-items:center;gap:10px;font-size:13px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.1);position:relative;z-index:20;font-family:Calibri,sans-serif}
 .install-banner.show{display:flex}
-.install-banner .inst-icon{width:36px;height:36px;border-radius:8px;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0}
+.install-banner .inst-icon{width:36px;height:36px;border-radius:8px;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
 .install-banner .inst-text{flex:1;line-height:1.4}
 .install-banner button{background:#fff;color:var(--navy);border:none;padding:8px 14px;border-radius:18px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:Calibri,sans-serif}
-.install-banner .inst-close{background:transparent;color:#fff;padding:4px 6px;font-size:16px;border:none;cursor:pointer;flex-shrink:0;opacity:.7}
+.install-banner .inst-close{background:transparent;color:#fff;padding:4px 6px;font-size:13px;border:none;cursor:pointer;flex-shrink:0;opacity:.7}
 #screen-onboard{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 25%,#0d7a8c 55%,#143a5f 80%,#0b2a4a 100%);color:#fff;justify-content:center;align-items:center;padding:32px 28px;text-align:center;position:relative}
-.onboard-logo{width:115px;height:115px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 50%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:800;margin-bottom:24px;box-shadow:0 16px 50px rgba(212,175,55,.55)}
-#screen-onboard h1{font-size:32px;letter-spacing:4px;margin-bottom:8px;font-weight:800}
+.onboard-logo{width:115px;height:115px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 50%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:800;margin-bottom:24px;box-shadow:0 16px 50px rgba(212,175,55,.55)}
+#screen-onboard h1{font-size:28px;letter-spacing:4px;margin-bottom:8px;font-weight:800}
 #screen-onboard p{font-size:13px;opacity:.9;line-height:1.55;max-width:340px;margin-bottom:24px}
 .onboard-input{width:100%;max-width:340px;padding:14px 18px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.14);border-radius:12px;font-size:13px;color:#fff;outline:none;margin-bottom:12px;text-align:center;font-family:Calibri,sans-serif}
 .onboard-input::placeholder{color:rgba(255,255,255,.55)}
@@ -33,19 +33,19 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
 #screen-main{background-color:#f4efe6;background-image:linear-gradient(180deg,#f7f2e8 0%,#ede6d8 100%);position:relative;overflow:hidden}
 .app-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;min-height:64px;border-bottom:2px solid var(--gold);flex-shrink:0;z-index:5}
-.app-header .logo{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex-shrink:0}
+.app-header .logo{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
 .app-header h2{font-size:13px;font-weight:700;flex:1}
 .app-header .online-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
 .tab-content{flex:1;overflow-y:auto;padding-bottom:80px;position:relative;z-index:1}
 .tab-content::-webkit-scrollbar{display:none}
 .bottom-nav{position:absolute;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-top:1px solid rgba(11,42,74,.08);display:flex;padding-bottom:env(safe-area-inset-top);z-index:10;box-shadow:0 -4px 20px rgba(11,42,74,.06)}
 .nav-item{flex:1;padding:10px 0 12px;text-align:center;font-size:13px;color:var(--muted);cursor:pointer;font-weight:700;border:none;background:none;position:relative;font-family:Calibri,sans-serif}
-.nav-item .icon{display:block;font-size:22px;margin-bottom:2px}
+.nav-item .icon{display:block;font-size:16px;margin-bottom:2px}
 .nav-item.active{color:var(--navy)}
 .section-title{font-size:13px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:16px 20px 8px}
 .list-item{background:#fff;padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;border-bottom:1px solid var(--border)}
 .list-item:active{background:#f8f9fa}
-.avatar{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;flex-shrink:0;overflow:hidden;box-shadow:0 3px 10px rgba(11,42,74,.15);cursor:pointer;transition:transform .2s}
+.avatar{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;overflow:hidden;box-shadow:0 3px 10px rgba(11,42,74,.15);cursor:pointer;transition:transform .2s}
 .avatar:active{transform:scale(1.1)}
 .avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .avatar.accent{background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%)}
@@ -56,18 +56,18 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 .badge-unread{background:#ff4757;color:#fff;font-size:13px;font-weight:800;padding:2px 8px;border-radius:12px;min-width:20px;text-align:center;box-shadow:0 2px 6px rgba(255,71,87,.4)}
 .list-item-sub{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .empty{text-align:center;padding:50px 30px;color:var(--muted);font-size:13px}
-.empty .empty-icon{font-size:42px;margin-bottom:10px;opacity:.5}
+.empty .empty-icon{font-size:36px;margin-bottom:10px;opacity:.5}
 .fab-container{position:absolute;bottom:84px;right:20px;display:flex;flex-direction:column;gap:12px;z-index:9}
-.fab{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(13,122,140,.4)}
+.fab{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(13,122,140,.4)}
 .fab.gold{background:linear-gradient(135deg,#f0d369 0%,#d4af37 100%);color:var(--navy)}
 .chat-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px;min-height:64px;border-bottom:2px solid var(--gold);flex-shrink:0;z-index:5}
-.chat-header .back-btn{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;padding:0 4px}
-.chat-header .chat-avatar{width:42px;height:42px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0;overflow:hidden;cursor:pointer}
+.chat-header .back-btn{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:0 4px}
+.chat-header .chat-avatar{width:40px;height:40px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;overflow:hidden;cursor:pointer}
 .chat-header .chat-avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .chat-header .chat-title{flex:1;min-width:0}
 .chat-header .chat-title h3{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chat-header .chat-title small{font-size:13px;color:var(--green);display:block}
-.chat-header .header-call-btn{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:4px 6px;border-radius:50%;background:rgba(255,255,255,.1)}
+.chat-header .header-call-btn{background:none;border:none;color:#fff;font-size:15px;cursor:pointer;padding:4px 6px;border-radius:50%;background:rgba(255,255,255,.1)}
 .messages{flex:1;overflow-y:auto;padding:16px 14px;position:relative;background:#fdf6ec;scroll-behavior:smooth}
 .messages::-webkit-scrollbar{display:none}
 .msg{max-width:82%;padding:12px 16px;border-radius:16px;font-size:13px;line-height:1.55;margin-bottom:10px;word-wrap:break-word;position:relative;cursor:pointer;font-family:Calibri,sans-serif}
@@ -83,11 +83,11 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 .msg .attach-file{display:flex;align-items:center;gap:10px;padding:12px;background:#f2f7fb;border-radius:10px;text-decoration:none;color:var(--text);font-size:13px}
 .quick-reactions{display:flex;gap:6px;padding:8px 12px;background:#fff;border-top:1px solid var(--border);flex-shrink:0;overflow-x:auto}
 .quick-reactions::-webkit-scrollbar{display:none}
-.quick-reaction{font-size:22px;width:40px;height:40px;background:#f7f9fb;border:1px solid var(--border);border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.quick-reaction{font-size:15px;width:36px;height:36px;background:#f7f9fb;border:1px solid var(--border);border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .chat-input-bar{background:rgba(255,255,255,.98);border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:6px;align-items:center;flex-shrink:0;position:relative}
 .chat-input-bar input[type="text"]{flex:1;padding:12px 16px;border:1px solid var(--border);border-radius:24px;font-size:13px;outline:none;background:#f7f9fb;min-width:0;font-family:Calibri,sans-serif}
-.emoji-btn,.attach-btn{background:transparent;border:none;font-size:22px;color:var(--accent);width:38px;height:38px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.chat-input-bar .send-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:18px;cursor:pointer;flex-shrink:0;font-family:Calibri,sans-serif}
+.emoji-btn,.attach-btn{background:transparent;border:none;font-size:15px;color:var(--accent);width:36px;height:36px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.chat-input-bar .send-btn{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:13px;cursor:pointer;flex-shrink:0;font-family:Calibri,sans-serif}
 .chat-input-bar .send-btn:disabled{opacity:.4}
 .upload-bar{position:absolute;top:-3px;left:0;right:0;height:3px;background:#e1e7ed;display:none}
 .upload-bar.show{display:block}
@@ -95,7 +95,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 #emojiPalette{position:fixed;bottom:calc(120px + env(safe-area-inset-top));left:16px;right:16px;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(11,42,74,.4);padding:14px;z-index:9999;display:none;flex-direction:column;gap:10px;max-height:50vh;overflow-y:auto}
 #emojiPalette.show{display:flex}
 .emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
-.emoji-item{font-size:22px;height:38px;background:transparent;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.emoji-item{font-size:15px;height:36px;background:transparent;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .action-sheet{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top-left-radius:20px;border-top-right-radius:20px;padding:20px;z-index:10000;box-shadow:0 -10px 30px rgba(0,0,0,.2);display:none;flex-direction:column;gap:10px}
 .action-sheet.show{display:flex}
 .action-btn{padding:14px;border-radius:10px;border:none;background:#f2f5f8;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;font-family:Calibri,sans-serif}
@@ -109,7 +109,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;flex-direction:column}
 #lightbox.show{display:flex}
 #lightbox img{max-width:100%;max-height:85vh;border-radius:8px}
-#lightbox .close-lb{position:absolute;top:20px;right:20px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;border:none;font-size:22px;cursor:pointer}
+#lightbox .close-lb{position:absolute;top:20px;right:20px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;border:none;font-size:15px;cursor:pointer}
 #lightbox .dl-lb{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);padding:12px 26px;border-radius:20px;background:var(--gold);color:var(--navy);font-weight:700;text-decoration:none;font-size:13px;font-family:Calibri,sans-serif}
 #avatarViewerModal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:10005;padding:20px;flex-direction:column}
 #avatarViewerModal.show{display:flex}
@@ -121,10 +121,10 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 #remoteVideo{width:100%;height:100%;object-fit:cover;display:block}
 #localVideo{position:absolute;top:20px;right:20px;width:110px;height:150px;object-fit:cover;border-radius:12px;border:2px solid var(--gold);z-index:2;background:#222;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 .call-overlay-ui{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%;width:100%;padding:40px 20px}
-.call-avatar{width:120px;height:120px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:800;margin-bottom:20px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4);cursor:pointer}
+.call-avatar{width:110px;height:110px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:800;margin-bottom:20px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4);cursor:pointer}
 .call-avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .call-actions{display:flex;gap:16px;margin-top:auto;z-index:4;flex-wrap:wrap;justify-content:center}
-.call-btn{width:58px;height:58px;border-radius:50%;border:none;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.3)}
+.call-btn{width:54px;height:54px;border-radius:50%;border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.3)}
 .call-btn.end{background:#ff4757;color:#fff}
 .call-btn.accept{background:#4aff7a;color:#0b2a4a}
 .call-btn.mute{background:rgba(255,255,255,.2);color:#fff}
@@ -133,7 +133,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 #incoming-call.show{display:flex}
 .profile-card{background:#fff;margin:16px;border-radius:14px;padding:24px 20px;text-align:center;border:1px solid var(--border)}
 .profile-card h3{font-size:13px}
-.profile-card .avatar-big{width:104px;height:104px;border-radius:50%;background:#0b2a4a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:700;margin:0 auto 12px;position:relative;cursor:pointer;overflow:hidden;box-shadow:0 6px 18px rgba(11,42,74,.2);border:3px solid var(--gold)}
+.profile-card .avatar-big{width:96px;height:96px;border-radius:50%;background:#0b2a4a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;margin:0 auto 12px;position:relative;cursor:pointer;overflow:hidden;box-shadow:0 6px 18px rgba(11,42,74,.2);border:3px solid var(--gold)}
 .profile-card .avatar-big img{width:100%;height:100%;object-fit:cover;display:block}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:24px}
 .modal-overlay.show{display:flex}
@@ -167,10 +167,10 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 <section id="screen-onboard" class="screen active">
   <div class="onboard-logo">G</div>
   <h1>JARVIS</h1>
-  <p>Enter or update your username handle to continue.</p>
+  <p>Enter your username handle to continue.</p>
   <input id="nameInput" class="onboard-input" type="text" placeholder="Your username (e.g. gesner)" maxlength="30" autocomplete="off" autocapitalize="none">
   <div class="name-status" id="nameStatus">Lowercase letters and numbers only</div>
-  <button id="enterBtn" class="btn-primary">Enter Portal</button>
+  <button id="enterBtn" class="btn-primary" disabled>Enter Portal</button>
 </section>
 <section id="screen-main" class="screen">
   <header class="app-header">
@@ -254,7 +254,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
     <div class="upload-bar" id="uploadBar"><div class="upload-bar-fill" id="uploadBarFill"></div></div>
     <button class="emoji-btn" id="emojiBtn" title="Emoji Palette">😊</button>
     <button class="attach-btn" id="attachBtn" title="Upload Media File (Photo/Video/Audio/Document)">📎</button>
-    <button class="attach-btn" id="chatRecordBtn" title="Hold/Tap to Record Voice Note Audio" style="font-size:20px;color:#ff4757;">🎙️</button>
+    <button class="attach-btn" id="chatRecordBtn" title="Hold/Tap to Record Voice Note Audio" style="font-size:15px;color:#ff4757;">🎙️</button>
     <input id="chatInput" type="text" placeholder="Message…" autocomplete="off">
     <button class="send-btn" id="sendBtn" disabled>➤</button>
   </div>
@@ -280,7 +280,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
   <div class="call-overlay-ui">
     <div style="display:flex;flex-direction:column;align-items:center;">
       <div class="call-avatar" id="callAvatar">G</div>
-      <div style="font-size:20px;font-weight:700;margin-bottom:6px" id="callName">—</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:6px" id="callName">—</div>
       <div style="font-size:13px;opacity:.8" id="callStatus">Calling…</div>
     </div>
     <div class="call-actions">
@@ -292,7 +292,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 </section>
 <div id="incoming-call">
   <div class="call-avatar" id="incomingAvatar">G</div>
-  <div style="font-size:20px;font-weight:700;margin-bottom:6px" id="incomingName">—</div>
+  <div style="font-size:15px;font-weight:700;margin-bottom:6px" id="incomingName">—</div>
   <div style="font-size:13px;opacity:.8;margin-bottom:40px" id="incomingType">Incoming Call…</div>
   <div class="call-actions">
     <button class="call-btn end" id="rejectCallBtn">📵</button>
@@ -394,7 +394,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
   <div class="modal" style="max-width:640px;max-height:90vh;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h3 style="margin:0;">🛡️ Owner Monitoring Space</h3>
-      <button id="ownerSpaceClose" style="background:none;border:none;font-size:22px;cursor:pointer;">✕</button>
+      <button id="ownerSpaceClose" style="background:none;border:none;font-size:15px;cursor:pointer;">✕</button>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:12px;">
       <button class="btn-primary" id="ownerTabStatusBtn" style="flex:1;max-width:none;padding:8px;font-size:13px;">Monitor Statuses</button>
@@ -409,7 +409,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
   <a class="dl-lb" id="lightboxDownload" download target="_blank">⬇ Download</a>
 </div>
 <div id="avatarViewerModal">
-  <button class="close-lb" id="avatarViewerClose" onclick="document.getElementById('avatarViewerModal').classList.remove('show')" style="position:absolute;top:20px;right:20px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;border:none;font-size:22px;cursor:pointer;">✕</button>
+  <button class="close-lb" id="avatarViewerClose" onclick="document.getElementById('avatarViewerModal').classList.remove('show')" style="position:absolute;top:20px;right:20px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;border:none;font-size:15px;cursor:pointer;">✕</button>
   <img id="avatarViewerImg" src="" alt="User Profile Picture">
   <div id="avatarViewerName">User Profile</div>
 </div>
@@ -471,7 +471,7 @@ function toast(msg, isError) {
   t.classList.add('show'); clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
-function esc(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function esc(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;T'}[c] || c)); }
 function slugify(name) { return String(name).toLowerCase().trim().replace(/[^a-z0-9]/g, '').slice(0, 20); }
 function chatIdFor(a, b) { const [x, y] = [a, b].sort(); return `${x}__${y}`; }
 function avatarInner(photo, name) { return photo ? `<img src="${photo}">` : esc((name || '?').charAt(0).toUpperCase()); }
@@ -566,12 +566,21 @@ window.__enlargeActiveAvatar = () => {
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
 let nameCheckTimer = null;
 nameInput.addEventListener('input', () => {
-  const slug = slugify(nameInput.value);
-  if (!slug) { nameStatus.textContent = 'Enter a valid username'; nameStatus.className = 'name-status'; return; }
-  nameStatus.textContent = 'Checking availability…'; nameStatus.className = 'name-status';
+  const raw = nameInput.value.trim();
+  const slug = slugify(raw);
+  if (!slug) { 
+    nameStatus.textContent = 'Enter a valid username'; 
+    nameStatus.className = 'name-status'; 
+    enterBtn.disabled = true;
+    return; 
+  }
+  nameStatus.textContent = 'Checking availability…'; 
+  nameStatus.className = 'name-status';
   clearTimeout(nameCheckTimer);
   nameCheckTimer = setTimeout(() => {
-    nameStatus.textContent = `"${slug}" ready ✓`; nameStatus.className = 'name-status ok';
+    nameStatus.textContent = `"${slug}" ready ✓`; 
+    nameStatus.className = 'name-status ok';
+    enterBtn.disabled = false;
   }, 250);
 });
 enterBtn.addEventListener('click', async () => {
@@ -601,12 +610,9 @@ window.addEventListener('load', () => {
   const savedPhoto = LS.get('avatar', null);
   if (savedPhoto) App.myPhoto = savedPhoto;
   if (savedName || savedSlug) nameInput.value = savedName || savedSlug;
-  if (savedSlug) {
-    App.mySlug = savedSlug; App.myName = savedName || savedSlug;
-    startMainApp();
-  } else {
-    showScreen('screen-onboard');
-  }
+  
+  // App opens to welcome page and waits for user name entry unless already registered & entered
+  showScreen('screen-onboard');
 });
 function startMainApp() {
   showScreen('screen-main');
@@ -1242,7 +1248,7 @@ function listenUserStatuses() {
       const myLiked = likes[App.mySlug] ? true : false;
       return `<div class="status-card" data-key="${p._k}">
         <div class="status-card-header">
-          <div class="avatar" style="width:40px;height:40px;font-size:16px" onclick="window.__viewAvatar('${p.authorPhoto || ''}','${esc(p.authorName)}')">${avatarInner(p.authorPhoto, p.authorName)}</div>
+          <div class="avatar" style="width:40px;height:40px;font-size:13px" onclick="window.__viewAvatar('${p.authorPhoto || ''}','${esc(p.authorName)}')">${avatarInner(p.authorPhoto, p.authorName)}</div>
           <div style="flex:1"><div style="font-weight:700;font-size:13px;">${esc(p.authorName)} <small style="color:var(--accent)">(@${esc(p.authorSlug)})</small></div><small style="color:var(--muted);font-size:13px;">${new Date(p.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} (24h expiry)</small></div>
           ${isMine || isOwner() ? `<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px" onclick="window.__delStatus('${p._k}')">🗑</button>` : ''}
         </div>
