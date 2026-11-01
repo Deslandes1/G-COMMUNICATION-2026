@@ -731,21 +731,10 @@ window.addEventListener('load', () => {
   App.groups = LS.get('groups', []);
   App.deletedLocally = LS.get('deletedLocally', {});
   App.unreadCounts = LS.get('unreadCounts', {});
-  const savedSlug = LS.get('mySlug', null);
-  const savedName = LS.get('myName', null);
   const savedPhoto = LS.get('avatar', null);
   if (savedPhoto) App.myPhoto = savedPhoto;
-  if (savedSlug) {
-    App.mySlug = savedSlug;
-    App.myName = savedName || savedSlug;
-    nameInput.value = savedName || savedSlug;
-    validatedSlug = savedSlug;
-    enterBtn.disabled = false;
-    nameStatus.textContent = `Welcome back, @${savedSlug} ✓`;
-    nameStatus.className = 'name-status ok';
-    startMainApp();
-    return;
-  }
+  
+  // Always start on the Welcome onboarding screen for username entry and verification
   showScreen('screen-onboard');
 });
 function startMainApp() {
