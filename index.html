@@ -439,6 +439,20 @@ const LS = {
 function isOwner() {
   return OWNER_SLUGS.includes(App.mySlug);
 }
+async function isMutualFriend(targetSlug) {
+  if (isOwner() || OWNER_SLUGS.includes(targetSlug)) return true;
+  const IHaveAdded = App.contacts.some(c => c.slug === targetSlug);
+  if (!IHaveAdded) return false;
+  try {
+    const snap = await get(dbRef(db, `users/${targetSlug}`));
+    if (!snap.exists()) return false;
+    // Check if target user has owner or current user in their contacts node if stored on server
+    const targetContactsSnap = await get(dbRef(db, `user_contacts/${targetSlug}/${App.mySlug}`));
+    return targetContactsSnap.exists();
+  } catch {
+    return true; // Fallback to local friend list check
+  }
+}
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
 let toastTimer;
 function toast(msg, isError) {
@@ -828,10 +842,10 @@ function buildUI() {
     </div>`).join('');
   vmSel.innerHTML = '<option value="">Select recipient</option>' + App.contacts.map(c => `<option value="${c.slug}">${esc(c.name)}</option>`).join('');
 }
-window.__openChat = (id, isGroup) => {
+window.__openChat = async (id, isGroup) => {
   if (!isGroup && !isOwner() && id !== App.mySlug) {
-    const isFriend = App.contacts.some(c => c.slug === id);
-    if (!isFriend) return toast('You must add this user to your Friend List to DM them', true);
+    const mutual = await isMutualFriend(id);
+    if (!mutual) return toast('Both users must add each other to interact', true);
   }
   App.activeChat = id; App.activeIsGroup = isGroup;
   App.unreadCounts[id] = 0;
@@ -1017,7 +1031,10 @@ $('modalConfirm').addEventListener('click', async () => {
   if (!snap.exists()) return toast('User not found in database', true);
   const friendName = snap.val().displayName || slug;
   App.contacts.push({ slug, name: friendName, photo: snap.val().photo || null });
-  saveContacts(); setupMessageListener(slug, false); buildUI(); listenUserStatuses();
+  saveContacts(); 
+  // Store contact node on DB to confirm mutual addition
+  await set(dbRef(db, `user_contacts/${App.mySlug}/${slug}`), true);
+  setupMessageListener(slug, false); buildUI(); listenUserStatuses();
   $('addModal').classList.remove('show'); toast('Added @' + slug + ' to Friend List ✓');
 });
 $('addGroupFab').addEventListener('click', () => {
@@ -1043,6 +1060,8 @@ $('groupModalConfirm').addEventListener('click', async () => {
 });
 window.startCall = async (targetSlug, isVideo) => {
   if (!targetSlug || targetSlug === App.mySlug) return toast('Select a valid contact to call', true);
+  const mutual = await isMutualFriend(targetSlug);
+  if (!mutual) return toast('Both users must add each other to make calls', true);
   App.currentCallTarget = targetSlug;
   App.isVideoCall = isVideo;
   App.activeCallId = `call_${chatIdFor(App.mySlug, targetSlug)}`;
@@ -1159,7 +1178,7 @@ $('endCallBtn').addEventListener('click', async () => {
 });
 $('voiceCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, false); });
 $('videoCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, true); });
-/* Status Feed Privacy & Public Owner Broadcast */
+/* Status Feed Privacy & Mutual Friend Interaction */
 $('openPostStatusBtn').addEventListener('click', () => {
   $('statusTextInput').value = ''; $('statusLinkInput').value = ''; $('statusMediaName').textContent = '';
   App.statusMediaFile = null; $('statusModal').classList.add('show');
@@ -1193,9 +1212,6 @@ function listenUserStatuses() {
   onValue(query(dbRef(db, 'user_statuses'), limitToLast(50)), snap => {
     const data = snap.val() || {};
     const friendSlugs = App.contacts.map(c => c.slug);
-    
-    // PUBLIC OWNER BROADCAST: Posts by Gesner Deslandes are visible to ALL users.
-    // Regular users also see their own statuses and statuses from added friends.
     const posts = Object.entries(data)
       .map(([k, v]) => ({ ...v, _k: k }))
       .filter(p => OWNER_SLUGS.includes(p.authorSlug) || isOwner() || p.authorSlug === App.mySlug || friendSlugs.includes(p.authorSlug))
@@ -1241,6 +1257,9 @@ window.__toggleStatusLike = async (statusKey) => {
   const post = posts.find(p => p._k === statusKey);
   if (!post) return;
   const ownerSlug = post.authorSlug;
+  const mutual = await isMutualFriend(ownerSlug);
+  if (!mutual) return toast('Both users must add each other to interact', true);
+
   const likesRef = dbRef(db, `user_statuses/${statusKey}/likes/${App.mySlug}`);
   const snap = await get(likesRef);
   if (snap.exists()) {
@@ -1265,6 +1284,9 @@ window.__sendQuickStatusEmoji = async (statusKey, emoji) => {
   const post = posts.find(p => p._k === statusKey);
   if (!post) return;
   const ownerSlug = post.authorSlug;
+  const mutual = await isMutualFriend(ownerSlug);
+  if (!mutual) return toast('Both users must add each other to interact', true);
+
   await push(dbRef(db, `user_statuses/${statusKey}/comments`), { author: App.mySlug, text: emoji, time: Date.now() });
   if (ownerSlug !== App.mySlug) {
     let attachment = null;
@@ -1306,6 +1328,9 @@ $('statusCommentSend').addEventListener('click', async () => {
   if (!text || !App.activeStatusObj) return;
   const statusKey = App.activeStatusObj._k;
   const ownerSlug = App.activeStatusObj.authorSlug;
+  const mutual = await isMutualFriend(ownerSlug);
+  if (!mutual) return toast('Both users must add each other to interact', true);
+
   await push(dbRef(db, `user_statuses/${statusKey}/comments`), { author: App.mySlug, text, time: Date.now() });
   if (ownerSlug !== App.mySlug) {
     let attachment = null;
@@ -1335,6 +1360,9 @@ let mediaRecorder = null, audioChunks = [], recordingTimer = null;
 $('recordBtn').addEventListener('click', async () => {
   const recipient = $('vmRecipient').value;
   if (!recipient) return toast('Select a recipient first', true);
+  const mutual = await isMutualFriend(recipient);
+  if (!mutual) return toast('Both users must add each other to send voicemails', true);
+
   const btn = $('recordBtn');
   if (!mediaRecorder || mediaRecorder.state === 'inactive') {
     try {
