@@ -12,8 +12,8 @@
 :root{--navy:#0b2a4a;--navy-light:#143a5f;--accent:#0d7a8c;--gold:#d4af37;--green:#4aff7a;--red:#ff4757;--bg:#f2f5f8;--card:#fff;--text:#1e2a33;--muted:#6b7a87;--border:#e1e7ed}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Arial,sans-serif;font-size:19px !important;line-height:1.55;background:radial-gradient(circle at 50% 20%,#1a4870 0%,#0b2a4a 50%,#04121f 100%);background-attachment:fixed;color:var(--text);-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;text-size-adjust:100%;display:flex;align-items:center;justify-content:center}
-body::before{content:"G communication Portal..";position:absolute;top:20px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.15);font-size:36px;font-weight:800;letter-spacing:6px;pointer-events:none;z-index:0;white-space:nowrap}
-#app{width:100%;height:100%;max-width:440px;max-height:880px;display:flex;flex-direction:column;background:var(--bg);position:relative;box-shadow:0 30px 90px rgba(0,0,0,.6);overflow:hidden;border-radius:36px;border:8px solid #1a365d;z-index:1}
+body::before{content:"G communication Portal..";position:absolute;top:15px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.2);font-size:24px;font-weight:800;letter-spacing:4px;pointer-events:none;z-index:0;white-space:nowrap}
+#app{width:100%;height:100%;max-width:480px;max-height:920px;display:flex;flex-direction:column;background:var(--bg);position:relative;box-shadow:0 30px 90px rgba(0,0,0,.6);overflow:hidden;border-radius:36px;border:8px solid #1a365d;z-index:1}
 .screen{flex:1;display:none;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);position:relative;width:100%;height:100%}
 .screen.active{display:flex}
 .install-banner{background:linear-gradient(90deg,#0b2a4a 0%,#143a5f 40%,#0d7a8c 100%);color:#fff;padding:10px 14px;display:none;align-items:center;gap:10px;font-size:19px !important;font-family:Calibri,sans-serif;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.1);position:relative;z-index:20}
@@ -23,30 +23,30 @@ body::before{content:"G communication Portal..";position:absolute;top:20px;left:
 .install-banner button{background:#fff;color:var(--navy);border:none;padding:6px 12px;border-radius:18px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0}
 .install-banner .inst-close{background:transparent;color:#fff;padding:4px 6px;font-size:19px !important;font-family:Calibri,sans-serif;border:none;cursor:pointer;flex-shrink:0;opacity:.7}
 #screen-onboard{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 25%,#0d7a8c 55%,#143a5f 80%,#0b2a4a 100%);color:#fff;justify-content:center;align-items:center;padding:24px 20px;text-align:center;position:relative;overflow-y:auto}
-.onboard-logo{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 50%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:800;margin-bottom:20px;box-shadow:0 14px 45px rgba(212,175,55,.55)}
-#screen-onboard h1{font-size:19px !important;font-family:Calibri,sans-serif;letter-spacing:4px;margin-bottom:8px;font-weight:800}
-#screen-onboard p{font-size:19px !important;font-family:Calibri,sans-serif;opacity:.9;line-height:1.55;max-width:320px;margin-bottom:20px}
-.onboard-input{width:100%;max-width:320px;padding:14px 18px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.14);border-radius:12px;font-size:19px !important;font-family:Calibri,sans-serif;color:#fff;outline:none;margin-bottom:12px;text-align:center}
+.onboard-logo{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 50%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:800;margin-bottom:16px;box-shadow:0 14px 45px rgba(212,175,55,.55)}
+#screen-onboard h1{font-size:19px !important;font-family:Calibri,sans-serif;letter-spacing:4px;margin-bottom:6px;font-weight:800}
+#screen-onboard p{font-size:19px !important;font-family:Calibri,sans-serif;opacity:.9;line-height:1.55;max-width:320px;margin-bottom:16px}
+.onboard-input{width:100%;max-width:320px;padding:12px 16px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.14);border-radius:12px;font-size:19px !important;font-family:Calibri,sans-serif;color:#fff;outline:none;margin-bottom:10px;text-align:center}
 .onboard-input::placeholder{color:rgba(255,255,255,.55)}
-.name-status{font-size:19px !important;font-family:Calibri,sans-serif;color:rgba(255,255,255,.8);margin-bottom:14px;min-height:20px}
+.name-status{font-size:19px !important;font-family:Calibri,sans-serif;color:rgba(255,255,255,.8);margin-bottom:12px;min-height:20px}
 .name-status.ok{color:#4aff7a;font-weight:600}
-.btn-primary{width:100%;max-width:320px;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#f0d369 0%,#d4af37 50%,#b8912a 100%);color:var(--navy);font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(212,175,55,.4)}
+.btn-primary{width:100%;max-width:320px;padding:12px;border:none;border-radius:12px;background:linear-gradient(135deg,#f0d369 0%,#d4af37 50%,#b8912a 100%);color:var(--navy);font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(212,175,55,.4)}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
 #screen-main{background-color:#f4efe6;background-image:linear-gradient(180deg,#f7f2e8 0%,#ede6d8 100%);position:relative;overflow:hidden}
 .app-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px;height:60px;min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0;z-index:5}
-.app-header .logo{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px !important;font-family:Calibri,sans-serif;flex-shrink:0}
+.app-header .logo{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px !important;font-family:Calibri,sans-serif;flex-shrink:0}
 .app-header h2{font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .app-header .online-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);flex-shrink:0}
-.tab-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:80px;position:relative;z-index:1}
+.tab-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:76px;position:relative;z-index:1}
 .tab-content::-webkit-scrollbar{display:none}
 .bottom-nav{position:absolute;bottom:0;left:0;right:0;height:64px;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-top:1px solid rgba(11,42,74,.08);display:flex;padding-bottom:env(safe-area-inset-top);z-index:10;box-shadow:0 -4px 20px rgba(11,42,74,.06)}
 .nav-item{flex:1;padding:8px 0 10px;text-align:center;font-size:19px !important;font-family:Calibri,sans-serif;color:var(--muted);cursor:pointer;font-weight:700;border:none;background:none;position:relative}
 .nav-item .icon{display:block;font-size:19px !important;font-family:Calibri,sans-serif;margin-bottom:2px}
 .nav-item.active{color:var(--navy)}
 .section-title{font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:14px 16px 6px}
-.list-item{background:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;border-bottom:1px solid var(--border)}
+.list-item{background:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;border-bottom:1px solid var(--border)}
 .list-item:active{background:#f8f9fa}
-.avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:19px !important;font-family:Calibri,sans-serif;flex-shrink:0;overflow:hidden;box-shadow:0 3px 10px rgba(11,42,74,.15);cursor:pointer;transition:transform .2s}
+.avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:19px !important;font-family:Calibri,sans-serif;flex-shrink:0;overflow:hidden;box-shadow:0 3px 10px rgba(11,42,74,.15);cursor:pointer;transition:transform .2s}
 .avatar:active{transform:scale(1.08)}
 .avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .avatar.accent{background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%)}
@@ -59,11 +59,11 @@ body::before{content:"G communication Portal..";position:absolute;top:20px;left:
 .empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:19px !important;font-family:Calibri,sans-serif}
 .empty .empty-icon{font-size:19px !important;font-family:Calibri,sans-serif;margin-bottom:8px;opacity:.5}
 .fab-container{position:absolute;bottom:76px;right:16px;display:flex;flex-direction:column;gap:10px;z-index:9}
-.fab{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:19px !important;font-family:Calibri,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(13,122,140,.4)}
+.fab{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:19px !important;font-family:Calibri,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(13,122,140,.4)}
 .fab.gold{background:linear-gradient(135deg,#f0d369 0%,#d4af37 100%);color:var(--navy)}
 .chat-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;height:60px;min-height:60px;border-bottom:2px solid var(--gold);flex-shrink:0;z-index:5}
 .chat-header .back-btn{background:none;border:none;color:#fff;font-size:19px !important;font-family:Calibri,sans-serif;cursor:pointer;padding:0 4px}
-.chat-header .chat-avatar{width:40px;height:40px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:19px !important;font-family:Calibri,sans-serif;flex-shrink:0;overflow:hidden;cursor:pointer}
+.chat-header .chat-avatar{width:38px;height:38px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:19px !important;font-family:Calibri,sans-serif;flex-shrink:0;overflow:hidden;cursor:pointer}
 .chat-header .chat-avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .chat-header .chat-title{flex:1;min-width:0}
 .chat-header .chat-title h3{font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -71,7 +71,7 @@ body::before{content:"G communication Portal..";position:absolute;top:20px;left:
 .chat-header .header-call-btn{background:none;border:none;color:#fff;font-size:19px !important;font-family:Calibri,sans-serif;cursor:pointer;padding:4px 6px;border-radius:50%;background:rgba(255,255,255,.1);flex-shrink:0}
 .messages{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 12px;position:relative;background:#fdf6ec;scroll-behavior:smooth}
 .messages::-webkit-scrollbar{display:none}
-.msg{max-width:82%;padding:12px 16px;border-radius:16px;font-size:19px !important;font-family:Calibri,sans-serif;line-height:1.5;margin-bottom:10px;word-wrap:break-word;position:relative;cursor:pointer}
+.msg{max-width:82%;padding:10px 14px;border-radius:16px;font-size:19px !important;font-family:Calibri,sans-serif;line-height:1.5;margin-bottom:10px;word-wrap:break-word;position:relative;cursor:pointer}
 .msg.out{background:linear-gradient(135deg,#d4fbc9 0%,#bef5b1 100%);margin-left:auto;border-bottom-right-radius:4px;box-shadow:0 2px 6px rgba(74,177,80,.15)}
 .msg.in{background:#ffffff;margin-right:auto;border-bottom-left-radius:4px;box-shadow:0 2px 8px rgba(11,42,74,.08);border:1px solid rgba(11,42,74,.05)}
 .msg .sender-tag{font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;color:var(--accent);margin-bottom:3px;display:block}
@@ -84,11 +84,11 @@ body::before{content:"G communication Portal..";position:absolute;top:20px;left:
 .msg .attach-file{display:flex;align-items:center;gap:10px;padding:10px;background:#f2f7fb;border-radius:8px;text-decoration:none;color:var(--text);font-size:19px !important;font-family:Calibri,sans-serif}
 .quick-reactions{display:flex;gap:6px;padding:8px 12px;background:#fff;border-top:1px solid var(--border);flex-shrink:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .quick-reactions::-webkit-scrollbar{display:none}
-.quick-reaction{font-size:19px !important;font-family:Calibri,sans-serif;width:40px;height:40px;background:#f7f9fb;border:1px solid var(--border);border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.quick-reaction{font-size:19px !important;font-family:Calibri,sans-serif;width:38px;height:38px;background:#f7f9fb;border:1px solid var(--border);border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .chat-input-bar{background:rgba(255,255,255,.98);border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:6px;align-items:center;flex-shrink:0;position:relative}
-.chat-input-bar input[type="text"]{flex:1;padding:12px 16px;border:1px solid var(--border);border-radius:22px;font-size:19px !important;font-family:Calibri,sans-serif;outline:none;background:#f7f9fb;min-width:0}
-.emoji-btn,.attach-btn{background:transparent;border:none;font-size:19px !important;font-family:Calibri,sans-serif;color:var(--accent);width:40px;height:40px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.chat-input-bar .send-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:19px !important;font-family:Calibri,sans-serif;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.chat-input-bar input[type="text"]{flex:1;padding:10px 16px;border:1px solid var(--border);border-radius:22px;font-size:19px !important;font-family:Calibri,sans-serif;outline:none;background:#f7f9fb;min-width:0}
+.emoji-btn,.attach-btn{background:transparent;border:none;font-size:19px !important;font-family:Calibri,sans-serif;color:var(--accent);width:38px;height:38px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.chat-input-bar .send-btn{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:19px !important;font-family:Calibri,sans-serif;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .chat-input-bar .send-btn:disabled{opacity:.4}
 .upload-bar{position:absolute;top:-3px;left:0;right:0;height:3px;background:#e1e7ed;display:none}
 .upload-bar.show{display:block}
@@ -99,19 +99,19 @@ body::before{content:"G communication Portal..";position:absolute;top:20px;left:
 .emoji-item{font-size:19px !important;font-family:Calibri,sans-serif;height:38px;background:transparent;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .action-sheet{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top-left-radius:20px;border-top-right-radius:20px;padding:18px;z-index:10000;box-shadow:0 -10px 30px rgba(0,0,0,.2);display:none;flex-direction:column;gap:8px}
 .action-sheet.show{display:flex}
-.action-btn{padding:14px;border-radius:10px;border:none;background:#f2f5f8;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;color:var(--text);cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px}
+.action-btn{padding:12px 14px;border-radius:10px;border:none;background:#f2f5f8;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;color:var(--text);cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px}
 .action-btn.danger{background:#fff0f0;color:var(--red)}
 .status-feed{padding:12px;display:flex;flex-direction:column;gap:12px}
-.status-card{background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(11,42,74,.05)}
+.status-card{background:#fff;border-radius:14px;padding:14px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(11,42,74,.05)}
 .status-card-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.status-content-box{border-radius:10px;padding:16px;color:#fff;font-weight:700;font-size:19px !important;font-family:Calibri,sans-serif;line-height:1.5;text-align:center;word-break:break-word;margin-bottom:10px}
-.status-media{width:100%;border-radius:10px;margin-bottom:8px;max-height:60vh;object-fit:contain;background:#000;display:block}
+.status-content-box{border-radius:10px;padding:14px;color:#fff;font-weight:700;font-size:19px !important;font-family:Calibri,sans-serif;line-height:1.5;text-align:center;word-break:break-word;margin-bottom:10px}
+.status-media{width:100%;border-radius:10px;margin-bottom:8px;max-height:55vh;object-fit:contain;background:#000;display:block}
 .status-link{display:block;background:#f0f4f8;padding:10px;border-radius:8px;color:var(--accent);font-weight:600;text-decoration:none;word-break:break-all;font-size:19px !important;font-family:Calibri,sans-serif;margin-bottom:8px;border:1px dashed var(--accent)}
 #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;flex-direction:column}
 #lightbox.show{display:flex}
 #lightbox img{max-width:100%;max-height:82vh;border-radius:8px}
 #lightbox .close-lb{position:absolute;top:20px;right:20px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;border:none;font-size:19px !important;font-family:Calibri,sans-serif;cursor:pointer}
-#lightbox .dl-lb{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:20px;background:var(--gold);color:var(--navy);font-weight:700;text-decoration:none;font-size:19px !important;font-family:Calibri,sans-serif}
+#lightbox .dl-lb{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:20px;background:var(--gold);color:var(--navy);font-weight:700;text-decoration:none;font-size:19px !important;font-family:Calibri,sans-serif}
 #avatarViewerModal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:10005;padding:20px;flex-direction:column}
 #avatarViewerModal.show{display:flex}
 #avatarViewerImg{max-width:90%;max-height:80vh;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.8);object-fit:contain}
@@ -124,36 +124,36 @@ body::before{content:"G communication Portal..";position:absolute;top:20px;left:
 #callBackgroundOverlay{position:absolute;inset:0;width:100%;height:100%;background-size:cover;background-position:center;z-index:0;opacity:0.85;display:none}
 #callBackgroundOverlay.active{display:block}
 .call-overlay-ui{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%;width:100%;padding:30px 16px}
-.call-avatar{width:110px;height:110px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:800;margin-bottom:14px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.call-avatar{width:100px;height:100px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:800;margin-bottom:12px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
 .call-avatar img{width:100%;height:100%;object-fit:cover;display:block}
-.call-actions{display:flex;gap:14px;margin-top:auto;z-index:4;flex-wrap:wrap;justify-content:center}
-.call-btn{width:54px;height:54px;border-radius:50%;border:none;font-size:19px !important;font-family:Calibri,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.3)}
+.call-actions{display:flex;gap:12px;margin-top:auto;z-index:4;flex-wrap:wrap;justify-content:center}
+.call-btn{width:50px;height:50px;border-radius:50%;border:none;font-size:19px !important;font-family:Calibri,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.3)}
 .call-btn.end{background:#ff4757;color:#fff}
 .call-btn.accept{background:#4aff7a;color:#0b2a4a}
 .call-btn.mute{background:rgba(255,255,255,.2);color:#fff}
 .call-btn.tool{background:rgba(13,122,140,.8);color:#fff}
-#callChatDrawer{position:absolute;top:70px;right:16px;width:300px;max-width:90%;height:45vh;background:rgba(11,42,74,.96);border:1px solid var(--gold);border-radius:12px;display:none;flex-direction:column;z-index:10;padding:10px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+#callChatDrawer{position:absolute;top:70px;right:16px;width:280px;max-width:90%;height:42vh;background:rgba(11,42,74,.96);border:1px solid var(--gold);border-radius:12px;display:none;flex-direction:column;z-index:10;padding:10px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
 #callChatDrawer.show{display:flex}
 #incoming-call{position:fixed;inset:0;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;padding:30px 20px;text-align:center}
 #incoming-call.show{display:flex}
-.profile-card{background:#fff;margin:16px;border-radius:14px;padding:24px 18px;text-align:center;border:1px solid var(--border)}
+.profile-card{background:#fff;margin:16px;border-radius:14px;padding:20px 18px;text-align:center;border:1px solid var(--border)}
 .profile-card h3{font-size:19px !important;font-family:Calibri,sans-serif}
-.profile-card .avatar-big{width:100px;height:100px;border-radius:50%;background:#0b2a4a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;margin:0 auto 10px;position:relative;cursor:pointer;overflow:hidden;box-shadow:0 6px 18px rgba(11,42,74,.2);border:3px solid var(--gold)}
+.profile-card .avatar-big{width:90px;height:90px;border-radius:50%;background:#0b2a4a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;margin:0 auto 10px;position:relative;cursor:pointer;overflow:hidden;box-shadow:0 6px 18px rgba(11,42,74,.2);border:3px solid var(--gold)}
 .profile-card .avatar-big img{width:100%;height:100%;object-fit:cover;display:block}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
 .modal-overlay.show{display:flex}
-.modal{background:#fff;border-radius:16px;padding:22px;width:100%;max-width:420px;max-height:85vh;overflow-y:auto}
+.modal{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:400px;max-height:85vh;overflow-y:auto}
 .modal h3{font-size:19px !important;font-family:Calibri,sans-serif;margin-bottom:10px}
-.modal input[type="text"],.modal textarea,.modal input[type="password"]{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:19px !important;font-family:Calibri,sans-serif;margin-bottom:10px;outline:none}
+.modal input[type="text"],.modal textarea,.modal input[type="password"]{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:19px !important;font-family:Calibri,sans-serif;margin-bottom:10px;outline:none}
 .modal-actions{display:flex;gap:10px;margin-top:8px}
-.modal-actions button{flex:1;padding:12px;border-radius:10px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;cursor:pointer;border:none}
+.modal-actions button{flex:1;padding:10px;border-radius:10px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;cursor:pointer;border:none}
 .modal-actions .cancel{background:#eef2f6;color:var(--text)}
 .modal-actions .confirm{background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff}
-.group-select-list{max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px;margin-bottom:10px}
+.group-select-list{max-height:160px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px;margin-bottom:10px}
 .group-select-item{display:flex;align-items:center;gap:10px;padding:8px;border-bottom:1px solid #f0f0f0;font-size:19px !important;font-family:Calibri,sans-serif}
-.owner-video-player{width:100%;max-height:340px;object-fit:contain;background:#000;border-radius:8px;margin-top:8px;display:block}
-.owner-img-player{width:100%;max-height:340px;object-fit:contain;background:#000;border-radius:8px;margin-top:8px;display:block}
-.toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:12px 22px;border-radius:10px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:10000;max-width:90%;text-align:center}
+.owner-video-player{width:100%;max-height:300px;object-fit:contain;background:#000;border-radius:8px;margin-top:8px;display:block}
+.owner-img-player{width:100%;max-height:300px;object-fit:contain;background:#000;border-radius:8px;margin-top:8px;display:block}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:10px 20px;border-radius:10px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:10000;max-width:90%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media (max-width: 639px) {
   body::before{display:none}
@@ -197,7 +197,7 @@ body::before{content:"G communication Portal..";position:absolute;top:20px;left:
   </div>
   <div id="tabVoicemail" class="tab-content" style="display:none;">
     <div class="section-title">Send Voicemail</div>
-    <div style="padding:0 16px 10px"><select id="vmRecipient" style="width:100%;padding:12px;border-radius:8px;font-size:19px !important;font-family:Calibri,sans-serif"><option value="">Select recipient</option></select></div>
+    <div style="padding:0 16px 10px"><select id="vmRecipient" style="width:100%;padding:10px;border-radius:8px;font-size:19px !important;font-family:Calibri,sans-serif"><option value="">Select recipient</option></select></div>
     <button id="recordBtn" class="btn-primary" style="margin:0 16px 20px;width:calc(100% - 32px);background:#ff4757;color:#fff">⬤ Record (max 30s)</button>
     <div class="section-title">Inbox</div>
     <div id="voicemailList"></div>
@@ -212,11 +212,11 @@ body::before{content:"G communication Portal..";position:absolute;top:20px;left:
       <div style="font-size:19px !important;font-family:Calibri,sans-serif;color:var(--accent);font-weight:600" id="profileUsername">@—</div>
     </div>
     <div style="padding:0 16px">
-      <div style="background:#fff;padding:14px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;font-size:19px !important;font-family:Calibri,sans-serif" id="permBtn">
+      <div style="background:#fff;padding:12px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;font-size:19px !important;font-family:Calibri,sans-serif" id="permBtn">
         <span>📢 Browser Notifications</span>
         <span id="permStatus" style="font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;color:var(--gold)">checking…</span>
       </div>
-      <div id="ownerPortalTrigger" style="display:none;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;padding:14px;border-radius:10px;margin-bottom:10px;text-align:center;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(11,42,74,.3);">
+      <div id="ownerPortalTrigger" style="display:none;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;padding:12px;border-radius:10px;margin-bottom:10px;text-align:center;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(11,42,74,.3);">
         🛡️ Owner Security & Monitoring Space
       </div>
       <button class="btn-primary" id="clearBtn" style="background:#ff4757;color:#fff;width:100%">Clear Local Data</button>
@@ -350,10 +350,10 @@ body::before{content:"G communication Portal..";position:absolute;top:20px;left:
     <input id="statusLinkInput" type="text" placeholder="Optional URL Link (https://...)" style="margin-top:6px;">
     <div style="margin-bottom:10px">
       <label style="font-size:19px !important;font-family:Calibri,sans-serif;display:block;margin-bottom:4px">Background Color:</label>
-      <input type="color" id="statusBgColor" value="#0d7a8c" style="width:100%;height:40px;border-radius:6px;padding:2px;cursor:pointer;">
+      <input type="color" id="statusBgColor" value="#0d7a8c" style="width:100%;height:38px;border-radius:6px;padding:2px;cursor:pointer;">
     </div>
     <div style="margin-bottom:10px">
-      <button class="btn-primary" id="statusMediaSelectBtn" style="width:100%;max-width:none;padding:12px;font-size:19px !important;font-family:Calibri,sans-serif;background:#143a5f;color:#fff;">📹 Select Public Photo or Video Clip</button>
+      <button class="btn-primary" id="statusMediaSelectBtn" style="width:100%;max-width:none;padding:10px;font-size:19px !important;font-family:Calibri,sans-serif;background:#143a5f;color:#fff;">📹 Select Public Photo or Video Clip</button>
       <div id="statusMediaName" style="font-size:19px !important;font-family:Calibri,sans-serif;color:var(--accent);margin-top:4px;word-break:break-all;"></div>
     </div>
     <div class="modal-actions">
@@ -377,9 +377,9 @@ body::before{content:"G communication Portal..";position:absolute;top:20px;left:
   </div>
 </div>
 <div class="modal-overlay" id="statusCommentsModal">
-  <div class="modal" style="max-width:400px;">
+  <div class="modal" style="max-width:380px;">
     <h3>Status Comments & Direct DM to Owner</h3>
-    <div id="statusCommentsList" style="max-height:200px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:6px;"></div>
+    <div id="statusCommentsList" style="max-height:180px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:6px;"></div>
     <input id="statusCommentInput" type="text" placeholder="Write comment or send emoji to owner DM..." autocomplete="off">
     <div class="modal-actions">
       <button class="cancel" id="statusCommentCancel">Close</button>
@@ -399,7 +399,7 @@ body::before{content:"G communication Portal..";position:absolute;top:20px;left:
   </div>
 </div>
 <div class="modal-overlay" id="ownerSpaceModal">
-  <div class="modal" style="max-width:620px;max-height:88vh;">
+  <div class="modal" style="max-width:580px;max-height:85vh;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
       <h3 style="margin:0;">🛡️ Owner Monitoring Space</h3>
       <button id="ownerSpaceClose" style="background:none;border:none;font-size:19px !important;font-family:Calibri,sans-serif;cursor:pointer;">✕</button>
@@ -408,12 +408,12 @@ body::before{content:"G communication Portal..";position:absolute;top:20px;left:
       <button class="btn-primary" id="ownerTabStatusBtn" style="flex:1;max-width:none;padding:10px;font-size:19px !important;font-family:Calibri,sans-serif;">Monitor Statuses</button>
       <button class="btn-primary" id="ownerTabChatsBtn" style="flex:1;max-width:none;padding:10px;font-size:19px !important;font-family:Calibri,sans-serif;background:#143a5f;">Monitor P2P DMs & Accounts</button>
     </div>
-    <div id="ownerContentArea" style="max-height:50vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px;"></div>
+    <div id="ownerContentArea" style="max-height:48vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px;"></div>
   </div>
 </div>
 <div class="modal-overlay" id="bgFilterModal">
   <div class="modal">
-    <h3>Select Video Call Background</h3>
+    <h3>Select Video Call Background Picture</h3>
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
       <button class="btn-primary" onclick="window.setBgFilter('none')" style="max-width:none;background:#e1e7ed;color:var(--text)">None (Camera Native)</button>
       <button class="btn-primary" onclick="window.setBgFilter('url(https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800)')" style="max-width:none;background:#0d7a8c">🏖️ Tropical Beach</button>
@@ -1339,19 +1339,19 @@ function listenUserStatuses() {
       const myLiked = likes[App.mySlug] ? true : false;
       return `<div class="status-card" data-key="${p._k}">
         <div class="status-card-header">
-          <div class="avatar" style="width:44px;height:44px;font-size:19px !important;font-family:Calibri,sans-serif;" onclick="window.__viewAvatar('${p.authorPhoto || ''}','${esc(p.authorName)}')">${avatarInner(p.authorPhoto, p.authorName)}</div>
+          <div class="avatar" style="width:42px;height:42px;font-size:19px !important;font-family:Calibri,sans-serif;" onclick="window.__viewAvatar('${p.authorPhoto || ''}','${esc(p.authorName)}')">${avatarInner(p.authorPhoto, p.authorName)}</div>
           <div style="flex:1"><div style="font-weight:700;font-size:19px !important;font-family:Calibri,sans-serif;">${esc(p.authorName)} <small style="color:var(--accent)">(@${esc(p.authorSlug)})</small></div><small style="color:var(--muted);font-size:19px !important;font-family:Calibri,sans-serif;">${new Date(p.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small></div>
           ${isMine || isOwner() ? `<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:19px !important;font-family:Calibri,sans-serif;" onclick="window.__delStatus('${p._k}')">🗑</button>` : ''}
         </div>
         ${textHtml}
         ${mediaHtml}
         ${linkHtml}
-        <div style="display:flex;gap:8px;align-items:center;margin-top:10px;border-top:1px solid #f0f0f0;padding-top:8px;flex-wrap:wrap;">
-          <button style="background:${myLiked ? '#d4af37' : '#eef2f6'};color:${myLiked ? '#0b2a4a' : 'var(--text)'};border:none;padding:8px 14px;border-radius:14px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;cursor:pointer;" onclick="window.__toggleStatusLike('${p._k}')">👍 Like (${likeCount})</button>
-          <button style="background:#eef2f6;border:none;padding:8px 14px;border-radius:14px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;cursor:pointer;" onclick="window.__openStatusComments('${p._k}')">💬 Comments (${commentCount})</button>
-          <button style="background:#eef2f6;border:none;padding:8px 14px;border-radius:14px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '❤️')">❤️</button>
-          <button style="background:#eef2f6;border:none;padding:8px 14px;border-radius:14px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '🔥')">🔥</button>
-          <button style="background:#eef2f6;border:none;padding:8px 14px;border-radius:14px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '😂')">😂</button>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:10px;border-top:1px solid #f0f0f0;padding-top:8px;flex-wrap:wrap;">
+          <button style="background:${myLiked ? '#d4af37' : '#eef2f6'};color:${myLiked ? '#0b2a4a' : 'var(--text)'};border:none;padding:6px 12px;border-radius:12px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;cursor:pointer;" onclick="window.__toggleStatusLike('${p._k}')">👍 Like (${likeCount})</button>
+          <button style="background:#eef2f6;border:none;padding:6px 12px;border-radius:12px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;cursor:pointer;" onclick="window.__openStatusComments('${p._k}')">💬 Comments (${commentCount})</button>
+          <button style="background:#eef2f6;border:none;padding:6px 10px;border-radius:12px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '❤️')">❤️</button>
+          <button style="background:#eef2f6;border:none;padding:6px 10px;border-radius:12px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '🔥')">🔥</button>
+          <button style="background:#eef2f6;border:none;padding:6px 10px;border-radius:12px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '😂')">😂</button>
         </div>
       </div>`;
     }).join('');
@@ -1500,7 +1500,7 @@ function listenVoicemails() {
       return;
     }
     list.innerHTML = items.map(v => `
-      <div style="background:#fff;margin:8px 16px;padding:14px;border-radius:10px;border:1px solid var(--border);">
+      <div style="background:#fff;margin:8px 16px;padding:12px;border-radius:10px;border:1px solid var(--border);">
         <div style="font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;margin-bottom:6px;">From: @${esc(v.fromName || v.from)}</div>
         <audio controls playsinline preload="metadata" src="${v.url}" style="width:100%;"></audio>
       </div>`).join('');
