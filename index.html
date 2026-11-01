@@ -325,6 +325,10 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
   <div class="modal">
     <h3>Create Group Chat (👥)</h3>
     <input id="groupNameInput" type="text" placeholder="Group Name" maxlength="30">
+    <div style="margin-bottom:12px;">
+      <button class="btn-primary" id="groupPhotoBtn" style="width:100%;max-width:none;padding:12px;font-size:17px;background:#143a5f;color:#fff;">📷 Upload Group Picture</button>
+      <div id="groupPhotoName" style="font-size:14px;color:var(--accent);margin-top:4px;word-break:break-all;"></div>
+    </div>
     <div style="font-size:15px;color:var(--muted);margin-bottom:6px">Select Members from Friends:</div>
     <div class="group-select-list" id="groupMembersSelection"></div>
     <div class="modal-actions">
@@ -415,6 +419,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 <input type="file" id="avatarInput" accept="image/*" style="display:none;">
 <input type="file" id="fileInput" style="display:none;">
 <input type="file" id="statusMediaInput" accept="image/*,video/*" style="display:none;">
+<input type="file" id="groupPhotoInput" accept="image/*" style="display:none;">
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -432,15 +437,13 @@ const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
 const ICE_SERVERS = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] };
 const OWNER_SLUGS = ['gesnerdeslandes', 'gesner'];
-const OWNER_EMAIL = 'deslandes78@gmail.com';
-const OWNER_NAME = 'Gesner Deslandes';
 const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 
 const App = {
   mySlug: null, myName: '', myPhoto: null,
-  contacts: [], groups: [], activeChat: null, activeIsGroup: false,
+  contacts: [], groups: [], pendingGroupInvites: {}, activeChat: null, activeIsGroup: false,
   lastMessages: {}, unreadCounts: {}, globalUnsubs: {}, deletedLocally: {}, missedCalls: {},
-  statusMediaFile: null, editMediaFile: null, selectedMsgKey: null, selectedMsgObj: null,
+  statusMediaFile: null, groupPhotoFile: null, editMediaFile: null, selectedMsgKey: null, selectedMsgObj: null,
   activeStatusObj: null, audioCtx: null, ringtoneInterval: null,
   peerConn: null, localStream: null, activeCallId: null, isVideoCall: false, currentCallTarget: null
 };
@@ -584,6 +587,7 @@ enterBtn.addEventListener('click', async () => {
 window.addEventListener('load', () => {
   App.contacts = LS.get('contacts', []);
   App.groups = LS.get('groups', []);
+  App.pendingGroupInvites = LS.get('pendingGroupInvites', {});
   App.deletedLocally = LS.get('deletedLocally', {});
   App.unreadCounts = LS.get('unreadCounts', {});
   App.missedCalls = LS.get('missedCalls', {});
@@ -600,6 +604,7 @@ function startMainApp() {
   buildUI();
   listenUserStatuses();
   listenIncomingCalls();
+  listenGroupInvitations();
   App.contacts.forEach(c => setupMessageListener(c.slug, false));
   App.groups.forEach(g => setupGroupMessageListener(g.id));
   updateAppBadge();
@@ -755,9 +760,11 @@ $('avatarInput').addEventListener('change', async e => {
 });
 function saveContacts() { LS.set('contacts', App.contacts); }
 function saveGroups() { LS.set('groups', App.groups); }
+function savePendingInvites() { LS.set('pendingGroupInvites', App.pendingGroupInvites); }
 function saveDeletedLocally() { LS.set('deletedLocally', App.deletedLocally); }
 function saveUnreadCounts() { LS.set('unreadCounts', App.unreadCounts); updateAppBadge(); }
 function saveMissedCalls() { LS.set('missedCalls', App.missedCalls); }
+
 function setupMessageListener(slug, isGroup) {
   if (App.globalUnsubs[slug]) return;
   const path = isGroup ? `group_chats/${slug}/messages`:`chats/${chatIdFor(App.mySlug, slug)}/messages`;
@@ -785,13 +792,33 @@ function setupGroupMessageListener(groupId) { setupMessageListener(groupId, true
 function buildUI() {
   const cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient');
   let html = '';
+  
+  const pendingInvites = Object.values(App.pendingGroupInvites);
+  if (pendingInvites.length > 0) {
+    html += '<div class="section-title" style="color:var(--gold);">📥 Pending Group Invitations</div>';
+    html += pendingInvites.map(inv => `
+      <div class="list-item" style="background:#fffbeb;border-left:4px solid var(--gold);">
+        <div class="avatar group">👥</div>
+        <div class="list-item-body">
+          <div class="list-item-header">
+            <div class="list-item-title">${esc(inv.groupName)}</div>
+          </div>
+          <div class="list-item-sub">Invited by @${esc(inv.creator)}</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button style="background:var(--green);color:var(--navy);border:none;padding:8px 12px;border-radius:8px;font-weight:700;cursor:pointer;" onclick="window.__acceptGroupInvite('${inv.groupId}')">Accept</button>
+          <button style="background:var(--red);color:#fff;border:none;padding:8px 12px;border-radius:8px;font-weight:700;cursor:pointer;" onclick="window.__rejectGroupInvite('${inv.groupId}')">Reject</button>
+        </div>
+      </div>`).join('');
+  }
+
   if (App.groups.length) {
     html += '<div class="section-title">Group Friend List (👥)</div>';
     html += App.groups.map(g => {
       const unread = App.unreadCounts[g.id] || 0;
       return `
       <div class="list-item" onclick="window.__openChat('${g.id}', true)">
-        <div class="avatar group">👥</div>
+        <div class="avatar group">${g.photo ? `<img src="${g.photo}">` : '👥'}</div>
         <div class="list-item-body">
           <div class="list-item-header">
             <div class="list-item-title">${esc(g.name)}</div>
@@ -857,7 +884,7 @@ window.__openChat = async (id, isGroup) => {
   saveMissedCalls();
   const target = isGroup ? App.groups.find(g => g.id === id) : App.contacts.find(c => c.slug === id);
   $('chatName').textContent = target ? target.name : id;
-  $('chatAvatar').innerHTML = isGroup ? '👥' : avatarInner(target?.photo, target?.name);
+  $('chatAvatar').innerHTML = isGroup ? (target?.photo ? `<img src="${target.photo}">` : '👥') : avatarInner(target?.photo, target?.name);
   $('voiceCallFromChatBtn').style.display = isGroup ? 'none' : 'block';
   $('videoCallFromChatBtn').style.display = isGroup ? 'none' : 'block';
   showScreen('screen-chat');
@@ -1063,7 +1090,15 @@ $('addGroupFab').addEventListener('click', () => {
       <input type="checkbox" value="${c.slug}" id="chk_${c.slug}" style="width:20px;height:20px;">
       <label for="chk_${c.slug}">${esc(c.name)} (@${c.slug})</label>
     </div>`).join('') : '<div style="font-size:16px;color:var(--muted)">Add contacts to your Friend List first.</div>';
-  $('groupNameInput').value = ''; $('groupModal').classList.add('show');
+  $('groupNameInput').value = ''; 
+  App.groupPhotoFile = null;
+  $('groupPhotoName').textContent = '';
+  $('groupModal').classList.add('show');
+});
+$('groupPhotoBtn').addEventListener('click', () => $('groupPhotoInput').click());
+$('groupPhotoInput').addEventListener('change', e => {
+  const file = e.target.files && e.target.files[0];
+  if (file) { App.groupPhotoFile = file; $('groupPhotoName').textContent = `Group Photo: ${file.name}`; }
 });
 $('groupModalCancel').addEventListener('click', () => $('groupModal').classList.remove('show'));
 $('groupModalConfirm').addEventListener('click', async () => {
@@ -1071,169 +1106,69 @@ $('groupModalConfirm').addEventListener('click', async () => {
   const checked = Array.from(document.querySelectorAll('#groupMembersSelection input:checked')).map(i => i.value);
   if (!name || !checked.length) return toast('Set group name & pick members', true);
   const groupId = 'group_' + Date.now();
-  const members = [App.mySlug, ...checked];
-  await set(dbRef(db, `group_chats/${groupId}`), { id: groupId, name, members, createdBy: App.mySlug });
-  App.groups.push({ id: groupId, name, members });
-  saveGroups(); setupGroupMessageListener(groupId); buildUI();
-  $('groupModal').classList.remove('show'); toast('Group (👥) created ✓');
-});
-window.startCall = async (targetSlug, isVideo) => {
-  if (!targetSlug || targetSlug === App.mySlug) return toast('Select a valid contact to call', true);
-  const mutual = await isMutualFriend(targetSlug);
-  if (!mutual) return toast('Both users must add each other to make calls', true);
-  App.currentCallTarget = targetSlug;
-  App.isVideoCall = isVideo;
-  App.activeCallId = `call_${chatIdFor(App.mySlug, targetSlug)}`;
-  const contactObj = App.contacts.find(c => c.slug === targetSlug);
-  const targetName = contactObj ? contactObj.name : targetSlug;
-  $('callName').textContent = targetName;
-  $('callStatus').textContent = isVideo ? 'Initiating Video Call…' : 'Initiating Voice Call…';
-  $('callAvatar').innerHTML = avatarInner(contactObj?.photo, targetName);
-  if (isVideo) $('videoContainer').classList.add('active');
-  else $('videoContainer').classList.remove('active');
-  showScreen('screen-call');
-  startRingtoneSound();
-  try {
-    App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
-    if (isVideo && $('localVideo')) $('localVideo').srcObject = App.localStream;
-    App.peerConn = new RTCPeerConnection(ICE_SERVERS);
-    App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
-    App.peerConn.ontrack = e => { if (e.streams && e.streams[0]) $('remoteVideo').srcObject = e.streams[0]; };
-    const callRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}`);
-    const offerCandidatesRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}/offerCandidates`);
-    App.peerConn.onicecandidate = e => { if (e.candidate) push(offerCandidatesRef, e.candidate.toJSON()); };
-    const offer = await App.peerConn.createOffer();
-    await App.peerConn.setLocalDescription(offer);
-    await set(callRef, {
-      caller: App.mySlug, callerName: App.myName, type: isVideo ? 'video' : 'voice',
-      sdp: offer.sdp, status: 'calling', time: Date.now()
-    });
-    onValue(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/answer`), async snap => {
-      const answer = snap.val();
-      if (answer && App.peerConn && !App.peerConn.currentRemoteDescription) {
-        await App.peerConn.setRemoteDescription(new RTCSessionDescription(answer));
-        stopRingtoneSound();
-        $('callStatus').textContent = 'Connected';
-      }
-    });
-    onChildAdded(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/answerCandidates`), snap => {
-      if (App.peerConn) App.peerConn.addIceCandidate(new RTCIceCandidate(snap.val()));
-    });
-    onValue(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/status`), snap => {
-      if (snap.val() === 'ended' || snap.val() === 'rejected') endCallLocally();
-    });
-  } catch {
-    toast('Could not access microphone/camera', true);
-    endCallLocally();
+  let groupPhotoUrl = null;
+  if (App.groupPhotoFile) {
+    try { groupPhotoUrl = await fileToBase64(App.groupPhotoFile); } catch {}
   }
-};
-function listenIncomingCalls() {
-  onChildAdded(dbRef(db, `calls/${App.mySlug}`), snap => {
-    const callData = snap.val();
-    if (!callData || callData.status !== 'calling') return;
-    App.activeCallId = snap.key;
-    App.currentCallTarget = callData.caller;
-    App.isVideoCall = callData.type === 'video';
-    $('incomingName').textContent = callData.callerName || callData.caller;
-    $('incomingAvatar').innerHTML = avatarInner(null, callData.callerName || callData.caller);
-    $('incomingType').textContent = `Incoming ${callData.type === 'video' ? '📹 Video' : '📞 Voice'} Call Interruption…`;
-    const incModal = $('incoming-call');
-    incModal.style.display = 'flex';
-    incModal.classList.add('show');
-    startRingtoneSound();
-    window._incomingCallData = callData;
-    clearTimeout(window._missedCallTimer);
-    window._missedCallTimer = setTimeout(async () => {
-      if (incModal.classList.contains('show')) {
-        stopRingtoneSound();
-        incModal.classList.remove('show');
-        incModal.style.display = 'none';
-        const callerSlug = callData.caller;
-        App.missedCalls[callerSlug] = (App.missedCalls[callerSlug] || 0) + 1;
-        saveMissedCalls();
-        await push(dbRef(db, `chats/${chatIdFor(App.mySlug, callerSlug)}/messages`), {
-          from: callerSlug, fromName: callData.callerName || callerSlug,
-          text: `📵 Missed ${callData.type === 'video' ? 'Video' : 'Voice'} Call from @${callerSlug}`,
-          time: Date.now()
-        });
-        toast(`Missed call from @${callerSlug}`);
-      }
-    }, 45000);
+  const members = [App.mySlug, ...checked];
+  const groupObj = { id: groupId, name, members, photo: groupPhotoUrl, createdBy: App.mySlug };
+  await set(dbRef(db, `group_chats/${groupId}`), groupObj);
+  
+  // Send invitation prompt to each selected member
+  for (const memberSlug of checked) {
+    await push(dbRef(db, `group_invites/${memberSlug}`), {
+      groupId, groupName: name, creator: App.myName || App.mySlug, photo: groupPhotoUrl, time: Date.now()
+    });
+  }
+
+  App.groups.push({ id: groupId, name, members, photo: groupPhotoUrl });
+  saveGroups(); setupGroupMessageListener(groupId); buildUI();
+  $('groupModal').classList.remove('show'); toast('Group created & invitations sent ✓');
+});
+
+function listenGroupInvitations() {
+  onChildAdded(dbRef(db, `group_invites/${App.mySlug}`), snap => {
+    const inv = snap.val();
+    if (!inv) return;
+    App.pendingGroupInvites[inv.groupId] = { ...inv, _k: snap.key };
+    savePendingInvites();
+    buildUI();
+    playIncomingMessageAlert();
+    toast(`New group invitation: "${inv.groupName}"`);
   });
 }
-$('acceptCallBtn').addEventListener('click', async () => {
-  stopRingtoneSound();
-  clearTimeout(window._missedCallTimer);
-  const incModal = $('incoming-call');
-  incModal.classList.remove('show');
-  incModal.style.display = 'none';
-  const callData = window._incomingCallData;
-  if (!callData) return;
-  const isVideo = callData.type === 'video';
-  $('callName').textContent = callData.callerName || callData.caller;
-  $('callStatus').textContent = 'Connecting…';
-  $('callAvatar').innerHTML = avatarInner(null, callData.callerName);
-  if (isVideo) $('videoContainer').classList.add('active');
-  else $('videoContainer').classList.remove('active');
-  showScreen('screen-call');
-  try {
-    App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
-    if (isVideo && $('localVideo')) $('localVideo').srcObject = App.localStream;
-    App.peerConn = new RTCPeerConnection(ICE_SERVERS);
-    App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
-    App.peerConn.ontrack = e => { if (e.streams && e.streams[0]) $('remoteVideo').srcObject = e.streams[0]; };
-    const answerCandidatesRef = dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/answerCandidates`);
-    App.peerConn.onicecandidate = e => { if (e.candidate) push(answerCandidatesRef, e.candidate.toJSON()); };
-    await App.peerConn.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: callData.sdp }));
-    const answer = await App.peerConn.createAnswer();
-    await App.peerConn.setLocalDescription(answer);
-    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/answer`), { type: answer.type, sdp: answer.sdp });
-    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'connected');
-    $('callStatus').textContent = 'Connected';
-    onChildAdded(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/offerCandidates`), snap => {
-      if (App.peerConn) App.peerConn.addIceCandidate(new RTCIceCandidate(snap.val()));
-    });
-  } catch {
-    toast('Error answering call', true);
-    endCallLocally();
+window.__acceptGroupInvite = async (groupId) => {
+  const inv = App.pendingGroupInvites[groupId];
+  if (!inv) return;
+  const snap = await get(dbRef(db, `group_chats/${groupId}`));
+  if (snap.exists()) {
+    const gData = snap.val();
+    if (!gData.members.includes(App.mySlug)) {
+      gData.members.push(App.mySlug);
+      await set(dbRef(db, `group_chats/${groupId}/members`), gData.members);
+    }
+    if (!App.groups.some(g => g.id === groupId)) {
+      App.groups.push({ id: groupId, name: gData.name, members: gData.members, photo: gData.photo || null });
+      saveGroups();
+      setupGroupMessageListener(groupId);
+    }
   }
-});
-$('rejectCallBtn').addEventListener('click', async () => {
-  stopRingtoneSound();
-  clearTimeout(window._missedCallTimer);
-  const incModal = $('incoming-call');
-  incModal.classList.remove('show');
-  incModal.style.display = 'none';
-  const callerSlug = App.currentCallTarget;
-  if (callerSlug) {
-    App.missedCalls[callerSlug] = (App.missedCalls[callerSlug] || 0) + 1;
-    saveMissedCalls();
-    await push(dbRef(db, `chats/${chatIdFor(App.mySlug, callerSlug)}/messages`), {
-      from: callerSlug, fromName: callerSlug,
-      text: `📵 Missed ${App.isVideoCall ? 'Video' : 'Voice'} Call`,
-      time: Date.now()
-    });
-  }
-  if (App.activeCallId) await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'rejected');
-});
-function endCallLocally() {
-  stopRingtoneSound();
-  if (App.localStream) { App.localStream.getTracks().forEach(t => t.stop()); App.localStream = null; }
-  if (App.peerConn) { App.peerConn.close(); App.peerConn = null; }
-  $('videoContainer').classList.remove('active');
-  showScreen('screen-main');
-}
-$('endCallBtn').addEventListener('click', async () => {
-  if (App.activeCallId && App.currentCallTarget) {
-    await set(dbRef(db, `calls/${App.currentCallTarget}/${App.activeCallId}/status`), 'ended');
-    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'ended');
-  }
-  endCallLocally();
-});
-$('voiceCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, false); });
-$('videoCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, true); });
+  await remove(dbRef(db, `group_invites/${App.mySlug}/${inv._k}`));
+  delete App.pendingGroupInvites[groupId];
+  savePendingInvites();
+  buildUI();
+  toast('Joined group chat ✓');
+};
+window.__rejectGroupInvite = async (groupId) => {
+  const inv = App.pendingGroupInvites[groupId];
+  if (!inv) return;
+  await remove(dbRef(db, `group_invites/${App.mySlug}/${inv._k}`));
+  delete App.pendingGroupInvites[groupId];
+  savePendingInvites();
+  buildUI();
+  toast('Group invitation declined');
+};
 
-/* Status Feed Privacy & 24-Hour Auto-Expiration */
 $('openPostStatusBtn').addEventListener('click', () => {
   $('statusTextInput').value = ''; $('statusLinkInput').value = ''; $('statusMediaName').textContent = '';
   App.statusMediaFile = null; $('statusModal').classList.add('show');
