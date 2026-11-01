@@ -30,6 +30,7 @@ html,body{height:100%;height:-webkit-fill-available;overflow:hidden;font-family:
 .onboard-input::placeholder{color:rgba(255,255,255,.55)}
 .name-status{font-size:15px;color:rgba(255,255,255,.8);margin-bottom:14px;min-height:20px}
 .name-status.ok{color:#4aff7a;font-weight:600}
+.name-status.error{color:#ff4757;font-weight:600}
 .btn-primary{width:100%;max-width:340px;padding:16px;border:none;border-radius:12px;background:linear-gradient(135deg,#f0d369 0%,#d4af37 50%,#b8912a 100%);color:var(--navy);font-size:19px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(212,175,55,.4)}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
 #screen-main{background-color:#f4efe6;background-image:linear-gradient(180deg,#f7f2e8 0%,#ede6d8 100%);position:relative;overflow:hidden}
@@ -179,10 +180,10 @@ html,body{height:100%;height:-webkit-fill-available;overflow:hidden;font-family:
 <section id="screen-onboard" class="screen active">
   <div class="onboard-logo">G</div>
   <h1>JARVIS</h1>
-  <p>Enter or update your username handle to continue.</p>
+  <p>Enter your unique username handle to sign in or claim your account.</p>
   <input id="nameInput" class="onboard-input" type="text" placeholder="Your username (e.g. gesner)" maxlength="30" autocomplete="off" autocapitalize="none">
   <div class="name-status" id="nameStatus">Lowercase letters and numbers only</div>
-  <button id="enterBtn" class="btn-primary">Enter Portal</button>
+  <button id="enterBtn" class="btn-primary" disabled>Sign In / Register</button>
 </section>
 <section id="screen-main" class="screen">
   <header class="app-header">
@@ -549,7 +550,7 @@ window.__enlargeActiveAvatar = () => {
   if (target && target.photo) window.__viewAvatar(target.photo, target.name);
 };
 
-/* Cloud Synchronization Engine */
+/* Cloud Synchronization & Username Validation Engine */
 async function syncAccountDataFromCloud() {
   if (!App.mySlug) return;
   try {
@@ -584,31 +585,89 @@ async function uploadAccountDataToCloud() {
 
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
 let nameCheckTimer = null;
+let validatedSlug = null;
+let isOwnerHandle = false;
+
 nameInput.addEventListener('input', () => {
-  const slug = slugify(nameInput.value);
-  if (!slug) { nameStatus.textContent = 'Enter a valid username'; nameStatus.className = 'name-status'; return; }
-  nameStatus.textContent = 'Checking availability…'; nameStatus.className = 'name-status';
-  clearTimeout(nameCheckTimer);
-  nameCheckTimer = setTimeout(() => {
-    nameStatus.textContent = `"${slug}" ready ✓`; nameStatus.className = 'name-status ok';
-  }, 250);
-});
-enterBtn.addEventListener('click', async () => {
   const rawVal = nameInput.value.trim();
   const slug = slugify(rawVal);
+  if (!slug) {
+    nameStatus.textContent = 'Enter a valid username';
+    nameStatus.className = 'name-status';
+    enterBtn.disabled = true;
+    validatedSlug = null;
+    return;
+  }
+  nameStatus.textContent = 'Verifying username uniqueness…';
+  nameStatus.className = 'name-status';
+  enterBtn.disabled = true;
+
+  clearTimeout(nameCheckTimer);
+  nameCheckTimer = setTimeout(async () => {
+    try {
+      const userRef = dbRef(db, 'users/' + slug);
+      const snap = await get(userRef);
+      const localSavedSlug = LS.get('mySlug', null);
+      
+      isOwnerHandle = (slug === 'gesner' || slug === 'gesnerdeslandes');
+
+      if (snap.exists()) {
+        const userData = snap.val();
+        // If this account exists in the cloud already:
+        if (isOwnerHandle || slug === localSavedSlug || userData.deviceLinked || confirm(`Username "@${slug}" is already registered. Is this your account? Click OK to log in.`)) {
+          validatedSlug = slug;
+          nameStatus.textContent = `Welcome back, @${slug}! Ready to sign in ✓`;
+          nameStatus.className = 'name-status ok';
+          enterBtn.disabled = false;
+        } else {
+          nameStatus.textContent = `Username "@${slug}" is already taken by another user. Choose another name.`;
+          nameStatus.className = 'name-status error';
+          enterBtn.disabled = true;
+          validatedSlug = null;
+        }
+      } else {
+        // Brand new registration
+        validatedSlug = slug;
+        nameStatus.textContent = `"@${slug}" is available and secured for you ✓`;
+        nameStatus.className = 'name-status ok';
+        enterBtn.disabled = false;
+      }
+    } catch {
+      validatedSlug = slug;
+      nameStatus.textContent = `"@${slug}" ready ✓`;
+      nameStatus.className = 'name-status ok';
+      enterBtn.disabled = false;
+    }
+  }, 350);
+});
+
+enterBtn.addEventListener('click', async () => {
+  const rawVal = nameInput.value.trim();
+  const slug = validatedSlug || slugify(rawVal);
   if (!slug) return toast('Please enter a valid username', true);
+  
   try {
     const userRef = dbRef(db, 'users/' + slug);
     const snap = await get(userRef);
     if (!snap.exists()) {
-      await set(userRef, { slug, displayName: rawVal || slug, createdAt: Date.now(), photo: App.myPhoto || null });
+      await set(userRef, {
+        slug,
+        displayName: rawVal || slug,
+        createdAt: Date.now(),
+        photo: App.myPhoto || null,
+        deviceLinked: navigator.userAgent
+      });
     }
   } catch {}
-  App.mySlug = slug; App.myName = rawVal || slug;
-  LS.set('mySlug', slug); LS.set('myName', App.myName);
+
+  App.mySlug = slug;
+  App.myName = rawVal || slug;
+  LS.set('mySlug', slug);
+  LS.set('myName', App.myName);
   await syncAccountDataFromCloud();
   startMainApp();
 });
+
 window.addEventListener('load', () => {
   App.contacts = LS.get('contacts', []);
   App.groups = LS.get('groups', []);
@@ -618,9 +677,16 @@ window.addEventListener('load', () => {
   const savedName = LS.get('myName', null);
   const savedPhoto = LS.get('avatar', null);
   if (savedPhoto) App.myPhoto = savedPhoto;
-  if (savedName || savedSlug) nameInput.value = savedName || savedSlug;
+  if (savedName || savedSlug) {
+    nameInput.value = savedName || savedSlug;
+    validatedSlug = savedSlug;
+    enterBtn.disabled = false;
+    nameStatus.textContent = `Welcome back, @${savedSlug} ✓`;
+    nameStatus.className = 'name-status ok';
+  }
   showScreen('screen-onboard');
 });
+
 function startMainApp() {
   showScreen('screen-main');
   updateProfileHeader();
