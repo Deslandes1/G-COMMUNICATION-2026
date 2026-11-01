@@ -351,10 +351,10 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
     </div>
   </div>
 </section>
-<div id="incoming-call">
+<div id="incoming-call" style="position:fixed;inset:0;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:99999;padding:40px 24px;text-align:center;">
   <div class="call-avatar" id="incomingAvatar">G</div>
-  <div style="font-size:24px;font-weight:700;margin-bottom:6px" id="incomingName">—</div>
-  <div style="font-size:17px;opacity:.8;margin-bottom:40px" id="incomingType">Incoming Call…</div>
+  <div style="font-size:26px;font-weight:800;margin-bottom:6px" id="incomingName">—</div>
+  <div style="font-size:18px;color:var(--green);font-weight:700;margin-bottom:40px" id="incomingType">Incoming Call…</div>
   <div class="call-actions" style="justify-content:center;">
     <button class="call-btn end" id="rejectCallBtn">📵</button>
     <button class="call-btn accept" id="acceptCallBtn">📞</button>
@@ -1345,18 +1345,25 @@ function listenIncomingCalls() {
     App.currentCallTarget = callData.caller;
     App.isVideoCall = callData.type === 'video';
     App.isCallInitiator = false;
+    
     $('incomingName').textContent = callData.callerName || callData.caller;
     $('incomingAvatar').innerHTML = avatarInner(null, callData.callerName || callData.caller);
     $('incomingType').textContent = `Incoming ${callData.type === 'video' ? '📹 Video' : '📞 Voice'} Call…`;
-    $('incoming-call').classList.add('show');
+    
+    // FORCE INTERRUPT: Instantly bring incoming call overlay to the absolute front
+    const incModal = $('incoming-call');
+    incModal.style.display = 'flex';
+    incModal.classList.add('show');
+    
     startRingtoneSound();
     window._incomingCallData = callData;
 
     clearTimeout(window._missedCallTimer);
     window._missedCallTimer = setTimeout(async () => {
-      if ($('incoming-call').classList.contains('show')) {
+      if (incModal.classList.contains('show')) {
         stopRingtoneSound();
-        $('incoming-call').classList.remove('show');
+        incModal.classList.remove('show');
+        incModal.style.display = 'none';
         const callerSlug = callData.caller;
         App.missedCalls[callerSlug] = (App.missedCalls[callerSlug] || 0) + 1;
         saveMissedCalls();
@@ -1373,7 +1380,9 @@ function listenIncomingCalls() {
 $('acceptCallBtn').addEventListener('click', async () => {
   stopRingtoneSound();
   clearTimeout(window._missedCallTimer);
-  $('incoming-call').classList.remove('show');
+  const incModal = $('incoming-call');
+  incModal.classList.remove('show');
+  incModal.style.display = 'none';
   const callData = window._incomingCallData;
   if (!callData) return;
   const isVideo = callData.type === 'video';
@@ -1406,98 +1415,12 @@ $('acceptCallBtn').addEventListener('click', async () => {
     endCallLocally();
   }
 });
-
-/* Screen Sharing and In-Call Live Interaction Overlay */
-$('shareScreenBtn').addEventListener('click', async () => {
-  if (!App.peerConn) return toast('Call must be connected to share screen', true);
-  try {
-    if (!App.screenStream) {
-      App.screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-      const screenTrack = App.screenStream.getVideoTracks()[0];
-      const videoSender = App.peerConn.getSenders().find(s => s.track && s.track.kind === 'video');
-      if (videoSender) videoSender.replaceTrack(screenTrack);
-      if ($('localVideo')) $('localVideo').srcObject = App.screenStream;
-      $('shareScreenBtn').style.background = '#4aff7a';
-      $('shareScreenBtn').style.color = '#0b2a4a';
-      toast('Screen sharing active 🖥️');
-      screenTrack.onended = () => stopScreenShare();
-    } else {
-      stopScreenShare();
-    }
-  } catch {
-    toast('Screen sharing cancelled', true);
-  }
-});
-
-function stopScreenShare() {
-  if (App.screenStream) {
-    App.screenStream.getTracks().forEach(t => t.stop());
-    App.screenStream = null;
-    if (App.localStream && App.peerConn) {
-      const cameraTrack = App.localStream.getVideoTracks()[0];
-      const videoSender = App.peerConn.getSenders().find(s => s.track && s.track.kind === 'video');
-      if (videoSender && cameraTrack) videoSender.replaceTrack(cameraTrack);
-      if ($('localVideo')) $('localVideo').srcObject = App.localStream;
-    }
-    $('shareScreenBtn').style.background = '#143a5f';
-    $('shareScreenBtn').style.color = '#fff';
-    toast('Stopped screen sharing');
-  }
-}
-
-function listenInCallInteractions() {
-  if (!App.activeCallId) return;
-  const liveChat = $('inCallLiveChat');
-  liveChat.innerHTML = '';
-  const callPath = `calls/${App.currentCallTarget || App.mySlug}/${App.activeCallId}/interactions`;
-  onChildAdded(dbRef(db, callPath), snap => {
-    const data = snap.val();
-    if (data) {
-      const bubble = document.createElement('div');
-      bubble.className = 'in-call-msg-bubble';
-      let content = `<strong>@${esc(data.fromName || data.from)}:</strong> ${esc(data.text || '')}`;
-      if (data.attachment) {
-        content += renderAttachment(data.attachment);
-      }
-      bubble.innerHTML = content;
-      liveChat.appendChild(bubble);
-      liveChat.scrollTop = liveChat.scrollHeight;
-    }
-  });
-}
-
-window.sendInCallInteraction = async (emojiText, attachment = null) => {
-  const text = emojiText || $('inCallMsgInput').value.trim();
-  if ((!text && !attachment) || !App.activeCallId || !App.currentCallTarget) return;
-  const payload = { from: App.mySlug, fromName: App.myName, text, attachment, time: Date.now() };
-  const callPath = `calls/${App.currentCallTarget}/${App.activeCallId}/interactions`;
-  await push(dbRef(db, callPath), payload);
-  const myCallPath = `calls/${App.mySlug}/${App.activeCallId}/interactions`;
-  await push(dbRef(db, myCallPath), payload);
-  if (!emojiText && !attachment) $('inCallMsgInput').value = '';
-};
-
-$('inCallFileInput').addEventListener('change', async e => {
-  const file = e.target.files && e.target.files[0];
-  if (!file) return;
-  toast('Uploading in-call attachment…');
-  try {
-    const url = await fileToBase64(file);
-    const type = detectFileType(file);
-    await window.sendInCallInteraction('', { type, url, name: file.name });
-    toast('File shared in call ✓');
-  } catch {
-    toast('Failed to share file in call', true);
-  }
-  e.target.value = '';
-});
-
-$('inCallMsgInput').addEventListener('keydown', e => { if (e.key === 'Enter') window.sendInCallInteraction(); });
-
 $('rejectCallBtn').addEventListener('click', async () => {
   stopRingtoneSound();
   clearTimeout(window._missedCallTimer);
-  $('incoming-call').classList.remove('show');
+  const incModal = $('incoming-call');
+  incModal.classList.remove('show');
+  incModal.style.display = 'none';
   const callerSlug = App.currentCallTarget;
   if (callerSlug) {
     App.missedCalls[callerSlug] = (App.missedCalls[callerSlug] || 0) + 1;
