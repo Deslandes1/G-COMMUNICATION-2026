@@ -385,7 +385,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
     </div>
     <div style="display:flex;gap:6px;margin-bottom:12px;">
       <button class="btn-primary" id="ownerTabStatusBtn" style="flex:1;max-width:none;padding:10px;font-size:15px;">Monitor Statuses</button>
-      <button class="btn-primary" id="ownerTabChatsBtn" style="flex:1;max-width:none;padding:10px;font-size:15px;background:#143a5f;">Monitor P2P DMs</button>
+      <button class="btn-primary" id="ownerTabChatsBtn" style="flex:1;max-width:none;padding:10px;font-size:15px;background:#143a5f;">Monitor P2P DMs & Accounts</button>
     </div>
     <div id="ownerContentArea" style="max-height:55vh;overflow-y:auto;display:flex;flex-direction:column;gap:10px;"></div>
   </div>
@@ -434,6 +434,9 @@ const LS = {
   set: (k, v) => { try { localStorage.setItem('gcp_' + k, JSON.stringify(v)); } catch {} },
   del: (k) => localStorage.removeItem('gcp_' + k)
 };
+function isOwner() {
+  return App.mySlug === 'gesnerdeslandes' || App.mySlug === 'gesner';
+}
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
 let toastTimer;
 function toast(msg, isError) {
@@ -592,7 +595,7 @@ function updateProfileHeader() {
   const box = $('profileAvatar'), img = $('profileAvatarImg'), letter = $('profileAvatarLetter');
   if (App.myPhoto) { img.src = App.myPhoto; img.style.display = 'block'; letter.style.display = 'none'; box.classList.add('has-photo'); }
   else { img.src = ''; img.style.display = 'none'; letter.style.display = 'inline'; letter.textContent = App.myName.charAt(0).toUpperCase(); box.classList.remove('has-photo'); }
-  if (App.mySlug === 'gesnerdeslandes' || App.mySlug === 'gesner') $('ownerPortalTrigger').style.display = 'block';
+  if (isOwner()) $('ownerPortalTrigger').style.display = 'block';
   else $('ownerPortalTrigger').style.display = 'none';
 }
 $('ownerPortalTrigger').addEventListener('click', () => {
@@ -664,35 +667,58 @@ window.__ownerReportStatus = async (key, userTag) => {
 };
 function loadOwnerReports() {
   const area = $('ownerContentArea');
-  onValue(dbRef(db, 'chats'), snap => {
-    const chatsData = snap.val() || {};
-    let allDMs = [];
-    Object.entries(chatsData).forEach(([chatId, chatObj]) => {
-      if (chatObj && chatObj.messages) {
-        Object.entries(chatObj.messages).forEach(([msgKey, msgObj]) => {
-          allDMs.push({ ...msgObj, chatId, _k: msgKey });
-        });
-      }
-    });
-    allDMs.sort((a, b) => (b.time || 0) - (a.time || 0));
-    if (!allDMs.length) {
-      area.innerHTML = '<div class="empty"><p>No peer-to-peer private messages found.</p></div>';
-      return;
-    }
-    area.innerHTML = `<div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:6px;">🔒 P2P Private Message Monitor (All Chats)</div>` + allDMs.slice(0, 50).map(m => `
-      <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;font-size:15px;margin-bottom:8px;">
-        <div style="display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin-bottom:4px;">
-          <span>Chat ID: ${esc(m.chatId)}</span>
-          <span>${new Date(m.time || Date.now()).toLocaleString()}</span>
-        </div>
-        <div><strong>@${esc(m.fromName || m.from)}:</strong> ${esc(m.text || '[Attachment]')}</div>
-        ${m.attachment ? renderAttachment(m.attachment) : ''}
-        <div style="display:flex;justify-content:flex-end;margin-top:6px;">
-          <button style="background:#ff4757;color:#fff;border:none;padding:6px 10px;border-radius:6px;font-size:13px;cursor:pointer;" onclick="window.__ownerDeleteP2PMessage('${m.chatId}', '${m._k}')">🗑️ Delete Message</button>
-        </div>
+  onValue(dbRef(db, 'users'), snap => {
+    const usersData = snap.val() || {};
+    const userList = Object.values(usersData);
+    let html = `<div style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:8px;">👥 Registered App Users (${userList.length})</div>`;
+    html += userList.map(u => `
+      <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div><strong>${esc(u.displayName)}</strong> (@${esc(u.slug)})</div>
+        <button style="background:var(--accent);color:#fff;border:none;padding:6px 10px;border-radius:6px;font-size:13px;cursor:pointer;" onclick="window.__ownerDirectDM('${u.slug}', '${esc(u.displayName)}')">💬 DM User</button>
       </div>`).join('');
+    
+    onValue(dbRef(db, 'chats'), snapChats => {
+      const chatsData = snapChats.val() || {};
+      let allDMs = [];
+      Object.entries(chatsData).forEach(([chatId, chatObj]) => {
+        if (chatObj && chatObj.messages) {
+          Object.entries(chatObj.messages).forEach(([msgKey, msgObj]) => {
+            allDMs.push({ ...msgObj, chatId, _k: msgKey });
+          });
+        }
+      });
+      allDMs.sort((a, b) => (b.time || 0) - (a.time || 0));
+      html += `<div style="font-size:16px;font-weight:700;color:var(--navy);margin:14px 0 8px;">🔒 P2P Private Message Monitor</div>`;
+      if (!allDMs.length) {
+        html += '<div style="font-size:14px;color:var(--muted)">No P2P messages yet.</div>';
+      } else {
+        html += allDMs.slice(0, 40).map(m => `
+          <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:14px;margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-bottom:2px;">
+              <span>Chat: ${esc(m.chatId)}</span>
+              <span>${new Date(m.time || Date.now()).toLocaleString()}</span>
+            </div>
+            <div><strong>@${esc(m.fromName || m.from)}:</strong> ${esc(m.text || '[Attachment]')}</div>
+            ${m.attachment ? renderAttachment(m.attachment) : ''}
+            <div style="display:flex;justify-content:flex-end;margin-top:4px;">
+              <button style="background:#ff4757;color:#fff;border:none;padding:4px 8px;border-radius:6px;font-size:12px;cursor:pointer;" onclick="window.__ownerDeleteP2PMessage('${m.chatId}', '${m._k}')">🗑️ Delete</button>
+            </div>
+          </div>`).join('');
+      }
+      area.innerHTML = html;
+    }, { onlyOnce: true });
   }, { onlyOnce: true });
 }
+window.__ownerDirectDM = (targetSlug, targetName) => {
+  $('ownerSpaceModal').classList.remove('show');
+  if (!App.contacts.some(c => c.slug === targetSlug)) {
+    App.contacts.push({ slug: targetSlug, name: targetName, photo: null });
+    saveContacts();
+    setupMessageListener(targetSlug, false);
+    buildUI();
+  }
+  window.__openChat(targetSlug, false);
+};
 window.__ownerDeleteP2PMessage = async (chatId, msgKey) => {
   if (confirm('Owner Action: Delete this private message?')) {
     await remove(dbRef(db, `chats/${chatId}/messages/${msgKey}`));
@@ -796,6 +822,10 @@ function buildUI() {
   vmSel.innerHTML = '<option value="">Select recipient</option>' + App.contacts.map(c => `<option value="${c.slug}">${esc(c.name)}</option>`).join('');
 }
 window.__openChat = (id, isGroup) => {
+  if (!isGroup && !isOwner() && id !== App.mySlug) {
+    const isFriend = App.contacts.some(c => c.slug === id);
+    if (!isFriend) return toast('You must add this user to your Friend List to DM them', true);
+  }
   App.activeChat = id; App.activeIsGroup = isGroup;
   App.unreadCounts[id] = 0;
   saveUnreadCounts();
@@ -1123,7 +1153,7 @@ $('endCallBtn').addEventListener('click', async () => {
 $('voiceCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, false); });
 $('videoCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, true); });
 
-/* Public Status Feed & Direct DM Interactions */
+/* Status Feed Privacy & DM Rules */
 $('openPostStatusBtn').addEventListener('click', () => {
   $('statusTextInput').value = ''; $('statusLinkInput').value = ''; $('statusMediaName').textContent = '';
   App.statusMediaFile = null; $('statusModal').classList.add('show');
@@ -1139,7 +1169,7 @@ $('statusModalConfirm').addEventListener('click', async () => {
   const link = $('statusLinkInput').value.trim();
   const bgColor = $('statusBgColor').value;
   if (!text && !link && !App.statusMediaFile) return toast('Add content to post', true);
-  toast('Posting public status…');
+  toast('Posting status…');
   try {
     let mediaUrl = null, mediaType = null;
     if (App.statusMediaFile) {
@@ -1150,17 +1180,22 @@ $('statusModalConfirm').addEventListener('click', async () => {
       authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto,
       text, link, bgColor, mediaUrl, mediaType, time: Date.now()
     });
-    $('statusModal').classList.remove('show'); toast('Public status posted ✓');
+    $('statusModal').classList.remove('show'); toast('Status posted ✓');
   } catch { toast('Failed to post', true); }
 });
 function listenUserStatuses() {
   onValue(query(dbRef(db, 'user_statuses'), limitToLast(50)), snap => {
     const data = snap.val() || {};
+    const friendSlugs = App.contacts.map(c => c.slug);
+    
+    // STRICT PRIVACY: Gesner Deslandes sees ALL statuses. Regular users ONLY see statuses from added friends or themselves.
     const posts = Object.entries(data)
       .map(([k, v]) => ({ ...v, _k: k }))
+      .filter(p => isOwner() || p.authorSlug === App.mySlug || friendSlugs.includes(p.authorSlug))
       .sort((a, b) => b.time - a.time);
+
     if (!posts.length) {
-      $('statusFeedList').innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No public status updates yet.</p></div>';
+      $('statusFeedList').innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No friend status updates available.</p></div>';
       window._cachedPosts = [];
       return;
     }
@@ -1178,7 +1213,7 @@ function listenUserStatuses() {
         <div class="status-card-header">
           <div class="avatar" style="width:44px;height:44px;font-size:18px" onclick="window.__viewAvatar('${p.authorPhoto || ''}', '${esc(p.authorName)}')">${avatarInner(p.authorPhoto, p.authorName)}</div>
           <div style="flex:1"><div style="font-weight:700;font-size:18px;">${esc(p.authorName)} <small style="color:var(--accent)">(@${esc(p.authorSlug)})</small></div><small style="color:var(--muted);font-size:14px;">${new Date(p.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small></div>
-          ${isMine ? `<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:18px" onclick="window.__delStatus('${p._k}')">🗑</button>` : ''}
+          ${isMine || isOwner() ? `<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:18px" onclick="window.__delStatus('${p._k}')">🗑</button>` : ''}
         </div>
         ${textHtml}
         ${mediaHtml}
