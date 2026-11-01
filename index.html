@@ -212,9 +212,9 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
   <div id="tabStatus" class="tab-content" style="display:none;">
     <div class="status-card">
-      <button class="btn-primary" id="openPostStatusBtn" style="width:100%">+ Post Public Status Video / Photo</button>
+      <button class="btn-primary" id="openPostStatusBtn" style="width:100%">+ Post Public Status Video / Photo (24h Expiry)</button>
     </div>
-    <div class="section-title">Public Friend Updates & Media Feed</div>
+    <div class="section-title">Public Friend Updates & Media Feed (24-Hour Auto-Delete)</div>
     <div id="statusFeedList" class="status-feed"></div>
   </div>
   <div id="tabCalls" class="tab-content" style="display:none;">
@@ -418,7 +418,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 </div>
 <div class="modal-overlay" id="statusModal">
   <div class="modal">
-    <h3>Post Public Status (Video / Photo / Text)</h3>
+    <h3>Post Public Status (Video / Photo / Text - 24h Expiry)</h3>
     <textarea id="statusTextInput" rows="2" placeholder="Write status text..."></textarea>
     <input id="statusLinkInput" type="text" placeholder="Optional URL Link (https://...)" style="margin-top:8px;">
     <div style="margin-bottom:10px">
@@ -518,6 +518,7 @@ const ICE_SERVERS = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { u
 const OWNER_SLUGS = ['gesnerdeslandes', 'gesner'];
 const OWNER_NAME = 'Gesner Deslandes';
 const OWNER_EMAIL = 'deslandes78@gmail.com';
+const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 const App = {
   mySlug: null, myName: '', myPhoto: null,
   contacts: [], groups: [], activeChat: null, activeIsGroup: false,
@@ -758,7 +759,7 @@ function loadOwnerStatuses() {
   const area = $('ownerContentArea');
   const posts = window._cachedPosts || [];
   if (!posts.length) {
-    area.innerHTML = '<div class="empty"><p>No user statuses found.</p></div>';
+    area.innerHTML = '<div class="empty"><p>No active user statuses found.</p></div>';
     return;
   }
   area.innerHTML = posts.map(p => `
@@ -1525,7 +1526,7 @@ $('inCallFileInput').addEventListener('change', async e => {
   e.target.value = '';
 });
 
-/* Status Feed Privacy & Mutual Friend Interaction */
+/* Status Feed Privacy & Mutual Friend Interaction with 24-Hour Auto-Expiration */
 $('openPostStatusBtn').addEventListener('click', () => {
   $('statusTextInput').value = ''; $('statusLinkInput').value = ''; $('statusMediaName').textContent = '';
   App.statusMediaFile = null; $('statusModal').classList.add('show');
@@ -1541,7 +1542,7 @@ $('statusModalConfirm').addEventListener('click', async () => {
   const link = $('statusLinkInput').value.trim();
   const bgColor = $('statusBgColor').value;
   if (!text && !link && !App.statusMediaFile) return toast('Add content to post', true);
-  toast('Posting status…');
+  toast('Posting status (expires in 24h)…');
   try {
     let mediaUrl = null, mediaType = null;
     if (App.statusMediaFile) {
@@ -1556,15 +1557,28 @@ $('statusModalConfirm').addEventListener('click', async () => {
   } catch { toast('Failed to post', true); }
 });
 function listenUserStatuses() {
-  onValue(query(dbRef(db, 'user_statuses'), limitToLast(50)), snap => {
+  onValue(query(dbRef(db, 'user_statuses'), limitToLast(50)), async snap => {
     const data = snap.val() || {};
+    const now = Date.now();
     const friendSlugs = App.contacts.map(c => c.slug);
-    const posts = Object.entries(data)
-      .map(([k, v]) => ({ ...v, _k: k }))
+    
+    // Automatic 24-hour expiration filter and cleanup check
+    const validEntries = [];
+    for (const [k, v] of Object.entries(data)) {
+      if (now - (v.time || 0) > TWENTY_FOUR_HOURS) {
+        // Automatically delete expired status post from database to free up space
+        await remove(dbRef(db, `user_statuses/${k}`));
+      } else {
+        validEntries.push({ ...v, _k: k });
+      }
+    }
+
+    const posts = validEntries
       .filter(p => OWNER_SLUGS.includes(p.authorSlug) || isOwner() || p.authorSlug === App.mySlug || friendSlugs.includes(p.authorSlug))
       .sort((a, b) => b.time - a.time);
+
     if (!posts.length) {
-      $('statusFeedList').innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No status updates available.</p></div>';
+      $('statusFeedList').innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No active status updates (older than 24h auto-delete).</p></div>';
       window._cachedPosts = [];
       return;
     }
@@ -1581,7 +1595,7 @@ function listenUserStatuses() {
       return `<div class="status-card" data-key="${p._k}">
         <div class="status-card-header">
           <div class="avatar" style="width:44px;height:44px;font-size:18px" onclick="window.__viewAvatar('${p.authorPhoto || ''}','${esc(p.authorName)}')">${avatarInner(p.authorPhoto, p.authorName)}</div>
-          <div style="flex:1"><div style="font-weight:700;font-size:18px;">${esc(p.authorName)} <small style="color:var(--accent)">(@${esc(p.authorSlug)})</small></div><small style="color:var(--muted);font-size:14px;">${new Date(p.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small></div>
+          <div style="flex:1"><div style="font-weight:700;font-size:18px;">${esc(p.authorName)} <small style="color:var(--accent)">(@${esc(p.authorSlug)})</small></div><small style="color:var(--muted);font-size:14px;">${new Date(p.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} (24h expiry)</small></div>
           ${isMine || isOwner() ? `<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:18px" onclick="window.__delStatus('${p._k}')">🗑</button>` : ''}
         </div>
         ${textHtml}
