@@ -735,12 +735,17 @@ window.addEventListener('load', () => {
   const savedName = LS.get('myName', null);
   const savedPhoto = LS.get('avatar', null);
   if (savedPhoto) App.myPhoto = savedPhoto;
-  if (savedName || savedSlug) {
+  if (savedSlug) {
+    App.mySlug = savedSlug;
+    App.myName = savedName || savedSlug;
     nameInput.value = savedName || savedSlug;
     validatedSlug = savedSlug;
     enterBtn.disabled = false;
     nameStatus.textContent = `Welcome back, @${savedSlug} ✓`;
     nameStatus.className = 'name-status ok';
+    // Automatically start main app for returning owners/users
+    startMainApp();
+    return;
   }
   showScreen('screen-onboard');
 });
