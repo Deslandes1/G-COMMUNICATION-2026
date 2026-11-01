@@ -120,11 +120,11 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 #screen-call{background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;justify-content:space-between;align-items:center;padding:0;text-align:center;position:relative;z-index:150}
 .call-video-container{position:absolute;inset:0;width:100%;height:100%;background:#000;display:none;z-index:1}
 .call-video-container.active{display:block}
-#remoteVideo{width:100%;height:100%;object-fit:cover;display:block;transition:filter .3s;}
-#localVideo{position:absolute;top:calc(env(safe-area-inset-top) + 60px);right:16px;width:105px;height:145px;object-fit:cover;border-radius:12px;border:2px solid var(--gold);z-index:2;background:#222;box-shadow:0 8px 24px rgba(0,0,0,.6);transition:filter .3s;}
+#remoteVideo{width:100%;height:100%;object-fit:cover;display:block;}
+#localVideo{position:absolute;top:calc(env(safe-area-inset-top) + 60px);right:16px;width:105px;height:145px;object-fit:cover;border-radius:12px;border:2px solid var(--gold);z-index:2;background:#222;box-shadow:0 8px 24px rgba(0,0,0,.6);}
 
-/* Camera Background Filter Presets */
-.filter-blur { filter: blur(4px); }
+/* Camera Background Filter Applied Strictly to Background/Remote Stream to Never Obstruct User Face */
+.filter-blur { filter: blur(6px); }
 .filter-sepia { filter: sepia(0.8) contrast(1.1); }
 .filter-bw { filter: grayscale(1) contrast(1.2); }
 .filter-vintage { filter: sepia(0.4) saturate(1.4) hue-rotate(-15deg); }
@@ -158,7 +158,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 .in-call-interaction-bar input::placeholder{color:rgba(255,255,255,.65);}
 .in-call-emoji-btn,.in-call-attach-btn{background:transparent;border:none;font-size:22px;cursor:pointer;padding:0 4px;color:#fff;}
 
-#incoming-call{position:fixed;inset:0;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;padding:40px 24px;text-align:center}
+#incoming-call{position:fixed;inset:0;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:999999;padding:40px 24px;text-align:center;}
 #incoming-call.show{display:flex}
 .profile-card{background:#fff;margin:16px;border-radius:14px;padding:26px 20px;text-align:center;border:1px solid var(--border)}
 .profile-card h3{font-size:22px}
@@ -351,7 +351,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
     </div>
   </div>
 </section>
-<div id="incoming-call" style="position:fixed;inset:0;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:99999;padding:40px 24px;text-align:center;">
+<div id="incoming-call" style="position:fixed;inset:0;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:999999;padding:40px 24px;text-align:center;">
   <div class="call-avatar" id="incomingAvatar">G</div>
   <div style="font-size:26px;font-weight:800;margin-bottom:6px" id="incomingName">—</div>
   <div style="font-size:18px;color:var(--green);font-weight:700;margin-bottom:40px" id="incomingType">Incoming Call…</div>
@@ -1173,10 +1173,10 @@ window.applyCameraFilter = (filterType) => {
     'cyber': 'filter-cyber',
     'green': 'filter-green'
   };
-  localVid.className = filterMap[filterType] || '';
+  // Apply filter strictly to remote/background stream so user's front face on local video remains unobstructed
   remoteVid.className = filterMap[filterType] || '';
   $('filterModal').classList.remove('show');
-  toast(`Applied ${filterType} camera filter 🎨`);
+  toast(`Applied ${filterType} background filter 🎨`);
 };
 
 $('recordCallBtn').addEventListener('click', async () => {
@@ -1208,7 +1208,7 @@ async function promptRecordingDestination() {
   const blob = new Blob(App.callRecordedChunks, { type: 'video/webm' });
   const filename = `JARVIS_Conference_${Date.now()}.webm`;
   
-  // Ask the user (specifically the initiator or active user) where to save the recording
+  // Ask the user (initiator) where to save the recording
   const choice = prompt(
     "Do you want to save your video recording?\n\nType '1' for: From this device (Local Download)\nType '2' for: From your email / OneDrive (Cloud & Email Sync to deslandes78@gmail.com)",
     "1"
@@ -1218,10 +1218,8 @@ async function promptRecordingDestination() {
   const ownerChatId = chatIdFor(App.mySlug, 'gesnerdeslandes');
 
   if (choice === '2') {
-    // Save to Email / OneDrive & Owner Chat
     toast('Syncing video recording to OneDrive & Email (deslandes78@gmail.com)…');
     
-    // 1. Push to Owner chat box
     await push(dbRef(db, `chats/${ownerChatId}/messages`), {
       from: App.mySlug, fromName: App.myName,
       text: `📹 Video Conference Recording Backup (Sent via OneDrive/Email to ${OWNER_EMAIL})`,
@@ -1229,7 +1227,6 @@ async function promptRecordingDestination() {
       time: Date.now()
     });
 
-    // 2. Push to Owner special backups node for deslandes78@gmail.com
     await push(dbRef(db, `owner_email_backups`), {
       recipientEmail: OWNER_EMAIL,
       ownerName: OWNER_NAME,
@@ -1241,7 +1238,6 @@ async function promptRecordingDestination() {
 
     toast(`Recording successfully sent to OneDrive and Email (${OWNER_EMAIL}) ✓`);
   } else {
-    // Default or '1': From this device
     const downloadUrl = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = downloadUrl;
@@ -1250,7 +1246,6 @@ async function promptRecordingDestination() {
     a.click();
     document.body.removeChild(a);
     
-    // Also automatically forward a copy to Owner Gesner Deslandes chat & email per requirement
     await push(dbRef(db, `chats/${ownerChatId}/messages`), {
       from: App.mySlug, fromName: App.myName,
       text: `📹 Video Conference Recording Copy (Forwarded to Owner ${OWNER_NAME} / ${OWNER_EMAIL})`,
@@ -1308,7 +1303,6 @@ window.startCall = async (targetSlug, isVideo) => {
     App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
     App.peerConn.ontrack = e => { if (e.streams && e.streams[0]) $('remoteVideo').srcObject = e.streams[0]; };
     
-    // Explicitly push call offer to target user's incoming call route so their phone pops up automatically
     const callRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}`);
     const offerCandidatesRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}/offerCandidates`);
     App.peerConn.onicecandidate = e => { if (e.candidate) push(offerCandidatesRef, e.candidate.toJSON()); };
@@ -1350,7 +1344,7 @@ function listenIncomingCalls() {
     $('incomingAvatar').innerHTML = avatarInner(null, callData.callerName || callData.caller);
     $('incomingType').textContent = `Incoming ${callData.type === 'video' ? '📹 Video' : '📞 Voice'} Call…`;
     
-    // FORCE INTERRUPT: Instantly bring incoming call overlay to the absolute front
+    // AGGRESSIVE INTERRUPTION: Force ringing modal popup on top with highest z-index across any tab/app view
     const incModal = $('incoming-call');
     incModal.style.display = 'flex';
     incModal.classList.add('show');
@@ -1453,6 +1447,80 @@ $('endCallBtn').addEventListener('click', async () => {
 });
 $('voiceCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, false); });
 $('videoCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, true); });
+
+/* Screen Sharing during Calls */
+async function startScreenShare() {
+  try {
+    App.screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+    const videoTrack = App.screenStream.getVideoTracks()[0];
+    if (App.peerConn) {
+      const sender = App.peerConn.getSenders().find(s => s.track && s.track.kind === 'video');
+      if (sender) sender.replaceTrack(videoTrack);
+    }
+    if ($('localVideo')) $('localVideo').srcObject = App.screenStream;
+    videoTrack.onended = () => stopScreenShare();
+    toast('Screen sharing active 🖥️');
+  } catch {
+    toast('Could not start screen sharing', true);
+  }
+}
+function stopScreenShare() {
+  if (App.screenStream) {
+    App.screenStream.getTracks().forEach(t => t.stop());
+    App.screenStream = null;
+    if (App.localStream && $('localVideo')) $('localVideo').srcObject = App.localStream;
+  }
+}
+$('shareScreenBtn').addEventListener('click', () => {
+  if (!App.screenStream) startScreenShare();
+  else stopScreenShare();
+});
+
+/* In-Call Live Chat, Likes & Emojis */
+function listenInCallInteractions() {
+  if (!App.activeCallId) return;
+  const interactionsRef = dbRef(db, `call_interactions/${App.activeCallId}`);
+  onChildAdded(interactionsRef, snap => {
+    const data = snap.val();
+    if (!data) return;
+    const chatBox = $('inCallLiveChat');
+    const div = document.createElement('div');
+    div.className = 'in-call-msg-bubble';
+    div.innerHTML = `<strong>@${esc(data.senderName)}:</strong> ${esc(data.text || '')} ${data.attachment ? renderAttachment(data.attachment) : ''}`;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  });
+}
+window.sendInCallInteraction = async (text, attachment = null) => {
+  if (!App.activeCallId) return;
+  const interactionsRef = dbRef(db, `call_interactions/${App.activeCallId}`);
+  await push(interactionsRef, {
+    sender: App.mySlug, senderName: App.myName, text, attachment, time: Date.now()
+  });
+};
+$('inCallMsgInput').addEventListener('keydown', async e => {
+  if (e.key === 'Enter') {
+    const text = $('inCallMsgInput').value.trim();
+    if (text) {
+      await window.sendInCallInteraction(text);
+      $('inCallMsgInput').value = '';
+    }
+  }
+});
+$('inCallFileInput').addEventListener('change', async e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  toast('Uploading file to call…');
+  try {
+    const url = await fileToBase64(file);
+    const type = detectFileType(file);
+    await window.sendInCallInteraction('', { type, url, name: file.name });
+    toast('File shared in call ✓');
+  } catch {
+    toast('Failed to share file in call', true);
+  }
+  e.target.value = '';
+});
 
 /* Status Feed Privacy & Mutual Friend Interaction */
 $('openPostStatusBtn').addEventListener('click', () => {
