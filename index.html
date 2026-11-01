@@ -168,9 +168,9 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 <section id="screen-onboard" class="screen active">
   <div class="onboard-logo">G</div>
   <h1>JARVIS</h1>
-  <p>Enter or update your username handle to continue.</p>
-  <input id="nameInput" class="onboard-input" type="text" placeholder="Your username (e.g. gesner)" maxlength="30" autocomplete="off" autocapitalize="none">
-  <div class="name-status" id="nameStatus">Lowercase letters and numbers only</div>
+  <p>Enter your username handle or email address to continue.</p>
+  <input id="nameInput" class="onboard-input" type="text" placeholder="Username or email address" maxlength="50" autocomplete="off" autocapitalize="none">
+  <div class="name-status" id="nameStatus">Enter email (e.g. name@email.com) or username handle</div>
   <button id="enterBtn" class="btn-primary">Enter Portal</button>
 </section>
 <section id="screen-main" class="screen">
@@ -301,6 +301,16 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
   </div>
 </div>
 <div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h3>Add Contact</h3>
+    <input id="modalName" type="text" placeholder="Enter username or email" maxlength="50" autocapitalize="none">
+    <div id="modalStatus" style="font-size:15px;margin-bottom:10px"></div>
+    <div class="modal-actions">
+      <button class="cancel" id="modalCancel">Cancel</button>
+      <button class="confirm" id="modalConfirm" disabled>Add</button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="invitePeerModal">
   <div class="modal">
     <h3>Invite Peer to Call</h3>
@@ -447,11 +457,10 @@ async function isMutualFriend(targetSlug) {
   try {
     const snap = await get(dbRef(db, `users/${targetSlug}`));
     if (!snap.exists()) return false;
-    // Check if target user has owner or current user in their contacts node if stored on server
     const targetContactsSnap = await get(dbRef(db, `user_contacts/${targetSlug}/${App.mySlug}`));
     return targetContactsSnap.exists();
   } catch {
-    return true; // Fallback to local friend list check
+    return true;
   }
 }
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
@@ -463,7 +472,7 @@ function toast(msg, isError) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 function esc(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function slugify(name) { return String(name).toLowerCase().trim().replace(/[^a-z0-9]/g, '').slice(0, 20); }
+function slugify(name) { return String(name).toLowerCase().trim().replace(/[^a-z0-9_@-]/g, '').replace(/[@.]/g, '_').slice(0, 40); }
 function chatIdFor(a, b) { const [x, y] = [a, b].sort(); return `${x}__${y}`; }
 function avatarInner(photo, name) { return photo ? `<img src="${photo}">` : esc((name || '?').charAt(0).toUpperCase()); }
 function detectFileType(file) {
@@ -538,6 +547,7 @@ function stopRingtoneSound() {
 function updateAppBadge() {
   let totalUnread = 0;
   Object.values(App.unreadCounts).forEach(c => totalUnread += (c || 0));
+  Object.values(App.missedCalls).forEach(c => totalUnread += (c || 0));
   if ('setAppBadge' in navigator) {
     if (totalUnread > 0) navigator.setAppBadge(totalUnread).catch(() => {});
     else navigator.clearAppBadge().catch(() => {});
@@ -557,26 +567,27 @@ window.__enlargeActiveAvatar = () => {
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
 let nameCheckTimer = null;
 nameInput.addEventListener('input', () => {
-  const slug = slugify(nameInput.value);
-  if (!slug) { nameStatus.textContent = 'Enter a valid username'; nameStatus.className = 'name-status'; return; }
+  const raw = nameInput.value.trim();
+  const slug = slugify(raw);
+  if (!raw || !slug) { nameStatus.textContent = 'Enter a valid username handle or email'; nameStatus.className = 'name-status'; return; }
   nameStatus.textContent = 'Checking availability…'; nameStatus.className = 'name-status';
   clearTimeout(nameCheckTimer);
   nameCheckTimer = setTimeout(() => {
-    nameStatus.textContent = `"${slug}" ready ✓`; nameStatus.className = 'name-status ok';
+    nameStatus.textContent = `"${raw}" ready ✓`; nameStatus.className = 'name-status ok';
   }, 250);
 });
 enterBtn.addEventListener('click', async () => {
   const rawVal = nameInput.value.trim();
   const slug = slugify(rawVal);
-  if (!slug) return toast('Please enter a valid username', true);
+  if (!rawVal || !slug) return toast('Please enter a valid username handle or email address', true);
   try {
     const userRef = dbRef(db, 'users/' + slug);
     const snap = await get(userRef);
     if (!snap.exists()) {
-      await set(userRef, { slug, displayName: rawVal || slug, createdAt: Date.now(), photo: App.myPhoto || null });
+      await set(userRef, { slug, displayName: rawVal, createdAt: Date.now(), photo: App.myPhoto || null });
     }
   } catch {}
-  App.mySlug = slug; App.myName = rawVal || slug;
+  App.mySlug = slug; App.myName = rawVal;
   LS.set('mySlug', slug); LS.set('myName', App.myName);
   autoAddOwnerFriend();
   startMainApp();
@@ -590,11 +601,13 @@ function autoAddOwnerFriend() {
     }
   }
 }
+function saveMissedCalls() { LS.set('missedCalls', App.missedCalls); updateAppBadge(); }
 window.addEventListener('load', () => {
   App.contacts = LS.get('contacts', []);
   App.groups = LS.get('groups', []);
   App.deletedLocally = LS.get('deletedLocally', {});
   App.unreadCounts = LS.get('unreadCounts', {});
+  App.missedCalls = LS.get('missedCalls', {});
   const savedSlug = LS.get('mySlug', null);
   const savedName = LS.get('myName', null);
   const savedPhoto = LS.get('avatar', null);
@@ -817,13 +830,17 @@ function buildUI() {
   } else {
     html += App.contacts.map(c => {
       const unread = App.unreadCounts[c.slug] || 0;
+      const missed = App.missedCalls[c.slug] || 0;
       return `
       <div class="list-item" onclick="window.__openChat('${c.slug}', false)">
         <div class="avatar" onclick="event.stopPropagation(); window.__viewAvatar('${c.photo||''}','${esc(c.name)}')">${avatarInner(c.photo, c.name)}</div>
         <div class="list-item-body">
           <div class="list-item-header">
             <div class="list-item-title">${esc(c.name)}</div>
-            ${unread > 0 ? `<div class="badge-unread">${unread}</div>` : ''}
+            <div style="display:flex;gap:4px;">
+              ${missed > 0 ? `<div class="badge-unread" style="background:#ff4757;" title="Missed Calls">信 ${missed}</div>` : ''}
+              ${unread > 0 ? `<div class="badge-unread">${unread}</div>` : ''}
+            </div>
           </div>
           <div class="list-item-sub">@${c.slug}</div>
         </div>
@@ -832,15 +849,21 @@ function buildUI() {
     }).join('');
   }
   cl.innerHTML = html;
-  ccl.innerHTML = App.contacts.map(c => `
+  ccl.innerHTML = App.contacts.map(c => {
+    const missed = App.missedCalls[c.slug] || 0;
+    return `
     <div class="list-item">
       <div class="avatar accent" onclick="window.__viewAvatar('${c.photo||''}','${esc(c.name)}')">${avatarInner(c.photo, c.name)}</div>
-      <div class="list-item-body"><div class="list-item-title">${esc(c.name)}</div><div class="list-item-sub">@${c.slug}</div></div>
+      <div class="list-item-body">
+        <div class="list-item-title">${esc(c.name)} ${missed > 0 ? `<span style="font-size:13px;color:#ff4757;font-weight:700;">(Missed: ${missed})</span>` : ''}</div>
+        <div class="list-item-sub">@${c.slug}</div>
+      </div>
       <div style="display:flex;gap:10px;">
         <button class="header-call-btn" style="color:var(--navy);background:#e0f2fe;padding:8px 14px;border-radius:18px;font-size:16px;font-weight:600;" onclick="window.startCall('${c.slug}', false)">📞 Voice</button>
         <button class="header-call-btn" style="color:var(--navy);background:#dcfce7;padding:8px 14px;border-radius:18px;font-size:16px;font-weight:600;" onclick="window.startCall('${c.slug}', true)">📹 Video</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   vmSel.innerHTML = '<option value="">Select recipient</option>' + App.contacts.map(c => `<option value="${c.slug}">${esc(c.name)}</option>`).join('');
 }
 window.__openChat = async (id, isGroup) => {
@@ -850,7 +873,9 @@ window.__openChat = async (id, isGroup) => {
   }
   App.activeChat = id; App.activeIsGroup = isGroup;
   App.unreadCounts[id] = 0;
+  App.missedCalls[id] = 0;
   saveUnreadCounts();
+  saveMissedCalls();
   const target = isGroup ? App.groups.find(g => g.id === id) : App.contacts.find(c => c.slug === id);
   $('chatName').textContent = target ? target.name : id;
   $('chatAvatar').innerHTML = isGroup ? '👥' : avatarInner(target?.photo, target?.name);
@@ -985,116 +1010,57 @@ $('chatRecordBtn').addEventListener('click', async () => {
   if (!App.activeChat) return;
   const btn = $('chatRecordBtn');
   if (!chatMediaRecorder || chatMediaRecorder.state === 'inactive') {
-function saveMissedCalls() { LS.set('missedCalls', App.missedCalls); updateAppBadge(); }
-
-window.addEventListener('load', () => {
-  App.contacts = LS.get('contacts', []);
-  App.groups = LS.get('groups', []);
-  App.deletedLocally = LS.get('deletedLocally', {});
-  App.unreadCounts = LS.get('unreadCounts', {});
-  App.missedCalls = LS.get('missedCalls', {});
-  const savedSlug = LS.get('mySlug', null);
-  const savedName = LS.get('myName', null);
-  const savedPhoto = LS.get('avatar', null);
-  if (savedPhoto) App.myPhoto = savedPhoto;
-  if (savedName || savedSlug) nameInput.value = savedName || savedSlug;
-  showScreen('screen-onboard');
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      chatAudioChunks = [];
+      const mimeType = getSupportedMimeType();
+      chatMediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
+      chatMediaRecorder.ondataavailable = e => { if (e.data.size > 0) chatAudioChunks.push(e.data); };
+      chatMediaRecorder.onstop = async () => {
+        const mime = chatMediaRecorder.mimeType || mimeType || 'audio/mp4';
+        const blob = new Blob(chatAudioChunks, { type: mime });
+        const url = await fileToBase64(blob);
+        await sendMessage({ type: 'audio', url, name: 'Voice Note Audio' });
+        btn.style.color = '#ff4757';
+        btn.style.transform = 'scale(1)';
+        stream.getTracks().forEach(t => t.stop());
+        toast('Audio voice note sent ✓');
+      };
+      chatMediaRecorder.start(100);
+      btn.style.color = '#0d7a8c';
+      btn.style.transform = 'scale(1.2)';
+      toast('Recording audio voice note (max 30s)…');
+      clearTimeout(chatRecTimer);
+      chatRecTimer = setTimeout(() => {
+        if (chatMediaRecorder && chatMediaRecorder.state === 'recording') chatMediaRecorder.stop();
+      }, 30000);
+    } catch { toast('Microphone permission denied', true); }
+  } else if (chatMediaRecorder && chatMediaRecorder.state === 'recording') {
+    clearTimeout(chatRecTimer);
+    chatMediaRecorder.stop();
+  }
 });
-
-function updateAppBadge() {
-  let totalUnread = 0;
-  Object.values(App.unreadCounts).forEach(c => totalUnread += (c || 0));
-  Object.values(App.missedCalls).forEach(c => totalUnread += (c || 0));
-  if ('setAppBadge' in navigator) {
-    if (totalUnread > 0) navigator.setAppBadge(totalUnread).catch(() => {});
-    else navigator.clearAppBadge().catch(() => {});
-  }
-}
-
-function buildUI() {
-  const cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient');
-  let html = '';
-  if (App.groups.length) {
-    html += '<div class="section-title">Group Friend List (👥)</div>';
-    html += App.groups.map(g => {
-      const unread = App.unreadCounts[g.id] || 0;
-      return `
-      <div class="list-item" onclick="window.__openChat('${g.id}', true)">
-        <div class="avatar group">👥</div>
-        <div class="list-item-body">
-          <div class="list-item-header">
-            <div class="list-item-title">${esc(g.name)}</div>
-            ${unread > 0 ? `<div class="badge-unread">${unread}</div>` : ''}
-          </div>
-          <div class="list-item-sub">${g.members.length} members</div>
-        </div>
-        <div class="list-item-action">›</div>
-      </div>`;
-    }).join('');
-  }
-  html += '<div class="section-title">Friend List</div>';
-  if (!App.contacts.length) {
-    html += '<div class="empty"><div class="empty-icon">💬</div><p>No contacts on your Friend List yet.<br>Tap <strong>＋</strong> to add someone.</p></div>';
-  } else {
-    html += App.contacts.map(c => {
-      const unread = App.unreadCounts[c.slug] || 0;
-      const missed = App.missedCalls[c.slug] || 0;
-      return `
-      <div class="list-item" onclick="window.__openChat('${c.slug}', false)">
-        <div class="avatar" onclick="event.stopPropagation(); window.__viewAvatar('${c.photo||''}','${esc(c.name)}')">${avatarInner(c.photo, c.name)}</div>
-        <div class="list-item-body">
-          <div class="list-item-header">
-            <div class="list-item-title">${esc(c.name)}</div>
-            <div style="display:flex;gap:4px;">
-              ${missed > 0 ? `<div class="badge-unread" style="background:#ff4757;" title="Missed Calls">📵 ${missed}</div>` : ''}
-              ${unread > 0 ? `<div class="badge-unread">${unread}</div>` : ''}
-            </div>
-          </div>
-          <div class="list-item-sub">@${c.slug}</div>
-        </div>
-        <div class="list-item-action">›</div>
-      </div>`;
-    }).join('');
-  }
-  cl.innerHTML = html;
-  ccl.innerHTML = App.contacts.map(c => {
-    const missed = App.missedCalls[c.slug] || 0;
-    return `
-    <div class="list-item">
-      <div class="avatar accent" onclick="window.__viewAvatar('${c.photo||''}','${esc(c.name)}')">${avatarInner(c.photo, c.name)}</div>
-      <div class="list-item-body">
-        <div class="list-item-title">${esc(c.name)} ${missed > 0 ? `<span style="font-size:13px;color:#ff4757;font-weight:700;">(Missed: ${missed})</span>` : ''}</div>
-        <div class="list-item-sub">@${c.slug}</div>
-      </div>
-      <div style="display:flex;gap:10px;">
-        <button class="header-call-btn" style="color:var(--navy);background:#e0f2fe;padding:8px 14px;border-radius:18px;font-size:16px;font-weight:600;" onclick="window.startCall('${c.slug}', false)">📞 Voice</button>
-        <button class="header-call-btn" style="color:var(--navy);background:#dcfce7;padding:8px 14px;border-radius:18px;font-size:16px;font-weight:600;" onclick="window.startCall('${c.slug}', true)">📹 Video</button>
-      </div>
-    </div>`;
-  }).join('');
-  vmSel.innerHTML = '<option value="">Select recipient</option>' + App.contacts.map(c => `<option value="${c.slug}">${esc(c.name)}</option>`).join('');
-}
-
-window.__openChat = async (id, isGroup) => {
-  if (!isGroup && !isOwner() && id !== App.mySlug) {
-    const mutual = await isMutualFriend(id);
-    if (!mutual) return toast('Both users must add each other to interact', true);
-  }
-  App.activeChat = id; App.activeIsGroup = isGroup;
-  App.unreadCounts[id] = 0;
-  App.missedCalls[id] = 0;
-  saveUnreadCounts();
-  saveMissedCalls();
-  const target = isGroup ? App.groups.find(g => g.id === id) : App.contacts.find(c => c.slug === id);
-  $('chatName').textContent = target ? target.name : id;
-  $('chatAvatar').innerHTML = isGroup ? '👥' : avatarInner(target?.photo, target?.name);
-  $('voiceCallFromChatBtn').style.display = isGroup ? 'none' : 'block';
-  $('videoCallFromChatBtn').style.display = isGroup ? 'none' : 'block';
-  showScreen('screen-chat');
-  renderMessages(id, App.lastMessages[id] || [], isGroup);
-};
-
-// In-call invite handling
+$('addContactFab').addEventListener('click', () => {
+  $('modalName').value = ''; $('modalStatus').textContent = ''; $('addModal').classList.add('show');
+});
+$('modalCancel').addEventListener('click', () => $('addModal').classList.remove('show'));
+$('modalName').addEventListener('input', () => {
+  const raw = $('modalName').value.trim();
+  const slug = slugify(raw);
+  $('modalConfirm').disabled = !raw || !slug || slug === App.mySlug;
+});
+$('modalConfirm').addEventListener('click', async () => {
+  const rawInputName = $('modalName').value.trim();
+  const slug = slugify(rawInputName);
+  const exists = App.contacts.some(c => c.slug === slug || (c.name && c.name.trim().toLowerCase() === rawInputName.toLowerCase()));
+  if (exists) return toast('This contact is already on your Friend List', true);
+  const snap = await get(dbRef(db, 'users/' + slug));
+  if (!snap.exists()) return toast('User not found in database', true);
+  const friendName = snap.val().displayName || rawInputName || slug;
+  App.contacts.push({ slug, name: friendName, photo: snap.val().photo || null });
+  saveContacts(); setupMessageListener(slug, false); buildUI(); listenUserStatuses();
+  $('addModal').classList.remove('show'); toast('Added ' + friendName + ' to Friend List ✓');
+});
 $('invitePeerBtn').addEventListener('click', () => {
   const list = $('invitePeerList');
   list.innerHTML = App.contacts.length ? App.contacts.map(c => `
@@ -1105,14 +1071,83 @@ $('invitePeerBtn').addEventListener('click', () => {
   $('invitePeerModal').classList.add('show');
 });
 $('invitePeerCancel').addEventListener('click', () => $('invitePeerModal').classList.remove('show'));
-
 window.invitePeerToActiveCall = async (targetSlug) => {
   if (!App.activeCallId) return toast('No active call', true);
   $('invitePeerModal').classList.remove('show');
   toast(`Inviting @${targetSlug} to call…`);
   window.startCall(targetSlug, App.isVideoCall);
 };
-
+$('addGroupFab').addEventListener('click', () => {
+  const list = $('groupMembersSelection');
+  list.innerHTML = App.contacts.length ? App.contacts.map(c => `
+    <div class="group-select-item">
+      <input type="checkbox" value="${c.slug}" id="chk_${c.slug}" style="width:20px;height:20px;">
+      <label for="chk_${c.slug}">${esc(c.name)} (@${c.slug})</label>
+    </div>`).join('') : '<div style="font-size:16px;color:var(--muted)">Add contacts to your Friend List first.</div>';
+  $('groupNameInput').value = ''; $('groupModal').classList.add('show');
+});
+$('groupModalCancel').addEventListener('click', () => $('groupModal').classList.remove('show'));
+$('groupModalConfirm').addEventListener('click', async () => {
+  const name = $('groupNameInput').value.trim();
+  const checked = Array.from(document.querySelectorAll('#groupMembersSelection input:checked')).map(i => i.value);
+  if (!name || !checked.length) return toast('Set group name & pick members', true);
+  const groupId = 'group_' + Date.now();
+  const members = [App.mySlug, ...checked];
+  await set(dbRef(db, `group_chats/${groupId}`), { id: groupId, name, members, createdBy: App.mySlug });
+  App.groups.push({ id: groupId, name, members });
+  saveGroups(); setupGroupMessageListener(groupId); buildUI();
+  $('groupModal').classList.remove('show'); toast('Group (👥) created ✓');
+});
+window.startCall = async (targetSlug, isVideo) => {
+  if (!targetSlug || targetSlug === App.mySlug) return toast('Select a valid contact to call', true);
+  const mutual = await isMutualFriend(targetSlug);
+  if (!mutual) return toast('Both users must add each other to make calls', true);
+  App.currentCallTarget = targetSlug;
+  App.isVideoCall = isVideo;
+  App.activeCallId = `call_${chatIdFor(App.mySlug, targetSlug)}`;
+  const contactObj = App.contacts.find(c => c.slug === targetSlug);
+  const targetName = contactObj ? contactObj.name : targetSlug;
+  $('callName').textContent = targetName;
+  $('callStatus').textContent = isVideo ? 'Initiating Video Call…' : 'Initiating Voice Call…';
+  $('callAvatar').innerHTML = avatarInner(contactObj?.photo, targetName);
+  if (isVideo) $('videoContainer').classList.add('active');
+  else $('videoContainer').classList.remove('active');
+  showScreen('screen-call');
+  startRingtoneSound();
+  try {
+    App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
+    if (isVideo && $('localVideo')) $('localVideo').srcObject = App.localStream;
+    App.peerConn = new RTCPeerConnection(ICE_SERVERS);
+    App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
+    App.peerConn.ontrack = e => { if (e.streams && e.streams[0]) $('remoteVideo').srcObject = e.streams[0]; };
+    const callRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}`);
+    const offerCandidatesRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}/offerCandidates`);
+    App.peerConn.onicecandidate = e => { if (e.candidate) push(offerCandidatesRef, e.candidate.toJSON()); };
+    const offer = await App.peerConn.createOffer();
+    await App.peerConn.setLocalDescription(offer);
+    await set(callRef, {
+      caller: App.mySlug, callerName: App.myName, type: isVideo ? 'video' : 'voice',
+      sdp: offer.sdp, status: 'calling', time: Date.now()
+    });
+    onValue(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/answer`), async snap => {
+      const answer = snap.val();
+      if (answer && App.peerConn && !App.peerConn.currentRemoteDescription) {
+        await App.peerConn.setRemoteDescription(new RTCSessionDescription(answer));
+        stopRingtoneSound();
+        $('callStatus').textContent = 'Connected';
+      }
+    });
+    onChildAdded(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/answerCandidates`), snap => {
+      if (App.peerConn) App.peerConn.addIceCandidate(new RTCIceCandidate(snap.val()));
+    });
+    onValue(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/status`), snap => {
+      if (snap.val() === 'ended' || snap.val() === 'rejected') endCallLocally();
+    });
+  } catch {
+    toast('Could not access microphone/camera', true);
+    endCallLocally();
+  }
+};
 function listenIncomingCalls() {
   onChildAdded(dbRef(db, `calls/${App.mySlug}`), snap => {
     const callData = snap.val();
@@ -1127,7 +1162,6 @@ function listenIncomingCalls() {
     startRingtoneSound();
     window._incomingCallData = callData;
 
-    // Timeout missed call tracking if unanswered within 30 seconds
     clearTimeout(window._missedCallTimer);
     window._missedCallTimer = setTimeout(async () => {
       if ($('incoming-call').classList.contains('show')) {
@@ -1146,7 +1180,41 @@ function listenIncomingCalls() {
     }, 30000);
   });
 }
-
+$('acceptCallBtn').addEventListener('click', async () => {
+  stopRingtoneSound();
+  clearTimeout(window._missedCallTimer);
+  $('incoming-call').classList.remove('show');
+  const callData = window._incomingCallData;
+  if (!callData) return;
+  const isVideo = callData.type === 'video';
+  $('callName').textContent = callData.callerName || callData.caller;
+  $('callStatus').textContent = 'Connecting…';
+  $('callAvatar').innerHTML = avatarInner(null, callData.callerName);
+  if (isVideo) $('videoContainer').classList.add('active');
+  else $('videoContainer').classList.remove('active');
+  showScreen('screen-call');
+  try {
+    App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
+    if (isVideo && $('localVideo')) $('localVideo').srcObject = App.localStream;
+    App.peerConn = new RTCPeerConnection(ICE_SERVERS);
+    App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
+    App.peerConn.ontrack = e => { if (e.streams && e.streams[0]) $('remoteVideo').srcObject = e.streams[0]; };
+    const answerCandidatesRef = dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/answerCandidates`);
+    App.peerConn.onicecandidate = e => { if (e.candidate) push(answerCandidatesRef, e.candidate.toJSON()); };
+    await App.peerConn.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: callData.sdp }));
+    const answer = await App.peerConn.createAnswer();
+    await App.peerConn.setLocalDescription(answer);
+    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/answer`), { type: answer.type, sdp: answer.sdp });
+    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'connected');
+    $('callStatus').textContent = 'Connected';
+    onChildAdded(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/offerCandidates`), snap => {
+      if (App.peerConn) App.peerConn.addIceCandidate(new RTCIceCandidate(snap.val()));
+    });
+  } catch {
+    toast('Error answering call', true);
+    endCallLocally();
+  }
+});
 $('rejectCallBtn').addEventListener('click', async () => {
   stopRingtoneSound();
   clearTimeout(window._missedCallTimer);
@@ -1428,3 +1496,5 @@ $('clearBtn').addEventListener('click', () => {
   if (confirm('Clear local data?')) { LS.del('mySlug'); LS.del('contacts'); LS.del('groups'); LS.del('unreadCounts'); location.reload(); }
 });
 </script>
+</body>
+</html>
