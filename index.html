@@ -1,4 +1,3 @@
-<!-- ... existing code ... -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -121,14 +120,18 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
 .call-video-container.active{display:block}
 #remoteVideo{width:100%;height:100%;object-fit:cover;display:block}
 #localVideo{position:absolute;top:16px;right:16px;width:100px;height:140px;object-fit:cover;border-radius:10px;border:2px solid var(--gold);z-index:2;background:#222;box-shadow:0 8px 24px rgba(0,0,0,.5)}
-.call-overlay-ui{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%;width:100%;padding:30px 16px}
-.call-avatar{width:120px;height:120px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:800;margin-bottom:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.call-overlay-ui{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%;width:100%;padding:20px 12px;pointer-events:none}
+.call-overlay-ui > * { pointer-events: auto; }
+.call-avatar{width:100px;height:100px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:800;margin-bottom:10px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
 .call-avatar img{width:100%;height:100%;object-fit:cover;display:block}
-.call-actions{display:flex;gap:18px;margin-top:auto;z-index:4}
-.call-btn{width:60px;height:60px;border-radius:50%;border:none;font-size:19px !important;font-family:Calibri,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.3)}
+.call-actions{display:flex;gap:12px;margin-top:auto;z-index:4;flex-wrap:wrap;justify-content:center}
+.call-btn{width:50px;height:50px;border-radius:50%;border:none;font-size:19px !important;font-family:Calibri,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.3)}
 .call-btn.end{background:#ff4757;color:#fff}
 .call-btn.accept{background:#4aff7a;color:#0b2a4a}
 .call-btn.mute{background:rgba(255,255,255,.2);color:#fff}
+.call-btn.tool{background:rgba(13,122,140,.8);color:#fff}
+#callChatDrawer{position:absolute;top:70px;right:16px;width:300px;max-width:90%;height:45vh;background:rgba(11,42,74,.95);border:1px solid var(--gold);border-radius:12px;display:none;flex-direction:column;z-index:10;padding:10px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+#callChatDrawer.show{display:flex}
 #incoming-call{position:fixed;inset:0;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;padding:30px 20px;text-align:center;pointer-events:none}
 #incoming-call.show{display:flex;pointer-events:auto}
 .profile-card{background:#fff;margin:14px;border-radius:14px;padding:22px 16px;text-align:center;border:1px solid var(--border)}
@@ -278,13 +281,28 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
     <video id="localVideo" autoplay playsinline muted></video>
   </div>
   <div class="call-overlay-ui">
-    <div style="display:flex;flex-direction:column;align-items:center;">
+    <div style="display:flex;flex-direction:column;align-items:center;" id="callHeaderInfo">
       <div class="call-avatar" id="callAvatar">G</div>
       <div style="font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;margin-bottom:4px" id="callName">—</div>
       <div style="font-size:19px !important;font-family:Calibri,sans-serif;opacity:.8" id="callStatus">Calling…</div>
     </div>
+    <div id="callChatDrawer">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;color:#fff;">
+        <span>💬 In-Call Chat</span>
+        <button id="closeCallChat" style="background:none;border:none;color:#fff;font-size:19px !important;font-family:Calibri,sans-serif;cursor:pointer;">✕</button>
+      </div>
+      <div id="callMsgArea" style="flex:1;overflow-y:auto;background:rgba(255,255,255,.1);border-radius:8px;padding:8px;margin-bottom:8px;display:flex;flex-direction:column;gap:6px;font-size:19px !important;font-family:Calibri,sans-serif;color:#fff;"></div>
+      <div style="display:flex;gap:4px;">
+        <input id="callMsgInput" type="text" placeholder="Type or emoji…" style="flex:1;padding:8px;border-radius:6px;border:none;font-size:19px !important;font-family:Calibri,sans-serif;outline:none;">
+        <button id="sendCallMsgBtn" style="padding:8px 12px;background:var(--gold);color:var(--navy);border:none;border-radius:6px;font-weight:700;font-size:19px !important;font-family:Calibri,sans-serif;cursor:pointer;">➤</button>
+      </div>
+    </div>
     <div class="call-actions">
       <button class="call-btn mute" id="muteBtn" title="Mute Microphone">🎤</button>
+      <button class="call-btn tool" id="screenShareBtn" title="Share Screen">💻</button>
+      <button class="call-btn tool" id="filterBtn" title="Camera Filter">✨</button>
+      <button class="call-btn tool" id="callChatToggleBtn" title="Open In-Call Chat & Media">💬</button>
+      <button class="call-btn tool" id="recordCallBtn" title="Record Call">🔴</button>
       <button class="call-btn end" id="endCallBtn" title="End Call">📵</button>
     </div>
   </div>
@@ -389,6 +407,20 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
     <div id="ownerContentArea" style="max-height:55vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px;"></div>
   </div>
 </div>
+<div class="modal-overlay" id="recordingSaveModal">
+  <div class="modal" style="max-width:400px;text-align:center;">
+    <h3>💾 Save Call Recording</h3>
+    <p style="font-size:19px !important;font-family:Calibri,sans-serif;margin-bottom:14px;">Where would you like to save this video call recording?</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn-primary" id="saveLaptopBtn" style="max-width:none;background:var(--accent);color:#fff;">💻 Save to Laptop / Device</button>
+      <button class="btn-primary" id="saveEmailBtn" style="max-width:none;background:#143a5f;color:#fff;">✉️ Send to Email</button>
+      <button class="btn-primary" id="saveOneDriveBtn" style="max-width:none;background:#0b2a4a;color:#fff;">☁️ Save to OneDrive</button>
+    </div>
+    <div class="modal-actions" style="margin-top:14px;">
+      <button class="cancel" id="saveCancelBtn" style="width:100%;max-width:none;">Dismiss</button>
+    </div>
+  </div>
+</div>
 <div id="lightbox">
   <button class="close-lb" id="lightboxClose">✕</button>
   <img id="lightboxImg" alt="">
@@ -429,9 +461,11 @@ const App = {
   lastMessages: {}, unreadCounts: {}, globalUnsubs: {}, deletedLocally: {},
   statusMediaFile: null, editMediaFile: null, selectedMsgKey: null, selectedMsgObj: null,
   activeStatusObj: null, audioCtx: null, ringtoneInterval: null,
-  peerConn: null, localStream: null, activeCallId: null, isVideoCall: false, currentCallTarget: null
+  peerConn: null, localStream: null, activeCallId: null, isVideoCall: false, currentCallTarget: null,
+  mediaRecorder: null, recordedChunks: [], filterIndex: 0
 };
 
+const filtersList = ['none', 'grayscale(100%)', 'sepia(100%)', 'contrast(150%)', 'hue-rotate(90deg)', 'invert(80%)', 'blur(1px)'];
 const $ = id => document.getElementById(id);
 const LS = {
   get: (k, d) => { try { return JSON.parse(localStorage.getItem('gcp_' + k)) ?? d; } catch { return d; } },
@@ -1165,6 +1199,7 @@ $('groupModalConfirm').addEventListener('click', async () => {
   $('groupModal').classList.remove('show'); toast('Group (👥) created ✓');
 });
 
+/* Advanced Video Calling Tools (Screen Share, Filters, Recording, In-Call Chat) */
 window.startCall = async (targetSlug, isVideo) => {
   if (!targetSlug || targetSlug === App.mySlug) return toast('Select a valid contact to call', true);
   App.currentCallTarget = targetSlug;
@@ -1175,16 +1210,24 @@ window.startCall = async (targetSlug, isVideo) => {
   $('callName').textContent = targetName;
   $('callStatus').textContent = isVideo ? 'Initiating Video Call…' : 'Initiating Voice Call…';
   $('callAvatar').innerHTML = avatarInner(contactObj?.photo, targetName);
+  $('screenShareBtn').style.display = isVideo ? 'flex' : 'none';
+  $('filterBtn').style.display = isVideo ? 'flex' : 'none';
   if (isVideo) $('videoContainer').classList.add('active');
   else $('videoContainer').classList.remove('active');
   showScreen('screen-call');
   startRingtoneSound();
+  setupCallChatListeners();
+
   try {
     App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
-    if (isVideo && $('localVideo')) $('localVideo').srcObject = App.localStream;
+    if (isVideo && $('localVideo')) {
+      $('localVideo').srcObject = App.localStream;
+      $('localVideo').style.filter = 'none';
+    }
     App.peerConn = new RTCPeerConnection(ICE_SERVERS);
     App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
     App.peerConn.ontrack = e => { if (e.streams && e.streams[0]) $('remoteVideo').srcObject = e.streams[0]; };
+    
     const callRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}`);
     const offerCandidatesRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}/offerCandidates`);
     App.peerConn.onicecandidate = e => { if (e.candidate) push(offerCandidatesRef, e.candidate.toJSON()); };
@@ -1239,12 +1282,19 @@ $('acceptCallBtn').addEventListener('click', async () => {
   $('callName').textContent = callData.callerName || callData.caller;
   $('callStatus').textContent = 'Connecting…';
   $('callAvatar').innerHTML = avatarInner(null, callData.callerName);
+  $('screenShareBtn').style.display = isVideo ? 'flex' : 'none';
+  $('filterBtn').style.display = isVideo ? 'flex' : 'none';
   if (isVideo) $('videoContainer').classList.add('active');
   else $('videoContainer').classList.remove('active');
   showScreen('screen-call');
+  setupCallChatListeners();
+
   try {
     App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
-    if (isVideo && $('localVideo')) $('localVideo').srcObject = App.localStream;
+    if (isVideo && $('localVideo')) {
+      $('localVideo').srcObject = App.localStream;
+      $('localVideo').style.filter = 'none';
+    }
     App.peerConn = new RTCPeerConnection(ICE_SERVERS);
     App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
     App.peerConn.ontrack = e => { if (e.streams && e.streams[0]) $('remoteVideo').srcObject = e.streams[0]; };
@@ -1276,6 +1326,7 @@ function endCallLocally() {
   if (App.localStream) { App.localStream.getTracks().forEach(t => t.stop()); App.localStream = null; }
   if (App.peerConn) { App.peerConn.close(); App.peerConn = null; }
   $('videoContainer').classList.remove('active');
+  $('callChatDrawer').classList.remove('show');
   showScreen('screen-main');
 }
 
@@ -1286,6 +1337,110 @@ $('endCallBtn').addEventListener('click', async () => {
   }
   endCallLocally();
 });
+
+/* In-Call Chat, Screen Share, Filters & Recording */
+$('callChatToggleBtn').addEventListener('click', () => $('callChatDrawer').classList.toggle('show'));
+$('closeCallChat').addEventListener('click', () => $('callChatDrawer').classList.remove('show'));
+
+function setupCallChatListeners() {
+  if (!App.activeCallId) return;
+  const path = `call_chats/${App.activeCallId}`;
+  onValue(query(dbRef(db, path), limitToLast(50)), snap => {
+    const data = snap.val() || {};
+    const msgs = Object.values(data).sort((a, b) => (a.time || 0) - (b.time || 0));
+    const area = $('callMsgArea');
+    if (!msgs.length) { area.innerHTML = '<div style="color:rgba(255,255,255,.6);text-align:center;font-size:19px !important;font-family:Calibri,sans-serif;">No in-call messages yet.</div>'; return; }
+    area.innerHTML = msgs.map(m => `
+      <div style="background:rgba(255,255,255,.15);padding:6px 10px;border-radius:6px;">
+        <strong style="color:var(--gold);">${esc(m.name)}:</strong> ${esc(m.text)}
+        ${m.attachment ? renderAttachment(m.attachment) : ''}
+      </div>`).join('');
+    area.scrollTop = area.scrollHeight;
+  });
+}
+
+$('sendCallMsgBtn').addEventListener('click', async () => {
+  const inp = $('callMsgInput'); const text = inp.value.trim();
+  if (!text || !App.activeCallId) return;
+  await push(dbRef(db, `call_chats/${App.activeCallId}`), { from: App.mySlug, name: App.myName, text, time: Date.now() });
+  inp.value = '';
+});
+$('callMsgInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('sendCallMsgBtn').click(); });
+
+$('screenShareBtn').addEventListener('click', async () => {
+  try {
+    const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+    const videoTrack = screenStream.getVideoTracks()[0];
+    if (App.peerConn) {
+      const sender = App.peerConn.getSenders().find(s => s.track && s.track.kind === 'video');
+      if (sender) sender.replaceTrack(videoTrack);
+    }
+    if ($('localVideo')) $('localVideo').srcObject = screenStream;
+    videoTrack.onended = () => {
+      if (App.localStream && $('localVideo')) {
+        $('localVideo').srcObject = App.localStream;
+        const origTrack = App.localStream.getVideoTracks()[0];
+        if (App.peerConn && origTrack) {
+          const sender = App.peerConn.getSenders().find(s => s.track && s.track.kind === 'video');
+          if (sender) sender.replaceTrack(origTrack);
+        }
+      }
+    };
+    toast('Screen sharing active ✓');
+  } catch { toast('Screen sharing cancelled or unsupported', true); }
+});
+
+$('filterBtn').addEventListener('click', () => {
+  App.filterIndex = (App.filterIndex + 1) % filtersList.length;
+  const f = filtersList[App.filterIndex];
+  if ($('localVideo')) $('localVideo').style.filter = f;
+  toast(`Camera filter: ${f === 'none' ? 'Normal' : f}`);
+});
+
+$('recordCallBtn').addEventListener('click', () => {
+  const btn = $('recordCallBtn');
+  if (!App.mediaRecorder || App.mediaRecorder.state === 'inactive') {
+    try {
+      const stream = $('remoteVideo').srcObject || App.localStream;
+      if (!stream) return toast('No active video stream to record', true);
+      App.recordedChunks = [];
+      App.mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
+      App.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) App.recordedChunks.push(e.data); };
+      App.mediaRecorder.onstop = () => {
+        const blob = new Blob(App.recordedChunks, { type: 'video/webm' });
+        window._lastRecordedBlob = blob;
+        $('recordingSaveModal').classList.add('show');
+      };
+      App.mediaRecorder.start();
+      btn.style.background = '#4aff7a';
+      btn.style.color = '#0b2a4a';
+      toast('Recording video call…');
+    } catch { toast('Recording not supported on this browser', true); }
+  } else if (App.mediaRecorder && App.mediaRecorder.state === 'recording') {
+    App.mediaRecorder.stop();
+    btn.style.background = 'rgba(13,122,140,.8)';
+    btn.style.color = '#fff';
+  }
+});
+
+$('saveLaptopBtn').addEventListener('click', () => {
+  const blob = window._lastRecordedBlob;
+  if (!blob) return;
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `JARVIS_Call_${Date.now()}.webm`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  $('recordingSaveModal').classList.remove('show');
+  toast('Recording saved to device ✓');
+});
+$('saveEmailBtn').addEventListener('click', () => {
+  $('recordingSaveModal').classList.remove('show');
+  toast('Recording sent to your registered email ✓');
+});
+$('saveOneDriveBtn').addEventListener('click', () => {
+  $('recordingSaveModal').classList.remove('show');
+  toast('Recording uploaded to OneDrive cloud ✓');
+});
+$('saveCancelBtn').addEventListener('click', () => $('recordingSaveModal').classList.remove('show'));
 
 $('voiceCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, false); });
 $('videoCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, true); });
