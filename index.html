@@ -361,18 +361,18 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
   </div>
 </div>
 <div class="modal-overlay" id="filterModal">
-  <div class="modal">
-    <h3>Camera Background Filters</h3>
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px;">
-      <button class="action-btn" onclick="window.applyCameraFilter('none')">🚫 Standard (None)</button>
-      <button class="action-btn" onclick="window.applyCameraFilter('blur')">🌫️ Background Blur</button>
-      <button class="action-btn" onclick="window.applyCameraFilter('sepia')">📜 Sepia Classic</button>
-      <button class="action-btn" onclick="window.applyCameraFilter('bw')">🎬 Black & White</button>
-      <button class="action-btn" onclick="window.applyCameraFilter('vintage')">🌅 Vintage Warmth</button>
-      <button class="action-btn" onclick="window.applyCameraFilter('cyber')">🌆 Cyber Neon</button>
+<div id="incoming-call" style="position:fixed;inset:0;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:9999999;padding:40px 24px;text-align:center;">
+  <div class="call-avatar" id="incomingAvatar">G</div>
+  <div style="font-size:28px;font-weight:800;margin-bottom:8px" id="incomingName">—</div>
+  <div style="font-size:20px;color:var(--green);font-weight:700;margin-bottom:40px" id="incomingType">Incoming Conference Video Call…</div>
+  <div class="call-actions" style="justify-content:center;gap:30px;">
+    <div class="call-btn-item">
+      <button class="call-btn end" id="rejectCallBtn" style="width:72px;height:72px;font-size:32px;">📵</button>
+      <span style="font-size:16px;font-weight:700;">Reject Call</span>
     </div>
-    <div class="modal-actions">
-      <button class="cancel" id="filterModalClose">Close</button>
+    <div class="call-btn-item">
+      <button class="call-btn accept" id="acceptCallBtn" style="width:72px;height:72px;font-size:32px;">📞</button>
+      <span style="font-size:16px;font-weight:700;">Accept Call</span>
     </div>
   </div>
 </div>
@@ -1342,9 +1342,9 @@ function listenIncomingCalls() {
     
     $('incomingName').textContent = callData.callerName || callData.caller;
     $('incomingAvatar').innerHTML = avatarInner(null, callData.callerName || callData.caller);
-    $('incomingType').textContent = `Incoming ${callData.type === 'video' ? '📹 Video' : '📞 Voice'} Call…`;
+    $('incomingType').textContent = `Incoming ${callData.type === 'video' ? '📹 Video Conference' : '📞 Voice'} Call…`;
     
-    // AGGRESSIVE INTERRUPTION: Force ringing modal popup on top with highest z-index across any tab/app view
+    // AGGRESSIVE INTERRUPTION: Force ringing modal popup on top with maximum z-index across any tab or view
     const incModal = $('incoming-call');
     incModal.style.display = 'flex';
     incModal.classList.add('show');
@@ -1363,12 +1363,12 @@ function listenIncomingCalls() {
         saveMissedCalls();
         await push(dbRef(db, `chats/${chatIdFor(App.mySlug, callerSlug)}/messages`), {
           from: callerSlug, fromName: callData.callerName || callerSlug,
-          text: `📵 Missed ${callData.type === 'video' ? 'Video' : 'Voice'} Call from @${callerSlug}`,
+          text: `📵 Missed ${callData.type === 'video' ? 'Video Conference' : 'Voice'} Call from @${callerSlug}`,
           time: Date.now()
         });
         toast(`Missed call from @${callerSlug}`);
       }
-    }, 30000);
+    }, 45000);
   });
 }
 $('acceptCallBtn').addEventListener('click', async () => {
