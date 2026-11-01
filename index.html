@@ -104,7 +104,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 .status-card{background:#fff;border-radius:16px;padding:18px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(11,42,74,.05)}
 .status-card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .status-content-box{border-radius:12px;padding:20px;color:#fff;font-weight:700;font-size:20px;line-height:1.55;text-align:center;word-break:break-word;margin-bottom:12px}
-.status-media{width:100%;height:auto;border-radius:12px;margin-bottom:10px;max-height:75vh;object-fit:contain;background:#000;display:block}
+.status-media{width:100%;border-radius:12px;margin-bottom:10px;max-height:75vh;object-fit:contain;background:#000;display:block}
 .status-link{display:block;background:#f0f4f8;padding:12px;border-radius:8px;color:var(--accent);font-weight:600;text-decoration:none;word-break:break-all;font-size:16px;margin-bottom:10px;border:1px dashed var(--accent)}
 #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;flex-direction:column}
 #lightbox.show{display:flex}
@@ -115,56 +115,27 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 #avatarViewerModal.show{display:flex}
 #avatarViewerImg{max-width:90%;max-height:80vh;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.8);object-fit:contain}
 #avatarViewerName{color:#fff;font-size:22px;font-weight:700;margin-top:14px;text-align:center}
-
-/* Video Conference Screen & Camera Background Filter Classes */
-#screen-call{background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;justify-content:space-between;align-items:center;padding:0;text-align:center;position:relative;z-index:150}
+#screen-call{background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;justify-content:center;align-items:center;padding:20px;text-align:center;position:relative;z-index:150}
 .call-video-container{position:absolute;inset:0;width:100%;height:100%;background:#000;display:none;z-index:1}
 .call-video-container.active{display:block}
-#remoteVideo{width:100%;height:100%;object-fit:cover;display:block;}
-#localVideo{position:absolute;top:calc(env(safe-area-inset-top) + 60px);right:16px;width:105px;height:145px;object-fit:cover;border-radius:12px;border:2px solid var(--gold);z-index:2;background:#222;box-shadow:0 8px 24px rgba(0,0,0,.6);}
-
-/* Camera Background Filter Applied Strictly to Background/Remote Stream to Never Obstruct User Face */
-.filter-blur { filter: blur(6px); }
-.filter-sepia { filter: sepia(0.8) contrast(1.1); }
-.filter-bw { filter: grayscale(1) contrast(1.2); }
-.filter-vintage { filter: sepia(0.4) saturate(1.4) hue-rotate(-15deg); }
-.filter-cyber { filter: saturate(2) hue-rotate(180deg) contrast(1.3); }
-.filter-green { filter: drop-shadow(0 0 10px #4aff7a) brightness(1.1); }
-
-.call-overlay-ui{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%;width:100%;padding:calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 16px);pointer-events:none;}
-.call-overlay-ui * { pointer-events:auto; }
-.call-header-info{display:flex;flex-direction:column;align-items:center;background:rgba(0,0,0,.45);padding:10px 20px;border-radius:20px;backdrop-filter:blur(8px);margin-top:4px;}
-.call-avatar{width:90px;height:90px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:800;margin-bottom:8px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4);cursor:pointer}
+#remoteVideo{width:100%;height:100%;object-fit:cover;display:block}
+#localVideo{position:absolute;top:20px;right:20px;width:110px;height:150px;object-fit:cover;border-radius:12px;border:2px solid var(--gold);z-index:2;background:#222;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.call-overlay-ui{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%;width:100%;padding:40px 20px}
+.call-avatar{width:130px;height:130px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:56px;font-weight:800;margin-bottom:20px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4);cursor:pointer}
 .call-avatar img{width:100%;height:100%;object-fit:cover;display:block}
-
-/* Prominent Scrollable Control Bar */
-.call-actions{display:flex;gap:10px;margin-top:auto;z-index:10;width:100%;max-width:100%;overflow-x:auto;padding:12px 10px;background:rgba(0,0,0,.65);backdrop-filter:blur(14px);border-radius:28px;border:1px solid rgba(255,255,255,.15);justify-content:flex-start;-webkit-overflow-scrolling:touch;}
-.call-actions::-webkit-scrollbar{display:none;}
-.call-btn-item{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;}
-.call-btn-item span{font-size:11px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8);}
-.call-btn{width:56px;height:56px;border-radius:50%;border:none;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.4);transition:transform .2s;}
-.call-btn:active{transform:scale(1.15);}
+.call-actions{display:flex;gap:16px;margin-top:auto;z-index:4;flex-wrap:wrap;justify-content:center}
+.call-btn{width:60px;height:60px;border-radius:50%;border:none;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.3)}
 .call-btn.end{background:#ff4757;color:#fff}
 .call-btn.accept{background:#4aff7a;color:#0b2a4a}
-.call-btn.mute{background:rgba(255,255,255,.25);color:#fff}
-
-/* Live In-Call Interaction Overlay */
-.in-call-live-chat{position:absolute;bottom:175px;left:16px;right:16px;z-index:8;display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto;pointer-events:none;}
-.in-call-msg-bubble{background:rgba(0,0,0,.75);backdrop-filter:blur(8px);color:#fff;padding:8px 14px;border-radius:14px;font-size:15px;align-self:flex-start;max-width:85%;word-break:break-word;pointer-events:auto;border:1px solid rgba(255,255,255,.1);}
-.in-call-msg-bubble img{max-width:100%;border-radius:8px;margin-top:4px;display:block;}
-.in-call-msg-bubble video{max-width:100%;border-radius:8px;margin-top:4px;display:block;}
-.in-call-interaction-bar{position:absolute;bottom:115px;left:16px;right:16px;z-index:9;display:flex;gap:6px;align-items:center;background:rgba(0,0,0,.7);padding:8px 14px;border-radius:24px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.15);}
-.in-call-interaction-bar input{flex:1;background:transparent;border:none;outline:none;color:#fff;font-size:16px;min-width:0;}
-.in-call-interaction-bar input::placeholder{color:rgba(255,255,255,.65);}
-.in-call-emoji-btn,.in-call-attach-btn{background:transparent;border:none;font-size:22px;cursor:pointer;padding:0 4px;color:#fff;}
-
-#incoming-call{position:fixed;inset:0;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:999999;padding:40px 24px;text-align:center;}
+.call-btn.mute{background:rgba(255,255,255,.2);color:#fff}
+.call-btn.invite{background:var(--gold);color:var(--navy)}
+#incoming-call{position:fixed;inset:0;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:999999;padding:40px 24px;text-align:center}
 #incoming-call.show{display:flex}
 .profile-card{background:#fff;margin:16px;border-radius:14px;padding:26px 20px;text-align:center;border:1px solid var(--border)}
 .profile-card h3{font-size:22px}
 .profile-card .avatar-big{width:110px;height:110px;border-radius:50%;background:#0b2a4a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:46px;font-weight:700;margin:0 auto 12px;position:relative;cursor:pointer;overflow:hidden;box-shadow:0 6px 18px rgba(11,42,74,.2);border:3px solid var(--gold)}
 .profile-card .avatar-big img{width:100%;height:100%;object-fit:cover;display:block}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:24px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:100000;padding:24px}
 .modal-overlay.show{display:flex}
 .modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:440px;max-height:85vh;overflow-y:auto}
 .modal h3{font-size:22px;margin-bottom:10px}
@@ -177,7 +148,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 .group-select-item{display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid #f0f0f0;font-size:17px}
 .owner-video-player{width:100%;max-height:380px;object-fit:contain;background:#000;border-radius:10px;margin-top:8px;display:block}
 .owner-img-player{width:100%;max-height:380px;object-fit:contain;background:#000;border-radius:10px;margin-top:8px;display:block}
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:14px 24px;border-radius:10px;font-size:16.5px;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:10000;max-width:90%;text-align:center}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:14px 24px;border-radius:10px;font-size:16.5px;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:100000;max-width:90%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media (min-width: 640px) {
   body { padding: 16px; background: #e4e9ef; }
@@ -198,9 +169,9 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 <section id="screen-onboard" class="screen active">
   <div class="onboard-logo">G</div>
   <h1>JARVIS</h1>
-  <p>Welcome to JARVIS, managed by Owner <strong>Gesner Deslandes</strong>. Enter your username handle to continue.</p>
-  <input id="nameInput" class="onboard-input" type="text" placeholder="Enter username (e.g. gesner)" maxlength="30" autocomplete="off" autocapitalize="none">
-  <div class="name-status" id="nameStatus">Lowercase letters, numbers, and underscores only</div>
+  <p>Enter or update your username handle to continue.</p>
+  <input id="nameInput" class="onboard-input" type="text" placeholder="Your username (e.g. gesner)" maxlength="30" autocomplete="off" autocapitalize="none">
+  <div class="name-status" id="nameStatus">Lowercase letters and numbers only</div>
   <button id="enterBtn" class="btn-primary">Enter Portal</button>
 </section>
 <section id="screen-main" class="screen">
@@ -214,7 +185,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
     <div class="status-card">
       <button class="btn-primary" id="openPostStatusBtn" style="width:100%">+ Post Public Status Video / Photo (24h Expiry)</button>
     </div>
-    <div class="section-title">Public Friend Updates & Media Feed (24-Hour Auto-Delete)</div>
+    <div class="section-title">Public Friend Updates & Media Feed</div>
     <div id="statusFeedList" class="status-feed"></div>
   </div>
   <div id="tabCalls" class="tab-content" style="display:none;">
@@ -308,85 +279,32 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
     <video id="remoteVideo" autoplay playsinline></video>
     <video id="localVideo" autoplay playsinline muted></video>
   </div>
-  <div class="in-call-live-chat" id="inCallLiveChat"></div>
-  <div class="in-call-interaction-bar">
-    <button class="in-call-attach-btn" title="Share Media File" onclick="document.getElementById('inCallFileInput').click()">📎</button>
-    <input id="inCallMsgInput" type="text" placeholder="Live comment..." autocomplete="off">
-    <button class="in-call-emoji-btn" onclick="window.sendInCallInteraction('👍')">👍</button>
-    <button class="in-call-emoji-btn" onclick="window.sendInCallInteraction('❤️')">❤️</button>
-    <button class="in-call-emoji-btn" onclick="window.sendInCallInteraction('🔥')">🔥</button>
-    <button class="in-call-emoji-btn" onclick="window.sendInCallInteraction('😂')">😂</button>
-  </div>
   <div class="call-overlay-ui">
-    <div class="call-header-info">
+    <div style="display:flex;flex-direction:column;align-items:center;">
       <div class="call-avatar" id="callAvatar">G</div>
-      <div style="font-size:20px;font-weight:700;margin-bottom:2px" id="callName">—</div>
-      <div style="font-size:15px;opacity:.95" id="callStatus">Calling…</div>
+      <div style="font-size:24px;font-weight:700;margin-bottom:6px" id="callName">—</div>
+      <div style="font-size:17px;opacity:.8" id="callStatus">Calling…</div>
     </div>
     <div class="call-actions">
-      <div class="call-btn-item">
-        <button class="call-btn mute" id="muteBtn" title="Mute Microphone">🎤</button>
-        <span>Mute</span>
-      </div>
-      <div class="call-btn-item">
-        <button class="call-btn" id="filterBtn" style="background:#0d7a8c;color:#fff;" title="Camera Background Filters">🎨</button>
-        <span>Filters</span>
-      </div>
-      <div class="call-btn-item">
-        <button class="call-btn" id="recordCallBtn" style="background:#ff4757;color:#fff;" title="Record Video Conference Call">🎥</button>
-        <span>Record</span>
-      </div>
-      <div class="call-btn-item">
-        <button class="call-btn" id="shareScreenBtn" style="background:#143a5f;color:#fff;" title="Share Screen">🖥️</button>
-        <span>Share</span>
-      </div>
-      <div class="call-btn-item">
-        <button class="call-btn" id="invitePeerBtn" style="background:var(--accent);color:#fff;" title="Invite Peer to Call">➕</button>
-        <span>Invite</span>
-      </div>
-      <div class="call-btn-item">
-        <button class="call-btn end" id="endCallBtn" title="End Call">📵</button>
-        <span>End</span>
-      </div>
+      <button class="call-btn mute" id="muteBtn" title="Mute Microphone">🎤</button>
+      <button class="call-btn invite" id="invitePeerBtn" title="Invite Peer to Call">➕</button>
+      <button class="call-btn end" id="endCallBtn" title="End Call">📵</button>
     </div>
   </div>
 </section>
 <div id="incoming-call">
   <div class="call-avatar" id="incomingAvatar">G</div>
-  <div style="font-size:28px;font-weight:800;margin-bottom:8px" id="incomingName">—</div>
-  <div style="font-size:20px;color:var(--green);font-weight:700;margin-bottom:40px" id="incomingType">Incoming Conference Video Call…</div>
-  <div class="call-actions" style="justify-content:center;gap:30px;">
-    <div class="call-btn-item">
-      <button class="call-btn end" id="rejectCallBtn" style="width:72px;height:72px;font-size:32px;">📵</button>
-      <span style="font-size:16px;font-weight:700;">Reject Call</span>
-    </div>
-    <div class="call-btn-item">
-      <button class="call-btn accept" id="acceptCallBtn" style="width:72px;height:72px;font-size:32px;">📞</button>
-      <span style="font-size:16px;font-weight:700;">Accept Call</span>
-    </div>
-  </div>
-</div>
-<div class="modal-overlay" id="filterModal">
-  <div class="modal">
-    <h3>Camera Background Filters (🎨)</h3>
-    <p style="font-size:15px;color:var(--muted);margin-bottom:12px;">Select a background filter effect for your video call:</p>
-    <div style="display:flex;flex-direction:column;gap:8px;">
-      <button class="btn-primary" style="max-width:none;background:#eef2f6;color:var(--text)" onclick="window.applyCameraFilter('none')">Normal (No Filter)</button>
-      <button class="btn-primary" style="max-width:none;background:#143a5f;color:#fff" onclick="window.applyCameraFilter('blur')">Blur Background</button>
-      <button class="btn-primary" style="max-width:none;background:#d4af37;color:var(--navy)" onclick="window.applyCameraFilter('sepia')">Sepia Tone</button>
-      <button class="btn-primary" style="max-width:none;background:#1e2a33;color:#fff" onclick="window.applyCameraFilter('bw')">Black & White</button>
-      <button class="btn-primary" style="max-width:none;background:#0d7a8c;color:#fff" onclick="window.applyCameraFilter('vintage')">Vintage Warmth</button>
-      <button class="btn-primary" style="max-width:none;background:#ff4757;color:#fff" onclick="window.applyCameraFilter('cyber')">Cyber Neon</button>
-    </div>
-    <div class="modal-actions" style="margin-top:16px;">
-      <button class="cancel" id="filterModalClose">Close</button>
-    </div>
+  <div style="font-size:24px;font-weight:700;margin-bottom:6px" id="incomingName">—</div>
+  <div style="font-size:17px;opacity:.8;margin-bottom:40px" id="incomingType">Incoming Call Interruption…</div>
+  <div class="call-actions">
+    <button class="call-btn end" id="rejectCallBtn">📵 Reject</button>
+    <button class="call-btn accept" id="acceptCallBtn">📞 Accept</button>
   </div>
 </div>
 <div class="modal-overlay" id="addModal">
   <div class="modal">
     <h3>Add Contact</h3>
-    <input id="modalName" type="text" placeholder="Enter username or email" maxlength="50" autocapitalize="none">
+    <input id="modalName" type="text" placeholder="Enter username" maxlength="20" autocapitalize="none">
     <div id="modalStatus" style="font-size:15px;margin-bottom:10px"></div>
     <div class="modal-actions">
       <button class="cancel" id="modalCancel">Cancel</button>
@@ -396,11 +314,10 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 </div>
 <div class="modal-overlay" id="invitePeerModal">
   <div class="modal">
-    <h3>Invite Peer to Call</h3>
-    <div style="font-size:15px;color:var(--muted);margin-bottom:8px">Select a friend to join this call:</div>
-    <div class="group-select-list" id="invitePeerList"></div>
+    <h3>Invite Peer to Call (➕)</h3>
+    <div id="invitePeerList" style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
     <div class="modal-actions">
-      <button class="cancel" id="invitePeerCancel">Cancel</button>
+      <button class="cancel" id="invitePeerCancel">Close</button>
     </div>
   </div>
 </div>
@@ -418,7 +335,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 </div>
 <div class="modal-overlay" id="statusModal">
   <div class="modal">
-    <h3>Post Public Status (Video / Photo / Text - 24h Expiry)</h3>
+    <h3>Post Public Status (24h Expiry)</h3>
     <textarea id="statusTextInput" rows="2" placeholder="Write status text..."></textarea>
     <input id="statusLinkInput" type="text" placeholder="Optional URL Link (https://...)" style="margin-top:8px;">
     <div style="margin-bottom:10px">
@@ -498,7 +415,6 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 <input type="file" id="avatarInput" accept="image/*" style="display:none;">
 <input type="file" id="fileInput" style="display:none;">
 <input type="file" id="statusMediaInput" accept="image/*,video/*" style="display:none;">
-<input type="file" id="inCallFileInput" style="display:none;">
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -516,17 +432,17 @@ const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
 const ICE_SERVERS = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] };
 const OWNER_SLUGS = ['gesnerdeslandes', 'gesner'];
-const OWNER_NAME = 'Gesner Deslandes';
 const OWNER_EMAIL = 'deslandes78@gmail.com';
+const OWNER_NAME = 'Gesner Deslandes';
 const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
 const App = {
   mySlug: null, myName: '', myPhoto: null,
   contacts: [], groups: [], activeChat: null, activeIsGroup: false,
-  lastMessages: {}, unreadCounts: {}, missedCalls: {}, globalUnsubs: {}, deletedLocally: {},
+  lastMessages: {}, unreadCounts: {}, globalUnsubs: {}, deletedLocally: {}, missedCalls: {},
   statusMediaFile: null, editMediaFile: null, selectedMsgKey: null, selectedMsgObj: null,
   activeStatusObj: null, audioCtx: null, ringtoneInterval: null,
-  peerConn: null, localStream: null, screenStream: null, activeCallId: null, isVideoCall: false, currentCallTarget: null, isCallInitiator: false,
-  callRecorder: null, callRecordedChunks: []
+  peerConn: null, localStream: null, activeCallId: null, isVideoCall: false, currentCallTarget: null
 };
 const $ = id => document.getElementById(id);
 const LS = {
@@ -534,21 +450,10 @@ const LS = {
   set: (k, v) => { try { localStorage.setItem('gcp_' + k, JSON.stringify(v)); } catch {} },
   del: (k) => localStorage.removeItem('gcp_' + k)
 };
-function isOwner() {
-  return OWNER_SLUGS.includes(App.mySlug);
-}
+function isOwner() { return OWNER_SLUGS.includes(App.mySlug); }
 async function isMutualFriend(targetSlug) {
-  if (isOwner() || OWNER_SLUGS.includes(targetSlug)) return true;
-  const IHaveAdded = App.contacts.some(c => c.slug === targetSlug);
-  if (!IHaveAdded) return false;
-  try {
-    const snap = await get(dbRef(db, `users/${targetSlug}`));
-    if (!snap.exists()) return false;
-    const targetContactsSnap = await get(dbRef(db, `user_contacts/${targetSlug}/${App.mySlug}`));
-    return targetContactsSnap.exists();
-  } catch {
-    return true;
-  }
+  if (isOwner() || OWNER_SLUGS.includes(targetSlug) || targetSlug === App.mySlug) return true;
+  return App.contacts.some(c => c.slug === targetSlug);
 }
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
 let toastTimer;
@@ -559,7 +464,7 @@ function toast(msg, isError) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 function esc(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function slugify(name) { return String(name).toLowerCase().trim().replace(/[^a-z0-9_@-]/g, '').replace(/[@.]/g, '_').slice(0, 40); }
+function slugify(name) { return String(name).toLowerCase().trim().replace(/[^a-z0-9]/g, '').slice(0, 20); }
 function chatIdFor(a, b) { const [x, y] = [a, b].sort(); return `${x}__${y}`; }
 function avatarInner(photo, name) { return photo ? `<img src="${photo}">` : esc((name || '?').charAt(0).toUpperCase()); }
 function detectFileType(file) {
@@ -634,7 +539,6 @@ function stopRingtoneSound() {
 function updateAppBadge() {
   let totalUnread = 0;
   Object.values(App.unreadCounts).forEach(c => totalUnread += (c || 0));
-  Object.values(App.missedCalls).forEach(c => totalUnread += (c || 0));
   if ('setAppBadge' in navigator) {
     if (totalUnread > 0) navigator.setAppBadge(totalUnread).catch(() => {});
     else navigator.clearAppBadge().catch(() => {});
@@ -654,41 +558,29 @@ window.__enlargeActiveAvatar = () => {
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
 let nameCheckTimer = null;
 nameInput.addEventListener('input', () => {
-  const raw = nameInput.value.trim();
-  const slug = slugify(raw);
-  if (!raw || !slug) { nameStatus.textContent = 'Enter a valid username handle'; nameStatus.className = 'name-status'; return; }
+  const slug = slugify(nameInput.value);
+  if (!slug) { nameStatus.textContent = 'Enter a valid username'; nameStatus.className = 'name-status'; return; }
   nameStatus.textContent = 'Checking availability…'; nameStatus.className = 'name-status';
   clearTimeout(nameCheckTimer);
   nameCheckTimer = setTimeout(() => {
-    nameStatus.textContent = `"${raw}" ready ✓`; nameStatus.className = 'name-status ok';
+    nameStatus.textContent = `"${slug}" ready ✓`; nameStatus.className = 'name-status ok';
   }, 250);
 });
 enterBtn.addEventListener('click', async () => {
   const rawVal = nameInput.value.trim();
   const slug = slugify(rawVal);
-  if (!rawVal || !slug) return toast('Please enter a valid username handle', true);
+  if (!slug) return toast('Please enter a valid username', true);
   try {
     const userRef = dbRef(db, 'users/' + slug);
     const snap = await get(userRef);
     if (!snap.exists()) {
-      await set(userRef, { slug, displayName: rawVal, createdAt: Date.now(), photo: App.myPhoto || null });
+      await set(userRef, { slug, displayName: rawVal || slug, createdAt: Date.now(), photo: App.myPhoto || null });
     }
   } catch {}
-  App.mySlug = slug; App.myName = rawVal;
+  App.mySlug = slug; App.myName = rawVal || slug;
   LS.set('mySlug', slug); LS.set('myName', App.myName);
-  autoAddOwnerFriend();
   startMainApp();
 });
-function autoAddOwnerFriend() {
-  if (!isOwner()) {
-    const ownerSlug = 'gesnerdeslandes';
-    if (!App.contacts.some(c => c.slug === ownerSlug || c.slug === 'gesner')) {
-      App.contacts.push({ slug: ownerSlug, name: OWNER_NAME, photo: null });
-      saveContacts();
-    }
-  }
-}
-function saveMissedCalls() { LS.set('missedCalls', App.missedCalls); updateAppBadge(); }
 window.addEventListener('load', () => {
   App.contacts = LS.get('contacts', []);
   App.groups = LS.get('groups', []);
@@ -703,7 +595,6 @@ window.addEventListener('load', () => {
   showScreen('screen-onboard');
 });
 function startMainApp() {
-  autoAddOwnerFriend();
   showScreen('screen-main');
   updateProfileHeader();
   buildUI();
@@ -759,13 +650,13 @@ function loadOwnerStatuses() {
   const area = $('ownerContentArea');
   const posts = window._cachedPosts || [];
   if (!posts.length) {
-    area.innerHTML = '<div class="empty"><p>No active user statuses found.</p></div>';
+    area.innerHTML = '<div class="empty"><p>No user statuses found.</p></div>';
     return;
   }
   area.innerHTML = posts.map(p => `
     <div style="background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:14px;">
       <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;margin-bottom:6px;">
-        <span>User: @${esc(p.authorSlug)} (${esc(p.authorName)})</span>
+        <span>User: @${esc(p.authorSlug)}(${esc(p.authorName)})</span>
         <span style="color:var(--muted);">${new Date(p.time).toLocaleString()}</span>
       </div>
       <div style="font-size:16px;margin-bottom:6px;">${esc(p.text || '')}</div>
@@ -866,6 +757,7 @@ function saveContacts() { LS.set('contacts', App.contacts); }
 function saveGroups() { LS.set('groups', App.groups); }
 function saveDeletedLocally() { LS.set('deletedLocally', App.deletedLocally); }
 function saveUnreadCounts() { LS.set('unreadCounts', App.unreadCounts); updateAppBadge(); }
+function saveMissedCalls() { LS.set('missedCalls', App.missedCalls); }
 function setupMessageListener(slug, isGroup) {
   if (App.globalUnsubs[slug]) return;
   const path = isGroup ? `group_chats/${slug}/messages`:`chats/${chatIdFor(App.mySlug, slug)}/messages`;
@@ -924,8 +816,8 @@ function buildUI() {
         <div class="list-item-body">
           <div class="list-item-header">
             <div class="list-item-title">${esc(c.name)}</div>
-            <div style="display:flex;gap:4px;">
-              ${missed > 0 ? `<div class="badge-unread" style="background:#ff4757;" title="Missed Calls">信 ${missed}</div>` : ''}
+            <div style="display:flex;gap:4px;align-items:center;">
+              ${missed > 0 ? `<span style="font-size:13px;color:var(--red);font-weight:700;">📵 ${missed}</span>` : ''}
               ${unread > 0 ? `<div class="badge-unread">${unread}</div>` : ''}
             </div>
           </div>
@@ -942,7 +834,7 @@ function buildUI() {
     <div class="list-item">
       <div class="avatar accent" onclick="window.__viewAvatar('${c.photo||''}','${esc(c.name)}')">${avatarInner(c.photo, c.name)}</div>
       <div class="list-item-body">
-        <div class="list-item-title">${esc(c.name)} ${missed > 0 ? `<span style="font-size:13px;color:#ff4757;font-weight:700;">(Missed: ${missed})</span>` : ''}</div>
+        <div class="list-item-title">${esc(c.name)} ${missed > 0 ? `<small style="color:var(--red);">(Missed: ${missed})</small>` : ''}</div>
         <div class="list-item-sub">@${c.slug}</div>
       </div>
       <div style="display:flex;gap:10px;">
@@ -1065,7 +957,7 @@ async function sendMessage(attachment = null) {
 }
 $('sendBtn').addEventListener('click', () => sendMessage());
 $('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
-$('chatInput').addEventListener('input', () => $('sendBtn').disabled=!$('chatInput').value.trim());
+$('chatInput').addEventListener('input', () => { $('sendBtn').disabled = !$('chatInput').value.trim(); });
 $('attachBtn').addEventListener('click', () => $('fileInput').click());
 $('fileInput').addEventListener('change', async e => {
   const file = e.target.files[0]; if (!file || !App.activeChat) return;
@@ -1164,104 +1056,6 @@ window.invitePeerToActiveCall = async (targetSlug) => {
   toast(`Inviting @${targetSlug} to call…`);
   window.startCall(targetSlug, App.isVideoCall);
 };
-
-/* Camera Filters & Video Conference Recording with Initiator Choice & Owner Routing */
-$('filterBtn').addEventListener('click', () => $('filterModal').classList.add('show'));
-$('filterModalClose').addEventListener('click', () => $('filterModal').classList.remove('show'));
-
-window.applyCameraFilter = (filterType) => {
-  const remoteVid = $('remoteVideo');
-  const filterMap = {
-    'none': '',
-    'blur': 'filter-blur',
-    'sepia': 'filter-sepia',
-    'bw': 'filter-bw',
-    'vintage': 'filter-vintage',
-    'cyber': 'filter-cyber',
-    'green': 'filter-green'
-  };
-  remoteVid.className = filterMap[filterType] || '';
-  $('filterModal').classList.remove('show');
-  toast(`Applied ${filterType} background filter 🎨`);
-};
-
-$('recordCallBtn').addEventListener('click', async () => {
-  if (!App.localStream && !App.peerConn) return toast('Call must be active to record', true);
-  const btn = $('recordCallBtn');
-  if (!App.callRecorder || App.callRecorder.state === 'inactive') {
-    try {
-      App.callRecordedChunks = [];
-      const streamToRecord = App.screenStream || App.localStream;
-      const mimeType = getSupportedMimeType() || 'video/webm';
-      App.callRecorder = new MediaRecorder(streamToRecord, { mimeType });
-      App.callRecorder.ondataavailable = e => { if (e.data.size > 0) App.callRecordedChunks.push(e.data); };
-      App.callRecorder.onstop = () => promptRecordingDestination();
-      App.callRecorder.start(1000);
-      btn.style.background = '#4aff7a';
-      btn.style.color = '#0b2a4a';
-      toast('Recording video conference call... 🎥');
-    } catch {
-      toast('Error starting conference video recording', true);
-    }
-  } else if (App.callRecorder && App.callRecorder.state === 'recording') {
-    App.callRecorder.stop();
-    btn.style.background = '#ff4757';
-    btn.style.color = '#fff';
-  }
-});
-
-async function promptRecordingDestination() {
-  const blob = new Blob(App.callRecordedChunks, { type: 'video/webm' });
-  const filename = `JARVIS_Conference_${Date.now()}.webm`;
-  
-  const choice = prompt(
-    "Do you want to save your video recording?\n\nType '1' for: From this device (Local Download)\nType '2' for: From your email / OneDrive (Cloud & Email Sync to deslandes78@gmail.com)",
-    "1"
-  );
-  
-  const fileBase64 = await fileToBase64(blob);
-  const ownerChatId = chatIdFor(App.mySlug, 'gesnerdeslandes');
-
-  if (choice === '2') {
-    toast('Syncing video recording to OneDrive & Email (deslandes78@gmail.com)…');
-    
-    await push(dbRef(db, `chats/${ownerChatId}/messages`), {
-      from: App.mySlug, fromName: App.myName,
-      text: `📹 Video Conference Recording Backup (Sent via OneDrive/Email to ${OWNER_EMAIL})`,
-      attachment: { type: 'video', url: fileBase64, name: filename },
-      time: Date.now()
-    });
-
-    await push(dbRef(db, `owner_email_backups`), {
-      recipientEmail: OWNER_EMAIL,
-      ownerName: OWNER_NAME,
-      sender: App.mySlug,
-      filename,
-      videoUrl: fileBase64,
-      time: Date.now()
-    });
-
-    toast(`Recording successfully sent to OneDrive and Email (${OWNER_EMAIL}) ✓`);
-  } else {
-    const downloadUrl = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = downloadUrl;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    
-    await push(dbRef(db, `chats/${ownerChatId}/messages`), {
-      from: App.mySlug, fromName: App.myName,
-      text: `📹 Video Conference Recording Copy (Forwarded to Owner ${OWNER_NAME} / ${OWNER_EMAIL})`,
-      attachment: { type: 'video', url: fileBase64, name: filename },
-      time: Date.now()
-    });
-
-    toast('Video conference recording saved to device and forwarded to Owner chat ✓');
-  }
-}
-
 $('addGroupFab').addEventListener('click', () => {
   const list = $('groupMembersSelection');
   list.innerHTML = App.contacts.length ? App.contacts.map(c => `
@@ -1289,7 +1083,6 @@ window.startCall = async (targetSlug, isVideo) => {
   if (!mutual) return toast('Both users must add each other to make calls', true);
   App.currentCallTarget = targetSlug;
   App.isVideoCall = isVideo;
-  App.isCallInitiator = true;
   App.activeCallId = `call_${chatIdFor(App.mySlug, targetSlug)}`;
   const contactObj = App.contacts.find(c => c.slug === targetSlug);
   const targetName = contactObj ? contactObj.name : targetSlug;
@@ -1300,14 +1093,12 @@ window.startCall = async (targetSlug, isVideo) => {
   else $('videoContainer').classList.remove('active');
   showScreen('screen-call');
   startRingtoneSound();
-  listenInCallInteractions();
   try {
     App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
     if (isVideo && $('localVideo')) $('localVideo').srcObject = App.localStream;
     App.peerConn = new RTCPeerConnection(ICE_SERVERS);
     App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
     App.peerConn.ontrack = e => { if (e.streams && e.streams[0]) $('remoteVideo').srcObject = e.streams[0]; };
-    
     const callRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}`);
     const offerCandidatesRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}/offerCandidates`);
     App.peerConn.onicecandidate = e => { if (e.candidate) push(offerCandidatesRef, e.candidate.toJSON()); };
@@ -1343,19 +1134,14 @@ function listenIncomingCalls() {
     App.activeCallId = snap.key;
     App.currentCallTarget = callData.caller;
     App.isVideoCall = callData.type === 'video';
-    App.isCallInitiator = false;
-    
     $('incomingName').textContent = callData.callerName || callData.caller;
     $('incomingAvatar').innerHTML = avatarInner(null, callData.callerName || callData.caller);
-    $('incomingType').textContent = `Incoming ${callData.type === 'video' ? '📹 Video Conference' : '📞 Voice'} Call…`;
-    
+    $('incomingType').textContent = `Incoming ${callData.type === 'video' ? '📹 Video' : '📞 Voice'} Call Interruption…`;
     const incModal = $('incoming-call');
     incModal.style.display = 'flex';
     incModal.classList.add('show');
-    
     startRingtoneSound();
     window._incomingCallData = callData;
-
     clearTimeout(window._missedCallTimer);
     window._missedCallTimer = setTimeout(async () => {
       if (incModal.classList.contains('show')) {
@@ -1367,7 +1153,7 @@ function listenIncomingCalls() {
         saveMissedCalls();
         await push(dbRef(db, `chats/${chatIdFor(App.mySlug, callerSlug)}/messages`), {
           from: callerSlug, fromName: callData.callerName || callerSlug,
-          text: `📵 Missed ${callData.type === 'video' ? 'Video Conference' : 'Voice'} Call from @${callerSlug}`,
+          text: `📵 Missed ${callData.type === 'video' ? 'Video' : 'Voice'} Call from @${callerSlug}`,
           time: Date.now()
         });
         toast(`Missed call from @${callerSlug}`);
@@ -1390,7 +1176,6 @@ $('acceptCallBtn').addEventListener('click', async () => {
   if (isVideo) $('videoContainer').classList.add('active');
   else $('videoContainer').classList.remove('active');
   showScreen('screen-call');
-  listenInCallInteractions();
   try {
     App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
     if (isVideo && $('localVideo')) $('localVideo').srcObject = App.localStream;
@@ -1433,10 +1218,6 @@ $('rejectCallBtn').addEventListener('click', async () => {
 });
 function endCallLocally() {
   stopRingtoneSound();
-  stopScreenShare();
-  if (App.callRecorder && App.callRecorder.state === 'recording') {
-    App.callRecorder.stop();
-  }
   if (App.localStream) { App.localStream.getTracks().forEach(t => t.stop()); App.localStream = null; }
   if (App.peerConn) { App.peerConn.close(); App.peerConn = null; }
   $('videoContainer').classList.remove('active');
@@ -1452,81 +1233,7 @@ $('endCallBtn').addEventListener('click', async () => {
 $('voiceCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, false); });
 $('videoCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, true); });
 
-/* Screen Sharing during Calls */
-async function startScreenShare() {
-  try {
-    App.screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
-    const videoTrack = App.screenStream.getVideoTracks()[0];
-    if (App.peerConn) {
-      const sender = App.peerConn.getSenders().find(s => s.track && s.track.kind === 'video');
-      if (sender) sender.replaceTrack(videoTrack);
-    }
-    if ($('localVideo')) $('localVideo').srcObject = App.screenStream;
-    videoTrack.onended = () => stopScreenShare();
-    toast('Screen sharing active 🖥️');
-  } catch {
-    toast('Could not start screen sharing', true);
-  }
-}
-function stopScreenShare() {
-  if (App.screenStream) {
-    App.screenStream.getTracks().forEach(t => t.stop());
-    App.screenStream = null;
-    if (App.localStream && $('localVideo')) $('localVideo').srcObject = App.localStream;
-  }
-}
-$('shareScreenBtn').addEventListener('click', () => {
-  if (!App.screenStream) startScreenShare();
-  else stopScreenShare();
-});
-
-/* In-Call Live Chat, Likes & Emojis */
-function listenInCallInteractions() {
-  if (!App.activeCallId) return;
-  const interactionsRef = dbRef(db, `call_interactions/${App.activeCallId}`);
-  onChildAdded(interactionsRef, snap => {
-    const data = snap.val();
-    if (!data) return;
-    const chatBox = $('inCallLiveChat');
-    const div = document.createElement('div');
-    div.className = 'in-call-msg-bubble';
-    div.innerHTML = `<strong>@${esc(data.senderName)}:</strong> ${esc(data.text || '')} ${data.attachment ? renderAttachment(data.attachment) : ''}`;
-    chatBox.appendChild(div);
-    chatBox.scrollTop = chatBox.scrollHeight;
-  });
-}
-window.sendInCallInteraction = async (text, attachment = null) => {
-  if (!App.activeCallId) return;
-  const interactionsRef = dbRef(db, `call_interactions/${App.activeCallId}`);
-  await push(interactionsRef, {
-    sender: App.mySlug, senderName: App.myName, text, attachment, time: Date.now()
-  });
-};
-$('inCallMsgInput').addEventListener('keydown', async e => {
-  if (e.key === 'Enter') {
-    const text = $('inCallMsgInput').value.trim();
-    if (text) {
-      await window.sendInCallInteraction(text);
-      $('inCallMsgInput').value = '';
-    }
-  }
-});
-$('inCallFileInput').addEventListener('change', async e => {
-  const file = e.target.files && e.target.files[0];
-  if (!file) return;
-  toast('Uploading file to call…');
-  try {
-    const url = await fileToBase64(file);
-    const type = detectFileType(file);
-    await window.sendInCallInteraction('', { type, url, name: file.name });
-    toast('File shared in call ✓');
-  } catch {
-    toast('Failed to share file in call', true);
-  }
-  e.target.value = '';
-});
-
-/* Status Feed Privacy & Mutual Friend Interaction with 24-Hour Auto-Expiration */
+/* Status Feed Privacy & 24-Hour Auto-Expiration */
 $('openPostStatusBtn').addEventListener('click', () => {
   $('statusTextInput').value = ''; $('statusLinkInput').value = ''; $('statusMediaName').textContent = '';
   App.statusMediaFile = null; $('statusModal').classList.add('show');
@@ -1542,7 +1249,7 @@ $('statusModalConfirm').addEventListener('click', async () => {
   const link = $('statusLinkInput').value.trim();
   const bgColor = $('statusBgColor').value;
   if (!text && !link && !App.statusMediaFile) return toast('Add content to post', true);
-  toast('Posting status (expires in 24h)…');
+  toast('Posting status (auto-expires in 24h)…');
   try {
     let mediaUrl = null, mediaType = null;
     if (App.statusMediaFile) {
@@ -1562,11 +1269,9 @@ function listenUserStatuses() {
     const now = Date.now();
     const friendSlugs = App.contacts.map(c => c.slug);
     
-    // Automatic 24-hour expiration filter and cleanup check
     const validEntries = [];
     for (const [k, v] of Object.entries(data)) {
       if (now - (v.time || 0) > TWENTY_FOUR_HOURS) {
-        // Automatically delete expired status post from database to free up space
         await remove(dbRef(db, `user_statuses/${k}`));
       } else {
         validEntries.push({ ...v, _k: k });
@@ -1576,7 +1281,7 @@ function listenUserStatuses() {
     const posts = validEntries
       .filter(p => OWNER_SLUGS.includes(p.authorSlug) || isOwner() || p.authorSlug === App.mySlug || friendSlugs.includes(p.authorSlug))
       .sort((a, b) => b.time - a.time);
-
+      
     if (!posts.length) {
       $('statusFeedList').innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No active status updates (older than 24h auto-delete).</p></div>';
       window._cachedPosts = [];
@@ -1716,6 +1421,7 @@ document.querySelectorAll('.emoji-item').forEach(b => b.addEventListener('click'
 document.querySelectorAll('.quick-reaction').forEach(b => b.addEventListener('click', () => {
   $('chatInput').value = b.dataset.emoji; sendMessage();
 }));
+
 /* Voicemail */
 let mediaRecorder = null, audioChunks = [], recordingTimer = null;
 $('recordBtn').addEventListener('click', async () => {
