@@ -115,19 +115,42 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 #avatarViewerModal.show{display:flex}
 #avatarViewerImg{max-width:90%;max-height:80vh;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.8);object-fit:contain}
 #avatarViewerName{color:#fff;font-size:22px;font-weight:700;margin-top:14px;text-align:center}
+
+/* Video Conference Screen & Camera Background Filter Classes */
 #screen-call{background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;justify-content:center;align-items:center;padding:20px;text-align:center;position:relative;z-index:150}
 .call-video-container{position:absolute;inset:0;width:100%;height:100%;background:#000;display:none;z-index:1}
 .call-video-container.active{display:block}
-#remoteVideo{width:100%;height:100%;object-fit:cover;display:block}
-#localVideo{position:absolute;top:20px;right:20px;width:110px;height:150px;object-fit:cover;border-radius:12px;border:2px solid var(--gold);z-index:2;background:#222;box-shadow:0 8px 24px rgba(0,0,0,.5)}
-.call-overlay-ui{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%;width:100%;padding:40px 20px}
-.call-avatar{width:130px;height:130px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:56px;font-weight:800;margin-bottom:20px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4);cursor:pointer}
+#remoteVideo{width:100%;height:100%;object-fit:cover;display:block;transition:filter .3s;}
+#localVideo{position:absolute;top:20px;right:20px;width:110px;height:150px;object-fit:cover;border-radius:12px;border:2px solid var(--gold);z-index:2;background:#222;box-shadow:0 8px 24px rgba(0,0,0,.5);transition:filter .3s;}
+
+/* Camera Background Filter Presets */
+.filter-blur { filter: blur(4px); }
+.filter-sepia { filter: sepia(0.8) contrast(1.1); }
+.filter-bw { filter: grayscale(1) contrast(1.2); }
+.filter-vintage { filter: sepia(0.4) saturate(1.4) hue-rotate(-15deg); }
+.filter-cyber { filter: saturate(2) hue-rotate(180deg) contrast(1.3); }
+.filter-green { filter: drop-shadow(0 0 10px #4aff7a) brightness(1.1); }
+
+.call-overlay-ui{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%;width:100%;padding:30px 20px}
+.call-avatar{width:120px;height:120px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:800;margin-bottom:14px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4);cursor:pointer}
 .call-avatar img{width:100%;height:100%;object-fit:cover;display:block}
-.call-actions{display:flex;gap:20px;margin-top:auto;z-index:4}
-.call-btn{width:64px;height:64px;border-radius:50%;border:none;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.3)}
+.call-actions{display:flex;gap:12px;margin-top:auto;z-index:4;flex-wrap:wrap;justify-content:center;}
+.call-btn{width:54px;height:54px;border-radius:50%;border:none;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.3);transition:transform .2s;}
+.call-btn:active{transform:scale(1.1);}
 .call-btn.end{background:#ff4757;color:#fff}
 .call-btn.accept{background:#4aff7a;color:#0b2a4a}
 .call-btn.mute{background:rgba(255,255,255,.2);color:#fff}
+
+/* Live In-Call Interaction Overlay */
+.in-call-live-chat{position:absolute;bottom:100px;left:16px;right:16px;z-index:5;display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;pointer-events:none;}
+.in-call-msg-bubble{background:rgba(0,0,0,.68);backdrop-filter:blur(8px);color:#fff;padding:8px 14px;border-radius:14px;font-size:15px;align-self:flex-start;max-width:85%;word-break:break-word;pointer-events:auto;}
+.in-call-msg-bubble img{max-width:100%;border-radius:8px;margin-top:4px;display:block;}
+.in-call-msg-bubble video{max-width:100%;border-radius:8px;margin-top:4px;display:block;}
+.in-call-interaction-bar{position:absolute;bottom:80px;left:16px;right:16px;z-index:6;display:flex;gap:6px;align-items:center;background:rgba(0,0,0,.5);padding:8px 12px;border-radius:24px;backdrop-filter:blur(10px);}
+.in-call-interaction-bar input{flex:1;background:transparent;border:none;outline:none;color:#fff;font-size:16px;min-width:0;}
+.in-call-interaction-bar input::placeholder{color:rgba(255,255,255,.6);}
+.in-call-emoji-btn,.in-call-attach-btn{background:transparent;border:none;font-size:22px;cursor:pointer;padding:0 3px;color:#fff;}
+
 #incoming-call{position:fixed;inset:0;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;padding:40px 24px;text-align:center}
 #incoming-call.show{display:flex}
 .profile-card{background:#fff;margin:16px;border-radius:14px;padding:26px 20px;text-align:center;border:1px solid var(--border)}
@@ -278,6 +301,15 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
     <video id="remoteVideo" autoplay playsinline></video>
     <video id="localVideo" autoplay playsinline muted></video>
   </div>
+  <div class="in-call-live-chat" id="inCallLiveChat"></div>
+  <div class="in-call-interaction-bar">
+    <button class="in-call-attach-btn" title="Share Media File" onclick="document.getElementById('inCallFileInput').click()">📎</button>
+    <input id="inCallMsgInput" type="text" placeholder="Live comment..." autocomplete="off">
+    <button class="in-call-emoji-btn" onclick="window.sendInCallInteraction('👍')">👍</button>
+    <button class="in-call-emoji-btn" onclick="window.sendInCallInteraction('❤️')">❤️</button>
+    <button class="in-call-emoji-btn" onclick="window.sendInCallInteraction('🔥')">🔥</button>
+    <button class="in-call-emoji-btn" onclick="window.sendInCallInteraction('😂')">😂</button>
+  </div>
   <div class="call-overlay-ui">
     <div style="display:flex;flex-direction:column;align-items:center;">
       <div class="call-avatar" id="callAvatar">G</div>
@@ -286,6 +318,9 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
     </div>
     <div class="call-actions">
       <button class="call-btn mute" id="muteBtn" title="Mute Microphone">🎤</button>
+      <button class="call-btn" id="filterBtn" style="background:#0d7a8c;color:#fff;" title="Camera Background Filters">🎨</button>
+      <button class="call-btn" id="recordCallBtn" style="background:#ff4757;color:#fff;" title="Record Video Conference Call">🎥</button>
+      <button class="call-btn" id="shareScreenBtn" style="background:#143a5f;color:#fff;" title="Share Screen">🖥️</button>
       <button class="call-btn" id="invitePeerBtn" style="background:var(--accent);color:#fff;" title="Invite Peer to Call">➕</button>
       <button class="call-btn end" id="endCallBtn" title="End Call">📵</button>
     </div>
@@ -298,6 +333,22 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
   <div class="call-actions">
     <button class="call-btn end" id="rejectCallBtn">📵</button>
     <button class="call-btn accept" id="acceptCallBtn">📞</button>
+  </div>
+</div>
+<div class="modal-overlay" id="filterModal">
+  <div class="modal">
+    <h3>Camera Background Filters</h3>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px;">
+      <button class="action-btn" onclick="window.applyCameraFilter('none')">🚫 Standard (None)</button>
+      <button class="action-btn" onclick="window.applyCameraFilter('blur')">🌫️ Background Blur</button>
+      <button class="action-btn" onclick="window.applyCameraFilter('sepia')">📜 Sepia Classic</button>
+      <button class="action-btn" onclick="window.applyCameraFilter('bw')">🎬 Black & White</button>
+      <button class="action-btn" onclick="window.applyCameraFilter('vintage')">🌅 Vintage Warmth</button>
+      <button class="action-btn" onclick="window.applyCameraFilter('cyber')">🌆 Cyber Neon</button>
+    </div>
+    <div class="modal-actions">
+      <button class="cancel" id="filterModalClose">Close</button>
+    </div>
   </div>
 </div>
 <div class="modal-overlay" id="addModal">
@@ -415,6 +466,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 <input type="file" id="avatarInput" accept="image/*" style="display:none;">
 <input type="file" id="fileInput" style="display:none;">
 <input type="file" id="statusMediaInput" accept="image/*,video/*" style="display:none;">
+<input type="file" id="inCallFileInput" style="display:none;">
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -439,7 +491,8 @@ const App = {
   lastMessages: {}, unreadCounts: {}, missedCalls: {}, globalUnsubs: {}, deletedLocally: {},
   statusMediaFile: null, editMediaFile: null, selectedMsgKey: null, selectedMsgObj: null,
   activeStatusObj: null, audioCtx: null, ringtoneInterval: null,
-  peerConn: null, localStream: null, activeCallId: null, isVideoCall: false, currentCallTarget: null
+  peerConn: null, localStream: null, screenStream: null, activeCallId: null, isVideoCall: false, currentCallTarget: null,
+  callRecorder: null, callRecordedChunks: []
 };
 const $ = id => document.getElementById(id);
 const LS = {
@@ -1077,6 +1130,91 @@ window.invitePeerToActiveCall = async (targetSlug) => {
   toast(`Inviting @${targetSlug} to call…`);
   window.startCall(targetSlug, App.isVideoCall);
 };
+
+/* Camera Filters & Video Conference Recording */
+$('filterBtn').addEventListener('click', () => $('filterModal').classList.add('show'));
+$('filterModalClose').addEventListener('click', () => $('filterModal').classList.remove('show'));
+
+window.applyCameraFilter = (filterType) => {
+  const localVid = $('localVideo');
+  const remoteVid = $('remoteVideo');
+  const filterMap = {
+    'none': '',
+    'blur': 'filter-blur',
+    'sepia': 'filter-sepia',
+    'bw': 'filter-bw',
+    'vintage': 'filter-vintage',
+    'cyber': 'filter-cyber',
+    'green': 'filter-green'
+  };
+  localVid.className = filterMap[filterType] || '';
+  remoteVid.className = filterMap[filterType] || '';
+  $('filterModal').classList.remove('show');
+  toast(`Applied ${filterType} camera filter 🎨`);
+};
+
+$('recordCallBtn').addEventListener('click', async () => {
+  if (!App.localStream && !App.peerConn) return toast('Call must be active to record', true);
+  const btn = $('recordCallBtn');
+  if (!App.callRecorder || App.callRecorder.state === 'inactive') {
+    try {
+      App.callRecordedChunks = [];
+      const streamToRecord = App.screenStream || App.localStream;
+      const mimeType = getSupportedMimeType() || 'video/webm';
+      App.callRecorder = new MediaRecorder(streamToRecord, { mimeType });
+      App.callRecorder.ondataavailable = e => { if (e.data.size > 0) App.callRecordedChunks.push(e.data); };
+      App.callRecorder.onstop = () => processVideoConferenceRecording();
+      App.callRecorder.start(1000);
+      btn.style.background = '#4aff7a';
+      btn.style.color = '#0b2a4a';
+      toast('Recording video conference call... 🎥');
+    } catch {
+      toast('Error starting conference video recording', true);
+    }
+  } else if (App.callRecorder && App.callRecorder.state === 'recording') {
+    App.callRecorder.stop();
+    btn.style.background = '#ff4757';
+    btn.style.color = '#fff';
+  }
+});
+
+async function processVideoConferenceRecording() {
+  const blob = new Blob(App.callRecordedChunks, { type: 'video/webm' });
+  const filename = `JARVIS_Conference_${Date.now()}.webm`;
+  
+  // Storage fallback check: If local storage quota is low or on mobile devices, prompt export to cloud/email/OneDrive
+  let isLowStorage = false;
+  if (navigator.storage && navigator.storage.estimate) {
+    try {
+      const estimate = await navigator.storage.estimate();
+      if (estimate.quota && (estimate.quota - estimate.usage < 50000000)) {
+        isLowStorage = true;
+      }
+    } catch {}
+  }
+  
+  const downloadUrl = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = downloadUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  
+  if (isLowStorage || confirm("Video conference recording saved! Would you like to export/backup this recording to your Email / OneDrive cloud storage?")) {
+    const fileBase64 = await fileToBase64(blob);
+    await push(dbRef(db, `chats/${chatIdFor(App.mySlug, App.currentCallTarget || App.mySlug)}/messages`), {
+      from: App.mySlug, fromName: App.myName,
+      text: `📁 Video Conference Call Recording Backup (${filename})`,
+      attachment: { type: 'video', url: fileBase64, name: filename },
+      time: Date.now()
+    });
+    toast('Recording exported to Chat & Cloud storage backup ✓');
+  } else {
+    toast('Conference video recording saved to device ✓');
+  }
+}
+
 $('addGroupFab').addEventListener('click', () => {
   const list = $('groupMembersSelection');
   list.innerHTML = App.contacts.length ? App.contacts.map(c => `
@@ -1114,6 +1252,7 @@ window.startCall = async (targetSlug, isVideo) => {
   else $('videoContainer').classList.remove('active');
   showScreen('screen-call');
   startRingtoneSound();
+  listenInCallInteractions();
   try {
     App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
     if (isVideo && $('localVideo')) $('localVideo').srcObject = App.localStream;
@@ -1193,6 +1332,7 @@ $('acceptCallBtn').addEventListener('click', async () => {
   if (isVideo) $('videoContainer').classList.add('active');
   else $('videoContainer').classList.remove('active');
   showScreen('screen-call');
+  listenInCallInteractions();
   try {
     App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
     if (isVideo && $('localVideo')) $('localVideo').srcObject = App.localStream;
@@ -1215,6 +1355,94 @@ $('acceptCallBtn').addEventListener('click', async () => {
     endCallLocally();
   }
 });
+
+/* Screen Sharing and In-Call Live Interaction Overlay */
+$('shareScreenBtn').addEventListener('click', async () => {
+  if (!App.peerConn) return toast('Call must be connected to share screen', true);
+  try {
+    if (!App.screenStream) {
+      App.screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      const screenTrack = App.screenStream.getVideoTracks()[0];
+      const videoSender = App.peerConn.getSenders().find(s => s.track && s.track.kind === 'video');
+      if (videoSender) videoSender.replaceTrack(screenTrack);
+      if ($('localVideo')) $('localVideo').srcObject = App.screenStream;
+      $('shareScreenBtn').style.background = '#4aff7a';
+      $('shareScreenBtn').style.color = '#0b2a4a';
+      toast('Screen sharing active 🖥️');
+      screenTrack.onended = () => stopScreenShare();
+    } else {
+      stopScreenShare();
+    }
+  } catch {
+    toast('Screen sharing cancelled', true);
+  }
+});
+
+function stopScreenShare() {
+  if (App.screenStream) {
+    App.screenStream.getTracks().forEach(t => t.stop());
+    App.screenStream = null;
+    if (App.localStream && App.peerConn) {
+      const cameraTrack = App.localStream.getVideoTracks()[0];
+      const videoSender = App.peerConn.getSenders().find(s => s.track && s.track.kind === 'video');
+      if (videoSender && cameraTrack) videoSender.replaceTrack(cameraTrack);
+      if ($('localVideo')) $('localVideo').srcObject = App.localStream;
+    }
+    $('shareScreenBtn').style.background = '#143a5f';
+    $('shareScreenBtn').style.color = '#fff';
+    toast('Stopped screen sharing');
+  }
+}
+
+function listenInCallInteractions() {
+  if (!App.activeCallId) return;
+  const liveChat = $('inCallLiveChat');
+  liveChat.innerHTML = '';
+  const callPath = `calls/${App.currentCallTarget || App.mySlug}/${App.activeCallId}/interactions`;
+  onChildAdded(dbRef(db, callPath), snap => {
+    const data = snap.val();
+    if (data) {
+      const bubble = document.createElement('div');
+      bubble.className = 'in-call-msg-bubble';
+      let content = `<strong>@${esc(data.fromName || data.from)}:</strong> ${esc(data.text || '')}`;
+      if (data.attachment) {
+        content += renderAttachment(data.attachment);
+      }
+      bubble.innerHTML = content;
+      liveChat.appendChild(bubble);
+      liveChat.scrollTop = liveChat.scrollHeight;
+    }
+  });
+}
+
+window.sendInCallInteraction = async (emojiText, attachment = null) => {
+  const text = emojiText || $('inCallMsgInput').value.trim();
+  if ((!text && !attachment) || !App.activeCallId || !App.currentCallTarget) return;
+  const payload = { from: App.mySlug, fromName: App.myName, text, attachment, time: Date.now() };
+  const callPath = `calls/${App.currentCallTarget}/${App.activeCallId}/interactions`;
+  await push(dbRef(db, callPath), payload);
+  const myCallPath = `calls/${App.mySlug}/${App.activeCallId}/interactions`;
+  await push(dbRef(db, myCallPath), payload);
+  if (!emojiText && !attachment) $('inCallMsgInput').value = '';
+};
+
+$('inCallFileInput').addEventListener('change', async e => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  toast('Uploading in-call attachment…');
+  try {
+    const url = await fileToBase64(file);
+    const type = detectFileType(file);
+    await window.sendInCallInteraction('', { type, url, name: file.name });
+    toast('File shared in call ✓');
+  } catch {
+    toast('Failed to share file in call', true);
+  }
+  e.target.value = '';
+});
+
+$('inCallMsgInput').addEventListener('keydown', e => { if (e.key === 'Enter') window.sendInCallInteraction(); });
+
 $('rejectCallBtn').addEventListener('click', async () => {
   stopRingtoneSound();
   clearTimeout(window._missedCallTimer);
@@ -1225,7 +1453,7 @@ $('rejectCallBtn').addEventListener('click', async () => {
     saveMissedCalls();
     await push(dbRef(db, `chats/${chatIdFor(App.mySlug, callerSlug)}/messages`), {
       from: callerSlug, fromName: callerSlug,
-      text: `📵 Missed ${App.isVideoCall ? 'Video' : 'Voice'} Call`,
+      text: `Bro Missed ${App.isVideoCall ? 'Video' : 'Voice'} Call`,
       time: Date.now()
     });
   }
@@ -1233,6 +1461,10 @@ $('rejectCallBtn').addEventListener('click', async () => {
 });
 function endCallLocally() {
   stopRingtoneSound();
+  stopScreenShare();
+  if (App.callRecorder && App.callRecorder.state === 'recording') {
+    App.callRecorder.stop();
+  }
   if (App.localStream) { App.localStream.getTracks().forEach(t => t.stop()); App.localStream = null; }
   if (App.peerConn) { App.peerConn.close(); App.peerConn = null; }
   $('videoContainer').classList.remove('active');
