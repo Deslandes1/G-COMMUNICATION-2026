@@ -419,7 +419,7 @@ const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
 const ICE_SERVERS = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] };
 const App = {
-  mySlug: null, myName: '', myPhoto: null,
+  mySlug: 'gesnerdeslandes', myName: 'Gesner Deslandes', myPhoto: null,
   contacts: [], groups: [], activeChat: null, activeIsGroup: false,
   lastMessages: {}, unreadCounts: {}, globalUnsubs: {}, deletedLocally: {},
   statusMediaFile: null, editMediaFile: null, selectedMsgKey: null, selectedMsgObj: null,
@@ -571,89 +571,61 @@ async function uploadAccountDataToCloud() {
 }
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
 let nameCheckTimer = null;
-let validatedSlug = null;
-let isOwnerHandle = false;
+let validatedSlug = 'gesnerdeslandes';
+let isOwnerHandle = true;
+
 nameInput.addEventListener('input', () => {
   const rawVal = nameInput.value.trim();
-  const slug = slugify(rawVal);
-  if (!slug) {
-    nameStatus.textContent = 'Enter a valid username';
-    nameStatus.className = 'name-status';
-    enterBtn.disabled = true;
-    validatedSlug = null;
-    return;
-  }
-  nameStatus.textContent = 'Verifying username uniqueness…';
-  nameStatus.className = 'name-status';
-  enterBtn.disabled = true;
-  clearTimeout(nameCheckTimer);
-  nameCheckTimer = setTimeout(async () => {
-    try {
-      const userRef = dbRef(db, 'users/' + slug);
-      const snap = await get(userRef);
-      const localSavedSlug = LS.get('mySlug', null);
-      isOwnerHandle = (slug === 'gesner' || slug === 'gesnerdeslandes');
-      if (snap.exists()) {
-        const userData = snap.val();
-        if (isOwnerHandle || slug === localSavedSlug || userData.deviceLinked || confirm(`Username "@${slug}" is already registered. Is this your account? Click OK to log in.`)) {
-          validatedSlug = slug;
-          nameStatus.textContent = `Welcome back, @${slug}! Ready to sign in ✓`;
-          nameStatus.className = 'name-status ok';
-          enterBtn.disabled = false;
-        } else {
-          nameStatus.textContent = `Username "@${slug}" is already taken by another user. Choose another name.`;
-          nameStatus.className = 'name-status error';
-          enterBtn.disabled = true;
-          validatedSlug = null;
-        }
-      } else {
-        validatedSlug = slug;
-        nameStatus.textContent = `"@${slug}" is available and secured for you ✓`;
-        nameStatus.className = 'name-status ok';
-        enterBtn.disabled = false;
-      }
-    } catch {
-      validatedSlug = slug;
-      nameStatus.textContent = `"@${slug}" ready ✓`;
-      nameStatus.className = 'name-status ok';
-      enterBtn.disabled = false;
-    }
-  }, 350);
+  const slug = slugify(rawVal) || 'gesnerdeslandes';
+  validatedSlug = slug;
+  isOwnerHandle = (slug === 'gesner' || slug === 'gesnerdeslandes');
+  enterBtn.disabled = false;
+  nameStatus.textContent = `Owner Account: @${slug} ✓ Ready`;
+  nameStatus.className = 'name-status ok';
 });
+
 enterBtn.addEventListener('click', async () => {
-  const rawVal = nameInput.value.trim();
-  const slug = validatedSlug || slugify(rawVal);
-  if (!slug) return toast('Please enter a valid username', true);
-  try {
-    const userRef = dbRef(db, 'users/' + slug);
-    const snap = await get(userRef);
-    if (!snap.exists()) {
-      await set(userRef, { slug, displayName: rawVal || slug, createdAt: Date.now(), photo: App.myPhoto || null, deviceLinked: navigator.userAgent });
-    }
-  } catch {}
-  App.mySlug = slug; App.myName = rawVal || slug;
+  const rawVal = nameInput.value.trim() || 'Gesner Deslandes';
+  const slug = validatedSlug || 'gesnerdeslandes';
+  App.mySlug = slug; App.myName = rawVal;
   LS.set('mySlug', slug); LS.set('myName', App.myName);
+  try {
+    await set(dbRef(db, 'users/' + slug), { slug, displayName: rawVal, createdAt: Date.now(), photo: App.myPhoto || null, deviceLinked: navigator.userAgent });
+  } catch {}
   await syncAccountDataFromCloud();
   startMainApp();
 });
+
 window.addEventListener('load', () => {
   App.contacts = LS.get('contacts', []);
   App.groups = LS.get('groups', []);
   App.deletedLocally = LS.get('deletedLocally', {});
   App.unreadCounts = LS.get('unreadCounts', {});
-  const savedSlug = LS.get('mySlug', null);
-  const savedName = LS.get('myName', null);
+  const savedSlug = LS.get('mySlug', 'gesnerdeslandes');
+  const savedName = LS.get('myName', 'Gesner Deslandes');
   const savedPhoto = LS.get('avatar', null);
   if (savedPhoto) App.myPhoto = savedPhoto;
-  if (savedName || savedSlug) {
-    nameInput.value = savedName || savedSlug;
-    validatedSlug = savedSlug;
-    enterBtn.disabled = false;
-    nameStatus.textContent = `Welcome back, @${savedSlug} ✓`;
-    nameStatus.className = 'name-status ok';
-  }
-  showScreen('screen-onboard');
+  App.mySlug = savedSlug;
+  App.myName = savedName;
+  
+  // Auto-authenticate immediately for seamless owner experience across laptop & phone
+  startAccountSession(savedSlug, savedName);
 });
+
+async function startAccountSession(slug, name) {
+  App.mySlug = slug;
+  App.myName = name;
+  try {
+    const userRef = dbRef(db, 'users/' + slug);
+    const snap = await get(userRef);
+    if (!snap.exists()) {
+      await set(userRef, { slug, displayName: name, createdAt: Date.now(), photo: App.myPhoto || null, deviceLinked: navigator.userAgent });
+    }
+  } catch {}
+  await syncAccountDataFromCloud();
+  startMainApp();
+}
+
 function startMainApp() {
   showScreen('screen-main');
   updateProfileHeader();
