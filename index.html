@@ -138,7 +138,7 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
 .profile-card h3{font-size:19px !important;font-family:Calibri,sans-serif}
 .profile-card .avatar-big{width:100px;height:100px;border-radius:50%;background:#0b2a4a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;margin:0 auto 10px;position:relative;cursor:pointer;overflow:hidden;box-shadow:0 6px 18px rgba(11,42,74,.2);border:3px solid var(--gold)}
 .profile-card .avatar-big img{width:100%;height:100%;object-fit:cover;display:block}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:16px;pointer-events:none}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:100;pointer-events:none}
 .modal-overlay.show{display:flex;pointer-events:auto}
 .modal{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:420px;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch;pointer-events:auto}
 .modal h3{font-size:19px !important;font-family:Calibri,sans-serif;margin-bottom:10px}
@@ -153,9 +153,11 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
 .owner-img-player{width:100%;max-height:300px;object-fit:contain;background:#000;border-radius:8px;margin-top:8px;display:block}
 .toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:12px 20px;border-radius:10px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:10000;max-width:90%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Full screen adjustment for laptop and mobile */
 @media (min-width: 640px) {
-  body { padding: 16px; background: #e4e9ef; }
-  #app { height: calc(100% - 32px); max-width: 480px; border-radius: 24px; box-shadow: 0 24px 80px rgba(11,42,74,.32); }
+  body { padding: 0; background: var(--bg); }
+  #app { height: 100%; max-width: 100%; border-radius: 0; box-shadow: none; }
 }
 </style>
 </head>
@@ -190,7 +192,7 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
     <div id="statusFeedList" class="status-feed"></div>
   </div>
   <div id="tabCalls" class="tab-content" style="display:none;">
-    <div class="section-title">Peer-to-Peer Calling</div>
+    <div class="section-title">Peer-to-Peer & Conference Calling</div>
     <div id="callContactsList"></div>
   </div>
   <div id="tabVoicemail" class="tab-content" style="display:none;">
@@ -288,8 +290,12 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
     </div>
     <div id="callChatDrawer">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;color:#fff;">
-        <span>💬 In-Call Chat</span>
+        <span>💬 In-Call Chat & Media</span>
         <button id="closeCallChat" style="background:none;border:none;color:#fff;font-size:19px !important;font-family:Calibri,sans-serif;cursor:pointer;">✕</button>
+      </div>
+      <div style="margin-bottom:6px;">
+        <input type="file" id="callAttachInput" accept="image/*,video/*,audio/*" style="display:none;">
+        <button id="callAttachBtn" style="width:100%;padding:6px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:19px !important;font-family:Calibri,sans-serif;cursor:pointer;">📎 Send Photo/Video in Call</button>
       </div>
       <div id="callMsgArea" style="flex:1;overflow-y:auto;background:rgba(255,255,255,.1);border-radius:8px;padding:8px;margin-bottom:8px;display:flex;flex-direction:column;gap:6px;font-size:19px !important;font-family:Calibri,sans-serif;color:#fff;"></div>
       <div style="display:flex;gap:4px;">
@@ -300,7 +306,8 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
     <div class="call-actions">
       <button class="call-btn mute" id="muteBtn" title="Mute Microphone">🎤</button>
       <button class="call-btn tool" id="screenShareBtn" title="Share Screen">💻</button>
-      <button class="call-btn tool" id="filterBtn" title="Camera Filter">✨</button>
+      <button class="call-btn tool" id="filterBtn" title="Camera Background Filter">✨</button>
+      <button class="call-btn tool" id="addParticipantBtn" title="Add User to Call">➕</button>
       <button class="call-btn tool" id="callChatToggleBtn" title="Open In-Call Chat & Media">💬</button>
       <button class="call-btn tool" id="recordCallBtn" title="Record Call">🔴</button>
       <button class="call-btn end" id="endCallBtn" title="End Call">📵</button>
@@ -314,6 +321,33 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
   <div class="call-actions">
     <button class="call-btn end" id="rejectCallBtn">📵</button>
     <button class="call-btn accept" id="acceptCallBtn">📞</button>
+  </div>
+</div>
+<div class="modal-overlay" id="addParticipantModal">
+  <div class="modal">
+    <h3>Add User to Video Call</h3>
+    <div style="font-size:19px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:8px;">Select friend from your Friend List:</div>
+    <div class="group-select-list" id="participantSelectionList"></div>
+    <div class="modal-actions">
+      <button class="cancel" id="participantCancel">Cancel</button>
+      <button class="confirm" id="participantConfirm">Invite to Call</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="filterModal">
+  <div class="modal" style="max-width:360px;text-align:center;">
+    <h3>✨ Camera Background Filters</h3>
+    <p style="font-size:19px !important;font-family:Calibri,sans-serif;margin-bottom:12px;">Choose a visual background filter for your video:</p>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="btn-primary" onclick="window.__applyFilter('none')" style="max-width:none;background:#eef2f6;color:var(--text);">Normal Camera</button>
+      <button class="btn-primary" onclick="window.__applyFilter('blur(6px)')" style="max-width:none;background:var(--accent);color:#fff;">Blurred Background</button>
+      <button class="btn-primary" onclick="window.__applyFilter('sepia(80%)')" style="max-width:none;background:var(--gold);color:var(--navy);">Cinematic Sepia</button>
+      <button class="btn-primary" onclick="window.__applyFilter('contrast(160%)')" style="max-width:none;background:var(--navy);color:#fff;">High Contrast Studio</button>
+      <button class="btn-primary" onclick="window.__applyFilter('hue-rotate(180deg)')" style="max-width:none;background:#143a5f;color:#fff;">Neon Cyberpunk</button>
+    </div>
+    <div class="modal-actions" style="margin-top:12px;">
+      <button class="cancel" onclick="$('filterModal').classList.remove('show')" style="width:100%;max-width:none;">Close</button>
+    </div>
   </div>
 </div>
 <div class="modal-overlay" id="addModal">
@@ -462,10 +496,9 @@ const App = {
   statusMediaFile: null, editMediaFile: null, selectedMsgKey: null, selectedMsgObj: null,
   activeStatusObj: null, audioCtx: null, ringtoneInterval: null,
   peerConn: null, localStream: null, activeCallId: null, isVideoCall: false, currentCallTarget: null,
-  mediaRecorder: null, recordedChunks: [], filterIndex: 0
+  mediaRecorder: null, recordedChunks: [], isHost: false
 };
 
-const filtersList = ['none', 'grayscale(100%)', 'sepia(100%)', 'contrast(150%)', 'hue-rotate(90deg)', 'invert(80%)', 'blur(1px)'];
 const $ = id => document.getElementById(id);
 const LS = {
   get: (k, d) => { try { return JSON.parse(localStorage.getItem('gcp_' + k)) ?? d; } catch { return d; } },
@@ -1199,19 +1232,21 @@ $('groupModalConfirm').addEventListener('click', async () => {
   $('groupModal').classList.remove('show'); toast('Group (👥) created ✓');
 });
 
-/* Advanced Video Calling Tools (Screen Share, Filters, Recording, In-Call Chat) */
+/* Advanced Video Calling & Conference Tools */
 window.startCall = async (targetSlug, isVideo) => {
   if (!targetSlug || targetSlug === App.mySlug) return toast('Select a valid contact to call', true);
   App.currentCallTarget = targetSlug;
   App.isVideoCall = isVideo;
   App.activeCallId = `call_${chatIdFor(App.mySlug, targetSlug)}`;
+  App.isHost = true;
   const contactObj = App.contacts.find(c => c.slug === targetSlug);
   const targetName = contactObj ? contactObj.name : targetSlug;
   $('callName').textContent = targetName;
-  $('callStatus').textContent = isVideo ? 'Initiating Video Call…' : 'Initiating Voice Call…';
+  $('callStatus').textContent = isVideo ? 'Initiating Video Conference…' : 'Initiating Voice Call…';
   $('callAvatar').innerHTML = avatarInner(contactObj?.photo, targetName);
   $('screenShareBtn').style.display = isVideo ? 'flex' : 'none';
   $('filterBtn').style.display = isVideo ? 'flex' : 'none';
+  $('addParticipantBtn').style.display = isVideo ? 'flex' : 'none';
   if (isVideo) $('videoContainer').classList.add('active');
   else $('videoContainer').classList.remove('active');
   showScreen('screen-call');
@@ -1242,7 +1277,7 @@ window.startCall = async (targetSlug, isVideo) => {
       if (answer && App.peerConn && !App.peerConn.currentRemoteDescription) {
         await App.peerConn.setRemoteDescription(new RTCSessionDescription(answer));
         stopRingtoneSound();
-        $('callStatus').textContent = 'Connected';
+        $('callStatus').textContent = 'Conference Connected';
       }
     });
     onChildAdded(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/answerCandidates`), snap => {
@@ -1264,9 +1299,10 @@ function listenIncomingCalls() {
     App.activeCallId = snap.key;
     App.currentCallTarget = callData.caller;
     App.isVideoCall = callData.type === 'video';
+    App.isHost = false;
     $('incomingName').textContent = callData.callerName || callData.caller;
     $('incomingAvatar').innerHTML = avatarInner(null, callData.callerName || callData.caller);
-    $('incomingType').textContent = `Incoming ${callData.type === 'video' ? '📹 Video' : '📞 Voice'} Call…`;
+    $('incomingType').textContent = `Incoming ${callData.type === 'video' ? '📹 Video Conference' : '📞 Voice'} Call…`;
     $('incoming-call').classList.add('show');
     startRingtoneSound();
     window._incomingCallData = callData;
@@ -1280,10 +1316,11 @@ $('acceptCallBtn').addEventListener('click', async () => {
   if (!callData) return;
   const isVideo = callData.type === 'video';
   $('callName').textContent = callData.callerName || callData.caller;
-  $('callStatus').textContent = 'Connecting…';
+  $('callStatus').textContent = 'Connecting Conference…';
   $('callAvatar').innerHTML = avatarInner(null, callData.callerName);
   $('screenShareBtn').style.display = isVideo ? 'flex' : 'none';
   $('filterBtn').style.display = isVideo ? 'flex' : 'none';
+  $('addParticipantBtn').style.display = isVideo ? 'flex' : 'none';
   if (isVideo) $('videoContainer').classList.add('active');
   else $('videoContainer').classList.remove('active');
   showScreen('screen-call');
@@ -1305,7 +1342,7 @@ $('acceptCallBtn').addEventListener('click', async () => {
     await App.peerConn.setLocalDescription(answer);
     await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/answer`), { type: answer.type, sdp: answer.sdp });
     await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'connected');
-    $('callStatus').textContent = 'Connected';
+    $('callStatus').textContent = 'Conference Connected';
     onChildAdded(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/offerCandidates`), snap => {
       if (App.peerConn) App.peerConn.addIceCandidate(new RTCIceCandidate(snap.val()));
     });
@@ -1331,14 +1368,53 @@ function endCallLocally() {
 }
 
 $('endCallBtn').addEventListener('click', async () => {
-  if (App.activeCallId && App.currentCallTarget) {
-    await set(dbRef(db, `calls/${App.currentCallTarget}/${App.activeCallId}/status`), 'ended');
-    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'ended');
+  if (App.activeCallId) {
+    if (App.isHost) {
+      // Host closes conference for all participants
+      if (App.currentCallTarget) {
+        await set(dbRef(db, `calls/${App.currentCallTarget}/${App.activeCallId}/status`), 'ended');
+      }
+      await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'ended');
+      toast('Conference ended by host ✓');
+    } else {
+      await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'ended');
+    }
   }
   endCallLocally();
 });
 
-/* In-Call Chat, Screen Share, Filters & Recording */
+/* Add Participant to Conference */
+$('addParticipantBtn').addEventListener('click', () => {
+  const list = $('participantSelectionList');
+  list.innerHTML = App.contacts.length ? App.contacts.map(c => `
+    <div class="group-select-item">
+      <input type="checkbox" value="${c.slug}" id="p_${c.slug}" style="width:18px;height:18px;">
+      <label for="p_${c.slug}">${esc(c.name)} (@${c.slug})</label>
+    </div>`).join('') : '<div style="font-size:19px !important;font-family:Calibri,sans-serif;color:var(--muted)">No contacts in Friend List.</div>';
+  $('addParticipantModal').classList.add('show');
+});
+$('participantCancel').addEventListener('click', () => $('addParticipantModal').classList.remove('show'));
+$('participantConfirm').addEventListener('click', async () => {
+  const checked = Array.from(document.querySelectorAll('#participantSelectionList input:checked')).map(i => i.value);
+  if (!checked.length) return toast('Select at least one participant', true);
+  $('addParticipantModal').classList.remove('show');
+  toast('Inviting participants to conference…');
+  for (const slug of checked) {
+    // Initiate simultaneous ringing call for participant
+    const partCallId = `call_${chatIdFor(App.mySlug, slug)}_${Date.now()}`;
+    const callRef = dbRef(db, `calls/${slug}/${partCallId}`);
+    if (App.peerConn && App.localStream) {
+      const offer = await App.peerConn.createOffer();
+      await set(callRef, {
+        caller: App.mySlug, callerName: App.myName, type: 'video',
+        sdp: offer.sdp, status: 'calling', time: Date.now()
+      });
+    }
+  }
+  toast('Participants invited successfully ✓');
+});
+
+/* In-Call Chat & Media */
 $('callChatToggleBtn').addEventListener('click', () => $('callChatDrawer').classList.toggle('show'));
 $('closeCallChat').addEventListener('click', () => $('callChatDrawer').classList.remove('show'));
 
@@ -1349,10 +1425,10 @@ function setupCallChatListeners() {
     const data = snap.val() || {};
     const msgs = Object.values(data).sort((a, b) => (a.time || 0) - (b.time || 0));
     const area = $('callMsgArea');
-    if (!msgs.length) { area.innerHTML = '<div style="color:rgba(255,255,255,.6);text-align:center;font-size:19px !important;font-family:Calibri,sans-serif;">No in-call messages yet.</div>'; return; }
+    if (!msgs.length) { area.innerHTML = '<div style="color:rgba(255,255,255,.6);text-align:center;font-size:19px !important;font-family:Calibri,sans-serif;">No in-call messages or media yet.</div>'; return; }
     area.innerHTML = msgs.map(m => `
       <div style="background:rgba(255,255,255,.15);padding:6px 10px;border-radius:6px;">
-        <strong style="color:var(--gold);">${esc(m.name)}:</strong> ${esc(m.text)}
+        <strong style="color:var(--gold);">${esc(m.name)}:</strong> ${esc(m.text || '')}
         ${m.attachment ? renderAttachment(m.attachment) : ''}
       </div>`).join('');
     area.scrollTop = area.scrollHeight;
@@ -1366,6 +1442,23 @@ $('sendCallMsgBtn').addEventListener('click', async () => {
   inp.value = '';
 });
 $('callMsgInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('sendCallMsgBtn').click(); });
+
+$('callAttachBtn').addEventListener('click', () => $('callAttachInput').click());
+$('callAttachInput').addEventListener('change', async e => {
+  const file = e.target.files[0]; if (!file || !App.activeCallId) return;
+  toast('Sending file in call…');
+  try {
+    const url = await fileToBase64(file);
+    const type = detectFileType(file);
+    await push(dbRef(db, `call_chats/${App.activeCallId}`), {
+      from: App.mySlug, name: App.myName, text: `Shared file: ${file.name}`,
+      attachment: { type, url, name: file.name, size: file.size },
+      time: Date.now()
+    });
+    toast('File shared in call ✓');
+  } catch { toast('Failed to share file', true); }
+  e.target.value = '';
+});
 
 $('screenShareBtn').addEventListener('click', async () => {
   try {
@@ -1390,12 +1483,12 @@ $('screenShareBtn').addEventListener('click', async () => {
   } catch { toast('Screen sharing cancelled or unsupported', true); }
 });
 
-$('filterBtn').addEventListener('click', () => {
-  App.filterIndex = (App.filterIndex + 1) % filtersList.length;
-  const f = filtersList[App.filterIndex];
-  if ($('localVideo')) $('localVideo').style.filter = f;
-  toast(`Camera filter: ${f === 'none' ? 'Normal' : f}`);
-});
+$('filterBtn').addEventListener('click', () => $('filterModal').classList.add('show'));
+window.__applyFilter = (filterVal) => {
+  if ($('localVideo')) $('localVideo').style.filter = filterVal;
+  $('filterModal').classList.remove('show');
+  toast(`Camera background filter applied ✓`);
+};
 
 $('recordCallBtn').addEventListener('click', () => {
   const btn = $('recordCallBtn');
