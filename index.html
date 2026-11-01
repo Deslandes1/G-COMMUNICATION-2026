@@ -420,6 +420,8 @@ const firebaseConfig = {
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
 const ICE_SERVERS = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] };
+const OWNER_SLUGS = ['gesnerdeslandes', 'gesner'];
+const OWNER_NAME = 'Gesner Deslandes';
 const App = {
   mySlug: null, myName: '', myPhoto: null,
   contacts: [], groups: [], activeChat: null, activeIsGroup: false,
@@ -435,7 +437,7 @@ const LS = {
   del: (k) => localStorage.removeItem('gcp_' + k)
 };
 function isOwner() {
-  return App.mySlug === 'gesnerdeslandes' || App.mySlug === 'gesner';
+  return OWNER_SLUGS.includes(App.mySlug);
 }
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
 let toastTimer;
@@ -468,7 +470,6 @@ function getAudioCtx() { if (!App.audioCtx) { try { App.audioCtx = new (window.A
 function unlockAudio() { const ctx = getAudioCtx(); if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {}); }
 document.addEventListener('click', unlockAudio);
 document.addEventListener('touchstart', unlockAudio, { passive: true });
-
 function playSentSound() {
   const ctx = getAudioCtx(); if (!ctx) return;
   if (ctx.state === 'suspended') ctx.resume().catch(() => {});
@@ -519,7 +520,6 @@ function startRingtoneSound() {
 function stopRingtoneSound() {
   if (App.ringtoneInterval) { clearInterval(App.ringtoneInterval); App.ringtoneInterval = null; }
 }
-
 function updateAppBadge() {
   let totalUnread = 0;
   Object.values(App.unreadCounts).forEach(c => totalUnread += (c || 0));
@@ -528,7 +528,6 @@ function updateAppBadge() {
     else navigator.clearAppBadge().catch(() => {});
   }
 }
-
 window.__viewAvatar = (photoUrl, displayName) => {
   if (!photoUrl) return;
   $('avatarViewerImg').src = photoUrl;
@@ -540,7 +539,6 @@ window.__enlargeActiveAvatar = () => {
   const target = App.activeIsGroup ? App.groups.find(g => g.id === App.activeChat) : App.contacts.find(c => c.slug === App.activeChat);
   if (target && target.photo) window.__viewAvatar(target.photo, target.name);
 };
-
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
 let nameCheckTimer = null;
 nameInput.addEventListener('input', () => {
@@ -565,8 +563,20 @@ enterBtn.addEventListener('click', async () => {
   } catch {}
   App.mySlug = slug; App.myName = rawVal || slug;
   LS.set('mySlug', slug); LS.set('myName', App.myName);
+  
+  // Auto-add Gesner Deslandes to every new user's Friend List
+  autoAddOwnerFriend();
   startMainApp();
 });
+function autoAddOwnerFriend() {
+  if (!isOwner()) {
+    const ownerSlug = 'gesnerdeslandes';
+    if (!App.contacts.some(c => c.slug === ownerSlug || c.slug === 'gesner')) {
+      App.contacts.push({ slug: ownerSlug, name: OWNER_NAME, photo: null });
+      saveContacts();
+    }
+  }
+}
 window.addEventListener('load', () => {
   App.contacts = LS.get('contacts', []);
   App.groups = LS.get('groups', []);
@@ -580,6 +590,7 @@ window.addEventListener('load', () => {
   showScreen('screen-onboard');
 });
 function startMainApp() {
+  autoAddOwnerFriend();
   showScreen('screen-main');
   updateProfileHeader();
   buildUI();
@@ -641,14 +652,14 @@ function loadOwnerStatuses() {
   area.innerHTML = posts.map(p => `
     <div style="background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:14px;">
       <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;margin-bottom:6px;">
-        <span>User: @${esc(p.authorSlug)} (${esc(p.authorName)})</span>
+        <span>User: @esc(p.authorSlug)({esc(p.authorName)})</span>
         <span style="color:var(--muted);">${new Date(p.time).toLocaleString()}</span>
       </div>
       <div style="font-size:16px;margin-bottom:6px;">${esc(p.text || '')}</div>
-      ${p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" class="owner-img-player" alt="User Photo" onclick="window.__viewAvatar('${p.mediaUrl}', '${esc(p.authorName)}')">` : `<video src="${p.mediaUrl}" controls playsinline preload="metadata" class="owner-video-player"></video>`) : ''}
+      ${p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" class="owner-img-player" alt="User Photo" onclick="window.__viewAvatar('p.mediaUrl','{esc(p.authorName)}')">` : `<video src="${p.mediaUrl}" controls playsinline preload="metadata" class="owner-video-player"></video>`) : ''}
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;">
         <button class="btn-primary" style="max-width:none;padding:8px 14px;font-size:14px;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus('${p._k}')">🗑️ Delete (Text/Media)</button>
-        <button class="btn-primary" style="max-width:none;padding:8px 14px;font-size:14px;background:#143a5f;color:#fff;" onclick="window.__ownerReportStatus('${p._k}', '@${esc(p.authorSlug)}')">🚩 Report Violation</button>
+        <button class="btn-primary" style="max-width:none;padding:8px 14px;font-size:14px;background:#143a5f;color:#fff;" onclick="window.__ownerReportStatus('p.k','@{esc(p.authorSlug)}')">🚩 Report Violation</button>
       </div>
     </div>`).join('');
 }
@@ -673,8 +684,8 @@ function loadOwnerReports() {
     let html = `<div style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:8px;">👥 Registered App Users (${userList.length})</div>`;
     html += userList.map(u => `
       <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-        <div><strong>${esc(u.displayName)}</strong> (@${esc(u.slug)})</div>
-        <button style="background:var(--accent);color:#fff;border:none;padding:6px 10px;border-radius:6px;font-size:13px;cursor:pointer;" onclick="window.__ownerDirectDM('${u.slug}', '${esc(u.displayName)}')">💬 DM User</button>
+        <div><strong>esc(u.displayName)</strong>(@{esc(u.slug)})</div>
+        <button style="background:var(--accent);color:#fff;border:none;padding:6px 10px;border-radius:6px;font-size:13px;cursor:pointer;" onclick="window.__ownerDirectDM('u.slug','{esc(u.displayName)}')">💬 DM User</button>
       </div>`).join('');
     
     onValue(dbRef(db, 'chats'), snapChats => {
@@ -701,7 +712,7 @@ function loadOwnerReports() {
             <div><strong>@${esc(m.fromName || m.from)}:</strong> ${esc(m.text || '[Attachment]')}</div>
             ${m.attachment ? renderAttachment(m.attachment) : ''}
             <div style="display:flex;justify-content:flex-end;margin-top:4px;">
-              <button style="background:#ff4757;color:#fff;border:none;padding:4px 8px;border-radius:6px;font-size:12px;cursor:pointer;" onclick="window.__ownerDeleteP2PMessage('${m.chatId}', '${m._k}')">🗑️ Delete</button>
+              <button style="background:#ff4757;color:#fff;border:none;padding:4px 8px;border-radius:6px;font-size:12px;cursor:pointer;" onclick="window.__ownerDeleteP2PMessage('m.chatId','{m._k}')">🗑️ Delete</button>
             </div>
           </div>`).join('');
       }
@@ -721,7 +732,7 @@ window.__ownerDirectDM = (targetSlug, targetName) => {
 };
 window.__ownerDeleteP2PMessage = async (chatId, msgKey) => {
   if (confirm('Owner Action: Delete this private message?')) {
-    await remove(dbRef(db, `chats/${chatId}/messages/${msgKey}`));
+    await remove(dbRef(db, `chats/chatId/messages/{msgKey}`));
     toast('Private message removed by Owner ✓');
     loadOwnerReports();
   }
@@ -742,10 +753,9 @@ function saveContacts() { LS.set('contacts', App.contacts); }
 function saveGroups() { LS.set('groups', App.groups); }
 function saveDeletedLocally() { LS.set('deletedLocally', App.deletedLocally); }
 function saveUnreadCounts() { LS.set('unreadCounts', App.unreadCounts); updateAppBadge(); }
-
 function setupMessageListener(slug, isGroup) {
   if (App.globalUnsubs[slug]) return;
-  const path = isGroup ? `group_chats/${slug}/messages` : `chats/${chatIdFor(App.mySlug, slug)}/messages`;
+  const path = isGroup ? `group_chats/slug/messages`:`chats/{chatIdFor(App.mySlug, slug)}/messages`;
   const q = query(dbRef(db, path), limitToLast(100));
   let isFirstLoad = true;
   App.globalUnsubs[slug] = onValue(q, snap => {
@@ -767,7 +777,6 @@ function setupMessageListener(slug, isGroup) {
   });
 }
 function setupGroupMessageListener(groupId) { setupMessageListener(groupId, true); }
-
 function buildUI() {
   const cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient');
   let html = '';
@@ -797,7 +806,7 @@ function buildUI() {
       const unread = App.unreadCounts[c.slug] || 0;
       return `
       <div class="list-item" onclick="window.__openChat('${c.slug}', false)">
-        <div class="avatar" onclick="event.stopPropagation(); window.__viewAvatar('${c.photo || ''}', '${esc(c.name)}')">${avatarInner(c.photo, c.name)}</div>
+        <div class="avatar" onclick="event.stopPropagation(); window.__viewAvatar('c.photo||''','{esc(c.name)}')">${avatarInner(c.photo, c.name)}</div>
         <div class="list-item-body">
           <div class="list-item-header">
             <div class="list-item-title">${esc(c.name)}</div>
@@ -812,14 +821,14 @@ function buildUI() {
   cl.innerHTML = html;
   ccl.innerHTML = App.contacts.map(c => `
     <div class="list-item">
-      <div class="avatar accent" onclick="window.__viewAvatar('${c.photo || ''}', '${esc(c.name)}')">${avatarInner(c.photo, c.name)}</div>
-      <div class="list-item-body"><div class="list-item-title">${esc(c.name)}</div><div class="list-item-sub">@${c.slug}</div></div>
+      <div class="avatar accent" onclick="window.__viewAvatar('c.photo||''','{esc(c.name)}')">${avatarInner(c.photo, c.name)}</div>
+      <div class="list-item-body"><div class="list-item-title">esc(c.name)</div><divclass="list-item-sub">@{c.slug}</div></div>
       <div style="display:flex;gap:10px;">
         <button class="header-call-btn" style="color:var(--navy);background:#e0f2fe;padding:8px 14px;border-radius:18px;font-size:16px;font-weight:600;" onclick="window.startCall('${c.slug}', false)">📞 Voice</button>
         <button class="header-call-btn" style="color:var(--navy);background:#dcfce7;padding:8px 14px;border-radius:18px;font-size:16px;font-weight:600;" onclick="window.startCall('${c.slug}', true)">📹 Video</button>
       </div>
     </div>`).join('');
-  vmSel.innerHTML = '<option value="">Select recipient</option>' + App.contacts.map(c => `<option value="${c.slug}">${esc(c.name)}</option>`).join('');
+  vmSel.innerHTML = '<option value="">Select recipient</option>' + App.contacts.map(c => `<option value="c.slug">{esc(c.name)}</option>`).join('');
 }
 window.__openChat = (id, isGroup) => {
   if (!isGroup && !isOwner() && id !== App.mySlug) {
@@ -843,7 +852,7 @@ function renderAttachment(a) {
   if (a.type === 'image') return `<img class="attach-img" src="${safeUrl}" loading="lazy" onclick="window.__lb('${safeUrl}')">`;
   if (a.type === 'video') return `<video class="attach-video" controls playsinline src="${safeUrl}"></video>`;
   if (a.type === 'audio') return `<audio class="attach-audio" controls playsinline preload="metadata" src="${safeUrl}"></audio>`;
-  return `<a class="attach-file" href="${safeUrl}" target="_blank" download="${esc(a.name || 'file')}">📄 ${esc(a.name || 'File')}</a>`;
+  return `<a class="attach-file" href="safeUrl"target="blank"download="{esc(a.name || 'file')}">📄 ${esc(a.name || 'File')}</a>`;
 }
 function renderMessages(id, msgs, isGroup) {
   const area = $('messagesArea');
@@ -884,7 +893,7 @@ $('actDeleteForMeBtn').addEventListener('click', () => {
 });
 $('actDeleteEveryoneBtn').addEventListener('click', async () => {
   if (!App.selectedMsgKey) return;
-  const path = App.activeIsGroup ? `group_chats/${App.activeChat}/messages/${App.selectedMsgKey}` : `chats/${chatIdFor(App.mySlug, App.activeChat)}/messages/${App.selectedMsgKey}`;
+  const path = App.activeIsGroup ? `group_chats/App.activeChat/messages/{App.selectedMsgKey}` : `chats/chatIdFor(App.mySlug,App.activeChat)/messages/{App.selectedMsgKey}`;
   await remove(dbRef(db, path));
   $('actionSheet').classList.remove('show');
   toast('Deleted for everyone ✓');
@@ -905,7 +914,7 @@ $('editMediaInput').addEventListener('change', e => {
 $('editMsgConfirm').addEventListener('click', async () => {
   const newText = $('editMsgInput').value.trim();
   if (App.selectedMsgKey) {
-    const path = App.activeIsGroup ? `group_chats/${App.activeChat}/messages/${App.selectedMsgKey}` : `chats/${chatIdFor(App.mySlug, App.activeChat)}/messages/${App.selectedMsgKey}`;
+    const path = App.activeIsGroup ? `group_chats/App.activeChat/messages/{App.selectedMsgKey}` : `chats/chatIdFor(App.mySlug,App.activeChat)/messages/{App.selectedMsgKey}`;
     let updates = { text: newText, edited: true };
     if (App.editMediaFile) {
       const url = await fileToBase64(App.editMediaFile);
@@ -922,7 +931,7 @@ $('editMsgConfirm').addEventListener('click', async () => {
 async function sendMessage(attachment = null) {
   const inp = $('chatInput'); const text = inp.value.trim();
   if ((!text && !attachment) || !App.activeChat) return;
-  const path = App.activeIsGroup ? `group_chats/${App.activeChat}/messages` : `chats/${chatIdFor(App.mySlug, App.activeChat)}/messages`;
+  const path = App.activeIsGroup ? `group_chats/App.activeChat/messages`:`chats/{chatIdFor(App.mySlug, App.activeChat)}/messages`;
   await push(dbRef(db, path), {
     from: App.mySlug, fromName: App.myName, text, attachment, time: Date.now()
   });
@@ -931,7 +940,7 @@ async function sendMessage(attachment = null) {
 }
 $('sendBtn').addEventListener('click', () => sendMessage());
 $('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
-$('chatInput').addEventListener('input', () => $('sendBtn').disabled = !$('chatInput').value.trim());
+$('chatInput').addEventListener('input', () => ('sendBtn').disabled=!('chatInput').value.trim());
 $('attachBtn').addEventListener('click', () => $('fileInput').click());
 $('fileInput').addEventListener('change', async e => {
   const file = e.target.files[0]; if (!file || !App.activeChat) return;
@@ -1018,7 +1027,7 @@ $('addGroupFab').addEventListener('click', () => {
   list.innerHTML = App.contacts.length ? App.contacts.map(c => `
     <div class="group-select-item">
       <input type="checkbox" value="${c.slug}" id="chk_${c.slug}" style="width:20px;height:20px;">
-      <label for="chk_${c.slug}">${esc(c.name)} (@${c.slug})</label>
+      <label for="chk_c.slug">{esc(c.name)} (@${c.slug})</label>
     </div>`).join('') : '<div style="font-size:16px;color:var(--muted)">Add contacts to your Friend List first.</div>';
   $('groupNameInput').value = ''; $('groupModal').classList.add('show');
 });
@@ -1054,8 +1063,8 @@ window.startCall = async (targetSlug, isVideo) => {
     App.peerConn = new RTCPeerConnection(ICE_SERVERS);
     App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
     App.peerConn.ontrack = e => { if (e.streams && e.streams[0]) $('remoteVideo').srcObject = e.streams[0]; };
-    const callRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}`);
-    const offerCandidatesRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}/offerCandidates`);
+    const callRef = dbRef(db, `calls/targetSlug/{App.activeCallId}`);
+    const offerCandidatesRef = dbRef(db, `calls/targetSlug/{App.activeCallId}/offerCandidates`);
     App.peerConn.onicecandidate = e => { if (e.candidate) push(offerCandidatesRef, e.candidate.toJSON()); };
     const offer = await App.peerConn.createOffer();
     await App.peerConn.setLocalDescription(offer);
@@ -1063,7 +1072,7 @@ window.startCall = async (targetSlug, isVideo) => {
       caller: App.mySlug, callerName: App.myName, type: isVideo ? 'video' : 'voice',
       sdp: offer.sdp, status: 'calling', time: Date.now()
     });
-    onValue(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/answer`), async snap => {
+    onValue(dbRef(db, `calls/targetSlug/{App.activeCallId}/answer`), async snap => {
       const answer = snap.val();
       if (answer && App.peerConn && !App.peerConn.currentRemoteDescription) {
         await App.peerConn.setRemoteDescription(new RTCSessionDescription(answer));
@@ -1071,10 +1080,10 @@ window.startCall = async (targetSlug, isVideo) => {
         $('callStatus').textContent = 'Connected';
       }
     });
-    onChildAdded(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/answerCandidates`), snap => {
+    onChildAdded(dbRef(db, `calls/targetSlug/{App.activeCallId}/answerCandidates`), snap => {
       if (App.peerConn) App.peerConn.addIceCandidate(new RTCIceCandidate(snap.val()));
     });
-    onValue(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/status`), snap => {
+    onValue(dbRef(db, `calls/targetSlug/{App.activeCallId}/status`), snap => {
       if (snap.val() === 'ended' || snap.val() === 'rejected') endCallLocally();
     });
   } catch {
@@ -1115,15 +1124,15 @@ $('acceptCallBtn').addEventListener('click', async () => {
     App.peerConn = new RTCPeerConnection(ICE_SERVERS);
     App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
     App.peerConn.ontrack = e => { if (e.streams && e.streams[0]) $('remoteVideo').srcObject = e.streams[0]; };
-    const answerCandidatesRef = dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/answerCandidates`);
+    const answerCandidatesRef = dbRef(db, `calls/App.mySlug/{App.activeCallId}/answerCandidates`);
     App.peerConn.onicecandidate = e => { if (e.candidate) push(answerCandidatesRef, e.candidate.toJSON()); };
     await App.peerConn.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: callData.sdp }));
     const answer = await App.peerConn.createAnswer();
     await App.peerConn.setLocalDescription(answer);
-    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/answer`), { type: answer.type, sdp: answer.sdp });
-    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'connected');
+    await set(dbRef(db, `calls/App.mySlug/{App.activeCallId}/answer`), { type: answer.type, sdp: answer.sdp });
+    await set(dbRef(db, `calls/App.mySlug/{App.activeCallId}/status`), 'connected');
     $('callStatus').textContent = 'Connected';
-    onChildAdded(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/offerCandidates`), snap => {
+    onChildAdded(dbRef(db, `calls/App.mySlug/{App.activeCallId}/offerCandidates`), snap => {
       if (App.peerConn) App.peerConn.addIceCandidate(new RTCIceCandidate(snap.val()));
     });
   } catch {
@@ -1134,7 +1143,7 @@ $('acceptCallBtn').addEventListener('click', async () => {
 $('rejectCallBtn').addEventListener('click', async () => {
   stopRingtoneSound();
   $('incoming-call').classList.remove('show');
-  if (App.activeCallId) await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'rejected');
+  if (App.activeCallId) await set(dbRef(db, `calls/App.mySlug/{App.activeCallId}/status`), 'rejected');
 });
 function endCallLocally() {
   stopRingtoneSound();
@@ -1145,15 +1154,14 @@ function endCallLocally() {
 }
 $('endCallBtn').addEventListener('click', async () => {
   if (App.activeCallId && App.currentCallTarget) {
-    await set(dbRef(db, `calls/${App.currentCallTarget}/${App.activeCallId}/status`), 'ended');
-    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'ended');
+    await set(dbRef(db, `calls/App.currentCallTarget/{App.activeCallId}/status`), 'ended');
+    await set(dbRef(db, `calls/App.mySlug/{App.activeCallId}/status`), 'ended');
   }
   endCallLocally();
 });
 $('voiceCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, false); });
 $('videoCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, true); });
-
-/* Status Feed Privacy & DM Rules */
+/* Status Feed Privacy & Public Owner Broadcast */
 $('openPostStatusBtn').addEventListener('click', () => {
   $('statusTextInput').value = ''; $('statusLinkInput').value = ''; $('statusMediaName').textContent = '';
   App.statusMediaFile = null; $('statusModal').classList.add('show');
@@ -1188,22 +1196,22 @@ function listenUserStatuses() {
     const data = snap.val() || {};
     const friendSlugs = App.contacts.map(c => c.slug);
     
-    // STRICT PRIVACY: Gesner Deslandes sees ALL statuses. Regular users ONLY see statuses from added friends or themselves.
+    // PUBLIC OWNER BROADCAST: Posts by Gesner Deslandes are visible to ALL users.
+    // Regular users also see their own statuses and statuses from added friends.
     const posts = Object.entries(data)
       .map(([k, v]) => ({ ...v, _k: k }))
-      .filter(p => isOwner() || p.authorSlug === App.mySlug || friendSlugs.includes(p.authorSlug))
+      .filter(p => OWNER_SLUGS.includes(p.authorSlug) || isOwner() || p.authorSlug === App.mySlug || friendSlugs.includes(p.authorSlug))
       .sort((a, b) => b.time - a.time);
-
     if (!posts.length) {
-      $('statusFeedList').innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No friend status updates available.</p></div>';
+      $('statusFeedList').innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No status updates available.</p></div>';
       window._cachedPosts = [];
       return;
     }
     $('statusFeedList').innerHTML = posts.map(p => {
       const isMine = p.authorSlug === App.mySlug;
-      const mediaHtml = p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" class="status-media" onclick="window.__viewAvatar('${p.mediaUrl}', '${esc(p.authorName)}')">` : `<video src="${p.mediaUrl}" controls playsinline preload="metadata" class="status-media"></video>`) : '';
+      const mediaHtml = p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" class="status-media" onclick="window.__viewAvatar('${p.mediaUrl}', 'esc(p.authorName)')">`:`<videosrc="{p.mediaUrl}" controls playsinline preload="metadata" class="status-media"></video>`) : '';
       const linkHtml = p.link ? `<a href="${p.link}" target="_blank" rel="noopener" class="status-link">🔗 ${esc(p.link)}</a>` : '';
-      const textHtml = p.text ? `<div class="status-content-box" style="background:${p.bgColor || '#0d7a8c'}">${esc(p.text)}</div>` : '';
+      const textHtml = p.text ? `<div class="status-content-box" style="background:p.bgColor||'#0d7a8c'">{esc(p.text)}</div>` : '';
       const comments = p.comments || {};
       const commentCount = Object.keys(comments).length;
       const likes = p.likes || {};
@@ -1211,16 +1219,16 @@ function listenUserStatuses() {
       const myLiked = likes[App.mySlug] ? true : false;
       return `<div class="status-card" data-key="${p._k}">
         <div class="status-card-header">
-          <div class="avatar" style="width:44px;height:44px;font-size:18px" onclick="window.__viewAvatar('${p.authorPhoto || ''}', '${esc(p.authorName)}')">${avatarInner(p.authorPhoto, p.authorName)}</div>
-          <div style="flex:1"><div style="font-weight:700;font-size:18px;">${esc(p.authorName)} <small style="color:var(--accent)">(@${esc(p.authorSlug)})</small></div><small style="color:var(--muted);font-size:14px;">${new Date(p.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small></div>
+          <div class="avatar" style="width:44px;height:44px;font-size:18px" onclick="window.__viewAvatar('p.authorPhoto||''','{esc(p.authorName)}')">${avatarInner(p.authorPhoto, p.authorName)}</div>
+          <div style="flex:1"><div style="font-weight:700;font-size:18px;">esc(p.authorName)<smallstyle="color:var(--accent)">(@{esc(p.authorSlug)})</small></div><small style="color:var(--muted);font-size:14px;">${new Date(p.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small></div>
           ${isMine || isOwner() ? `<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:18px" onclick="window.__delStatus('${p._k}')">🗑</button>` : ''}
         </div>
         ${textHtml}
         ${mediaHtml}
         ${linkHtml}
         <div style="display:flex;gap:10px;align-items:center;margin-top:10px;border-top:1px solid #f0f0f0;padding-top:8px;flex-wrap:wrap;">
-          <button style="background:${myLiked ? '#d4af37' : '#eef2f6'};color:${myLiked ? '#0b2a4a' : 'var(--text)'};border:none;padding:8px 14px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__toggleStatusLike('${p._k}')">👍 Like (${likeCount})</button>
-          <button style="background:#eef2f6;border:none;padding:8px 14px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__openStatusComments('${p._k}')">💬 Comments (${commentCount})</button>
+          <button style="background:myLiked?'#d4af37':'#eef2f6';color:{myLiked ? '#0b2a4a' : 'var(--text)'};border:none;padding:8px 14px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__toggleStatusLike('p.k')">👍Like({likeCount})</button>
+          <button style="background:#eef2f6;border:none;padding:8px 14px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__openStatusComments('p.k')">💬Comments({commentCount})</button>
           <button style="background:#eef2f6;border:none;padding:8px 14px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '❤️')">❤️</button>
           <button style="background:#eef2f6;border:none;padding:8px 14px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '🔥')">🔥</button>
           <button style="background:#eef2f6;border:none;padding:8px 14px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '😂')">😂</button>
@@ -1235,7 +1243,7 @@ window.__toggleStatusLike = async (statusKey) => {
   const post = posts.find(p => p._k === statusKey);
   if (!post) return;
   const ownerSlug = post.authorSlug;
-  const likesRef = dbRef(db, `user_statuses/${statusKey}/likes/${App.mySlug}`);
+  const likesRef = dbRef(db, `user_statuses/statusKey/likes/{App.mySlug}`);
   const snap = await get(likesRef);
   if (snap.exists()) {
     await remove(likesRef);
@@ -1324,7 +1332,6 @@ document.querySelectorAll('.emoji-item').forEach(b => b.addEventListener('click'
 document.querySelectorAll('.quick-reaction').forEach(b => b.addEventListener('click', () => {
   $('chatInput').value = b.dataset.emoji; sendMessage();
 }));
-
 /* Voicemail */
 let mediaRecorder = null, audioChunks = [], recordingTimer = null;
 $('recordBtn').addEventListener('click', async () => {
