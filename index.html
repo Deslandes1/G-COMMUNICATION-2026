@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JARVIS">
 <title>JARVIS</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5YiIgcj0iNjYiIGZpbGw9IiNkNGFlMzciLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQ2FsaWJyaSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjkyIiBmb250LXdlaWdodD0iODAwIiBmaWxsPSIjMGIyYTRhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5HPC90ZXh0Pjwvc3ZnPg==">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5YiIgcj0iNjYiIGZpbGw9IjNkNGFlMzciLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQ2FsaWJyaSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjkyIiBmb250LXdlaWdodD0iODAwIiBmaWxsPSIjMGIyYTRhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5HPC90ZXh0Pjwvc3ZnPg==">
 <style>
 :root{--navy:#0b2a4a;--navy-light:#143a5f;--accent:#0d7a8c;--gold:#d4af37;--green:#4aff7a;--red:#ff4757;--bg:#f2f5f8;--card:#fff;--text:#1e2a33;--muted:#6b7a87;--border:#e1e7ed}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -583,6 +583,40 @@ nameInput.addEventListener('input', () => {
     enterBtn.disabled = false;
   }, 250);
 });
+
+async function syncAccountDataFromCloud(slug) {
+  toast('Syncing account data from cloud...');
+  try {
+    const userRef = dbRef(db, 'users/' + slug);
+    const snap = await get(userRef);
+    if (snap.exists()) {
+      const data = snap.val();
+      if (data.photo) { App.myPhoto = data.photo; LS.set('avatar', data.photo); }
+      if (data.contacts) {
+        const cloudContacts = Object.values(data.contacts);
+        cloudContacts.forEach(cc => {
+          if (!App.contacts.some(c => c.slug === cc.slug)) {
+            App.contacts.push(cc);
+          }
+        });
+        saveContacts();
+      }
+    }
+    const groupSnap = await get(dbRef(db, 'group_chats'));
+    if (groupSnap.exists()) {
+      const allGroups = Object.values(groupSnap.val());
+      allGroups.forEach(g => {
+        if (g.members && g.members.includes(slug)) {
+          if (!App.groups.some(existing => existing.id === g.id)) {
+            App.groups.push({ id: g.id, name: g.name, members: g.members, photo: g.photo || null });
+          }
+        }
+      });
+      saveGroups();
+    }
+  } catch {}
+}
+
 enterBtn.addEventListener('click', async () => {
   const rawVal = nameInput.value.trim();
   const slug = slugify(rawVal);
@@ -596,9 +630,10 @@ enterBtn.addEventListener('click', async () => {
   } catch {}
   App.mySlug = slug; App.myName = rawVal || slug;
   LS.set('mySlug', slug); LS.set('myName', App.myName);
+  await syncAccountDataFromCloud(slug);
   startMainApp();
 });
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
   App.contacts = LS.get('contacts', []);
   App.groups = LS.get('groups', []);
   App.pendingGroupInvites = LS.get('pendingGroupInvites', {});
@@ -773,7 +808,17 @@ $('avatarInput').addEventListener('change', async e => {
   } catch { toast('Failed to update photo', true); }
   e.target.value = '';
 });
-function saveContacts() { LS.set('contacts', App.contacts); }
+
+async function saveContacts() { 
+  LS.set('contacts', App.contacts);
+  if (App.mySlug) {
+    try {
+      const contactsMap = {};
+      App.contacts.forEach(c => { contactsMap[c.slug] = c; });
+      await set(dbRef(db, `users/${App.mySlug}/contacts`), contactsMap);
+    } catch {}
+  }
+}
 function saveGroups() { LS.set('groups', App.groups); }
 function savePendingInvites() { LS.set('pendingGroupInvites', App.pendingGroupInvites); }
 function saveDeletedLocally() { LS.set('deletedLocally', App.deletedLocally); }
@@ -1078,7 +1123,7 @@ $('modalConfirm').addEventListener('click', async () => {
   if (!snap.exists()) return toast('User not found in database', true);
   const friendName = snap.val().displayName || rawInputName || slug;
   App.contacts.push({ slug, name: friendName, photo: snap.val().photo || null });
-  saveContacts(); setupMessageListener(slug, false); buildUI(); listenUserStatuses();
+  await saveContacts(); setupMessageListener(slug, false); buildUI(); listenUserStatuses();
   $('addModal').classList.remove('show'); toast('Added ' + friendName + ' to Friend List ✓');
 });
 $('invitePeerBtn').addEventListener('click', () => {
