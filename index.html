@@ -168,9 +168,9 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 <section id="screen-onboard" class="screen active">
   <div class="onboard-logo">G</div>
   <h1>JARVIS</h1>
-  <p>Enter your username handle or email address to continue.</p>
-  <input id="nameInput" class="onboard-input" type="text" placeholder="Username or email address" maxlength="50" autocomplete="off" autocapitalize="none">
-  <div class="name-status" id="nameStatus">Enter email (e.g. name@email.com) or username handle</div>
+  <p>Welcome to JARVIS, managed by Owner <strong>Gesner Deslandes</strong>. Enter your username handle to continue.</p>
+  <input id="nameInput" class="onboard-input" type="text" placeholder="Enter username (e.g. gesner)" maxlength="30" autocomplete="off" autocapitalize="none">
+  <div class="name-status" id="nameStatus">Lowercase letters, numbers, and underscores only</div>
   <button id="enterBtn" class="btn-primary">Enter Portal</button>
 </section>
 <section id="screen-main" class="screen">
@@ -569,7 +569,7 @@ let nameCheckTimer = null;
 nameInput.addEventListener('input', () => {
   const raw = nameInput.value.trim();
   const slug = slugify(raw);
-  if (!raw || !slug) { nameStatus.textContent = 'Enter a valid username handle or email'; nameStatus.className = 'name-status'; return; }
+  if (!raw || !slug) { nameStatus.textContent = 'Enter a valid username handle'; nameStatus.className = 'name-status'; return; }
   nameStatus.textContent = 'Checking availability…'; nameStatus.className = 'name-status';
   clearTimeout(nameCheckTimer);
   nameCheckTimer = setTimeout(() => {
@@ -579,7 +579,7 @@ nameInput.addEventListener('input', () => {
 enterBtn.addEventListener('click', async () => {
   const rawVal = nameInput.value.trim();
   const slug = slugify(rawVal);
-  if (!rawVal || !slug) return toast('Please enter a valid username handle or email address', true);
+  if (!rawVal || !slug) return toast('Please enter a valid username handle', true);
   try {
     const userRef = dbRef(db, 'users/' + slug);
     const snap = await get(userRef);
