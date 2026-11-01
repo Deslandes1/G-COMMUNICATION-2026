@@ -351,17 +351,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
     </div>
   </div>
 </section>
-<div id="incoming-call" style="position:fixed;inset:0;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:999999;padding:40px 24px;text-align:center;">
-  <div class="call-avatar" id="incomingAvatar">G</div>
-  <div style="font-size:26px;font-weight:800;margin-bottom:6px" id="incomingName">—</div>
-  <div style="font-size:18px;color:var(--green);font-weight:700;margin-bottom:40px" id="incomingType">Incoming Call…</div>
-  <div class="call-actions" style="justify-content:center;">
-    <button class="call-btn end" id="rejectCallBtn">📵</button>
-    <button class="call-btn accept" id="acceptCallBtn">📞</button>
-  </div>
-</div>
-<div class="modal-overlay" id="filterModal">
-<div id="incoming-call" style="position:fixed;inset:0;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:9999999;padding:40px 24px;text-align:center;">
+<div id="incoming-call">
   <div class="call-avatar" id="incomingAvatar">G</div>
   <div style="font-size:28px;font-weight:800;margin-bottom:8px" id="incomingName">—</div>
   <div style="font-size:20px;color:var(--green);font-weight:700;margin-bottom:40px" id="incomingType">Incoming Conference Video Call…</div>
@@ -373,6 +363,23 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
     <div class="call-btn-item">
       <button class="call-btn accept" id="acceptCallBtn" style="width:72px;height:72px;font-size:32px;">📞</button>
       <span style="font-size:16px;font-weight:700;">Accept Call</span>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="filterModal">
+  <div class="modal">
+    <h3>Camera Background Filters (🎨)</h3>
+    <p style="font-size:15px;color:var(--muted);margin-bottom:12px;">Select a background filter effect for your video call:</p>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="btn-primary" style="max-width:none;background:#eef2f6;color:var(--text)" onclick="window.applyCameraFilter('none')">Normal (No Filter)</button>
+      <button class="btn-primary" style="max-width:none;background:#143a5f;color:#fff" onclick="window.applyCameraFilter('blur')">Blur Background</button>
+      <button class="btn-primary" style="max-width:none;background:#d4af37;color:var(--navy)" onclick="window.applyCameraFilter('sepia')">Sepia Tone</button>
+      <button class="btn-primary" style="max-width:none;background:#1e2a33;color:#fff" onclick="window.applyCameraFilter('bw')">Black & White</button>
+      <button class="btn-primary" style="max-width:none;background:#0d7a8c;color:#fff" onclick="window.applyCameraFilter('vintage')">Vintage Warmth</button>
+      <button class="btn-primary" style="max-width:none;background:#ff4757;color:#fff" onclick="window.applyCameraFilter('cyber')">Cyber Neon</button>
+    </div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="cancel" id="filterModalClose">Close</button>
     </div>
   </div>
 </div>
@@ -1162,7 +1169,6 @@ $('filterBtn').addEventListener('click', () => $('filterModal').classList.add('s
 $('filterModalClose').addEventListener('click', () => $('filterModal').classList.remove('show'));
 
 window.applyCameraFilter = (filterType) => {
-  const localVid = $('localVideo');
   const remoteVid = $('remoteVideo');
   const filterMap = {
     'none': '',
@@ -1173,7 +1179,6 @@ window.applyCameraFilter = (filterType) => {
     'cyber': 'filter-cyber',
     'green': 'filter-green'
   };
-  // Apply filter strictly to remote/background stream so user's front face on local video remains unobstructed
   remoteVid.className = filterMap[filterType] || '';
   $('filterModal').classList.remove('show');
   toast(`Applied ${filterType} background filter 🎨`);
@@ -1208,7 +1213,6 @@ async function promptRecordingDestination() {
   const blob = new Blob(App.callRecordedChunks, { type: 'video/webm' });
   const filename = `JARVIS_Conference_${Date.now()}.webm`;
   
-  // Ask the user (initiator) where to save the recording
   const choice = prompt(
     "Do you want to save your video recording?\n\nType '1' for: From this device (Local Download)\nType '2' for: From your email / OneDrive (Cloud & Email Sync to deslandes78@gmail.com)",
     "1"
@@ -1344,7 +1348,6 @@ function listenIncomingCalls() {
     $('incomingAvatar').innerHTML = avatarInner(null, callData.callerName || callData.caller);
     $('incomingType').textContent = `Incoming ${callData.type === 'video' ? '📹 Video Conference' : '📞 Voice'} Call…`;
     
-    // AGGRESSIVE INTERRUPTION: Force ringing modal popup on top with maximum z-index across any tab or view
     const incModal = $('incoming-call');
     incModal.style.display = 'flex';
     incModal.classList.add('show');
