@@ -11,12 +11,12 @@
 <style>
 :root{--navy:#0b2a4a;--navy-light:#143a5f;--accent:#0d7a8c;--gold:#d4af37;--green:#4aff7a;--red:#ff4757;--bg:#f2f5f8;--card:#fff;--text:#1e2a33;--muted:#5a6b7c;--border:#d8e2ec}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Arial,sans-serif;font-size:19px !important;line-height:1.5;background:#0b2a4a;color:var(--text);-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;text-size-adjust:100%;display:flex;align-items:center;justify-content:center}
+html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Arial,sans-serif;font-size:19px !important;line-height:1.5;background:#06182c;color:var(--text);-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;text-size-adjust:100%;display:flex;align-items:center;justify-content:center}
 
-/* Exact iPhone 8+ screen dimensions (414px x 736px viewport container scaled on desktop, full screen on mobile) */
-#app{width:100%;height:100%;max-width:414px;max-height:736px;display:flex;flex-direction:column;background:var(--bg);position:relative;box-shadow:0 25px 70px rgba(0,0,0,0.6);overflow:hidden;border-radius:0;border:none}
+/* Expanded professional iPhone frame container (440px x 820px viewport scaled on desktop, full screen on mobile) */
+#app{width:100%;height:100%;max-width:440px;max-height:820px;display:flex;flex-direction:column;background:var(--bg);position:relative;box-shadow:0 30px 90px rgba(0,0,0,0.75);overflow:hidden;border-radius:0;border:none}
 @media (min-width: 600px){
-  #app{width:414px;height:736px;border-radius:40px;border:10px solid #143a5f}
+  #app{width:440px;height:820px;border-radius:44px;border:12px solid #143a5f}
 }
 
 .screen{flex:1;display:none;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);position:relative;width:100%;height:100%}
@@ -29,116 +29,117 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
 .install-banner button{background:#fff;color:var(--navy);border:none;padding:8px 16px;border-radius:18px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0}
 .install-banner .inst-close{background:transparent;color:#fff;padding:6px;font-size:19px !important;font-family:Calibri,sans-serif;border:none;cursor:pointer;flex-shrink:0;opacity:.8}
 
-#screen-onboard{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 25%,#0d7a8c 55%,#143a5f 80%,#0b2a4a 100%);color:#fff;justify-content:center;align-items:center;padding:32px 24px;text-align:center;position:relative;overflow-y:auto}
-.onboard-logo{width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 50%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:800;margin-bottom:20px;box-shadow:0 15px 45px rgba(212,175,55,.6);flex-shrink:0}
-#screen-onboard h1{font-size:32px !important;font-family:Calibri,sans-serif;letter-spacing:3px;margin-bottom:10px;font-weight:800}
-#screen-onboard p{font-size:19px !important;font-family:Calibri,sans-serif;opacity:.9;line-height:1.5;max-width:360px;margin-bottom:24px}
-.onboard-input{width:100%;max-width:360px;padding:16px 20px;border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.16);border-radius:16px;font-size:19px !important;font-family:Calibri,sans-serif;color:#fff;outline:none;margin-bottom:14px;text-align:center}
-.onboard-input::placeholder{color:rgba(255,255,255,.6)}
-.name-status{font-size:19px !important;font-family:Calibri,sans-serif;color:rgba(255,255,255,.85);margin-bottom:18px;min-height:24px;text-align:center;padding:0 12px}
-.name-status.ok{color:#4aff7a;font-weight:700}
-.name-status.error{color:#ff4757;font-weight:700}
-.btn-primary{width:100%;max-width:360px;padding:16px;border:none;border-radius:16px;background:linear-gradient(135deg,#f0d369 0%,#d4af37 50%,#b8912a 100%);color:var(--navy);font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(212,175,55,.4)}
+#screen-onboard{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 25%,#0d7a8c 55%,#143a5f 80%,#0b2a4a 100%);color:#fff;justify-content:center;align-items:center;padding:36px 24px;text-align:center;position:relative;overflow-y:auto}
+.welcome-top-label{font-size:24px !important;font-family:Calibri,sans-serif;font-weight:900;letter-spacing:6px;color:var(--gold);margin-bottom:16px;text-transform:uppercase;text-shadow:0 4px 15px rgba(212,175,55,0.4)}
+.onboard-logo{width:140px;height:140px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 50%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:68px !important;font-family:Calibri,sans-serif;font-weight:900;margin-bottom:22px;box-shadow:0 18px 55px rgba(212,175,55,.65);flex-shrink:0}
+#screen-onboard h1{font-size:38px !important;font-family:Calibri,sans-serif;letter-spacing:4px;margin-bottom:12px;font-weight:900}
+#screen-onboard p{font-size:21px !important;font-family:Calibri,sans-serif;opacity:.95;line-height:1.5;max-width:380px;margin-bottom:26px;font-weight:600}
+.onboard-input{width:100%;max-width:380px;padding:18px 22px;border:2.5px solid rgba(255,255,255,.4);background:rgba(255,255,255,.18);border-radius:18px;font-size:21px !important;font-family:Calibri,sans-serif;color:#fff;outline:none;margin-bottom:14px;text-align:center;font-weight:700}
+.onboard-input::placeholder{color:rgba(255,255,255,.65)}
+.name-status{font-size:20px !important;font-family:Calibri,sans-serif;color:rgba(255,255,255,.9);margin-bottom:20px;min-height:26px;text-align:center;padding:0 12px;font-weight:700}
+.name-status.ok{color:#4aff7a;font-weight:800}
+.name-status.error{color:#ff4757;font-weight:800}
+.btn-primary{width:100%;max-width:380px;padding:18px;border:none;border-radius:18px;background:linear-gradient(135deg,#f0d369 0%,#d4af37 50%,#b8912a 100%);color:var(--navy);font-size:22px !important;font-family:Calibri,sans-serif;font-weight:800;cursor:pointer;box-shadow:0 10px 30px rgba(212,175,55,.45);letter-spacing:1px}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
 
 #screen-main{background-color:#f4efe6;background-image:linear-gradient(180deg,#f7f2e8 0%,#ede6d8 100%);position:relative;overflow:hidden}
-.app-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:16px 22px;display:flex;align-items:center;gap:14px;height:74px;min-height:74px;border-bottom:2px solid var(--gold);flex-shrink:0;z-index:5}
-.app-header .logo{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px !important;font-family:Calibri,sans-serif;flex-shrink:0}
-.app-header h2{font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:16px 22px;display:flex;align-items:center;gap:14px;height:76px;min-height:76px;border-bottom:2px solid var(--gold);flex-shrink:0;z-index:5}
+.app-header .logo{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px !important;font-family:Calibri,sans-serif;flex-shrink:0}
+.app-header h2{font-size:22px !important;font-family:Calibri,sans-serif;font-weight:800;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .app-header .online-dot{width:12px;height:12px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);flex-shrink:0}
 
-.tab-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:90px;position:relative;z-index:1;width:100%}
+.tab-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:96px;position:relative;z-index:1;width:100%}
 .tab-content::-webkit-scrollbar{width:4px}
 .tab-content::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:2px}
 
-.bottom-nav{position:absolute;bottom:0;left:0;right:0;width:100%;height:74px;background:rgba(255,255,255,.98);backdrop-filter:blur(16px);border-top:1px solid rgba(11,42,74,.1);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:10;box-shadow:0 -6px 25px rgba(11,42,74,.08)}
+.bottom-nav{position:absolute;bottom:0;left:0;right:0;width:100%;height:78px;background:rgba(255,255,255,.98);backdrop-filter:blur(16px);border-top:1px solid rgba(11,42,74,.1);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:10;box-shadow:0 -6px 25px rgba(11,42,74,.08)}
 .nav-item{flex:1;padding:10px 0 12px;text-align:center;font-size:19px !important;font-family:Calibri,sans-serif;color:var(--muted);cursor:pointer;font-weight:700;border:none;background:none;position:relative}
-.nav-item .icon{display:block;font-size:22px !important;font-family:Calibri,sans-serif;margin-bottom:3px}
-.nav-item.active{color:var(--navy)}
+.nav-item .icon{display:block;font-size:24px !important;font-family:Calibri,sans-serif;margin-bottom:3px}
+.nav-item.active{color:var(--navy);font-weight:800}
 
-.section-title{font-size:19px !important;font-family:Calibri,sans-serif;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:18px 20px 6px}
-.list-item{background:#fff;padding:16px 20px;display:flex;align-items:center;gap:16px;cursor:pointer;border-bottom:1px solid var(--border);width:100%}
+.section-title{font-size:20px !important;font-family:Calibri,sans-serif;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:18px 20px 6px}
+.list-item{background:#fff;padding:18px 20px;display:flex;align-items:center;gap:16px;cursor:pointer;border-bottom:1px solid var(--border);width:100%}
 .list-item:hover{background:#f8f9fa}
-.avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:19px !important;font-family:Calibri,sans-serif;flex-shrink:0;overflow:hidden;box-shadow:0 4px 12px rgba(11,42,74,.15);cursor:pointer}
+.avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px !important;font-family:Calibri,sans-serif;flex-shrink:0;overflow:hidden;box-shadow:0 4px 12px rgba(11,42,74,.15);cursor:pointer}
 .avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .avatar.accent{background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%)}
 .avatar.group{background:linear-gradient(135deg,#d4af37 0%,#a8872f 100%);color:var(--navy)}
 .list-item-body{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
 .list-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;gap:10px}
-.list-item-title{font-weight:700;font-size:19px !important;font-family:Calibri,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-item-title{font-weight:800;font-size:21px !important;font-family:Calibri,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .badge-unread{background:#ff4757;color:#fff;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:800;padding:3px 10px;border-radius:16px;min-width:24px;text-align:center;flex-shrink:0}
-.list-item-sub{font-size:19px !important;font-family:Calibri,sans-serif;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.empty{text-align:center;padding:50px 20px;color:var(--muted);font-size:19px !important;font-family:Calibri,sans-serif}
-.empty .empty-icon{font-size:32px !important;font-family:Calibri,sans-serif;margin-bottom:10px;opacity:.6}
+.list-item-sub{font-size:19px !important;font-family:Calibri,sans-serif;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.empty{text-align:center;padding:50px 20px;color:var(--muted);font-size:20px !important;font-family:Calibri,sans-serif;font-weight:600}
+.empty .empty-icon{font-size:36px !important;font-family:Calibri,sans-serif;margin-bottom:10px;opacity:.6}
 
-.fab-container{position:absolute;bottom:88px;right:20px;display:flex;flex-direction:column;gap:14px;z-index:9}
-.fab{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:22px !important;font-family:Calibri,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(13,122,140,.4)}
+.fab-container{position:absolute;bottom:94px;right:20px;display:flex;flex-direction:column;gap:14px;z-index:9}
+.fab{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:24px !important;font-family:Calibri,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(13,122,140,.4)}
 .fab.gold{background:linear-gradient(135deg,#f0d369 0%,#d4af37 100%);color:var(--navy)}
 
 #screen-chat{background:#efeae2;position:absolute;inset:0;z-index:15;display:none;flex-direction:column}
 #screen-chat.active{display:flex}
-.chat-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:16px 22px;display:flex;align-items:center;gap:14px;height:74px;min-height:74px;border-bottom:2px solid var(--gold);flex-shrink:0;z-index:5}
-.chat-header .back-btn{background:none;border:none;color:#fff;font-size:24px !important;font-family:Calibri,sans-serif;cursor:pointer;padding:0 6px}
-.chat-header .chat-avatar{width:44px;height:44px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:19px !important;font-family:Calibri,sans-serif;flex-shrink:0;overflow:hidden;cursor:pointer}
+.chat-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:16px 22px;display:flex;align-items:center;gap:14px;height:76px;min-height:76px;border-bottom:2px solid var(--gold);flex-shrink:0;z-index:5}
+.chat-header .back-btn{background:none;border:none;color:#fff;font-size:26px !important;font-family:Calibri,sans-serif;cursor:pointer;padding:0 6px}
+.chat-header .chat-avatar{width:46px;height:46px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:21px !important;font-family:Calibri,sans-serif;flex-shrink:0;overflow:hidden;cursor:pointer}
 .chat-header .chat-avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .chat-header .chat-title{flex:1;min-width:0}
-.chat-header .chat-title h3{font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.chat-header .chat-title small{font-size:19px !important;font-family:Calibri,sans-serif;color:var(--green);display:block}
-.chat-header .header-call-btn{background:rgba(255,255,255,.15);border:none;color:#fff;font-size:19px !important;font-family:Calibri,sans-serif;cursor:pointer;padding:10px 14px;border-radius:50%;flex-shrink:0}
+.chat-header .chat-title h3{font-size:21px !important;font-family:Calibri,sans-serif;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-header .chat-title small{font-size:19px !important;font-family:Calibri,sans-serif;color:var(--green);display:block;font-weight:700}
+.chat-header .header-call-btn{background:rgba(255,255,255,.15);border:none;color:#fff;font-size:20px !important;font-family:Calibri,sans-serif;cursor:pointer;padding:10px 14px;border-radius:50%;flex-shrink:0}
 
 .messages{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:24px 20px;position:relative;background:#efeae2;scroll-behavior:smooth}
 .messages::-webkit-scrollbar{width:6px}
 .messages::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:3px}
-.msg{max-width:78%;padding:14px 18px;border-radius:18px;font-size:19px !important;font-family:Calibri,sans-serif;line-height:1.5;margin-bottom:14px;word-wrap:break-word;position:relative;cursor:pointer}
+.msg{max-width:78%;padding:15px 19px;border-radius:18px;font-size:20px !important;font-family:Calibri,sans-serif;line-height:1.5;margin-bottom:14px;word-wrap:break-word;position:relative;cursor:pointer;font-weight:600}
 .msg.out{background:#d9fdd3;margin-left:auto;border-bottom-right-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 .msg.in{background:#ffffff;margin-right:auto;border-bottom-left-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.04)}
-.msg .sender-tag{font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;color:var(--accent);margin-bottom:4px;display:block}
-.msg .edited-tag{font-size:19px !important;font-family:Calibri,sans-serif;opacity:.65;font-style:italic;margin-left:6px}
-.msg .time{font-size:19px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-top:6px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:4px}
+.msg .sender-tag{font-size:19px !important;font-family:Calibri,sans-serif;font-weight:800;color:var(--accent);margin-bottom:4px;display:block}
+.msg .edited-tag{font-size:18px !important;font-family:Calibri,sans-serif;opacity:.65;font-style:italic;margin-left:6px}
+.msg .time{font-size:18px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-top:6px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:4px;font-weight:600}
 .msg.has-attachment{padding:8px;max-width:82%}
 .msg .attach-img{max-width:100%;width:100%;display:block;border-radius:12px;cursor:pointer;background:#dfe6ed;max-height:300px;object-fit:contain}
 .msg .attach-video{max-width:100%;width:100%;display:block;border-radius:12px;background:#000;max-height:300px}
 .msg .attach-audio{width:100%;max-width:280px;margin-top:4px}
-.msg .attach-file{display:flex;align-items:center;gap:12px;padding:14px;background:#f2f7fb;border-radius:12px;text-decoration:none;color:var(--text);font-size:19px !important;font-family:Calibri,sans-serif}
+.msg .attach-file{display:flex;align-items:center;gap:12px;padding:14px;background:#f2f7fb;border-radius:12px;text-decoration:none;color:var(--text);font-size:20px !important;font-family:Calibri,sans-serif;font-weight:700}
 
 .quick-reactions{display:flex;gap:10px;padding:12px 20px;background:#f0f2f5;border-top:1px solid var(--border);flex-shrink:0;overflow-x:auto}
-.quick-reaction{font-size:22px !important;font-family:Calibri,sans-serif;width:44px;height:44px;background:#fff;border:1px solid var(--border);border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.quick-reaction{font-size:24px !important;font-family:Calibri,sans-serif;width:46px;height:46px;background:#fff;border:1px solid var(--border);border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .chat-input-bar{background:#f0f2f5;border-top:1px solid var(--border);padding:14px 20px;display:flex;gap:12px;align-items:center;flex-shrink:0;position:relative}
-.chat-input-bar input[type="text"]{flex:1;padding:14px 20px;border:1.5px solid var(--border);border-radius:24px;font-size:19px !important;font-family:Calibri,sans-serif;outline:none;background:#fff;min-width:0}
-.emoji-btn,.attach-btn{background:transparent;border:none;font-size:22px !important;font-family:Calibri,sans-serif;color:var(--accent);width:44px;height:44px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.chat-input-bar .send-btn{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:20px !important;font-family:Calibri,sans-serif;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.chat-input-bar input[type="text"]{flex:1;padding:15px 20px;border:1.5px solid var(--border);border-radius:24px;font-size:20px !important;font-family:Calibri,sans-serif;outline:none;background:#fff;min-width:0;font-weight:600}
+.emoji-btn,.attach-btn{background:transparent;border:none;font-size:24px !important;font-family:Calibri,sans-serif;color:var(--accent);width:46px;height:46px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.chat-input-bar .send-btn{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:22px !important;font-family:Calibri,sans-serif;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:800}
 .chat-input-bar .send-btn:disabled{opacity:.4}
 .upload-bar{position:absolute;top:-3px;left:0;right:0;height:4px;background:#e1e7ed;display:none}
 .upload-bar.show{display:block}
 .upload-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .2s}
 
-#emojiPalette{position:fixed;bottom:90px;left:20px;right:20px;max-width:440px;margin:0 auto;background:#fff;border-radius:20px;box-shadow:0 15px 45px rgba(11,42,74,.35);padding:18px;z-index:9999;display:none;flex-direction:column;gap:12px;max-height:42vh;overflow-y:auto}
+#emojiPalette{position:fixed;bottom:94px;left:20px;right:20px;max-width:440px;margin:0 auto;background:#fff;border-radius:20px;box-shadow:0 15px 45px rgba(11,42,74,.35);padding:18px;z-index:9999;display:none;flex-direction:column;gap:12px;max-height:42vh;overflow-y:auto}
 #emojiPalette.show{display:flex}
 .emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
-.emoji-item{font-size:24px !important;font-family:Calibri,sans-serif;height:42px;background:transparent;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.emoji-item{font-size:26px !important;font-family:Calibri,sans-serif;height:44px;background:transparent;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 
-.action-sheet{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:#fff;border-top-left-radius:24px;border-top-right-radius:24px;padding:24px;z-index:10000;box-shadow:0 -10px 30px rgba(0,0,0,.25);display:none;flex-direction:column;gap:12px}
+.action-sheet{position:fixed;bottom:0;left:0;right:0;max-width:440px;margin:0 auto;background:#fff;border-top-left-radius:24px;border-top-right-radius:24px;padding:24px;z-index:10000;box-shadow:0 -10px 30px rgba(0,0,0,.25);display:none;flex-direction:column;gap:12px}
 .action-sheet.show{display:flex}
-.action-btn{padding:16px 20px;border-radius:14px;border:none;background:#f2f5f8;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;color:var(--text);cursor:pointer;text-align:left;display:flex;align-items:center;gap:14px}
+.action-btn{padding:16px 20px;border-radius:14px;border:none;background:#f2f5f8;font-size:20px !important;font-family:Calibri,sans-serif;font-weight:800;color:var(--text);cursor:pointer;text-align:left;display:flex;align-items:center;gap:14px}
 .action-btn.danger{background:#fff0f0;color:var(--red)}
 
 .status-feed{padding:20px;display:flex;flex-direction:column;gap:16px;width:100%}
 .status-card{background:#fff;border-radius:18px;padding:20px;border:1px solid var(--border);box-shadow:0 4px 14px rgba(11,42,74,.05);width:100%}
 .status-card-header{display:flex;align-items:center;gap:14px;margin-bottom:14px}
-.status-content-box{border-radius:14px;padding:18px;color:#fff;font-weight:700;font-size:19px !important;font-family:Calibri,sans-serif;line-height:1.5;text-align:center;word-break:break-word;margin-bottom:14px}
+.status-content-box{border-radius:14px;padding:18px;color:#fff;font-weight:800;font-size:21px !important;font-family:Calibri,sans-serif;line-height:1.5;text-align:center;word-break:break-word;margin-bottom:14px}
 .status-media{width:100%;border-radius:14px;margin-bottom:12px;max-height:50vh;object-fit:contain;background:#000;display:block}
-.status-link{display:block;background:#f0f4f8;padding:14px;border-radius:12px;color:var(--accent);font-weight:700;text-decoration:none;word-break:break-all;font-size:19px !important;font-family:Calibri,sans-serif;margin-bottom:12px;border:1px dashed var(--accent)}
+.status-link{display:block;background:#f0f4f8;padding:14px;border-radius:12px;color:var(--accent);font-weight:800;text-decoration:none;word-break:break-all;font-size:20px !important;font-family:Calibri,sans-serif;margin-bottom:12px;border:1px dashed var(--accent)}
 
 #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:9999;padding:24px;flex-direction:column}
 #lightbox.show{display:flex}
 #lightbox img{max-width:100%;max-height:80vh;border-radius:16px;object-fit:contain}
-#lightbox .close-lb{position:absolute;top:24px;right:24px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;border:none;font-size:24px !important;font-family:Calibri,sans-serif;cursor:pointer}
-#lightbox .dl-lb{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);padding:14px 28px;border-radius:24px;background:var(--gold);color:var(--navy);font-weight:700;text-decoration:none;font-size:19px !important;font-family:Calibri,sans-serif}
+#lightbox .close-lb{position:absolute;top:24px;right:24px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;border:none;font-size:26px !important;font-family:Calibri,sans-serif;cursor:pointer}
+#lightbox .dl-lb{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);padding:14px 28px;border-radius:24px;background:var(--gold);color:var(--navy);font-weight:800;text-decoration:none;font-size:20px !important;font-family:Calibri,sans-serif}
 
 #avatarViewerModal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:10005;padding:24px;flex-direction:column}
 #avatarViewerModal.show{display:flex}
 #avatarViewerImg{max-width:90%;max-height:78vh;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,.8);object-fit:contain}
-#avatarViewerName{color:#fff;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;margin-top:16px;text-align:center}
+#avatarViewerName{color:#fff;font-size:22px !important;font-family:Calibri,sans-serif;font-weight:800;margin-top:16px;text-align:center}
 
 #screen-call{background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;justify-content:center;align-items:center;padding:24px;text-align:center;position:relative;z-index:150}
 .call-video-container{position:absolute;inset:0;width:100%;height:100%;background:#000;display:none;z-index:1}
@@ -146,10 +147,10 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
 #remoteVideo{width:100%;height:100%;object-fit:cover;display:block}
 #localVideo{position:absolute;top:20px;right:20px;width:130px;height:180px;object-fit:cover;border-radius:14px;border:3px solid var(--gold);z-index:2;background:#222;box-shadow:0 10px 30px rgba(0,0,0,.6)}
 .call-overlay-ui{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%;width:100%;padding:32px 20px}
-.call-avatar{width:130px;height:130px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:32px !important;font-family:Calibri,sans-serif;font-weight:800;margin-bottom:16px;overflow:hidden;box-shadow:0 10px 35px rgba(0,0,0,.5)}
+.call-avatar{width:130px;height:130px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:38px !important;font-family:Calibri,sans-serif;font-weight:900;margin-bottom:16px;overflow:hidden;box-shadow:0 10px 35px rgba(0,0,0,.5)}
 .call-avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .call-actions{display:flex;gap:14px;margin-top:auto;z-index:4;flex-wrap:wrap;justify-content:center}
-.call-btn{width:64px;height:64px;border-radius:50%;border:none;font-size:22px !important;font-family:Calibri,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.call-btn{width:64px;height:64px;border-radius:50%;border:none;font-size:24px !important;font-family:Calibri,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,.35)}
 .call-btn.end{background:#ff4757;color:#fff}
 .call-btn.accept{background:#4aff7a;color:#0b2a4a}
 .call-btn.mute{background:rgba(255,255,255,.25);color:#fff}
@@ -158,27 +159,27 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
 #callChatDrawer{position:absolute;top:84px;right:20px;width:320px;max-width:90%;height:45vh;background:rgba(11,42,74,.97);border:2px solid var(--gold);border-radius:16px;display:none;flex-direction:column;z-index:10;padding:14px;box-shadow:0 12px 40px rgba(0,0,0,.6)}
 #callChatDrawer.show{display:flex}
 
-#incoming-call{position:fixed;inset:0;max-width:480px;margin:0 auto;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;padding:40px 24px;text-align:center}
+#incoming-call{position:fixed;inset:0;max-width:440px;margin:0 auto;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;padding:40px 24px;text-align:center}
 #incoming-call.show{display:flex}
 
 .profile-card{background:#fff;margin:20px;border-radius:18px;padding:28px 20px;text-align:center;border:1px solid var(--border)}
-.profile-card h3{font-size:24px !important;font-family:Calibri,sans-serif}
-.profile-card .avatar-big{width:120px;height:120px;border-radius:50%;background:#0b2a4a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:36px !important;font-family:Calibri,sans-serif;font-weight:700;margin:0 auto 14px;position:relative;cursor:pointer;overflow:hidden;box-shadow:0 8px 22px rgba(11,42,74,.25);border:4px solid var(--gold)}
+.profile-card h3{font-size:24px !important;font-family:Calibri,sans-serif;font-weight:800}
+.profile-card .avatar-big{width:130px;height:130px;border-radius:50%;background:#0b2a4a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:42px !important;font-family:Calibri,sans-serif;font-weight:800;margin:0 auto 14px;position:relative;cursor:pointer;overflow:hidden;box-shadow:0 8px 22px rgba(11,42,74,.25);border:4px solid var(--gold)}
 .profile-card .avatar-big img{width:100%;height:100%;object-fit:cover;display:block}
 
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
 .modal-overlay.show{display:flex}
-.modal{background:#fff;border-radius:22px;padding:26px;width:100%;max-width:440px;max-height:86vh;overflow-y:auto}
-.modal h3{font-size:24px !important;font-family:Calibri,sans-serif;margin-bottom:14px}
-.modal input[type="text"],.modal textarea,.modal input[type="password"]{width:100%;padding:14px 18px;border:2px solid var(--border);border-radius:14px;font-size:19px !important;font-family:Calibri,sans-serif;margin-bottom:14px;outline:none}
+.modal{background:#fff;border-radius:22px;padding:26px;width:100%;max-width:420px;max-height:86vh;overflow-y:auto}
+.modal h3{font-size:24px !important;font-family:Calibri,sans-serif;margin-bottom:14px;font-weight:800}
+.modal input[type="text"],.modal textarea,.modal input[type="password"]{width:100%;padding:15px 18px;border:2px solid var(--border);border-radius:14px;font-size:20px !important;font-family:Calibri,sans-serif;margin-bottom:14px;outline:none;font-weight:600}
 .modal-actions{display:flex;gap:12px;margin-top:12px}
-.modal-actions button{flex:1;padding:16px;border-radius:14px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;cursor:pointer;border:none}
+.modal-actions button{flex:1;padding:16px;border-radius:14px;font-size:20px !important;font-family:Calibri,sans-serif;font-weight:800;cursor:pointer;border:none}
 .modal-actions .cancel{background:#eef2f6;color:var(--text)}
 .modal-actions .confirm{background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff}
 .group-select-list{max-height:220px;overflow-y:auto;border:1.5px solid var(--border);border-radius:12px;padding:10px;margin-bottom:14px}
-.group-select-item{display:flex;align-items:center;gap:14px;padding:12px;border-bottom:1px solid #f0f0f0;font-size:19px !important;font-family:Calibri,sans-serif}
+.group-select-item{display:flex;align-items:center;gap:14px;padding:12px;border-bottom:1px solid #f0f0f0;font-size:20px !important;font-family:Calibri,sans-serif;font-weight:600}
 
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:14px 26px;border-radius:16px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:all .3s;z-index:10000;max-width:90%;text-align:center}
+.toast{position:fixed;bottom:94px;left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:16px 28px;border-radius:16px;font-size:20px !important;font-family:Calibri,sans-serif;font-weight:800;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:all .3s;z-index:10000;max-width:90%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
@@ -191,6 +192,7 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
   <button class="inst-close" id="installBannerClose">✕</button>
 </div>
 <section id="screen-onboard" class="screen active">
+  <div class="welcome-top-label">WELCOME</div>
   <div class="onboard-logo">G</div>
   <h1>JARVIS</h1>
   <p>Enter your username handle to continue.</p>
@@ -207,7 +209,7 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
   <div id="tabStatus" class="tab-content" style="display:none;">
     <div style="padding:16px;">
-      <button class="btn-primary" id="openPostStatusBtn" style="width:100%;max-width:none;padding:16px;">+ Post Public Status Video / Photo</button>
+      <button class="btn-primary" id="openPostStatusBtn" style="width:100%;max-width:none;padding:18px;">+ Post Public Status Video / Photo</button>
     </div>
     <div class="section-title">Public Friend Updates & Media Feed</div>
     <div id="statusFeedList" class="status-feed"></div>
@@ -218,8 +220,8 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
   </div>
   <div id="tabVoicemail" class="tab-content" style="display:none;">
     <div class="section-title">Send Voicemail</div>
-    <div style="padding:0 20px 12px"><select id="vmRecipient" style="width:100%;padding:14px;border-radius:12px;font-size:19px !important;font-family:Calibri,sans-serif"><option value="">Select recipient</option></select></div>
-    <button id="recordBtn" class="btn-primary" style="margin:0 20px 20px;width:calc(100% - 40px);max-width:none;background:#ff4757;color:#fff;padding:16px;">⬤ Record (max 30s)</button>
+    <div style="padding:0 20px 12px"><select id="vmRecipient" style="width:100%;padding:16px;border-radius:12px;font-size:20px !important;font-family:Calibri,sans-serif;font-weight:600"><option value="">Select recipient</option></select></div>
+    <button id="recordBtn" class="btn-primary" style="margin:0 20px 20px;width:calc(100% - 40px);max-width:none;background:#ff4757;color:#fff;padding:18px;">⬤ Record (max 30s)</button>
     <div class="section-title">Inbox</div>
     <div id="voicemailList"></div>
   </div>
@@ -230,17 +232,17 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
         <img id="profileAvatarImg" alt="" style="display:none;">
       </div>
       <h3 id="profileName">—</h3>
-      <div style="font-size:19px !important;font-family:Calibri,sans-serif;color:var(--accent);font-weight:700" id="profileUsername">@—</div>
+      <div style="font-size:20px !important;font-family:Calibri,sans-serif;color:var(--accent);font-weight:800" id="profileUsername">@—</div>
     </div>
     <div style="padding:0 20px">
-      <div style="background:#fff;padding:16px;border-radius:14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;font-size:19px !important;font-family:Calibri,sans-serif;border:1px solid var(--border)" id="permBtn">
+      <div style="background:#fff;padding:18px;border-radius:16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;font-size:20px !important;font-family:Calibri,sans-serif;border:1px solid var(--border);font-weight:700" id="permBtn">
         <span>📢 Browser Notifications</span>
-        <span id="permStatus" style="font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;color:var(--gold)">checking…</span>
+        <span id="permStatus" style="font-size:20px !important;font-family:Calibri,sans-serif;font-weight:800;color:var(--gold)">checking…</span>
       </div>
-      <div id="ownerPortalTrigger" style="display:none;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;padding:16px;border-radius:14px;margin-bottom:12px;text-align:center;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(11,42,74,.3);font-size:19px !important;font-family:Calibri,sans-serif;">
+      <div id="ownerPortalTrigger" style="display:none;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;padding:18px;border-radius:16px;margin-bottom:14px;text-align:center;font-weight:800;cursor:pointer;box-shadow:0 6px 18px rgba(11,42,74,.3);font-size:20px !important;font-family:Calibri,sans-serif;">
         🛡️ Owner Security & Monitoring Space
       </div>
-      <button class="btn-primary" id="clearBtn" style="background:#ff4757;color:#fff;width:100%;max-width:none;padding:16px;">Clear Local Data</button>
+      <button class="btn-primary" id="clearBtn" style="background:#ff4757;color:#fff;width:100%;max-width:none;padding:18px;">Clear Local Data</button>
     </div>
   </div>
   <div class="fab-container">
@@ -292,7 +294,7 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
   </div>
 </div>
 <div class="action-sheet" id="actionSheet">
-  <div style="font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Message Options</div>
+  <div style="font-size:20px !important;font-family:Calibri,sans-serif;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Message Options</div>
   <button class="action-btn" id="actEditBtn">✏️ Edit Message / Media</button>
   <button class="action-btn danger" id="actDeleteForMeBtn">🗑️ Delete for Me</button>
   <button class="action-btn danger" id="actDeleteEveryoneBtn">💥 Delete for Everyone</button>
@@ -306,22 +308,22 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
   <div class="call-overlay-ui">
     <div style="display:flex;flex-direction:column;align-items:center;">
       <div class="call-avatar" id="callAvatar">G</div>
-      <div style="font-size:26px !important;font-family:Calibri,sans-serif;font-weight:700;margin-bottom:6px" id="callName">—</div>
-      <div style="font-size:19px !important;font-family:Calibri,sans-serif;opacity:.85" id="callStatus">Calling…</div>
+      <div style="font-size:28px !important;font-family:Calibri,sans-serif;font-weight:800;margin-bottom:6px" id="callName">—</div>
+      <div style="font-size:20px !important;font-family:Calibri,sans-serif;opacity:.9;font-weight:700" id="callStatus">Calling…</div>
     </div>
     <div id="callChatDrawer">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;color:#fff;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:20px !important;font-family:Calibri,sans-serif;font-weight:800;color:#fff;">
         <span>💬 In-Call Chat & Media</span>
-        <button id="closeCallChat" style="background:none;border:none;color:#fff;font-size:22px !important;font-family:Calibri,sans-serif;cursor:pointer;">✕</button>
+        <button id="closeCallChat" style="background:none;border:none;color:#fff;font-size:24px !important;font-family:Calibri,sans-serif;cursor:pointer;">✕</button>
       </div>
-      <div style="margin-bottom:8px;">
+      <div style="margin-bottom:10px;">
         <input type="file" id="callAttachInput" accept="image/*,video/*,audio/*" style="display:none;">
-        <button id="callAttachBtn" style="width:100%;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:19px !important;font-family:Calibri,sans-serif;cursor:pointer;font-weight:700;">📎 Send Photo/Video in Call</button>
+        <button id="callAttachBtn" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:12px;font-size:20px !important;font-family:Calibri,sans-serif;cursor:pointer;font-weight:800;">📎 Send Photo/Video in Call</button>
       </div>
-      <div id="callMsgArea" style="flex:1;overflow-y:auto;background:rgba(255,255,255,.1);border-radius:10px;padding:10px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px;font-size:19px !important;font-family:Calibri,sans-serif;color:#fff;"></div>
-      <div style="display:flex;gap:8px;">
-        <input id="callMsgInput" type="text" placeholder="Type or emoji…" style="flex:1;padding:10px 14px;border-radius:10px;border:none;font-size:19px !important;font-family:Calibri,sans-serif;outline:none;">
-        <button id="sendCallMsgBtn" style="padding:10px 16px;background:var(--gold);color:var(--navy);border:none;border-radius:10px;font-weight:700;font-size:19px !important;font-family:Calibri,sans-serif;cursor:pointer;">➤</button>
+      <div id="callMsgArea" style="flex:1;overflow-y:auto;background:rgba(255,255,255,.1);border-radius:12px;padding:12px;margin-bottom:12px;display:flex;flex-direction:column;gap:8px;font-size:20px !important;font-family:Calibri,sans-serif;color:#fff;font-weight:600;"></div>
+      <div style="display:flex;gap:10px;">
+        <input id="callMsgInput" type="text" placeholder="Type or emoji…" style="flex:1;padding:12px 16px;border-radius:12px;border:none;font-size:20px !important;font-family:Calibri,sans-serif;outline:none;font-weight:600;">
+        <button id="sendCallMsgBtn" style="padding:12px 18px;background:var(--gold);color:var(--navy);border:none;border-radius:12px;font-weight:800;font-size:20px !important;font-family:Calibri,sans-serif;cursor:pointer;">➤</button>
       </div>
     </div>
     <div class="call-actions">
@@ -337,8 +339,8 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
 </section>
 <div id="incoming-call">
   <div class="call-avatar" id="incomingAvatar">G</div>
-  <div style="font-size:28px !important;font-family:Calibri,sans-serif;font-weight:700;margin-bottom:8px" id="incomingName">—</div>
-  <div style="font-size:19px !important;font-family:Calibri,sans-serif;opacity:.85;margin-bottom:32px" id="incomingType">Incoming Call…</div>
+  <div style="font-size:30px !important;font-family:Calibri,sans-serif;font-weight:800;margin-bottom:10px" id="incomingName">—</div>
+  <div style="font-size:20px !important;font-family:Calibri,sans-serif;opacity:.9;margin-bottom:36px;font-weight:700" id="incomingType">Incoming Call…</div>
   <div class="call-actions">
     <button class="call-btn end" id="rejectCallBtn">📵</button>
     <button class="call-btn accept" id="acceptCallBtn">📞</button>
@@ -347,7 +349,7 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
 <div class="modal-overlay" id="addParticipantModal">
   <div class="modal">
     <h3>Add User to Video Call</h3>
-    <div style="font-size:19px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:12px;">Select friend from your Friend List:</div>
+    <div style="font-size:20px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:14px;font-weight:700;">Select friend from your Friend List:</div>
     <div class="group-select-list" id="participantSelectionList"></div>
     <div class="modal-actions">
       <button class="cancel" id="participantCancel">Cancel</button>
@@ -356,17 +358,17 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
   </div>
 </div>
 <div class="modal-overlay" id="filterModal">
-  <div class="modal" style="max-width:380px;text-align:center;">
+  <div class="modal" style="max-width:390px;text-align:center;">
     <h3>✨ Camera Background Filters</h3>
-    <p style="font-size:19px !important;font-family:Calibri,sans-serif;margin-bottom:14px;">Choose a visual background filter for your video:</p>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button class="btn-primary" onclick="window.__applyFilter('none')" style="max-width:none;background:#eef2f6;color:var(--text);padding:14px;">Normal Camera</button>
-      <button class="btn-primary" onclick="window.__applyFilter('blur(6px)')" style="max-width:none;background:var(--accent);color:#fff;padding:14px;">Blurred Background</button>
-      <button class="btn-primary" onclick="window.__applyFilter('sepia(80%)')" style="max-width:none;background:var(--gold);color:var(--navy);padding:14px;">Cinematic Sepia</button>
-      <button class="btn-primary" onclick="window.__applyFilter('contrast(160%)')" style="max-width:none;background:var(--navy);color:#fff;padding:14px;">High Contrast Studio</button>
-      <button class="btn-primary" onclick="window.__applyFilter('hue-rotate(180deg)')" style="max-width:none;background:#143a5f;color:#fff;padding:14px;">Neon Cyberpunk</button>
+    <p style="font-size:20px !important;font-family:Calibri,sans-serif;margin-bottom:16px;font-weight:600;">Choose a visual background filter for your video:</p>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <button class="btn-primary" onclick="window.__applyFilter('none')" style="max-width:none;background:#eef2f6;color:var(--text);padding:16px;">Normal Camera</button>
+      <button class="btn-primary" onclick="window.__applyFilter('blur(6px)')" style="max-width:none;background:var(--accent);color:#fff;padding:16px;">Blurred Background</button>
+      <button class="btn-primary" onclick="window.__applyFilter('sepia(80%)')" style="max-width:none;background:var(--gold);color:var(--navy);padding:16px;">Cinematic Sepia</button>
+      <button class="btn-primary" onclick="window.__applyFilter('contrast(160%)')" style="max-width:none;background:var(--navy);color:#fff;padding:16px;">High Contrast Studio</button>
+      <button class="btn-primary" onclick="window.__applyFilter('hue-rotate(180deg)')" style="max-width:none;background:#143a5f;color:#fff;padding:16px;">Neon Cyberpunk</button>
     </div>
-    <div class="modal-actions" style="margin-top:14px;">
+    <div class="modal-actions" style="margin-top:16px;">
       <button class="cancel" onclick="$('filterModal').classList.remove('show')" style="width:100%;max-width:none;">Close</button>
     </div>
   </div>
@@ -375,7 +377,7 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
   <div class="modal">
     <h3>Add Contact</h3>
     <input id="modalName" type="text" placeholder="Enter username" maxlength="20" autocapitalize="none">
-    <div id="modalStatus" style="font-size:19px !important;font-family:Calibri,sans-serif;margin-bottom:12px"></div>
+    <div id="modalStatus" style="font-size:20px !important;font-family:Calibri,sans-serif;margin-bottom:14px;font-weight:700;"></div>
     <div class="modal-actions">
       <button class="cancel" id="modalCancel">Cancel</button>
       <button class="confirm" id="modalConfirm" disabled>Add</button>
@@ -386,7 +388,7 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
   <div class="modal">
     <h3>Create Group Chat (👥)</h3>
     <input id="groupNameInput" type="text" placeholder="Group Name" maxlength="30">
-    <div style="font-size:19px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:10px">Select Members from Friends:</div>
+    <div style="font-size:20px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:12px;font-weight:700;">Select Members from Friends:</div>
     <div class="group-select-list" id="groupMembersSelection"></div>
     <div class="modal-actions">
       <button class="cancel" id="groupModalCancel">Cancel</button>
@@ -398,14 +400,14 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
   <div class="modal">
     <h3>Post Public Status (Video / Photo / Text)</h3>
     <textarea id="statusTextInput" rows="3" placeholder="Write status text..."></textarea>
-    <input id="statusLinkInput" type="text" placeholder="Optional URL Link (https://...)" style="margin-top:10px;">
-    <div style="margin-bottom:14px">
-      <label style="font-size:19px !important;font-family:Calibri,sans-serif;display:block;margin-bottom:6px">Background Color:</label>
-      <input type="color" id="statusBgColor" value="#0d7a8c" style="width:100%;height:46px;border-radius:10px;padding:2px;cursor:pointer;">
+    <input id="statusLinkInput" type="text" placeholder="Optional URL Link (https://...)" style="margin-top:12px;">
+    <div style="margin-bottom:16px">
+      <label style="font-size:20px !important;font-family:Calibri,sans-serif;display:block;margin-bottom:8px;font-weight:700;">Background Color:</label>
+      <input type="color" id="statusBgColor" value="#0d7a8c" style="width:100%;height:50px;border-radius:12px;padding:2px;cursor:pointer;">
     </div>
-    <div style="margin-bottom:14px">
-      <button class="btn-primary" id="statusMediaSelectBtn" style="width:100%;max-width:none;padding:14px;background:#143a5f;color:#fff;">📹 Select Photo or Video Clip</button>
-      <div id="statusMediaName" style="font-size:19px !important;font-family:Calibri,sans-serif;color:var(--accent);margin-top:6px;word-break:break-all;"></div>
+    <div style="margin-bottom:16px">
+      <button class="btn-primary" id="statusMediaSelectBtn" style="width:100%;max-width:none;padding:16px;background:#143a5f;color:#fff;">📹 Select Photo or Video Clip</button>
+      <div id="statusMediaName" style="font-size:20px !important;font-family:Calibri,sans-serif;color:var(--accent);margin-top:8px;word-break:break-all;font-weight:700;"></div>
     </div>
     <div class="modal-actions">
       <button class="cancel" id="statusModalCancel">Cancel</button>
@@ -416,9 +418,9 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
 <div class="modal-overlay" id="editMsgModal">
   <div class="modal">
     <h3>Edit Message / Media</h3>
-    <input id="editMsgInput" type="text" placeholder="Edit caption or text..." autocomplete="off" style="margin-bottom:12px;">
-    <div style="margin-bottom:14px">
-      <label style="font-size:19px !important;font-family:Calibri,sans-serif;display:block;margin-bottom:6px">Replace Attached Media (Optional):</label>
+    <input id="editMsgInput" type="text" placeholder="Edit caption or text..." autocomplete="off" style="margin-bottom:14px;">
+    <div style="margin-bottom:16px">
+      <label style="font-size:20px !important;font-family:Calibri,sans-serif;display:block;margin-bottom:8px;font-weight:700;">Replace Attached Media (Optional):</label>
       <input type="file" id="editMediaInput" accept="image/*,video/*,audio/*">
     </div>
     <div class="modal-actions">
@@ -430,7 +432,7 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
 <div class="modal-overlay" id="statusCommentsModal">
   <div class="modal" style="max-width:440px;">
     <h3>Status Comments & Direct DM to Owner</h3>
-    <div id="statusCommentsList" style="max-height:220px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:10px;"></div>
+    <div id="statusCommentsList" style="max-height:220px;overflow-y:auto;margin-bottom:14px;display:flex;flex-direction:column;gap:10px;"></div>
     <input id="statusCommentInput" type="text" placeholder="Write comment or send emoji to owner DM..." autocomplete="off">
     <div class="modal-actions">
       <button class="cancel" id="statusCommentCancel">Close</button>
@@ -441,7 +443,7 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
 <div class="modal-overlay" id="ownerAuthModal">
   <div class="modal">
     <h3>Owner Authentication</h3>
-    <p style="font-size:19px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:12px;">Enter owner password to unlock monitoring space:</p>
+    <p style="font-size:20px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:14px;font-weight:600;">Enter owner password to unlock monitoring space:</p>
     <input id="ownerPassInput" type="password" placeholder="Password..." autocomplete="off">
     <div class="modal-actions">
       <button class="cancel" id="ownerAuthCancel">Cancel</button>
@@ -450,28 +452,28 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
   </div>
 </div>
 <div class="modal-overlay" id="ownerSpaceModal">
-  <div class="modal" style="max-width:640px;max-height:88vh;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+  <div class="modal" style="max-width:660px;max-height:88vh;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <h3 style="margin:0;">🛡️ Owner Monitoring Space</h3>
-      <button id="ownerSpaceClose" style="background:none;border:none;font-size:24px !important;font-family:Calibri,sans-serif;cursor:pointer;">✕</button>
+      <button id="ownerSpaceClose" style="background:none;border:none;font-size:26px !important;font-family:Calibri,sans-serif;cursor:pointer;">✕</button>
     </div>
-    <div style="display:flex;gap:10px;margin-bottom:12px;">
-      <button class="btn-primary" id="ownerTabStatusBtn" style="flex:1;max-width:none;padding:14px;font-size:19px !important;font-family:Calibri,sans-serif;">Monitor Statuses</button>
-      <button class="btn-primary" id="ownerTabChatsBtn" style="flex:1;max-width:none;padding:14px;font-size:19px !important;font-family:Calibri,sans-serif;background:#143a5f;">Monitor P2P DMs</button>
+    <div style="display:flex;gap:12px;margin-bottom:14px;">
+      <button class="btn-primary" id="ownerTabStatusBtn" style="flex:1;max-width:none;padding:16px;font-size:20px !important;font-family:Calibri,sans-serif;">Monitor Statuses</button>
+      <button class="btn-primary" id="ownerTabChatsBtn" style="flex:1;max-width:none;padding:16px;font-size:20px !important;font-family:Calibri,sans-serif;background:#143a5f;">Monitor P2P DMs</button>
     </div>
-    <div id="ownerContentArea" style="max-height:54vh;overflow-y:auto;display:flex;flex-direction:column;gap:10px;"></div>
+    <div id="ownerContentArea" style="max-height:54vh;overflow-y:auto;display:flex;flex-direction:column;gap:12px;"></div>
   </div>
 </div>
 <div class="modal-overlay" id="recordingSaveModal">
-  <div class="modal" style="max-width:420px;text-align:center;">
+  <div class="modal" style="max-width:440px;text-align:center;">
     <h3>💾 Save Call Recording</h3>
-    <p style="font-size:19px !important;font-family:Calibri,sans-serif;margin-bottom:18px;">Where would you like to save this video call recording?</p>
-    <div style="display:flex;flex-direction:column;gap:12px;">
-      <button class="btn-primary" id="saveLaptopBtn" style="max-width:none;background:var(--accent);color:#fff;padding:16px;">💻 Save to Device / Laptop</button>
-      <button class="btn-primary" id="saveEmailBtn" style="max-width:none;background:#143a5f;color:#fff;padding:16px;">✉️ Send to Email</button>
-      <button class="btn-primary" id="saveOneDriveBtn" style="max-width:none;background:#0b2a4a;color:#fff;padding:16px;">☁️ Save to OneDrive</button>
+    <p style="font-size:20px !important;font-family:Calibri,sans-serif;margin-bottom:20px;font-weight:600;">Where would you like to save this video call recording?</p>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <button class="btn-primary" id="saveLaptopBtn" style="max-width:none;background:var(--accent);color:#fff;padding:18px;">💻 Save to Device / Laptop</button>
+      <button class="btn-primary" id="saveEmailBtn" style="max-width:none;background:#143a5f;color:#fff;padding:18px;">✉️ Send to Email</button>
+      <button class="btn-primary" id="saveOneDriveBtn" style="max-width:none;background:#0b2a4a;color:#fff;padding:18px;">☁️ Save to OneDrive</button>
     </div>
-    <div class="modal-actions" style="margin-top:14px;">
+    <div class="modal-actions" style="margin-top:16px;">
       <button class="cancel" id="saveCancelBtn" style="width:100%;max-width:none;">Dismiss</button>
     </div>
   </div>
@@ -482,7 +484,7 @@ html,body{width:100%;height:100%;height:-webkit-fill-available;overflow:hidden;f
   <a class="dl-lb" id="lightboxDownload" download target="_blank">⬇ Download</a>
 </div>
 <div id="avatarViewerModal">
-  <button class="close-lb" id="avatarViewerClose" onclick="document.getElementById('avatarViewerModal').classList.remove('show')" style="position:absolute;top:24px;right:24px;width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;border:none;font-size:24px !important;font-family:Calibri,sans-serif;cursor:pointer;">✕</button>
+  <button class="close-lb" id="avatarViewerClose" onclick="document.getElementById('avatarViewerModal').classList.remove('show')" style="position:absolute;top:24px;right:24px;width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;border:none;font-size:26px !important;font-family:Calibri,sans-serif;cursor:pointer;">✕</button>
   <img id="avatarViewerImg" src="" alt="User Profile Picture">
   <div id="avatarViewerName">User Profile</div>
 </div>
@@ -804,11 +806,11 @@ function loadOwnerStatuses() {
   }
   area.innerHTML = posts.map(p => `
     <div style="background:#f9fafb;border:1px solid var(--border);border-radius:14px;padding:14px;">
-      <div style="display:flex;justify-content:space-between;font-weight:700;margin-bottom:6px;">
+      <div style="display:flex;justify-content:space-between;font-weight:800;margin-bottom:6px;">
         <span>User: @${esc(p.authorSlug)}(${esc(p.authorName)})</span>
         <span style="color:var(--muted);">${new Date(p.time).toLocaleString()}</span>
       </div>
-      <div style="margin-bottom:8px;">${esc(p.text || '')}</div>
+      <div style="margin-bottom:8px;font-weight:600;">${esc(p.text || '')}</div>
       ${p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" style="max-height:260px;width:100%;object-fit:contain;background:#000;border-radius:12px;" alt="User Photo">` : `<video src="${p.mediaUrl}" controls playsinline preload="metadata" style="max-height:260px;width:100%;object-fit:contain;background:#000;border-radius:12px;"></video>`) : ''}
       <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px;">
         <button class="btn-primary" style="max-width:none;padding:8px 14px;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus('${p._k}')">🗑️ Delete</button>
@@ -827,11 +829,11 @@ function loadOwnerReports() {
   onValue(dbRef(db, 'users'), snap => {
     const usersData = snap.val() || {};
     const userList = Object.values(usersData);
-    let html = `<div style="font-weight:700;color:var(--navy);margin-bottom:8px;">👥 Registered App Users (${userList.length})</div>`;
+    let html = `<div style="font-weight:800;color:var(--navy);margin-bottom:8px;">👥 Registered App Users (${userList.length})</div>`;
     html += userList.map(u => `
       <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <div><strong>${esc(u.displayName)}</strong>(@${esc(u.slug)})</div>
-        <button style="background:var(--accent);color:#fff;border:none;padding:8px 14px;border-radius:10px;cursor:pointer;" onclick="window.__ownerDirectDM('${u.slug}','${esc(u.displayName)}')">💬 DM</button>
+        <div style="font-weight:700;">${esc(u.displayName)} (@${esc(u.slug)})</div>
+        <button style="background:var(--accent);color:#fff;border:none;padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:700;" onclick="window.__ownerDirectDM('${u.slug}','${esc(u.displayName)}')">💬 DM</button>
       </div>`).join('');
     area.innerHTML = html;
   }, { onlyOnce: true });
@@ -932,8 +934,8 @@ function buildUI() {
       <div class="avatar accent" onclick="window.__viewAvatar('${c.photo || ''}','${esc(c.name)}')">${avatarInner(c.photo, c.name)}</div>
       <div class="list-item-body"><div class="list-item-title">${esc(c.name)}</div><div class="list-item-sub">@${c.slug}</div></div>
       <div style="display:flex;gap:10px;">
-        <button class="header-call-btn" style="color:var(--navy);background:#e0f2fe;padding:10px 14px;border-radius:18px;font-weight:700;" onclick="window.startCall('${c.slug}', false)">📞 Voice</button>
-        <button class="header-call-btn" style="color:var(--navy);background:#dcfce7;padding:10px 14px;border-radius:18px;font-weight:700;" onclick="window.startCall('${c.slug}', true)">📹 Video</button>
+        <button class="header-call-btn" style="color:var(--navy);background:#e0f2fe;padding:10px 14px;border-radius:18px;font-weight:800;" onclick="window.startCall('${c.slug}', false)">📞 Voice</button>
+        <button class="header-call-btn" style="color:var(--navy);background:#dcfce7;padding:10px 14px;border-radius:18px;font-weight:800;" onclick="window.startCall('${c.slug}', true)">📹 Video</button>
       </div>
     </div>`).join('');
   vmSel.innerHTML = '<option value="">Select recipient</option>' + App.contacts.map(c => `<option value="${c.slug}">${esc(c.name)}</option>`).join('');
@@ -1333,7 +1335,7 @@ function setupCallChatListeners() {
     const area = $('callMsgArea');
     if (!msgs.length) { area.innerHTML = '<div style="color:rgba(255,255,255,.6);text-align:center;">No in-call messages or media yet.</div>'; return; }
     area.innerHTML = msgs.map(m => `
-      <div style="background:rgba(255,255,255,.15);padding:8px 12px;border-radius:8px;">
+      <div style="background:rgba(255,255,255,.15);padding:10px 14px;border-radius:10px;">
         <strong style="color:var(--gold);">${esc(m.name)}:</strong> ${esc(m.text || '')}
         ${m.attachment ? renderAttachment(m.attachment) : ''}
       </div>`).join('');
@@ -1492,19 +1494,19 @@ function listenUserStatuses() {
       const myLiked = likes[App.mySlug] ? true : false;
       return `<div class="status-card" data-key="${p._k}">
         <div class="status-card-header">
-          <div class="avatar" style="width:44px;height:44px;" onclick="window.__viewAvatar('${p.authorPhoto || ''}','${esc(p.authorName)}')">${avatarInner(p.authorPhoto, p.authorName)}</div>
-          <div style="flex:1"><div style="font-weight:700;">${esc(p.authorName)} <small style="color:var(--accent)">(@${esc(p.authorSlug)})</small></div><small style="color:var(--muted);">${new Date(p.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small></div>
-          ${isMine || isOwner() ? `<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:22px !important;" onclick="window.__delStatus('${p._k}')">🗑</button>` : ''}
+          <div class="avatar" style="width:48px;height:48px;" onclick="window.__viewAvatar('${p.authorPhoto || ''}','${esc(p.authorName)}')">${avatarInner(p.authorPhoto, p.authorName)}</div>
+          <div style="flex:1"><div style="font-weight:800;font-size:20px !important;">${esc(p.authorName)} <small style="color:var(--accent)">(@${esc(p.authorSlug)})</small></div><small style="color:var(--muted);font-size:18px !important;">${new Date(p.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small></div>
+          ${isMine || isOwner() ? `<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:24px !important;" onclick="window.__delStatus('${p._k}')">🗑</button>` : ''}
         </div>
         ${textHtml}
         ${mediaHtml}
         ${linkHtml}
         <div style="display:flex;gap:10px;align-items:center;margin-top:14px;border-top:1px solid #f0f0f0;padding-top:12px;flex-wrap:wrap;">
-          <button style="background:${myLiked ? '#d4af37' : '#eef2f6'};color:${myLiked ? '#0b2a4a' : 'var(--text)'};border:none;padding:8px 14px;border-radius:14px;font-weight:700;cursor:pointer;" onclick="window.__toggleStatusLike('${p._k}')">👍 Like (${likeCount})</button>
-          <button style="background:#eef2f6;border:none;padding:8px 14px;border-radius:14px;font-weight:700;cursor:pointer;" onclick="window.__openStatusComments('${p._k}')">💬 Comments (${commentCount})</button>
-          <button style="background:#eef2f6;border:none;padding:8px 12px;border-radius:14px;font-weight:700;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '❤️')">❤️</button>
-          <button style="background:#eef2f6;border:none;padding:8px 12px;border-radius:14px;font-weight:700;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '🔥')">🔥</button>
-          <button style="background:#eef2f6;border:none;padding:8px 12px;border-radius:14px;font-weight:700;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '😂')">😂</button>
+          <button style="background:${myLiked ? '#d4af37' : '#eef2f6'};color:${myLiked ? '#0b2a4a' : 'var(--text)'};border:none;padding:10px 16px;border-radius:14px;font-weight:800;cursor:pointer;font-size:19px !important;" onclick="window.__toggleStatusLike('${p._k}')">👍 Like (${likeCount})</button>
+          <button style="background:#eef2f6;border:none;padding:10px 16px;border-radius:14px;font-weight:800;cursor:pointer;font-size:19px !important;" onclick="window.__openStatusComments('${p._k}')">💬 Comments (${commentCount})</button>
+          <button style="background:#eef2f6;border:none;padding:10px 14px;border-radius:14px;font-weight:800;cursor:pointer;font-size:20px !important;" onclick="window.__sendQuickStatusEmoji('${p._k}', '❤️')">❤️</button>
+          <button style="background:#eef2f6;border:none;padding:10px 14px;border-radius:14px;font-weight:800;cursor:pointer;font-size:20px !important;" onclick="window.__sendQuickStatusEmoji('${p._k}', '🔥')">🔥</button>
+          <button style="background:#eef2f6;border:none;padding:10px 14px;border-radius:14px;font-weight:800;cursor:pointer;font-size:20px !important;" onclick="window.__sendQuickStatusEmoji('${p._k}', '😂')">😂</button>
         </div>
       </div>`;
     }).join('');
@@ -1567,11 +1569,11 @@ function renderStatusCommentsLocal() {
   const comments = Object.values(data).sort((a, b) => a.time - b.time);
   const list = $('statusCommentsList');
   if (!comments.length) {
-    list.innerHTML = '<div style="color:var(--muted);text-align:center;padding:12px;">No comments yet.</div>';
+    list.innerHTML = '<div style="color:var(--muted);text-align:center;padding:12px;font-weight:600;">No comments yet.</div>';
     return;
   }
   list.innerHTML = comments.map(c => `
-    <div style="background:#f7f9fb;padding:10px 14px;border-radius:10px;">
+    <div style="background:#f7f9fb;padding:12px 16px;border-radius:12px;font-weight:600;">
       <strong style="color:var(--accent);">@${esc(c.author)}:</strong> ${esc(c.text)}
     </div>`).join('');
 }
@@ -1653,8 +1655,8 @@ function listenVoicemails() {
       return;
     }
     list.innerHTML = items.map(v => `
-      <div style="background:#fff;margin:12px 20px;padding:16px;border-radius:14px;border:1px solid var(--border);">
-        <div style="font-weight:700;margin-bottom:10px;">From: @${esc(v.fromName || v.from)}</div>
+      <div style="background:#fff;margin:12px 20px;padding:18px;border-radius:16px;border:1px solid var(--border);">
+        <div style="font-weight:800;margin-bottom:10px;font-size:20px !important;">From: @${esc(v.fromName || v.from)}</div>
         <audio controls playsinline preload="metadata" src="${v.url}" style="width:100%;"></audio>
       </div>`).join('');
   });
