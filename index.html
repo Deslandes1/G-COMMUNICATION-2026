@@ -123,19 +123,19 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 .call-overlay-ui{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%;width:100%;padding:40px 20px}
 .call-avatar{width:130px;height:130px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:56px;font-weight:800;margin-bottom:20px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4);cursor:pointer}
 .call-avatar img{width:100%;height:100%;object-fit:cover;display:block}
-.call-actions{display:flex;gap:16px;margin-top:auto;z-index:4;flex-wrap:wrap;justify-content:center}
-.call-btn{width:60px;height:60px;border-radius:50%;border:none;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.3)}
+.call-actions{display:flex;gap:20px;margin-top:auto;z-index:4}
+.call-btn{width:64px;height:64px;border-radius:50%;border:none;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.3)}
 .call-btn.end{background:#ff4757;color:#fff}
 .call-btn.accept{background:#4aff7a;color:#0b2a4a}
 .call-btn.mute{background:rgba(255,255,255,.2);color:#fff}
-.call-btn.invite{background:var(--gold);color:var(--navy)}
-#incoming-call{position:fixed;inset:0;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:999999;padding:40px 24px;text-align:center}
+.call-btn.invite{background:var(--accent);color:#fff}
+#incoming-call{position:fixed;inset:0;background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;padding:40px 24px;text-align:center}
 #incoming-call.show{display:flex}
 .profile-card{background:#fff;margin:16px;border-radius:14px;padding:26px 20px;text-align:center;border:1px solid var(--border)}
 .profile-card h3{font-size:22px}
 .profile-card .avatar-big{width:110px;height:110px;border-radius:50%;background:#0b2a4a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:46px;font-weight:700;margin:0 auto 12px;position:relative;cursor:pointer;overflow:hidden;box-shadow:0 6px 18px rgba(11,42,74,.2);border:3px solid var(--gold)}
 .profile-card .avatar-big img{width:100%;height:100%;object-fit:cover;display:block}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:100000;padding:24px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:24px}
 .modal-overlay.show{display:flex}
 .modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:440px;max-height:85vh;overflow-y:auto}
 .modal h3{font-size:22px;margin-bottom:10px}
@@ -146,9 +146,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 .modal-actions .confirm{background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff}
 .group-select-list{max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px;margin-bottom:12px}
 .group-select-item{display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid #f0f0f0;font-size:17px}
-.owner-video-player{width:100%;max-height:380px;object-fit:contain;background:#000;border-radius:10px;margin-top:8px;display:block}
-.owner-img-player{width:100%;max-height:380px;object-fit:contain;background:#000;border-radius:10px;margin-top:8px;display:block}
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:14px 24px;border-radius:10px;font-size:16.5px;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:100000;max-width:90%;text-align:center}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:14px 24px;border-radius:10px;font-size:16.5px;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:10000;max-width:90%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media (min-width: 640px) {
   body { padding: 16px; background: #e4e9ef; }
@@ -211,7 +209,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
     <div style="padding:0 20px">
       <div style="background:#fff;padding:16px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;font-size:17px" id="permBtn">
         <span>📢 Browser Notifications</span>
-        <span id="permStatus" style="font-size:16px;font-weight:600;color:var(--gold)">checking…</span>
+        <span id="permStatus" style="font-size:16px;font-weight:600;color:var(--gold)">active</span>
       </div>
       <div id="ownerPortalTrigger" style="display:none;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;padding:16px;border-radius:10px;margin-bottom:10px;text-align:center;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(11,42,74,.3);">
         🛡️ Owner Security & Monitoring Space
@@ -255,8 +253,8 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
   <div class="chat-input-bar">
     <div class="upload-bar" id="uploadBar"><div class="upload-bar-fill" id="uploadBarFill"></div></div>
     <button class="emoji-btn" id="emojiBtn" title="Emoji Palette">😊</button>
-    <button class="attach-btn" id="attachBtn" title="Upload Media File (Photo/Video/Audio/Document)">📎</button>
-    <button class="attach-btn" id="chatRecordBtn" title="Hold/Tap to Record Voice Note Audio" style="font-size:22px;color:#ff4757;">🎙️</button>
+    <button class="attach-btn" id="attachBtn" title="Upload Media File">📎</button>
+    <button class="attach-btn" id="chatRecordBtn" title="Record Voice Note" style="font-size:22px;color:#ff4757;">🎙️</button>
     <input id="chatInput" type="text" placeholder="Message…" autocomplete="off">
     <button class="send-btn" id="sendBtn" disabled>➤</button>
   </div>
@@ -286,8 +284,8 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
       <div style="font-size:17px;opacity:.8" id="callStatus">Calling…</div>
     </div>
     <div class="call-actions">
-      <button class="call-btn mute" id="muteBtn" title="Mute Microphone">🎤</button>
       <button class="call-btn invite" id="invitePeerBtn" title="Invite Peer to Call">➕</button>
+      <button class="call-btn mute" id="muteBtn" title="Mute Microphone">🎤</button>
       <button class="call-btn end" id="endCallBtn" title="End Call">📵</button>
     </div>
   </div>
@@ -295,10 +293,10 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 <div id="incoming-call">
   <div class="call-avatar" id="incomingAvatar">G</div>
   <div style="font-size:24px;font-weight:700;margin-bottom:6px" id="incomingName">—</div>
-  <div style="font-size:17px;opacity:.8;margin-bottom:40px" id="incomingType">Incoming Call Interruption…</div>
+  <div style="font-size:17px;opacity:.8;margin-bottom:40px" id="incomingType">Incoming Call…</div>
   <div class="call-actions">
-    <button class="call-btn end" id="rejectCallBtn">📵 Reject</button>
-    <button class="call-btn accept" id="acceptCallBtn">📞 Accept</button>
+    <button class="call-btn end" id="rejectCallBtn">📵</button>
+    <button class="call-btn accept" id="acceptCallBtn">📞</button>
   </div>
 </div>
 <div class="modal-overlay" id="addModal">
@@ -312,22 +310,13 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
     </div>
   </div>
 </div>
-<div class="modal-overlay" id="invitePeerModal">
-  <div class="modal">
-    <h3>Invite Peer to Call (➕)</h3>
-    <div id="invitePeerList" style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
-    <div class="modal-actions">
-      <button class="cancel" id="invitePeerCancel">Close</button>
-    </div>
-  </div>
-</div>
 <div class="modal-overlay" id="groupModal">
   <div class="modal">
     <h3>Create Group Chat (👥)</h3>
     <input id="groupNameInput" type="text" placeholder="Group Name" maxlength="30">
     <div style="margin-bottom:12px;">
-      <button class="btn-primary" id="groupPhotoBtn" style="width:100%;max-width:none;padding:12px;font-size:17px;background:#143a5f;color:#fff;">📷 Upload Group Picture</button>
-      <div id="groupPhotoName" style="font-size:14px;color:var(--accent);margin-top:4px;word-break:break-all;"></div>
+      <button class="btn-primary" id="groupPhotoBtn" style="width:100%;max-width:none;padding:12px;font-size:16px;background:#143a5f;color:#fff;">📷 Upload Group Picture</button>
+      <div id="groupPhotoName" style="font-size:14px;color:var(--accent);margin-top:4px;"></div>
     </div>
     <div style="font-size:15px;color:var(--muted);margin-bottom:6px">Select Members from Friends:</div>
     <div class="group-select-list" id="groupMembersSelection"></div>
@@ -337,9 +326,18 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
     </div>
   </div>
 </div>
+<div class="modal-overlay" id="invitePeerModal">
+  <div class="modal">
+    <h3>Invite Peer to Call</h3>
+    <div id="invitePeerList" style="max-height:220px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:8px;"></div>
+    <div class="modal-actions">
+      <button class="cancel" id="invitePeerCancel">Cancel</button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="statusModal">
   <div class="modal">
-    <h3>Post Public Status (24h Expiry)</h3>
+    <h3>Post Public Status (24h Auto-Expiry)</h3>
     <textarea id="statusTextInput" rows="2" placeholder="Write status text..."></textarea>
     <input id="statusLinkInput" type="text" placeholder="Optional URL Link (https://...)" style="margin-top:8px;">
     <div style="margin-bottom:10px">
@@ -347,7 +345,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
       <input type="color" id="statusBgColor" value="#0d7a8c" style="width:100%;height:40px;border-radius:6px;padding:2px;cursor:pointer;">
     </div>
     <div style="margin-bottom:10px">
-      <button class="btn-primary" id="statusMediaSelectBtn" style="width:100%;max-width:none;padding:12px;font-size:17px;background:#143a5f;color:#fff;">📹 Select Public Photo or Video Clip</button>
+      <button class="btn-primary" id="statusMediaSelectBtn" style="width:100%;max-width:none;padding:12px;font-size:17px;background:#143a5f;color:#fff;">📹 Select Photo or Video Clip</button>
       <div id="statusMediaName" style="font-size:14px;color:var(--accent);margin-top:4px;word-break:break-all;"></div>
     </div>
     <div class="modal-actions">
@@ -372,9 +370,9 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 </div>
 <div class="modal-overlay" id="statusCommentsModal">
   <div class="modal" style="max-width:420px;">
-    <h3>Status Comments & Direct DM to Owner</h3>
+    <h3>Status Comments & DM</h3>
     <div id="statusCommentsList" style="max-height:220px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:8px;"></div>
-    <input id="statusCommentInput" type="text" placeholder="Write comment or send emoji to owner DM..." autocomplete="off">
+    <input id="statusCommentInput" type="text" placeholder="Write comment or send emoji..." autocomplete="off">
     <div class="modal-actions">
       <button class="cancel" id="statusCommentCancel">Close</button>
       <button class="confirm" id="statusCommentSend">Send DM</button>
@@ -384,7 +382,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 <div class="modal-overlay" id="ownerAuthModal">
   <div class="modal">
     <h3>Owner Authentication</h3>
-    <p style="font-size:16px;color:var(--muted);margin-bottom:10px;">Enter owner password to unlock monitoring space:</p>
+    <p style="font-size:16px;color:var(--muted);margin-bottom:10px;">Enter owner password:</p>
     <input id="ownerPassInput" type="password" placeholder="Password..." autocomplete="off">
     <div class="modal-actions">
       <button class="cancel" id="ownerAuthCancel">Cancel</button>
@@ -400,7 +398,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
     </div>
     <div style="display:flex;gap:6px;margin-bottom:12px;">
       <button class="btn-primary" id="ownerTabStatusBtn" style="flex:1;max-width:none;padding:10px;font-size:15px;">Monitor Statuses</button>
-      <button class="btn-primary" id="ownerTabChatsBtn" style="flex:1;max-width:none;padding:10px;font-size:15px;background:#143a5f;">Monitor P2P DMs & Accounts</button>
+      <button class="btn-primary" id="ownerTabChatsBtn" style="flex:1;max-width:none;padding:10px;font-size:15px;background:#143a5f;">Monitor P2P DMs</button>
     </div>
     <div id="ownerContentArea" style="max-height:55vh;overflow-y:auto;display:flex;flex-direction:column;gap:10px;"></div>
   </div>
@@ -435,10 +433,9 @@ const firebaseConfig = {
 };
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
-const ICE_SERVERS = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] };
 const OWNER_SLUGS = ['gesnerdeslandes', 'gesner'];
 const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
-
+const ICE_SERVERS = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] };
 const App = {
   mySlug: null, myName: '', myPhoto: null,
   contacts: [], groups: [], pendingGroupInvites: {}, activeChat: null, activeIsGroup: false,
@@ -665,68 +662,31 @@ function loadOwnerStatuses() {
         <span style="color:var(--muted);">${new Date(p.time).toLocaleString()}</span>
       </div>
       <div style="font-size:16px;margin-bottom:6px;">${esc(p.text || '')}</div>
-      ${p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" class="owner-img-player" alt="User Photo" onclick="window.__viewAvatar('${p.mediaUrl}','${esc(p.authorName)}')">` : `<video src="${p.mediaUrl}" controls playsinline preload="metadata" class="owner-video-player"></video>`) : ''}
+      ${p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" class="owner-img-player" alt="User Photo">` : `<video src="${p.mediaUrl}" controls playsinline preload="metadata" class="owner-video-player"></video>`) : ''}
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;">
-        <button class="btn-primary" style="max-width:none;padding:8px 14px;font-size:14px;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus('${p._k}')">🗑️ Delete (Text/Media)</button>
-        <button class="btn-primary" style="max-width:none;padding:8px 14px;font-size:14px;background:#143a5f;color:#fff;" onclick="window.__ownerReportStatus('${p._k}','@${esc(p.authorSlug)}')">🚩 Report Violation</button>
+        <button class="btn-primary" style="max-width:none;padding:8px 14px;font-size:14px;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus('${p._k}')">🗑️ Delete</button>
       </div>
     </div>`).join('');
 }
 window.__ownerDeleteStatus = async (key) => {
-  if (confirm('Owner Action: Permanently delete this status post and its media?')) {
+  if (confirm('Owner Action: Permanently delete this status post?')) {
     await remove(dbRef(db, 'user_statuses/' + key));
-    toast('Status post deleted by Owner ✓');
+    toast('Status deleted by Owner ✓');
     loadOwnerStatuses();
   }
-};
-window.__ownerReportStatus = async (key, userTag) => {
-  const reason = prompt('Specify violation reason:', 'Nudes or Violence violation');
-  if (!reason) return;
-  await push(dbRef(db, 'owner_reports'), { type: 'Status Violation', targetUser: userTag, reason, time: Date.now(), reporter: App.mySlug });
-  toast('Violation report uploaded to Owner Space ✓');
 };
 function loadOwnerReports() {
   const area = $('ownerContentArea');
   onValue(dbRef(db, 'users'), snap => {
     const usersData = snap.val() || {};
     const userList = Object.values(usersData);
-    let html = `<div style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:8px;">👥 Registered App Users (${userList.length})</div>`;
+    let html = `<div style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:8px;">👥 Registered Users (${userList.length})</div>`;
     html += userList.map(u => `
       <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
         <div><strong>${esc(u.displayName)}</strong> (@${esc(u.slug)})</div>
-        <button style="background:var(--accent);color:#fff;border:none;padding:6px 10px;border-radius:6px;font-size:13px;cursor:pointer;" onclick="window.__ownerDirectDM('${u.slug}','${esc(u.displayName)}')">💬 DM User</button>
+        <button style="background:var(--accent);color:#fff;border:none;padding:6px 10px;border-radius:6px;font-size:13px;cursor:pointer;" onclick="window.__ownerDirectDM('${u.slug}','${esc(u.displayName)}')">💬 DM</button>
       </div>`).join('');
-    
-    onValue(dbRef(db, 'chats'), snapChats => {
-      const chatsData = snapChats.val() || {};
-      let allDMs = [];
-      Object.entries(chatsData).forEach(([chatId, chatObj]) => {
-        if (chatObj && chatObj.messages) {
-          Object.entries(chatObj.messages).forEach(([msgKey, msgObj]) => {
-            allDMs.push({ ...msgObj, chatId, _k: msgKey });
-          });
-        }
-      });
-      allDMs.sort((a, b) => (b.time || 0) - (a.time || 0));
-      html += `<div style="font-size:16px;font-weight:700;color:var(--navy);margin:14px 0 8px;">🔒 P2P Private Message Monitor</div>`;
-      if (!allDMs.length) {
-        html += '<div style="font-size:14px;color:var(--muted)">No P2P messages yet.</div>';
-      } else {
-        html += allDMs.slice(0, 40).map(m => `
-          <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:14px;margin-bottom:6px;">
-            <div style="display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-bottom:2px;">
-              <span>Chat: ${esc(m.chatId)}</span>
-              <span>${new Date(m.time || Date.now()).toLocaleString()}</span>
-            </div>
-            <div><strong>@${esc(m.fromName || m.from)}:</strong> ${esc(m.text || '[Attachment]')}</div>
-            ${m.attachment ? renderAttachment(m.attachment) : ''}
-            <div style="display:flex;justify-content:flex-end;margin-top:4px;">
-              <button style="background:#ff4757;color:#fff;border:none;padding:4px 8px;border-radius:6px;font-size:12px;cursor:pointer;" onclick="window.__ownerDeleteP2PMessage('${m.chatId}','${m._k}')">🗑️ Delete</button>
-            </div>
-          </div>`).join('');
-      }
-      area.innerHTML = html;
-    }, { onlyOnce: true });
+    area.innerHTML = html;
   }, { onlyOnce: true });
 }
 window.__ownerDirectDM = (targetSlug, targetName) => {
@@ -738,13 +698,6 @@ window.__ownerDirectDM = (targetSlug, targetName) => {
     buildUI();
   }
   window.__openChat(targetSlug, false);
-};
-window.__ownerDeleteP2PMessage = async (chatId, msgKey) => {
-  if (confirm('Owner Action: Delete this private message?')) {
-    await remove(dbRef(db, `chats/${chatId}/messages/${msgKey}`));
-    toast('Private message removed by Owner ✓');
-    loadOwnerReports();
-  }
 };
 $('profileAvatar').addEventListener('click', () => $('avatarInput').click());
 $('avatarInput').addEventListener('change', async e => {
@@ -773,7 +726,6 @@ function setupMessageListener(slug, isGroup) {
   App.globalUnsubs[slug] = onValue(q, snap => {
     const data = snap.val() || {};
     const msgs = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (a.time || 0) - (b.time || 0));
-    
     if (!isFirstLoad && msgs.length) {
       const lastMsg = msgs[msgs.length - 1];
       if (lastMsg.from !== App.mySlug && App.activeChat !== slug) {
@@ -795,14 +747,12 @@ function buildUI() {
   
   const pendingInvites = Object.values(App.pendingGroupInvites);
   if (pendingInvites.length > 0) {
-    html += '<div class="section-title" style="color:var(--gold);">📥 Pending Group Invitations</div>';
+    html += '<div class="section-title">📥 Pending Group Invitations</div>';
     html += pendingInvites.map(inv => `
       <div class="list-item" style="background:#fffbeb;border-left:4px solid var(--gold);">
         <div class="avatar group">👥</div>
         <div class="list-item-body">
-          <div class="list-item-header">
-            <div class="list-item-title">${esc(inv.groupName)}</div>
-          </div>
+          <div class="list-item-header"><div class="list-item-title">${esc(inv.groupName)}</div></div>
           <div class="list-item-sub">Invited by @${esc(inv.creator)}</div>
         </div>
         <div style="display:flex;gap:8px;">
@@ -844,7 +794,7 @@ function buildUI() {
           <div class="list-item-header">
             <div class="list-item-title">${esc(c.name)}</div>
             <div style="display:flex;gap:4px;align-items:center;">
-              ${missed > 0 ? `<span style="font-size:13px;color:var(--red);font-weight:700;">📵 ${missed}</span>` : ''}
+              ${missed > 0 ? `<span style="background:#ff4757;color:#fff;font-size:12px;padding:2px 6px;border-radius:10px;font-weight:700;">📵 ${missed}</span>` : ''}
               ${unread > 0 ? `<div class="badge-unread">${unread}</div>` : ''}
             </div>
           </div>
@@ -861,7 +811,7 @@ function buildUI() {
     <div class="list-item">
       <div class="avatar accent" onclick="window.__viewAvatar('${c.photo||''}','${esc(c.name)}')">${avatarInner(c.photo, c.name)}</div>
       <div class="list-item-body">
-        <div class="list-item-title">${esc(c.name)} ${missed > 0 ? `<small style="color:var(--red);">(Missed: ${missed})</small>` : ''}</div>
+        <div class="list-item-title">${esc(c.name)} ${missed > 0 ? `<span style="font-size:13px;color:var(--red);">(Missed: ${missed})</span>` : ''}</div>
         <div class="list-item-sub">@${c.slug}</div>
       </div>
       <div style="display:flex;gap:10px;">
@@ -1073,7 +1023,7 @@ $('invitePeerBtn').addEventListener('click', () => {
     <div class="group-select-item" style="justify-content:space-between;">
       <div><strong>${esc(c.name)}</strong> (@${c.slug})</div>
       <button style="background:var(--navy);color:#fff;border:none;padding:6px 12px;border-radius:8px;cursor:pointer;" onclick="window.invitePeerToActiveCall('${c.slug}')">Invite</button>
-    </div>`).join('') : '<div style="font-size:15px;color:var(--muted)">No contacts available to invite.</div>';
+    </div>`).join('') : '<div style="color:var(--muted)">No contacts available to invite.</div>';
   $('invitePeerModal').classList.add('show');
 });
 $('invitePeerCancel').addEventListener('click', () => $('invitePeerModal').classList.remove('show'));
@@ -1089,8 +1039,8 @@ $('addGroupFab').addEventListener('click', () => {
     <div class="group-select-item">
       <input type="checkbox" value="${c.slug}" id="chk_${c.slug}" style="width:20px;height:20px;">
       <label for="chk_${c.slug}">${esc(c.name)} (@${c.slug})</label>
-    </div>`).join('') : '<div style="font-size:16px;color:var(--muted)">Add contacts to your Friend List first.</div>';
-  $('groupNameInput').value = ''; 
+    </div>`).join('') : '<div style="color:var(--muted)">Add contacts to your Friend List first.</div>';
+  $('groupNameInput').value = '';
   App.groupPhotoFile = null;
   $('groupPhotoName').textContent = '';
   $('groupModal').classList.add('show');
@@ -1114,16 +1064,15 @@ $('groupModalConfirm').addEventListener('click', async () => {
   const groupObj = { id: groupId, name, members, photo: groupPhotoUrl, createdBy: App.mySlug };
   await set(dbRef(db, `group_chats/${groupId}`), groupObj);
   
-  // Send invitation prompt to each selected member
   for (const memberSlug of checked) {
     await push(dbRef(db, `group_invites/${memberSlug}`), {
       groupId, groupName: name, creator: App.myName || App.mySlug, photo: groupPhotoUrl, time: Date.now()
     });
   }
-
+  
   App.groups.push({ id: groupId, name, members, photo: groupPhotoUrl });
   saveGroups(); setupGroupMessageListener(groupId); buildUI();
-  $('groupModal').classList.remove('show'); toast('Group created & invitations sent ✓');
+  $('groupModal').classList.remove('show'); toast('Group created & requests sent to peers ✓');
 });
 
 function listenGroupInvitations() {
@@ -1356,6 +1305,138 @@ document.querySelectorAll('.emoji-item').forEach(b => b.addEventListener('click'
 document.querySelectorAll('.quick-reaction').forEach(b => b.addEventListener('click', () => {
   $('chatInput').value = b.dataset.emoji; sendMessage();
 }));
+
+/* Calling */
+window.startCall = async (targetSlug, isVideo) => {
+  if (!targetSlug || targetSlug === App.mySlug) return toast('Select a valid contact to call', true);
+  const mutual = await isMutualFriend(targetSlug);
+  if (!mutual) return toast('Both users must add each other to call', true);
+
+  App.currentCallTarget = targetSlug;
+  App.isVideoCall = isVideo;
+  App.activeCallId = `call_${chatIdFor(App.mySlug, targetSlug)}`;
+  const contactObj = App.contacts.find(c => c.slug === targetSlug);
+  const targetName = contactObj ? contactObj.name : targetSlug;
+  $('callName').textContent = targetName;
+  $('callStatus').textContent = isVideo ? 'Initiating Video Call…' : 'Initiating Voice Call…';
+  $('callAvatar').innerHTML = avatarInner(contactObj?.photo, targetName);
+  if (isVideo) $('videoContainer').classList.add('active');
+  else $('videoContainer').classList.remove('active');
+  showScreen('screen-call');
+  startRingtoneSound();
+  try {
+    App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
+    if (isVideo && $('localVideo')) $('localVideo').srcObject = App.localStream;
+    App.peerConn = new RTCPeerConnection(ICE_SERVERS);
+    App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
+    App.peerConn.ontrack = e => { if (e.streams && e.streams[0]) $('remoteVideo').srcObject = e.streams[0]; };
+    const callRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}`);
+    const offerCandidatesRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}/offerCandidates`);
+    App.peerConn.onicecandidate = e => { if (e.candidate) push(offerCandidatesRef, e.candidate.toJSON()); };
+    const offer = await App.peerConn.createOffer();
+    await App.peerConn.setLocalDescription(offer);
+    await set(callRef, {
+      caller: App.mySlug, callerName: App.myName, type: isVideo ? 'video' : 'voice',
+      sdp: offer.sdp, status: 'calling', time: Date.now()
+    });
+    onValue(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/answer`), async snap => {
+      const answer = snap.val();
+      if (answer && App.peerConn && !App.peerConn.currentRemoteDescription) {
+        await App.peerConn.setRemoteDescription(new RTCSessionDescription(answer));
+        stopRingtoneSound();
+        $('callStatus').textContent = 'Connected';
+      }
+    });
+    onChildAdded(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/answerCandidates`), snap => {
+      if (App.peerConn) App.peerConn.addIceCandidate(new RTCIceCandidate(snap.val()));
+    });
+    onValue(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/status`), snap => {
+      if (snap.val() === 'ended' || snap.val() === 'rejected') endCallLocally();
+    });
+  } catch {
+    toast('Could not access microphone/camera', true);
+    endCallLocally();
+  }
+};
+function listenIncomingCalls() {
+  onChildAdded(dbRef(db, `calls/${App.mySlug}`), snap => {
+    const callData = snap.val();
+    if (!callData || callData.status !== 'calling') return;
+    App.activeCallId = snap.key;
+    App.currentCallTarget = callData.caller;
+    App.isVideoCall = callData.type === 'video';
+    $('incomingName').textContent = callData.callerName || callData.caller;
+    $('incomingAvatar').innerHTML = avatarInner(null, callData.callerName || callData.caller);
+    $('incomingType').textContent = `Incoming ${callData.type === 'video' ? '📹 Video' : '📞 Voice'} Call…`;
+    $('incoming-call').classList.add('show');
+    startRingtoneSound();
+    window._incomingCallData = callData;
+  });
+}
+$('acceptCallBtn').addEventListener('click', async () => {
+  stopRingtoneSound();
+  $('incoming-call').classList.remove('show');
+  const callData = window._incomingCallData;
+  if (!callData) return;
+  const isVideo = callData.type === 'video';
+  $('callName').textContent = callData.callerName || callData.caller;
+  $('callStatus').textContent = 'Connecting…';
+  $('callAvatar').innerHTML = avatarInner(null, callData.callerName);
+  if (isVideo) $('videoContainer').classList.add('active');
+  else $('videoContainer').classList.remove('active');
+  showScreen('screen-call');
+  try {
+    App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
+    if (isVideo && $('localVideo')) $('localVideo').srcObject = App.localStream;
+    App.peerConn = new RTCPeerConnection(ICE_SERVERS);
+    App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
+    App.peerConn.ontrack = e => { if (e.streams && e.streams[0]) $('remoteVideo').srcObject = e.streams[0]; };
+    const answerCandidatesRef = dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/answerCandidates`);
+    App.peerConn.onicecandidate = e => { if (e.candidate) push(answerCandidatesRef, e.candidate.toJSON()); };
+    await App.peerConn.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: callData.sdp }));
+    const answer = await App.peerConn.createAnswer();
+    await App.peerConn.setLocalDescription(answer);
+    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/answer`), { type: answer.type, sdp: answer.sdp });
+    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'connected');
+    $('callStatus').textContent = 'Connected';
+    onChildAdded(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/offerCandidates`), snap => {
+      if (App.peerConn) App.peerConn.addIceCandidate(new RTCIceCandidate(snap.val()));
+    });
+  } catch {
+    toast('Error answering call', true);
+    endCallLocally();
+  }
+});
+$('rejectCallBtn').addEventListener('click', async () => {
+  stopRingtoneSound();
+  $('incoming-call').classList.remove('show');
+  if (App.activeCallId && window._incomingCallData) {
+    const caller = window._incomingCallData.caller;
+    if (caller) {
+      if (!App.missedCalls[caller]) App.missedCalls[caller] = 0;
+      App.missedCalls[caller]++;
+      saveMissedCalls();
+      buildUI();
+    }
+    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'rejected');
+  }
+});
+function endCallLocally() {
+  stopRingtoneSound();
+  if (App.localStream) { App.localStream.getTracks().forEach(t => t.stop()); App.localStream = null; }
+  if (App.peerConn) { App.peerConn.close(); App.peerConn = null; }
+  $('videoContainer').classList.remove('active');
+  showScreen('screen-main');
+}
+$('endCallBtn').addEventListener('click', async () => {
+  if (App.activeCallId && App.currentCallTarget) {
+    await set(dbRef(db, `calls/${App.currentCallTarget}/${App.activeCallId}/status`), 'ended');
+    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'ended');
+  }
+  endCallLocally();
+});
+$('voiceCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, false); });
+$('videoCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, true); });
 
 /* Voicemail */
 let mediaRecorder = null, audioChunks = [], recordingTimer = null;
