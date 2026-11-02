@@ -508,10 +508,25 @@ function updateProfileHeader() {
   }
 }
 
-// Rapid Cloud Recovery and Content Restoration Engine
+// Rapid Cloud Recovery and Content Restoration Engine with Instant Memory Caching
 async function restoreCloudContent() {
   if (!App.mySlug) return;
-  toast('Syncing & restoring cloud content…');
+
+  // 0. Instant Render from Local Storage Cache (0.1 second load time)
+  const cachedChats = LS.get('cached_chats', {});
+  if (Object.keys(cachedChats).length > 0) {
+    App.lastMessages = cachedChats;
+    if (App.activeChat) {
+      renderMessages(App.activeChat, App.lastMessages[App.activeChat] || [], App.activeIsGroup);
+    }
+  }
+
+  const cachedStatus = LS.get('cached_statuses', []);
+  if (cachedStatus.length > 0) {
+    renderStatusFeedList(cachedStatus);
+  }
+
+  toast('Fast syncing cloud contents…');
 
   try {
     // 1. Fetch user profile & contact synchronization in parallel
@@ -535,7 +550,7 @@ async function restoreCloudContent() {
       saveContacts();
     }
 
-    // 3. Pre-load DMs across all contacts rapidly
+    // 3. Pre-load DMs across all contacts rapidly in parallel
     const chatFetches = App.contacts.map(c => {
       const path = `chats/${chatIdFor(App.mySlug, c.slug)}/messages`;
       return get(query(dbRef(db, path), limitToLast(100))).then(snap => {
@@ -547,6 +562,7 @@ async function restoreCloudContent() {
     });
 
     await Promise.all(chatFetches);
+    LS.set('cached_chats', App.lastMessages);
 
     // 4. Update UI immediately after restoration
     buildUI();
@@ -1031,12 +1047,19 @@ function listenUserStatuses() {
       .filter(p => isOwner() || p.authorSlug === App.mySlug || friendSlugs.includes(p.authorSlug))
       .sort((a, b) => b.time - a.time);
 
-    if (!posts.length) {
-      $('statusFeedList').innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No recent friend status updates available.</p></div>';
-      window._cachedPosts = [];
-      return;
-    }
+    LS.set('cached_statuses', posts);
+    renderStatusFeedList(posts);
+  });
+}
 
+function renderStatusFeedList(posts) {
+  if (!posts || !posts.length) {
+    $('statusFeedList').innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No recent friend status updates available.</p></div>';
+    window._cachedPosts = [];
+    return;
+  }
+
+  requestAnimationFrame(() => {
     $('statusFeedList').innerHTML = posts.map(p => {
       const isMine = p.authorSlug === App.mySlug;
       const mediaHtml = p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" class="status-media" onclick="window.__viewAvatar('${p.mediaUrl}', '${esc(p.authorName)}')">` : `<video src="${p.mediaUrl}" controls playsinline preload="metadata" class="status-media"></video>`) : '';
@@ -1058,8 +1081,8 @@ function listenUserStatuses() {
         </div>
       </div>`;
     }).join('');
-    window._cachedPosts = posts;
   });
+  window._cachedPosts = posts;
 }
 
 document.querySelectorAll('.nav-item').forEach(b => b.addEventListener('click', () => {
