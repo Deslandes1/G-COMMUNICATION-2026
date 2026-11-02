@@ -662,7 +662,6 @@ async function uploadAccountDataToCloud() {
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
 let nameCheckTimer = null;
 let validatedSlug = null;
-let isOwnerHandle = false;
 
 nameInput.addEventListener('input', () => {
   const rawVal = nameInput.value.trim();
@@ -674,36 +673,19 @@ nameInput.addEventListener('input', () => {
     validatedSlug = null;
     return;
   }
-  nameStatus.textContent = 'Verifying username availability…';
+  nameStatus.textContent = 'Verifying username…';
   nameStatus.className = 'name-status';
   enterBtn.disabled = true;
   clearTimeout(nameCheckTimer);
   nameCheckTimer = setTimeout(async () => {
-    try {
-      const userRef = dbRef(db, 'users/' + slug);
-      const snap = await get(userRef);
-      isOwnerHandle = (slug === 'gesner' || slug === 'gesnerdeslandes' || rawVal.includes('deslandes'));
-      if (snap.exists()) {
-        validatedSlug = slug;
-        nameStatus.textContent = `Welcome back, @${slug}! Ready to sign in ✓`;
-        nameStatus.className = 'name-status ok';
-        enterBtn.disabled = false;
-      } else {
-        validatedSlug = slug;
-        nameStatus.textContent = `"@${slug}" is available and secured for you ✓`;
-        nameStatus.className = 'name-status ok';
-        enterBtn.disabled = false;
-      }
-    } catch {
-      validatedSlug = slug;
-      nameStatus.textContent = `"@${slug}" ready ✓`;
-      nameStatus.className = 'name-status ok';
-      enterBtn.disabled = false;
-    }
-  }, 400);
+    validatedSlug = slug;
+    nameStatus.textContent = `Ready: @${slug} ✓`;
+    nameStatus.className = 'name-status ok';
+    enterBtn.disabled = false;
+  }, 250);
 });
 
-enterBtn.addEventListener('click', async () => {
+async function loginAndEnter() {
   const rawVal = nameInput.value.trim();
   const slug = validatedSlug || slugify(rawVal);
   if (!slug) return toast('Please enter a valid username', true);
@@ -718,6 +700,13 @@ enterBtn.addEventListener('click', async () => {
   LS.set('mySlug', slug); LS.set('myName', App.myName);
   await syncAccountDataFromCloud();
   startMainApp();
+}
+
+enterBtn.addEventListener('click', loginAndEnter);
+nameInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !enterBtn.disabled) {
+    loginAndEnter();
+  }
 });
 
 window.addEventListener('load', () => {
@@ -728,13 +717,12 @@ window.addEventListener('load', () => {
   const savedPhoto = LS.get('avatar', null);
   if (savedPhoto) App.myPhoto = savedPhoto;
 
-  // Pre-fill input with saved name if available, but keep on onboarding screen for manual review/typing
   const savedName = LS.get('myName', null) || LS.get('mySlug', null);
   if (savedName) {
     nameInput.value = savedName;
     validatedSlug = slugify(savedName);
     enterBtn.disabled = false;
-    nameStatus.textContent = `Ready to enter as @${validatedSlug} ✓`;
+    nameStatus.textContent = `Welcome back, @${validatedSlug} ✓`;
     nameStatus.className = 'name-status ok';
   }
 
