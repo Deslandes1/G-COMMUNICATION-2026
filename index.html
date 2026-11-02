@@ -116,7 +116,6 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 #avatarViewerModal.show{display:flex}
 #avatarViewerImg{max-width:90%;max-height:80vh;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.8);object-fit:contain}
 #avatarViewerName{color:#fff;font-size:22px !important;font-family:Calibri,sans-serif;font-weight:700;margin-top:14px;text-align:center}
-/* Video Conference Call Suite */
 #screen-call{background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;justify-content:center;align-items:center;padding:10px;text-align:center;position:relative;z-index:150}
 .call-video-container{position:absolute;inset:0;width:100%;height:100%;background:#000;display:none;z-index:1}
 .call-video-container.active{display:block}
@@ -263,8 +262,8 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
   <div class="chat-input-bar">
     <div class="upload-bar" id="uploadBar"><div class="upload-bar-fill" id="uploadBarFill"></div></div>
     <button class="emoji-btn" id="emojiBtn" title="Emoji Palette">😊</button>
-    <button class="attach-btn" id="attachBtn" title="Upload Media File (Photo/Video/Audio/Document)">📎</button>
-    <button class="attach-btn" id="chatRecordBtn" title="Hold/Tap to Record Voice Note Audio" style="font-size:22px;color:#ff4757;">🎙️</button>
+    <button class="attach-btn" id="attachBtn" title="Upload Media File">📎</button>
+    <button class="attach-btn" id="chatRecordBtn" title="Record Voice Note Audio" style="font-size:22px;color:#ff4757;">🎙️</button>
     <input id="chatInput" type="text" placeholder="Message…" autocomplete="off">
     <button class="send-btn" id="sendBtn" disabled>➤</button>
   </div>
@@ -414,6 +413,33 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
     <div id="ownerContentArea" style="max-height:55vh;overflow-y:auto;display:flex;flex-direction:column;gap:10px;"></div>
   </div>
 </div>
+<div class="modal-overlay" id="filterModal">
+  <div class="modal" style="max-width:340px;text-align:center;">
+    <h3>✨ Camera Background Filters</h3>
+    <p style="font-size:19px !important;font-family:Calibri,sans-serif;margin-bottom:10px;">Choose a visual background filter for your video:</p>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <button class="btn-primary" onclick="window.__applyFilter('none')" style="max-width:none;background:#eef2f6;color:var(--text);">Normal Camera</button>
+      <button class="btn-primary" onclick="window.__applyFilter('blur(6px)')" style="max-width:none;background:var(--accent);color:#fff;">Blurred Background</button>
+      <button class="btn-primary" onclick="window.__applyFilter('sepia(80%)')" style="max-width:none;background:var(--gold);color:var(--navy);">Cinematic Sepia</button>
+      <button class="btn-primary" onclick="window.__applyFilter('contrast(160%)')" style="max-width:none;background:var(--navy);color:#fff;">High Contrast Studio</button>
+      <button class="btn-primary" onclick="window.__applyFilter('hue-rotate(180deg)')" style="max-width:none;background:#143a5f;color:#fff;">Neon Cyberpunk</button>
+    </div>
+    <div class="modal-actions" style="margin-top:10px;">
+      <button class="cancel" id="filterCancelBtn" style="width:100%;max-width:none;">Close</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="addParticipantModal">
+  <div class="modal">
+    <h3>Add User to Video Call</h3>
+    <div style="font-size:17px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:8px;">Select friend from your Friend List:</div>
+    <div class="group-select-list" id="participantSelectionList"></div>
+    <div class="modal-actions">
+      <button class="cancel" id="participantCancel">Cancel</button>
+      <button class="confirm" id="participantConfirm">Invite to Call</button>
+    </div>
+  </div>
+</div>
 <div id="lightbox">
   <button class="close-lb" id="lightboxClose">✕</button>
   <img id="lightboxImg" alt="">
@@ -432,6 +458,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref as dbRef, push, onValue, remove, set, get, query, limitToLast, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyBfqTPdNq31MegFF_vh08D2K_6-2GMeIrY",
   authDomain: "jarvis-tracker-a8136.firebaseapp.com",
@@ -441,28 +468,32 @@ const firebaseConfig = {
   messagingSenderId: "994161558903",
   appId: "1:994161558903:web:c978951c451a305b6d0d72"
 };
+
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
 const ICE_SERVERS = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] };
+
 const App = {
   mySlug: null, myName: '', myPhoto: null,
   contacts: [], groups: [], activeChat: null, activeIsGroup: false,
   lastMessages: {}, unreadCounts: {}, globalUnsubs: {}, deletedLocally: {},
   statusMediaFile: null, editMediaFile: null, selectedMsgKey: null, selectedMsgObj: null,
-  activeStatusObj: null, audioCtx: null, ringtoneInterval: null,
+  activeStatusObj: null, audioCtx: null, ringtoneInterval: null, ringtoneTimeout: null,
   peerConn: null, localStream: null, activeCallId: null, isVideoCall: false, currentCallTarget: null,
-  mediaRecorder: null, recordedChunks: [], blockedUsers: []
+  mediaRecorder: null, recordedChunks: [], blockedUsers: [], isMuted: false,
+  installPrompt: null
 };
+
 const $ = id => document.getElementById(id);
 const LS = {
   get: (k, d) => { try { return JSON.parse(localStorage.getItem('gcp_' + k)) ?? d; } catch { return d; } },
   set: (k, v) => { try { localStorage.setItem('gcp_' + k, JSON.stringify(v)); } catch {} },
   del: (k) => localStorage.removeItem('gcp_' + k)
 };
-function isOwner() {
-  return App.mySlug === 'gesnerdeslandes' || App.mySlug === 'gesner';
-}
+
+function isOwner() { return App.mySlug === 'gesnerdeslandes' || App.mySlug === 'gesner'; }
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
+
 let toastTimer;
 function toast(msg, isError) {
   const t = $('toast'); t.textContent = msg;
@@ -470,6 +501,7 @@ function toast(msg, isError) {
   t.classList.add('show'); clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
+
 function esc(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function slugify(name) { return String(name).toLowerCase().trim().replace(/[^a-z0-9]/g, '').slice(0, 20); }
 function chatIdFor(a, b) { const [x, y] = [a, b].sort(); return `${x}__${y}`; }
@@ -490,101 +522,11 @@ function fileToBase64(file) {
   });
 }
 
-function updateProfileHeader() {
-  const pName = $('profileName');
-  const pUser = $('profileUsername');
-  const pImg = $('profileAvatarImg');
-  const pLetter = $('profileAvatarLetter');
-  
-  if (pName) pName.textContent = App.myName || 'Gesner Deslandes';
-  if (pUser) pUser.textContent = '@' + (App.mySlug || 'gesnerdeslandes');
-  
-  if (App.myPhoto) {
-    if (pImg) { pImg.src = App.myPhoto; pImg.style.display = 'block'; }
-    if (pLetter) pLetter.style.display = 'none';
-  } else {
-    if (pImg) pImg.style.display = 'none';
-    if (pLetter) { pLetter.textContent = (App.myName || 'G').charAt(0).toUpperCase(); pLetter.style.display = 'inline'; }
-  }
-}
-
-// Rapid Cloud Recovery and Content Restoration Engine with Instant Memory Caching
-async function restoreCloudContent() {
-  if (!App.mySlug) return;
-
-  // 0. Instant Render from Local Storage Cache (0.1 second load time)
-  const cachedChats = LS.get('cached_chats', {});
-  if (Object.keys(cachedChats).length > 0) {
-    App.lastMessages = cachedChats;
-    if (App.activeChat) {
-      renderMessages(App.activeChat, App.lastMessages[App.activeChat] || [], App.activeIsGroup);
-    }
-  }
-
-  const cachedStatus = LS.get('cached_statuses', []);
-  if (cachedStatus.length > 0) {
-    renderStatusFeedList(cachedStatus);
-  }
-
-  toast('Fast syncing cloud contents…');
-
-  try {
-    // 1. Fetch user profile & contact synchronization in parallel
-    const userSnap = await get(dbRef(db, `users/${App.mySlug}`));
-    if (userSnap.exists()) {
-      const userData = userSnap.val();
-      if (userData.photo) App.myPhoto = userData.photo;
-      if (userData.displayName) App.myName = userData.displayName;
-      updateProfileHeader();
-    }
-
-    // 2. Fast recover missing contacts from Cloud
-    const contactsSnap = await get(dbRef(db, `users/${App.mySlug}/contacts`));
-    if (contactsSnap.exists()) {
-      const cloudContacts = Object.values(contactsSnap.val());
-      cloudContacts.forEach(c => {
-        if (c && c.slug && !App.contacts.some(existing => existing.slug === c.slug)) {
-          App.contacts.push({ slug: c.slug, name: c.name || c.slug, photo: c.photo || null });
-        }
-      });
-      saveContacts();
-    }
-
-    // 3. Pre-load DMs across all contacts rapidly in parallel
-    const chatFetches = App.contacts.map(c => {
-      const path = `chats/${chatIdFor(App.mySlug, c.slug)}/messages`;
-      return get(query(dbRef(db, path), limitToLast(100))).then(snap => {
-        if (snap.exists()) {
-          const msgs = Object.entries(snap.val()).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (a.time || 0) - (b.time || 0));
-          App.lastMessages[c.slug] = msgs;
-        }
-      });
-    });
-
-    await Promise.all(chatFetches);
-    LS.set('cached_chats', App.lastMessages);
-
-    // 4. Update UI immediately after restoration
-    buildUI();
-    if (App.activeChat) {
-      renderMessages(App.activeChat, App.lastMessages[App.activeChat] || [], App.activeIsGroup);
-    }
-    toast('All contents restored ✓');
-  } catch (err) {
-    console.error('Fast recovery error:', err);
-  }
-}
-
-function saveContacts() { LS.set('contacts', App.contacts); }
-function saveGroups() { LS.set('groups', App.groups); }
-function saveDeletedLocally() { LS.set('deletedLocally', App.deletedLocally); }
-function saveUnreadCounts() { LS.set('unreadCounts', App.unreadCounts); updateAppBadge(); }
-function saveBlockedUsers() { LS.set('blockedUsers', App.blockedUsers); }
-
 function getAudioCtx() { if (!App.audioCtx) { try { App.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch {} } return App.audioCtx; }
 function unlockAudio() { const ctx = getAudioCtx(); if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {}); }
 document.addEventListener('click', unlockAudio);
 document.addEventListener('touchstart', unlockAudio, { passive: true });
+
 function playSentSound() {
   const ctx = getAudioCtx(); if (!ctx) return;
   if (ctx.state === 'suspended') ctx.resume().catch(() => {});
@@ -631,9 +573,18 @@ function startRingtoneSound() {
   };
   playPulse();
   App.ringtoneInterval = setInterval(playPulse, 2200);
+  clearTimeout(App.ringtoneTimeout);
+  App.ringtoneTimeout = setTimeout(() => {
+    if (App.activeCallId && App.peerConn && !App.peerConn.currentRemoteDescription) {
+      if (App.currentCallTarget) set(dbRef(db, `calls/${App.currentCallTarget}/${App.activeCallId}/status`), 'ended').catch(() => {});
+      toast('Call not answered', true);
+      endCallLocally();
+    }
+  }, 45000);
 }
 function stopRingtoneSound() {
   if (App.ringtoneInterval) { clearInterval(App.ringtoneInterval); App.ringtoneInterval = null; }
+  if (App.ringtoneTimeout) { clearTimeout(App.ringtoneTimeout); App.ringtoneTimeout = null; }
 }
 function updateAppBadge() {
   let totalUnread = 0;
@@ -656,6 +607,91 @@ window.__enlargeActiveAvatar = () => {
   if (target && target.photo) window.__viewAvatar(target.photo, target.name);
 };
 
+/* ============ INSTALL PROMPT ============ */
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  App.installPrompt = e;
+  $('installBanner').classList.add('show');
+});
+$('installBannerBtn')?.addEventListener('click', async () => {
+  if (!App.installPrompt) { toast('Use browser menu → Add to Home Screen', false); return; }
+  App.installPrompt.prompt();
+  const { outcome } = await App.installPrompt.userChoice;
+  if (outcome === 'accepted') toast('Installing JARVIS ✓');
+  App.installPrompt = null;
+  $('installBanner').classList.remove('show');
+});
+$('installBannerClose')?.addEventListener('click', () => $('installBanner').classList.remove('show'));
+
+/* ============ UPDATE PROFILE HEADER ============ */
+function updateProfileHeader() {
+  const pName = $('profileName'), pUser = $('profileUsername'), pImg = $('profileAvatarImg'), pLetter = $('profileAvatarLetter');
+  if (pName) pName.textContent = App.myName || 'Gesner Deslandes';
+  if (pUser) pUser.textContent = '@' + (App.mySlug || 'gesnerdeslandes');
+  if (App.myPhoto) {
+    if (pImg) { pImg.src = App.myPhoto; pImg.style.display = 'block'; }
+    if (pLetter) pLetter.style.display = 'none';
+  } else {
+    if (pImg) pImg.style.display = 'none';
+    if (pLetter) { pLetter.textContent = (App.myName || 'G').charAt(0).toUpperCase(); pLetter.style.display = 'inline'; }
+  }
+  const ownerTrigger = $('ownerPortalTrigger');
+  if (ownerTrigger) ownerTrigger.style.display = isOwner() ? 'block' : 'none';
+}
+
+/* ============ CLOUD RESTORE ============ */
+async function restoreCloudContent() {
+  if (!App.mySlug) return;
+  const cachedChats = LS.get('cached_chats', {});
+  if (Object.keys(cachedChats).length > 0) {
+    App.lastMessages = cachedChats;
+    if (App.activeChat) renderMessages(App.activeChat, App.lastMessages[App.activeChat] || [], App.activeIsGroup);
+  }
+  const cachedStatus = LS.get('cached_statuses', []);
+  if (cachedStatus.length > 0) renderStatusFeedList(cachedStatus);
+  toast('Fast syncing cloud contents…');
+  try {
+    const userSnap = await get(dbRef(db, `users/${App.mySlug}`));
+    if (userSnap.exists()) {
+      const userData = userSnap.val();
+      if (userData.photo) App.myPhoto = userData.photo;
+      if (userData.displayName) App.myName = userData.displayName;
+      updateProfileHeader();
+    }
+    const contactsSnap = await get(dbRef(db, `users/${App.mySlug}/contacts`));
+    if (contactsSnap.exists()) {
+      const cloudContacts = Object.values(contactsSnap.val());
+      cloudContacts.forEach(c => {
+        if (c && c.slug && !App.contacts.some(existing => existing.slug === c.slug)) {
+          App.contacts.push({ slug: c.slug, name: c.name || c.slug, photo: c.photo || null });
+        }
+      });
+      saveContacts();
+    }
+    const chatFetches = App.contacts.map(c => {
+      const path = `chats/${chatIdFor(App.mySlug, c.slug)}/messages`;
+      return get(query(dbRef(db, path), limitToLast(100))).then(snap => {
+        if (snap.exists()) {
+          const msgs = Object.entries(snap.val()).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (a.time || 0) - (b.time || 0));
+          App.lastMessages[c.slug] = msgs;
+        }
+      });
+    });
+    await Promise.all(chatFetches);
+    LS.set('cached_chats', App.lastMessages);
+    buildUI();
+    if (App.activeChat) renderMessages(App.activeChat, App.lastMessages[App.activeChat] || [], App.activeIsGroup);
+    toast('All contents restored ✓');
+  } catch (err) { console.error('Fast recovery error:', err); }
+}
+
+function saveContacts() { LS.set('contacts', App.contacts); }
+function saveGroups() { LS.set('groups', App.groups); }
+function saveDeletedLocally() { LS.set('deletedLocally', App.deletedLocally); }
+function saveUnreadCounts() { LS.set('unreadCounts', App.unreadCounts); updateAppBadge(); }
+function saveBlockedUsers() { LS.set('blockedUsers', App.blockedUsers); }
+
+/* ============ ONBOARDING ============ */
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
 let nameCheckTimer = null;
 nameInput.addEventListener('input', () => {
@@ -675,27 +711,20 @@ enterBtn.addEventListener('click', async () => {
   try {
     const userRef = dbRef(db, 'users/' + slug);
     const snap = await get(userRef);
-    if (!snap.exists()) {
-      await set(userRef, { slug, displayName: rawVal, createdAt: Date.now(), photo: App.myPhoto || null });
-    }
+    if (!snap.exists()) await set(userRef, { slug, displayName: rawVal, createdAt: Date.now(), photo: App.myPhoto || null });
   } catch {}
   App.mySlug = slug; App.myName = rawVal;
   LS.set('mySlug', slug); LS.set('myName', App.myName);
-  
-  // OWNER AUTO-SYNC: If user is not owner, ensure owner (gesnerdeslandes) gets this user on owner's contact list
   if (!isOwner()) {
     try {
       const ownerSlug = 'gesnerdeslandes';
-      const ownerContactRef = dbRef(db, `users/${ownerSlug}/contacts/${slug}`);
-      await set(ownerContactRef, { slug, name: rawVal, time: Date.now() });
+      await set(dbRef(db, `users/${ownerSlug}/contacts/${slug}`), { slug, name: rawVal, time: Date.now() });
     } catch {}
   }
-  
   startMainApp();
 });
-nameInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter') enterBtn.click();
-});
+nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') enterBtn.click(); });
+
 window.addEventListener('load', () => {
   App.contacts = LS.get('contacts', []);
   App.groups = LS.get('groups', []);
@@ -707,11 +736,26 @@ window.addEventListener('load', () => {
   const savedPhoto = LS.get('avatar', null);
   if (savedPhoto) App.myPhoto = savedPhoto;
   if (savedName || savedSlug) nameInput.value = savedName || savedSlug;
-
   const fsBtn = $('forceSyncBtn');
   if (fsBtn) fsBtn.addEventListener('click', () => restoreCloudContent());
-
+  updateNotifPermStatus();
   showScreen('screen-onboard');
+});
+
+function updateNotifPermStatus() {
+  const el = $('permStatus');
+  if (!el) return;
+  if (!('Notification' in window)) { el.textContent = 'unsupported'; return; }
+  if (Notification.permission === 'granted') el.textContent = 'enabled ✓';
+  else if (Notification.permission === 'denied') el.textContent = 'blocked';
+  else el.textContent = 'tap to enable';
+}
+$('permBtn')?.addEventListener('click', async () => {
+  if (!('Notification' in window)) return toast('Notifications not supported', true);
+  if (Notification.permission === 'granted') return toast('Notifications already enabled');
+  const res = await Notification.requestPermission();
+  updateNotifPermStatus();
+  toast(res === 'granted' ? 'Notifications enabled ✓' : 'Notifications blocked', res !== 'granted');
 });
 
 function startMainApp() {
@@ -723,10 +767,7 @@ function startMainApp() {
   listenIncomingCalls();
   App.contacts.forEach(c => setupMessageListener(c.slug, false));
   App.groups.forEach(g => setupGroupMessageListener(g.id));
-  
-  // Rapid Cloud Recovery Engine
   restoreCloudContent();
-
   if (isOwner()) {
     onValue(dbRef(db, 'users'), snap => {
       const usersData = snap.val() || {};
@@ -745,7 +786,7 @@ function startMainApp() {
   onValue(dbRef(db, 'group_chats'), snap => {
     const remoteGroups = snap.val() || {};
     Object.values(remoteGroups).forEach(rg => {
-      if (rg && rg.id && !App.groups.some(g => g.id === rg.id)) {
+      if (rg && rg.id && rg.members && rg.members.includes(App.mySlug) && !App.groups.some(g => g.id === rg.id)) {
         App.groups.push(rg);
         saveGroups();
         setupGroupMessageListener(rg.id);
@@ -756,6 +797,7 @@ function startMainApp() {
   updateAppBadge();
 }
 
+/* ============ BLOCKED USERS ============ */
 function renderBlockedUsersList() {
   const container = $('blockedUsersContainer');
   if (!container) return;
@@ -770,36 +812,26 @@ function renderBlockedUsersList() {
     </div>
   `).join('');
 }
-
 window.blockUser = (slug) => {
   if (!slug || slug === App.mySlug) return;
   if (App.blockedUsers.includes(slug)) return toast('User is already blocked', true);
-  if (confirm(`Are you sure you want to block @${slug}? You will no longer receive messages or calls from them.`)) {
-    App.blockedUsers.push(slug);
-    saveBlockedUsers();
-    App.contacts = App.contacts.filter(c => c.slug !== slug);
-    saveContacts();
-    renderBlockedUsersList();
-    buildUI();
-    if (App.activeChat === slug) {
-      App.activeChat = null;
-      showScreen('screen-main');
-    }
+  if (confirm(`Are you sure you want to block @${slug}?`)) {
+    App.blockedUsers.push(slug); saveBlockedUsers();
+    App.contacts = App.contacts.filter(c => c.slug !== slug); saveContacts();
+    renderBlockedUsersList(); buildUI();
+    if (App.activeChat === slug) { App.activeChat = null; showScreen('screen-main'); }
     toast(`Blocked @${slug} ✓`);
   }
 };
-
 window.unblockUser = (slug) => {
-  App.blockedUsers = App.blockedUsers.filter(s => s !== slug);
-  saveBlockedUsers();
-  renderBlockedUsersList();
-  buildUI();
+  App.blockedUsers = App.blockedUsers.filter(s => s !== slug); saveBlockedUsers();
+  renderBlockedUsersList(); buildUI();
   toast(`Unblocked @${slug} ✓`);
 };
 
+/* ============ INCOMING CALLS ============ */
 function listenIncomingCalls() {
-  const myCallsRef = dbRef(db, `calls/${App.mySlug}`);
-  onChildAdded(myCallsRef, snap => {
+  onChildAdded(dbRef(db, `calls/${App.mySlug}`), snap => {
     const callData = snap.val();
     if (!callData || callData.status !== 'calling') return;
     if (App.blockedUsers.includes(callData.caller)) return;
@@ -815,29 +847,36 @@ function listenIncomingCalls() {
   });
 }
 
+/* ============ MESSAGE LISTENER ============ */
 function setupMessageListener(id, isGroup) {
   const path = isGroup ? `group_chats/${id}/messages` : `chats/${chatIdFor(App.mySlug, id)}/messages`;
   if (App.globalUnsubs[id]) return;
   App.globalUnsubs[id] = true;
+  let firstLoad = true;
   onValue(query(dbRef(db, path), limitToLast(100)), snap => {
     const data = snap.val() || {};
     const msgs = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (a.time || 0) - (b.time || 0));
-    App.lastMessages[id] = msgs;
-    if (App.activeChat === id) {
-      renderMessages(id, msgs, isGroup);
-    } else {
-      App.unreadCounts[id] = (App.unreadCounts[id] || 0) + 1;
-      saveUnreadCounts();
-      buildUI();
+    if (!firstLoad && msgs.length) {
+      const lastMsg = msgs[msgs.length - 1];
+      if (lastMsg.from !== App.mySlug && App.activeChat !== id) {
+        App.unreadCounts[id] = (App.unreadCounts[id] || 0) + 1;
+        saveUnreadCounts();
+        playIncomingMessageAlert();
+      }
     }
+    firstLoad = false;
+    App.lastMessages[id] = msgs;
+    LS.set('cached_chats', App.lastMessages);
+    if (App.activeChat === id) renderMessages(id, msgs, isGroup);
+    buildUI();
   });
 }
-
 function setupGroupMessageListener(groupId) { setupMessageListener(groupId, true); }
+
+/* ============ UI BUILD ============ */
 function buildUI() {
   const cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient');
   let html = '';
-  
   if (App.groups.length) {
     html += '<div class="section-title">Group Friend List (👥)</div>';
     html += App.groups.map(g => {
@@ -889,30 +928,29 @@ function buildUI() {
       </div>`).join('');
   }
   if (vmSel) {
+    const cur = vmSel.value;
     vmSel.innerHTML = '<option value="">Select recipient</option>' + App.contacts.map(c => `<option value="${c.slug}">${esc(c.name)}</option>`).join('');
+    if (cur && App.contacts.some(c => c.slug === cur)) vmSel.value = cur;
   }
 }
+
 window.__openChat = (id, isGroup) => {
   if (!isGroup && !isOwner() && id !== App.mySlug) {
     const isFriend = App.contacts.some(c => c.slug === id);
     if (!isFriend) return toast('You must add this user to your Friend List to DM them', true);
   }
   App.activeChat = id; App.activeIsGroup = isGroup;
-  App.unreadCounts[id] = 0;
-  saveUnreadCounts();
+  App.unreadCounts[id] = 0; saveUnreadCounts();
   const target = isGroup ? App.groups.find(g => g.id === id) : App.contacts.find(c => c.slug === id);
   $('chatName').textContent = target ? target.name : id;
   $('chatAvatar').innerHTML = isGroup ? '👥' : avatarInner(target?.photo, target?.name);
   $('voiceCallFromChatBtn').style.display = isGroup ? 'none' : 'block';
   $('videoCallFromChatBtn').style.display = isGroup ? 'none' : 'block';
   showScreen('screen-chat');
-  
-  if (!App.globalUnsubs[id]) {
-    setupMessageListener(id, isGroup);
-  } else {
-    renderMessages(id, App.lastMessages[id] || [], isGroup);
-  }
+  if (!App.globalUnsubs[id]) setupMessageListener(id, isGroup);
+  else renderMessages(id, App.lastMessages[id] || [], isGroup);
 };
+
 function renderAttachment(a) {
   if (!a || !a.url) return '';
   const safeUrl = esc(a.url);
@@ -921,14 +959,13 @@ function renderAttachment(a) {
   if (a.type === 'audio') return `<audio class="attach-audio" controls playsinline preload="metadata" src="${safeUrl}"></audio>`;
   return `<a class="attach-file" href="${safeUrl}" target="_blank" download="${esc(a.name || 'file')}">📄 ${esc(a.name || 'File')}</a>`;
 }
+
 function renderMessages(id, msgs, isGroup) {
   const area = $('messagesArea');
   const deletedKeys = App.deletedLocally[id] || [];
   const visibleMsgs = msgs.filter(m => !deletedKeys.includes(m._k));
   if (!visibleMsgs.length) { area.innerHTML = '<div class="empty"><p>No messages yet 👋</p></div>'; return; }
-  
-  const tempContainer = document.createElement('div');
-  tempContainer.innerHTML = visibleMsgs.map(m => {
+  area.innerHTML = visibleMsgs.map(m => {
     const out = m.from === App.mySlug;
     const t = m.time ? new Date(m.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
     const attHtml = m.attachment ? renderAttachment(m.attachment) : '';
@@ -941,12 +978,7 @@ function renderMessages(id, msgs, isGroup) {
       <span class="time">${t}</span>
     </div>`;
   }).join('');
-  
-  area.innerHTML = tempContainer.innerHTML;
-  
-  setTimeout(() => {
-    area.scrollTop = area.scrollHeight;
-  }, 10);
+  setTimeout(() => { area.scrollTop = area.scrollHeight; }, 10);
 }
 
 window.__openActionSheet = (msgKey, isMine) => {
@@ -975,28 +1007,216 @@ $('actDeleteEveryoneBtn').addEventListener('click', async () => {
   toast('Deleted for everyone ✓');
 });
 
+$('actEditBtn').addEventListener('click', () => {
+  $('actionSheet').classList.remove('show');
+  if (App.selectedMsgObj) {
+    $('editMsgInput').value = App.selectedMsgObj.text || '';
+    App.editMediaFile = null;
+    $('editMediaInput').value = '';
+    $('editMsgModal').classList.add('show');
+  }
+});
+$('editMsgCancel').addEventListener('click', () => $('editMsgModal').classList.remove('show'));
+$('editMediaInput').addEventListener('change', e => { if (e.target.files && e.target.files[0]) App.editMediaFile = e.target.files[0]; });
+$('editMsgConfirm').addEventListener('click', async () => {
+  const newText = $('editMsgInput').value.trim();
+  if (App.selectedMsgKey) {
+    const path = App.activeIsGroup ? `group_chats/${App.activeChat}/messages/${App.selectedMsgKey}` : `chats/${chatIdFor(App.mySlug, App.activeChat)}/messages/${App.selectedMsgKey}`;
+    await set(dbRef(db, path + '/text'), newText);
+    await set(dbRef(db, path + '/edited'), true);
+    if (App.editMediaFile) {
+      const url = await fileToBase64(App.editMediaFile);
+      const type = detectFileType(App.editMediaFile);
+      await set(dbRef(db, path + '/attachment'), { type, url, name: App.editMediaFile.name, size: App.editMediaFile.size });
+    }
+    $('editMsgModal').classList.remove('show');
+    toast('Message updated ✓');
+  }
+});
+
 async function sendMessage(attachment = null) {
   const inp = $('chatInput'); const text = inp.value.trim();
   if ((!text && !attachment) || !App.activeChat) return;
-
-  inp.value = ''; 
-  $('sendBtn').disabled = true;
-
+  inp.value = ''; $('sendBtn').disabled = true;
   const path = App.activeIsGroup ? `group_chats/${App.activeChat}/messages` : `chats/${chatIdFor(App.mySlug, App.activeChat)}/messages`;
-  
   try {
-    await push(dbRef(db, path), {
-      from: App.mySlug, fromName: App.myName, text, attachment, time: Date.now()
-    });
+    await push(dbRef(db, path), { from: App.mySlug, fromName: App.myName, text, attachment, time: Date.now() });
     playSentSound();
-  } catch (err) {
-    toast('Failed to send message', true);
-  }
+  } catch { toast('Failed to send message', true); }
 }
 $('sendBtn').addEventListener('click', () => sendMessage());
 $('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
 $('chatInput').addEventListener('input', () => $('sendBtn').disabled = !$('chatInput').value.trim());
 
+/* ============ FILE ATTACHMENTS IN CHAT ============ */
+$('attachBtn').addEventListener('click', () => $('fileInput').click());
+$('fileInput').addEventListener('change', async e => {
+  const file = e.target.files[0]; if (!file || !App.activeChat) return;
+  const bar = $('uploadBar'), fill = $('uploadBarFill');
+  bar.classList.add('show'); fill.style.width = '30%';
+  toast('Processing media file…');
+  try {
+    fill.style.width = '70%';
+    const url = await fileToBase64(file);
+    fill.style.width = '100%';
+    const type = detectFileType(file);
+    await sendMessage({ type, url, name: file.name, size: file.size });
+    setTimeout(() => { bar.classList.remove('show'); fill.style.width = '0%'; }, 500);
+    toast('Media uploaded and sent ✓');
+  } catch { fill.style.width = '0%'; bar.classList.remove('show'); toast('Upload failed', true); }
+  e.target.value = '';
+});
+
+/* ============ VOICE NOTE RECORDING ============ */
+let chatMediaRecorder = null, chatAudioChunks = [], chatRecTimer = null;
+function getSupportedMimeType() {
+  if (typeof MediaRecorder === 'undefined') return '';
+  const types = ['audio/mp4', 'audio/aac', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus'];
+  for (const t of types) { if (MediaRecorder.isTypeSupported(t)) return t; }
+  return '';
+}
+$('chatRecordBtn').addEventListener('click', async () => {
+  if (!App.activeChat) return;
+  const btn = $('chatRecordBtn');
+  if (!chatMediaRecorder || chatMediaRecorder.state === 'inactive') {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      chatAudioChunks = [];
+      const mimeType = getSupportedMimeType();
+      chatMediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
+      chatMediaRecorder.ondataavailable = e => { if (e.data.size > 0) chatAudioChunks.push(e.data); };
+      chatMediaRecorder.onstop = async () => {
+        const mime = chatMediaRecorder.mimeType || mimeType || 'audio/mp4';
+        const blob = new Blob(chatAudioChunks, { type: mime });
+        const url = await fileToBase64(blob);
+        await sendMessage({ type: 'audio', url, name: 'Voice Note Audio' });
+        btn.style.color = '#ff4757'; btn.style.transform = 'scale(1)';
+        stream.getTracks().forEach(t => t.stop());
+        toast('Audio voice note sent ✓');
+      };
+      chatMediaRecorder.start(100);
+      btn.style.color = '#0d7a8c'; btn.style.transform = 'scale(1.2)';
+      toast('Recording voice note (max 30s)…');
+      clearTimeout(chatRecTimer);
+      chatRecTimer = setTimeout(() => {
+        if (chatMediaRecorder && chatMediaRecorder.state === 'recording') chatMediaRecorder.stop();
+      }, 30000);
+    } catch { toast('Microphone permission denied', true); }
+  } else if (chatMediaRecorder && chatMediaRecorder.state === 'recording') {
+    clearTimeout(chatRecTimer); chatMediaRecorder.stop();
+  }
+});
+
+/* ============ VOICEMAIL ============ */
+let vmMediaRecorder = null, vmAudioChunks = [], vmRecordTimer = null;
+$('recordBtn').addEventListener('click', async () => {
+  const recipient = $('vmRecipient').value;
+  if (!recipient) return toast('Select a recipient first', true);
+  const btn = $('recordBtn');
+  if (!vmMediaRecorder || vmMediaRecorder.state === 'inactive') {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      vmAudioChunks = [];
+      const mimeType = getSupportedMimeType();
+      vmMediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
+      vmMediaRecorder.ondataavailable = e => { if (e.data.size > 0) vmAudioChunks.push(e.data); };
+      vmMediaRecorder.onstop = async () => {
+        const mime = vmMediaRecorder.mimeType || mimeType || 'audio/mp4';
+        const blob = new Blob(vmAudioChunks, { type: mime });
+        const url = await fileToBase64(blob);
+        await push(dbRef(db, `voicemails/${recipient}`), { from: App.mySlug, fromName: App.myName, url, time: Date.now() });
+        toast('Voicemail sent ✓');
+        btn.textContent = '⬤ Record (max 30s)'; btn.style.background = '#ff4757';
+        stream.getTracks().forEach(t => t.stop());
+      };
+      vmMediaRecorder.start(100);
+      btn.textContent = '■ Stop Recording (Recording...)'; btn.style.background = '#0d7a8c';
+      toast('Recording audio…');
+      clearTimeout(vmRecordTimer);
+      vmRecordTimer = setTimeout(() => {
+        if (vmMediaRecorder && vmMediaRecorder.state === 'recording') vmMediaRecorder.stop();
+      }, 30000);
+    } catch { toast('Microphone permission denied', true); }
+  } else if (vmMediaRecorder && vmMediaRecorder.state === 'recording') {
+    clearTimeout(vmRecordTimer); vmMediaRecorder.stop();
+  }
+});
+
+function listenVoicemails() {
+  const list = $('voicemailList');
+  if (!list) return;
+  onValue(query(dbRef(db, `voicemails/${App.mySlug}`), limitToLast(20)), snap => {
+    const data = snap.val() || {};
+    const items = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => b.time - a.time);
+    if (!items.length) { list.innerHTML = '<div class="empty"><p>No voicemails received.</p></div>'; return; }
+    list.innerHTML = items.map(v => `
+      <div style="background:#fff;margin:8px 16px;padding:12px;border-radius:10px;border:1px solid var(--border);">
+        <div style="font-size:18px !important;font-family:Calibri,sans-serif;font-weight:700;margin-bottom:6px;">From: @${esc(v.fromName || v.from)}</div>
+        <audio controls playsinline preload="metadata" src="${v.url}" style="width:100%;"></audio>
+      </div>`).join('');
+  });
+}
+
+/* ============ ADD CONTACT ============ */
+$('addContactFab').addEventListener('click', () => {
+  $('modalName').value = ''; $('modalStatus').textContent = ''; $('addModal').classList.add('show');
+});
+$('modalCancel').addEventListener('click', () => $('addModal').classList.remove('show'));
+$('modalName').addEventListener('input', () => {
+  const slug = slugify($('modalName').value);
+  $('modalConfirm').disabled = !slug || slug === App.mySlug;
+});
+$('modalConfirm').addEventListener('click', async () => {
+  const slug = slugify($('modalName').value);
+  const rawInputName = $('modalName').value.trim().toLowerCase();
+  const exists = App.contacts.some(c => c.slug === slug || (c.name && c.name.trim().toLowerCase() === rawInputName));
+  if (exists) return toast('This contact is already on your Friend List', true);
+  const snap = await get(dbRef(db, 'users/' + slug));
+  if (!snap.exists()) return toast('User not found in database', true);
+  const friendName = snap.val().displayName || slug;
+  App.contacts.push({ slug, name: friendName, photo: snap.val().photo || null });
+  saveContacts(); setupMessageListener(slug, false); buildUI(); listenUserStatuses();
+  $('addModal').classList.remove('show'); toast('Added @' + slug + ' to Friend List ✓');
+});
+
+/* ============ ADD GROUP ============ */
+$('addGroupFab').addEventListener('click', () => {
+  const list = $('groupMembersSelection');
+  list.innerHTML = App.contacts.length ? App.contacts.map(c => `
+    <div class="group-select-item">
+      <input type="checkbox" value="${c.slug}" id="chk_${c.slug}" style="width:20px;height:20px;">
+      <label for="chk_${c.slug}">${esc(c.name)} (@${c.slug})</label>
+    </div>`).join('') : '<div style="font-size:17px;color:var(--muted)">Add contacts to your Friend List first.</div>';
+  $('groupNameInput').value = ''; $('groupModal').classList.add('show');
+});
+$('groupModalCancel').addEventListener('click', () => $('groupModal').classList.remove('show'));
+$('groupModalConfirm').addEventListener('click', async () => {
+  const name = $('groupNameInput').value.trim();
+  const checked = Array.from(document.querySelectorAll('#groupMembersSelection input:checked')).map(i => i.value);
+  if (!name || !checked.length) return toast('Set group name & pick members', true);
+  const groupId = 'group_' + Date.now();
+  const members = [App.mySlug, ...checked];
+  await set(dbRef(db, `group_chats/${groupId}`), { id: groupId, name, members, createdBy: App.mySlug });
+  App.groups.push({ id: groupId, name, members });
+  saveGroups(); setupGroupMessageListener(groupId); buildUI();
+  $('groupModal').classList.remove('show'); toast('Group (👥) created ✓');
+});
+
+/* ============ PROFILE PHOTO UPLOAD ============ */
+$('profileAvatar').addEventListener('click', () => $('avatarInput').click());
+$('avatarInput').addEventListener('change', async e => {
+  const file = e.target.files && e.target.files[0]; if (!file) return;
+  try {
+    toast('Processing photo…');
+    const url = await fileToBase64(file);
+    App.myPhoto = url; LS.set('avatar', url); updateProfileHeader();
+    await set(dbRef(db, 'users/' + App.mySlug + '/photo'), url);
+    toast('Photo updated ✓');
+  } catch { toast('Failed to update photo', true); }
+  e.target.value = '';
+});
+
+/* ============ STATUS POST ============ */
 $('openPostStatusBtn').addEventListener('click', () => {
   $('statusTextInput').value = ''; $('statusLinkInput').value = ''; $('statusMediaName').textContent = '';
   App.statusMediaFile = null; $('statusModal').classList.add('show');
@@ -1012,10 +1232,8 @@ $('statusModalConfirm').addEventListener('click', async () => {
   const link = $('statusLinkInput').value.trim();
   const bgColor = $('statusBgColor').value;
   if (!text && !link && !App.statusMediaFile) return toast('Add content to post', true);
-  
   toast('Uploading public status…');
   $('statusModalConfirm').disabled = true;
-  
   try {
     let mediaUrl = null, mediaType = null;
     if (App.statusMediaFile) {
@@ -1026,27 +1244,23 @@ $('statusModalConfirm').addEventListener('click', async () => {
       authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto,
       text, link, bgColor, mediaUrl, mediaType, time: Date.now()
     });
-    $('statusModal').classList.remove('show'); 
+    $('statusModal').classList.remove('show');
     toast('Status posted successfully ✓');
-  } catch (err) { 
-    toast('Failed to post status', true); 
-  } finally {
-    $('statusModalConfirm').disabled = false;
-  }
+  } catch { toast('Failed to post status', true); }
+  finally { $('statusModalConfirm').disabled = false; }
 });
+
 function listenUserStatuses() {
   onValue(query(dbRef(db, 'user_statuses'), limitToLast(50)), snap => {
     const data = snap.val() || {};
     const friendSlugs = App.contacts.map(c => c.slug);
     const now = Date.now();
     const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
-    
     const posts = Object.entries(data)
       .map(([k, v]) => ({ ...v, _k: k }))
       .filter(p => (now - (p.time || 0)) <= TWENTY_FOUR_HOURS)
       .filter(p => isOwner() || p.authorSlug === App.mySlug || friendSlugs.includes(p.authorSlug))
       .sort((a, b) => b.time - a.time);
-
     LS.set('cached_statuses', posts);
     renderStatusFeedList(posts);
   });
@@ -1058,7 +1272,6 @@ function renderStatusFeedList(posts) {
     window._cachedPosts = [];
     return;
   }
-
   requestAnimationFrame(() => {
     $('statusFeedList').innerHTML = posts.map(p => {
       const isMine = p.authorSlug === App.mySlug;
@@ -1067,6 +1280,9 @@ function renderStatusFeedList(posts) {
       const textHtml = p.text ? `<div class="status-content-box" style="background:${p.bgColor || '#0d7a8c'}">${esc(p.text)}</div>` : '';
       const comments = p.comments || {};
       const commentCount = Object.keys(comments).length;
+      const likes = p.likes || {};
+      const likeCount = Object.keys(likes).length;
+      const myLiked = likes[App.mySlug] ? true : false;
       return `<div class="status-card" data-key="${p._k}">
         <div class="status-card-header">
           <div class="avatar" style="width:44px;height:44px;font-size:18px" onclick="window.__viewAvatar('${p.authorPhoto || ''}','${esc(p.authorName)}')">${avatarInner(p.authorPhoto, p.authorName)}</div>
@@ -1076,8 +1292,12 @@ function renderStatusFeedList(posts) {
         ${textHtml}
         ${mediaHtml}
         ${linkHtml}
-        <div style="display:flex;gap:10px;align-items:center;margin-top:10px;border-top:1px solid #f0f0f0;padding-top:8px;">
-          <button style="background:#eef2f6;border:none;padding:8px 14px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__openStatusComments('${p._k}')">💬 Comments (${commentCount})</button>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:10px;border-top:1px solid #f0f0f0;padding-top:8px;flex-wrap:wrap;">
+          <button style="background:${myLiked?'#d4af37':'#eef2f6'};color:${myLiked?'#0b2a4a':'var(--text)'};border:none;padding:8px 12px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__toggleStatusLike('${p._k}')">👍 (${likeCount})</button>
+          <button style="background:#eef2f6;border:none;padding:8px 12px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__openStatusComments('${p._k}')">💬 (${commentCount})</button>
+          <button style="background:#eef2f6;border:none;padding:8px 10px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '❤️')">❤️</button>
+          <button style="background:#eef2f6;border:none;padding:8px 10px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '🔥')">🔥</button>
+          <button style="background:#eef2f6;border:none;padding:8px 10px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '😂')">😂</button>
         </div>
       </div>`;
     }).join('');
@@ -1085,12 +1305,451 @@ function renderStatusFeedList(posts) {
   window._cachedPosts = posts;
 }
 
+window.__toggleStatusLike = async (statusKey) => {
+  const posts = window._cachedPosts || [];
+  const post = posts.find(p => p._k === statusKey);
+  if (!post) return;
+  const ownerSlug = post.authorSlug;
+  const likesRef = dbRef(db, `user_statuses/${statusKey}/likes/${App.mySlug}`);
+  const snap = await get(likesRef);
+  if (snap.exists()) { await remove(likesRef); toast('Like removed'); }
+  else {
+    await set(likesRef, { time: Date.now() }); toast('Liked status 👍');
+    if (ownerSlug !== App.mySlug) {
+      const attachment = post.mediaUrl ? { type: post.mediaType, url: post.mediaUrl, name: 'Status Media' } : null;
+      await push(dbRef(db, `chats/${chatIdFor(App.mySlug, ownerSlug)}/messages`), {
+        from: App.mySlug, fromName: App.myName, text: `👍 Liked your status update.`, attachment, time: Date.now()
+      });
+    }
+  }
+};
+window.__sendQuickStatusEmoji = async (statusKey, emoji) => {
+  const posts = window._cachedPosts || [];
+  const post = posts.find(p => p._k === statusKey);
+  if (!post) return;
+  const ownerSlug = post.authorSlug;
+  await push(dbRef(db, `user_statuses/${statusKey}/comments`), { author: App.mySlug, text: emoji, time: Date.now() });
+  if (ownerSlug !== App.mySlug) {
+    const attachment = post.mediaUrl ? { type: post.mediaType, url: post.mediaUrl, name: 'Status Media' } : null;
+    await push(dbRef(db, `chats/${chatIdFor(App.mySlug, ownerSlug)}/messages`), {
+      from: App.mySlug, fromName: App.myName, text: `💬 Reacted to your status with ${emoji}`, attachment, time: Date.now()
+    });
+  }
+  toast(`Sent ${emoji} to owner chat ✓`);
+};
+window.__delStatus = async (key) => {
+  if (confirm('Delete status?')) { await remove(dbRef(db, 'user_statuses/' + key)); toast('Deleted'); }
+};
+
+window.__openStatusComments = (statusKey) => {
+  const posts = window._cachedPosts || [];
+  const post = posts.find(p => p._k === statusKey);
+  if (!post) return;
+  App.activeStatusObj = post;
+  $('statusCommentInput').value = '';
+  renderStatusCommentsLocal();
+  $('statusCommentsModal').classList.add('show');
+};
+function renderStatusCommentsLocal() {
+  if (!App.activeStatusObj) return;
+  const data = App.activeStatusObj.comments || {};
+  const comments = Object.values(data).sort((a, b) => a.time - b.time);
+  const list = $('statusCommentsList');
+  if (!comments.length) {
+    list.innerHTML = '<div style="font-size:17px;color:var(--muted);text-align:center;padding:8px;">No comments yet.</div>';
+    return;
+  }
+  list.innerHTML = comments.map(c => `
+    <div style="background:#f7f9fb;padding:10px 12px;border-radius:8px;font-size:18px;font-family:Calibri,sans-serif;">
+      <strong style="color:var(--accent);">@${esc(c.author)}:</strong> ${esc(c.text)}
+    </div>`).join('');
+}
+$('statusCommentCancel').addEventListener('click', () => $('statusCommentsModal').classList.remove('show'));
+$('statusCommentSend').addEventListener('click', async () => {
+  const text = $('statusCommentInput').value.trim();
+  if (!text || !App.activeStatusObj) return;
+  const statusKey = App.activeStatusObj._k;
+  const ownerSlug = App.activeStatusObj.authorSlug;
+  await push(dbRef(db, `user_statuses/${statusKey}/comments`), { author: App.mySlug, text, time: Date.now() });
+  if (ownerSlug !== App.mySlug) {
+    const attachment = App.activeStatusObj.mediaUrl ? { type: App.activeStatusObj.mediaType, url: App.activeStatusObj.mediaUrl, name: 'Status Media' } : null;
+    await push(dbRef(db, `chats/${chatIdFor(App.mySlug, ownerSlug)}/messages`), {
+      from: App.mySlug, fromName: App.myName, text: `💬 Comment on your status: "${text}"`, attachment, time: Date.now()
+    });
+  }
+  $('statusCommentInput').value = '';
+  $('statusCommentsModal').classList.remove('show');
+  toast('Comment & DM sent to owner ✓');
+});
+
+/* ============ EMOJI & QUICK REACTIONS ============ */
+$('emojiBtn').addEventListener('click', () => $('emojiPalette').classList.toggle('show'));
+document.querySelectorAll('.emoji-item').forEach(b => b.addEventListener('click', () => {
+  $('chatInput').value += b.textContent; $('sendBtn').disabled = false;
+}));
+document.querySelectorAll('.quick-reaction').forEach(b => b.addEventListener('click', () => {
+  $('chatInput').value = b.dataset.emoji; sendMessage();
+}));
+
+/* ============ OWNER SPACE ============ */
+$('ownerPortalTrigger').addEventListener('click', () => {
+  $('ownerPassInput').value = '';
+  $('ownerAuthModal').classList.add('show');
+});
+$('ownerAuthCancel').addEventListener('click', () => $('ownerAuthModal').classList.remove('show'));
+$('ownerAuthConfirm').addEventListener('click', () => {
+  if ($('ownerPassInput').value === 'a20carterpilar08B!') {
+    $('ownerAuthModal').classList.remove('show');
+    openOwnerSpace();
+  } else toast('Invalid owner password', true);
+});
+function openOwnerSpace() { loadOwnerStatuses(); $('ownerSpaceModal').classList.add('show'); }
+$('ownerSpaceClose').addEventListener('click', () => $('ownerSpaceModal').classList.remove('show'));
+$('ownerTabStatusBtn').addEventListener('click', () => {
+  $('ownerTabStatusBtn').style.background = 'linear-gradient(135deg,#f0d369,#d4af37)';
+  $('ownerTabStatusBtn').style.color = 'var(--navy)';
+  $('ownerTabChatsBtn').style.background = '#143a5f';
+  $('ownerTabChatsBtn').style.color = '#fff';
+  loadOwnerStatuses();
+});
+$('ownerTabChatsBtn').addEventListener('click', () => {
+  $('ownerTabChatsBtn').style.background = 'linear-gradient(135deg,#f0d369,#d4af37)';
+  $('ownerTabChatsBtn').style.color = 'var(--navy)';
+  $('ownerTabStatusBtn').style.background = '#143a5f';
+  $('ownerTabStatusBtn').style.color = '#fff';
+  loadOwnerReports();
+});
+function loadOwnerStatuses() {
+  const area = $('ownerContentArea');
+  const posts = window._cachedPosts || [];
+  if (!posts.length) { area.innerHTML = '<div class="empty"><p>No user statuses found.</p></div>'; return; }
+  area.innerHTML = posts.map(p => `
+    <div style="background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:12px;">
+      <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;margin-bottom:6px;">
+        <span>User: @${esc(p.authorSlug)} (${esc(p.authorName)})</span>
+        <span style="color:var(--muted);">${new Date(p.time).toLocaleString()}</span>
+      </div>
+      <div style="font-size:17px;margin-bottom:8px;">${esc(p.text || '')}</div>
+      ${p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" style="width:100%;max-height:260px;object-fit:contain;background:#000;border-radius:8px;" onclick="window.__viewAvatar('${p.mediaUrl}','${esc(p.authorName)}')">` : `<video src="${p.mediaUrl}" controls playsinline preload="metadata" style="width:100%;max-height:260px;background:#000;border-radius:8px;display:block;"></video>`) : ''}
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;">
+        <button class="btn-primary" style="max-width:none;padding:8px 12px;font-size:16px;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus('${p._k}')">🗑️ Delete</button>
+        <button class="btn-primary" style="max-width:none;padding:8px 12px;font-size:16px;background:#143a5f;color:#fff;" onclick="window.__ownerReportStatus('${p._k}','@${esc(p.authorSlug)}')">🚩 Report</button>
+      </div>
+    </div>`).join('');
+}
+window.__ownerDeleteStatus = async (key) => {
+  if (confirm('Owner Action: Delete this status post?')) {
+    await remove(dbRef(db, 'user_statuses/' + key));
+    toast('Status deleted by Owner ✓'); loadOwnerStatuses();
+  }
+};
+window.__ownerReportStatus = async (key, userTag) => {
+  const reason = prompt('Specify violation reason:', 'Nudes or Violence violation');
+  if (!reason) return;
+  await push(dbRef(db, 'owner_reports'), { type: 'Status Violation', targetUser: userTag, reason, time: Date.now(), reporter: App.mySlug });
+  toast('Violation report uploaded ✓');
+};
+function loadOwnerReports() {
+  const area = $('ownerContentArea');
+  onValue(dbRef(db, 'users'), snap => {
+    const usersData = snap.val() || {};
+    const userList = Object.values(usersData);
+    let html = `<div style="font-size:17px;font-weight:700;color:var(--navy);margin-bottom:8px;">👥 Registered App Users (${userList.length})</div>`;
+    html += userList.map(u => `
+      <div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <div style="font-size:17px;"><strong>${esc(u.displayName)}</strong> (@${esc(u.slug)})</div>
+        <button style="background:var(--accent);color:#fff;border:none;padding:6px 10px;border-radius:4px;font-size:15px;cursor:pointer;" onclick="window.__ownerDirectDM('${u.slug}','${esc(u.displayName)}')">💬 DM</button>
+      </div>`).join('');
+    onValue(dbRef(db, 'chats'), snapChats => {
+      const chatsData = snapChats.val() || {};
+      let allDMs = [];
+      Object.entries(chatsData).forEach(([chatId, chatObj]) => {
+        if (chatObj && chatObj.messages) {
+          Object.entries(chatObj.messages).forEach(([msgKey, msgObj]) => {
+            allDMs.push({ ...msgObj, chatId, _k: msgKey });
+          });
+        }
+      });
+      allDMs.sort((a, b) => (b.time || 0) - (a.time || 0));
+      html += `<div style="font-size:17px;font-weight:700;color:var(--navy);margin:12px 0 6px;">🔒 P2P Private Message Monitor</div>`;
+      if (!allDMs.length) html += '<div style="font-size:16px;color:var(--muted)">No P2P messages yet.</div>';
+      else {
+        html += allDMs.slice(0, 25).map(m => `
+          <div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;font-size:16px;margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;color:var(--muted);font-size:14px;margin-bottom:4px;">
+              <span>Chat: ${esc(m.chatId)}</span>
+              <span>${new Date(m.time || Date.now()).toLocaleString()}</span>
+            </div>
+            <div><strong>@${esc(m.fromName || m.from)}:</strong> ${esc(m.text || '[Attachment]')}</div>
+            ${m.attachment ? renderAttachment(m.attachment) : ''}
+            <div style="display:flex;justify-content:flex-end;margin-top:6px;">
+              <button style="background:#ff4757;color:#fff;border:none;padding:4px 8px;border-radius:4px;font-size:14px;cursor:pointer;" onclick="window.__ownerDeleteP2PMessage('${m.chatId}','${m._k}')">🗑️ Delete</button>
+            </div>
+          </div>`).join('');
+      }
+      area.innerHTML = html;
+    }, { onlyOnce: true });
+  }, { onlyOnce: true });
+}
+window.__ownerDirectDM = (targetSlug, targetName) => {
+  $('ownerSpaceModal').classList.remove('show');
+  if (!App.contacts.some(c => c.slug === targetSlug)) {
+    App.contacts.push({ slug: targetSlug, name: targetName, photo: null });
+    saveContacts(); setupMessageListener(targetSlug, false); buildUI();
+  }
+  window.__openChat(targetSlug, false);
+};
+window.__ownerDeleteP2PMessage = async (chatId, msgKey) => {
+  if (confirm('Owner Action: Delete this private message?')) {
+    await remove(dbRef(db, `chats/${chatId}/messages/${msgKey}`));
+    toast('Private message removed ✓'); loadOwnerReports();
+  }
+};
+
+/* ============ CALLING ENGINE ============ */
+window.startCall = async (targetSlug, isVideo) => {
+  if (!targetSlug || targetSlug === App.mySlug) return toast('Select a valid contact to call', true);
+  App.currentCallTarget = targetSlug;
+  App.isVideoCall = isVideo;
+  App.activeCallId = `call_${chatIdFor(App.mySlug, targetSlug)}`;
+  const contactObj = App.contacts.find(c => c.slug === targetSlug);
+  const targetName = contactObj ? contactObj.name : targetSlug;
+  $('callName').textContent = targetName;
+  $('callStatus').textContent = isVideo ? 'Initiating Video Call…' : 'Initiating Voice Call…';
+  $('callAvatar').innerHTML = avatarInner(contactObj?.photo, targetName);
+  if (isVideo) $('videoContainer').classList.add('active');
+  else $('videoContainer').classList.remove('active');
+  showScreen('screen-call');
+  startRingtoneSound();
+  setupCallChatListeners();
+  try {
+    App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
+    if (isVideo && $('localVideo')) { $('localVideo').srcObject = App.localStream; $('localVideo').style.filter = 'none'; }
+    App.peerConn = new RTCPeerConnection(ICE_SERVERS);
+    App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
+    App.peerConn.ontrack = e => { if (e.streams && e.streams[0]) $('remoteVideo').srcObject = e.streams[0]; };
+    const callRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}`);
+    const offerCandidatesRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}/offerCandidates`);
+    App.peerConn.onicecandidate = e => { if (e.candidate) push(offerCandidatesRef, e.candidate.toJSON()); };
+    const offer = await App.peerConn.createOffer();
+    await App.peerConn.setLocalDescription(offer);
+    await set(callRef, { caller: App.mySlug, callerName: App.myName, type: isVideo ? 'video' : 'voice', sdp: offer.sdp, status: 'calling', time: Date.now() });
+    onValue(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/answer`), async snap => {
+      const answer = snap.val();
+      if (answer && App.peerConn && !App.peerConn.currentRemoteDescription) {
+        await App.peerConn.setRemoteDescription(new RTCSessionDescription(answer));
+        stopRingtoneSound(); $('callStatus').textContent = 'Connected';
+      }
+    });
+    onChildAdded(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/answerCandidates`), snap => {
+      if (App.peerConn) App.peerConn.addIceCandidate(new RTCIceCandidate(snap.val()));
+    });
+    onValue(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/status`), snap => {
+      if (snap.val() === 'ended' || snap.val() === 'rejected') endCallLocally();
+    });
+  } catch { toast('Could not access microphone/camera', true); endCallLocally(); }
+};
+
+$('acceptCallBtn').addEventListener('click', async () => {
+  stopRingtoneSound();
+  $('incoming-call').classList.remove('show');
+  const callData = window._incomingCallData;
+  if (!callData) return;
+  const isVideo = callData.type === 'video';
+  $('callName').textContent = callData.callerName || callData.caller;
+  $('callStatus').textContent = 'Connecting…';
+  $('callAvatar').innerHTML = avatarInner(null, callData.callerName);
+  if (isVideo) $('videoContainer').classList.add('active');
+  else $('videoContainer').classList.remove('active');
+  showScreen('screen-call');
+  setupCallChatListeners();
+  try {
+    App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
+    if (isVideo && $('localVideo')) { $('localVideo').srcObject = App.localStream; $('localVideo').style.filter = 'none'; }
+    App.peerConn = new RTCPeerConnection(ICE_SERVERS);
+    App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
+    App.peerConn.ontrack = e => { if (e.streams && e.streams[0]) $('remoteVideo').srcObject = e.streams[0]; };
+    const answerCandidatesRef = dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/answerCandidates`);
+    App.peerConn.onicecandidate = e => { if (e.candidate) push(answerCandidatesRef, e.candidate.toJSON()); };
+    await App.peerConn.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: callData.sdp }));
+    const answer = await App.peerConn.createAnswer();
+    await App.peerConn.setLocalDescription(answer);
+    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/answer`), { type: answer.type, sdp: answer.sdp });
+    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'connected');
+    $('callStatus').textContent = 'Connected';
+    onChildAdded(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/offerCandidates`), snap => {
+      if (App.peerConn) App.peerConn.addIceCandidate(new RTCIceCandidate(snap.val()));
+    });
+  } catch { toast('Error answering call', true); endCallLocally(); }
+});
+
+$('rejectCallBtn').addEventListener('click', async () => {
+  stopRingtoneSound();
+  $('incoming-call').classList.remove('show');
+  if (App.activeCallId) await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'rejected');
+});
+
+function endCallLocally() {
+  stopRingtoneSound();
+  if (App.localStream) { App.localStream.getTracks().forEach(t => t.stop()); App.localStream = null; }
+  if (App.peerConn) { App.peerConn.close(); App.peerConn = null; }
+  $('videoContainer').classList.remove('active');
+  $('inCallChatDrawer').classList.remove('show');
+  showScreen('screen-main');
+}
+
+$('endCallBtn').addEventListener('click', async () => {
+  if (App.activeCallId) {
+    if (App.currentCallTarget) await set(dbRef(db, `calls/${App.currentCallTarget}/${App.activeCallId}/status`), 'ended');
+    await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'ended');
+  }
+  endCallLocally();
+});
+
+$('muteBtn').addEventListener('click', () => {
+  if (!App.localStream) return;
+  App.isMuted = !App.isMuted;
+  App.localStream.getAudioTracks().forEach(t => t.enabled = !App.isMuted);
+  $('muteBtn').classList.toggle('active', App.isMuted);
+  toast(App.isMuted ? 'Microphone muted' : 'Microphone unmuted');
+});
+
+$('voiceCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, false); });
+$('videoCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, true); });
+
+/* ============ IN-CALL CHAT & MEDIA ============ */
+$('inCallChatBtn').addEventListener('click', () => $('inCallChatDrawer').classList.toggle('show'));
+function setupCallChatListeners() {
+  if (!App.activeCallId) return;
+  onValue(query(dbRef(db, `call_chats/${App.activeCallId}`), limitToLast(50)), snap => {
+    const data = snap.val() || {};
+    const msgs = Object.values(data).sort((a, b) => (a.time || 0) - (b.time || 0));
+    const list = $('inCallMsgList');
+    if (!list) return;
+    if (!msgs.length) { list.innerHTML = '<div style="font-size:14px;color:var(--muted)">No in-call messages yet.</div>'; return; }
+    list.innerHTML = msgs.map(m => `
+      <div style="background:#f2f5f8;padding:6px 8px;border-radius:6px;margin-bottom:4px;">
+        <strong style="color:var(--accent);">${esc(m.name)}:</strong> ${esc(m.text || '')}
+        ${m.attachment ? renderAttachment(m.attachment) : ''}
+      </div>`).join('');
+    list.scrollTop = list.scrollHeight;
+  });
+}
+window.__sendInCallMsg = async () => {
+  const inp = $('inCallInput'); const text = inp.value.trim();
+  if (!text || !App.activeCallId) return;
+  await push(dbRef(db, `call_chats/${App.activeCallId}`), { from: App.mySlug, name: App.myName, text, time: Date.now() });
+  inp.value = '';
+};
+$('inCallInput').addEventListener('keydown', e => { if (e.key === 'Enter') window.__sendInCallMsg(); });
+window.__sendInCallMedia = async (input) => {
+  const file = input.files[0]; if (!file || !App.activeCallId) return;
+  toast('Sending media…');
+  try {
+    const url = await fileToBase64(file);
+    const type = detectFileType(file);
+    await push(dbRef(db, `call_chats/${App.activeCallId}`), {
+      from: App.mySlug, name: App.myName, text: `Shared: ${file.name}`,
+      attachment: { type, url, name: file.name, size: file.size }, time: Date.now()
+    });
+    toast('Media shared ✓');
+  } catch { toast('Failed to share', true); }
+  input.value = '';
+};
+
+/* ============ SCREEN SHARE / FILTER / ADD PARTICIPANT / RECORD ============ */
+$('screenShareBtn').addEventListener('click', async () => {
+  try {
+    const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+    const videoTrack = screenStream.getVideoTracks()[0];
+    if (App.peerConn) {
+      const sender = App.peerConn.getSenders().find(s => s.track && s.track.kind === 'video');
+      if (sender) sender.replaceTrack(videoTrack);
+    }
+    if ($('localVideo')) $('localVideo').srcObject = screenStream;
+    videoTrack.onended = () => {
+      if (App.localStream && $('localVideo')) {
+        $('localVideo').srcObject = App.localStream;
+        const origTrack = App.localStream.getVideoTracks()[0];
+        if (App.peerConn && origTrack) {
+          const sender = App.peerConn.getSenders().find(s => s.track && s.track.kind === 'video');
+          if (sender) sender.replaceTrack(origTrack);
+        }
+      }
+    };
+    toast('Screen sharing active ✓');
+  } catch { toast('Screen sharing cancelled', true); }
+});
+
+$('filterBtn').addEventListener('click', () => $('filterModal').classList.add('show'));
+$('filterCancelBtn').addEventListener('click', () => $('filterModal').classList.remove('show'));
+window.__applyFilter = (filterVal) => {
+  if ($('localVideo')) $('localVideo').style.filter = filterVal;
+  $('filterModal').classList.remove('show');
+  toast('Filter applied ✓');
+};
+
+$('addParticipantBtn').addEventListener('click', () => {
+  const list = $('participantSelectionList');
+  list.innerHTML = App.contacts.length ? App.contacts.map(c => `
+    <div class="group-select-item">
+      <input type="checkbox" value="${c.slug}" id="p_${c.slug}" style="width:20px;height:20px;">
+      <label for="p_${c.slug}">${esc(c.name)} (@${c.slug})</label>
+    </div>`).join('') : '<div style="font-size:17px;color:var(--muted)">No contacts in Friend List.</div>';
+  $('addParticipantModal').classList.add('show');
+});
+$('participantCancel').addEventListener('click', () => $('addParticipantModal').classList.remove('show'));
+$('participantConfirm').addEventListener('click', async () => {
+  const checked = Array.from(document.querySelectorAll('#participantSelectionList input:checked')).map(i => i.value);
+  if (!checked.length) return toast('Select at least one participant', true);
+  $('addParticipantModal').classList.remove('show');
+  toast('Inviting participants…');
+  for (const slug of checked) {
+    const partCallId = `call_${chatIdFor(App.mySlug, slug)}_${Date.now()}`;
+    if (App.peerConn && App.localStream) {
+      const offer = await App.peerConn.createOffer();
+      await set(dbRef(db, `calls/${slug}/${partCallId}`), {
+        caller: App.mySlug, callerName: App.myName, type: 'video', sdp: offer.sdp, status: 'calling', time: Date.now()
+      });
+    }
+  }
+  toast('Participants invited ✓');
+});
+
+$('recordCallBtn').addEventListener('click', () => {
+  const btn = $('recordCallBtn');
+  if (!App.mediaRecorder || App.mediaRecorder.state === 'inactive') {
+    try {
+      const stream = $('remoteVideo').srcObject || App.localStream;
+      if (!stream) return toast('No active video stream', true);
+      App.recordedChunks = [];
+      App.mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
+      App.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) App.recordedChunks.push(e.data); };
+      App.mediaRecorder.onstop = () => {
+        const blob = new Blob(App.recordedChunks, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = `JARVIS_Call_${Date.now()}.webm`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        toast('Recording saved to device ✓');
+      };
+      App.mediaRecorder.start();
+      btn.classList.add('active');
+      toast('Recording call…');
+    } catch { toast('Recording not supported', true); }
+  } else if (App.mediaRecorder && App.mediaRecorder.state === 'recording') {
+    App.mediaRecorder.stop();
+    btn.classList.remove('active');
+  }
+});
+
+/* ============ NAVIGATION ============ */
 document.querySelectorAll('.nav-item').forEach(b => b.addEventListener('click', () => {
   const tab = b.dataset.tab;
   document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n === b));
   document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
   $('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = 'block';
   $('headerTitle').textContent = tab === 'chats' ? 'Friend List' : tab.charAt(0).toUpperCase() + tab.slice(1);
+  if (tab === 'voicemail') listenVoicemails();
 }));
 
 $('chatBackBtn').addEventListener('click', () => { App.activeChat = null; showScreen('screen-main'); });
