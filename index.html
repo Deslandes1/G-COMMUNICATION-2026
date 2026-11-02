@@ -135,6 +135,46 @@ button{font-family:inherit}
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:12px 22px;border-radius:10px;font-size:14px;font-weight:600;border:2px solid var(--gold);opacity:0;pointer-events:none;transition:all .3s;z-index:10001;max-width:90%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media(min-width:640px){body{padding:16px;background:#e4e9ef}#app{max-width:900px;border-radius:20px;box-shadow:0 24px 80px rgba(11,42,74,.3)}.msg{max-width:65%}}
+/* ===== Conference ===== */
+#screen-conf{background:#04121f;color:#fff;z-index:150}
+#confTop{display:flex;gap:12px;align-items:center;padding:8px 12px;background:rgba(0,0,0,.4);flex-shrink:0}
+#confTitle{flex:1;font-weight:700}
+#recBanner{color:#ff6b6b;display:none;font-weight:700}
+#tiles{flex:1;display:grid;grid-template-columns:repeat(var(--cols,1),1fr);grid-auto-rows:1fr;gap:6px;padding:6px;min-height:0;overflow:hidden}
+.tile{position:relative;background:#0f3050;border-radius:12px;overflow:hidden;min-height:0;min-width:0}
+.tile video{width:100%;height:100%;object-fit:cover;display:none;background:#000}
+.tile.hasvid video{display:block}
+.tile.share video{object-fit:contain}
+.tile.local:not(.share) video{transform:scaleX(-1)}
+.tav{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.tile.hasvid .tav{display:none}
+.avc{width:90px;height:90px;border-radius:50%;background:#d4af37;color:#0b2a4a;display:flex;align-items:center;justify-content:center;font-weight:800;overflow:hidden}
+.avc img{width:100%;height:100%;object-fit:cover}
+.tname{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.6);padding:2px 10px;border-radius:8px;max-width:calc(100% - 16px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#confControls{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:8px 8px 8px;background:rgba(0,0,0,.5);flex-shrink:0}
+.cbtn{position:relative;width:52px;height:52px;border-radius:50%;border:none;background:rgba(255,255,255,.18);color:#fff;cursor:pointer}
+.cbtn.off{background:#7a2b33}.cbtn.on{background:#0d7a8c}.cbtn.end{background:#ff4757}
+.cbadge{position:absolute;top:-4px;right:-4px;background:#ff4757;border-radius:12px;min-width:26px;height:26px;line-height:26px;padding:0 5px;display:none;text-align:center}
+#confChat{position:absolute;right:0;top:0;bottom:0;width:min(400px,100%);background:#fff;color:var(--text);display:none;flex-direction:column;z-index:20;padding-top:env(safe-area-inset-top)}
+#confChat.show{display:flex}
+#confMsgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:6px;background:#fdf6ec;min-height:0}
+.cmsg{max-width:90%;padding:8px 10px;border-radius:12px;background:#fff;border:1px solid var(--border);overflow-wrap:anywhere;align-self:flex-start}
+.cmsg.out{align-self:flex-end;background:#d4fbc9}
+.cmsg b{display:block;color:var(--accent)}
+#confEmoji.show{display:grid}
+#srcVideo,#fxCanvas{position:fixed;left:0;top:0;width:2px;height:2px;opacity:.01;pointer-events:none}
+.fxgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.fxgrid button{padding:10px;border-radius:10px;border:2px solid var(--border);background:#f7f9fb;cursor:pointer;text-align:left}
+.fxgrid button.sel{border-color:var(--accent);background:#e0f2fe}
+.bottom-nav{overflow-x:auto}
+.nav-item{flex:1 0 auto;padding:10px 12px 12px}
+.badge{min-width:28px;height:28px}
+/* ===== Calibri 19 for all text and icons ===== */
+*{font-family:Calibri,Carlito,"Segoe UI",Roboto,Arial,sans-serif!important;font-size:19px!important}
+.onboard-logo{font-size:54px!important}
+#screen-onboard h1{font-size:32px!important}
+.avatar-big,.call-avatar,.avc{font-size:40px!important}
+.empty .empty-icon{font-size:42px!important}
 </style>
 </head>
 <body>
@@ -159,7 +199,8 @@ button{font-family:inherit}
     <div id="statusFeedList" class="status-feed"></div>
   </div>
   <div id="tabCalls" class="tab-content" style="display:none">
-    <div class="section-title">Voice &amp; Video Calls</div>
+    <div style="padding:12px"><button class="btn-primary" id="startConfBtn" style="max-width:none">📹 Start Conference Call</button></div>
+    <div class="section-title">Call one person</div>
     <div id="callContactsList"></div>
   </div>
   <div id="tabVoicemail" class="tab-content" style="display:none">
@@ -228,24 +269,58 @@ button{font-family:inherit}
   <button class="action-btn" id="actCancelBtn" style="text-align:center">Cancel</button>
 </div>
 
-<section id="screen-call" class="screen">
-  <div class="call-video-container" id="videoContainer">
-    <video id="remoteVideo" autoplay playsinline muted></video>
-    <video id="localVideo" autoplay playsinline muted></video>
+<section id="screen-conf" class="screen">
+  <div id="confTop"><span id="confTitle">Conference</span><span id="recBanner">● Recording</span><span id="confTimer">00:00</span></div>
+  <div id="tiles"></div>
+  <div id="confControls">
+    <button class="cbtn" id="cMic" title="Mute / unmute">🎤</button>
+    <button class="cbtn" id="cCam" title="Camera on / off">📷</button>
+    <button class="cbtn" id="cShare" title="Share screen">🖥️</button>
+    <button class="cbtn" id="cFx" title="Camera effects &amp; backgrounds">✨</button>
+    <button class="cbtn" id="cRec" title="Record call">⏺️</button>
+    <button class="cbtn" id="cChat" title="Chat">💬<span class="cbadge" id="cChatBadge"></span></button>
+    <button class="cbtn" id="cAdd" title="Add people">➕</button>
+    <button class="cbtn end" id="cEnd" title="Hang up">📵</button>
   </div>
-  <audio id="remoteAudio" autoplay playsinline></audio>
-  <div class="call-overlay">
-    <div>
-      <div class="call-avatar" id="callAvatar">G</div>
-      <div style="font-size:22px;font-weight:700;margin-bottom:6px" id="callName">—</div>
-      <div style="font-size:15px;opacity:.8" id="callStatus">Calling…</div>
-    </div>
-    <div class="call-actions">
-      <button class="call-btn mute" id="muteBtn">🎤</button>
-      <button class="call-btn end" id="endCallBtn">📵</button>
+  <div id="confChat">
+    <div style="display:flex;align-items:center;padding:10px 12px;background:var(--navy);color:#fff"><b style="flex:1">Call chat</b><button id="confChatClose" style="background:none;border:none;color:#fff;cursor:pointer">✕</button></div>
+    <div id="confMsgs"></div>
+    <div id="confEmoji" style="display:none;padding:8px;background:#fff;border-top:1px solid var(--border);grid-template-columns:repeat(8,1fr)"></div>
+    <div style="display:flex;gap:6px;align-items:center;padding:8px;border-top:1px solid var(--border);background:#fff">
+      <button class="ibtn" id="confEmojiBtn">😊</button>
+      <button class="ibtn" id="confAttachBtn">📎</button>
+      <input id="confInput" type="text" placeholder="Write a comment…" autocomplete="off" style="flex:1;min-width:0;padding:10px 14px;border:1px solid var(--border);border-radius:20px;outline:none">
+      <button class="send-btn" id="confSend">➤</button>
     </div>
   </div>
 </section>
+<video id="srcVideo" autoplay playsinline muted></video>
+<canvas id="fxCanvas"></canvas>
+<input type="file" id="confFile" style="display:none">
+
+<div class="modal-overlay" id="inviteModal"><div class="modal">
+  <h3 id="inviteTitle">Add people</h3>
+  <div class="group-select-list" id="inviteList" style="max-height:260px"></div>
+  <div class="modal-actions"><button class="cancel" id="inviteCancel">Cancel</button><button class="confirm" id="inviteConfirm">Invite</button></div>
+</div></div>
+
+<div class="modal-overlay" id="fxModal"><div class="modal">
+  <h3>Camera effects</h3>
+  <div style="color:var(--muted);margin-bottom:6px">Backgrounds</div>
+  <div class="fxgrid">
+    <button data-fx="none">🚫 None</button><button data-fx="bg-blur">🌫️ Blur background</button>
+    <button data-fx="bg-office">🏢 Office</button><button data-fx="bg-beach">🏖️ Beach</button>
+    <button data-fx="bg-sunset">🌇 Sunset</button><button data-fx="bg-night">🌃 Night</button>
+  </div>
+  <div style="color:var(--muted);margin:10px 0 6px">Filters</div>
+  <div class="fxgrid">
+    <button data-fx="f-gray">⚫ Black &amp; white</button><button data-fx="f-sepia">🟤 Sepia</button>
+    <button data-fx="f-warm">🟠 Warm</button><button data-fx="f-cool">🔵 Cool</button>
+    <button data-fx="f-vivid">🌈 Vivid</button><button data-fx="f-soften">✨ Soften</button>
+  </div>
+  <div class="modal-actions" style="margin-top:14px"><button class="cancel" id="fxClose">Close</button></div>
+</div></div>
+
 
 <div id="incoming-call">
   <div class="call-avatar" id="incomingAvatar">G</div>
@@ -321,7 +396,7 @@ button{font-family:inherit}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref as dbRef, push, onValue, remove, set, get, update, query, limitToLast, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref as dbRef, push, onValue, remove, set, get, update, query, limitToLast, onChildAdded, onDisconnect } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBfqTPdNq31MegFF_vh08D2K_6-2GMeIrY",
@@ -347,7 +422,7 @@ const App = {
   lastMessages: {}, unread: {}, msgUnsubs: {}, deletedLocally: {}, started: false,
   statusMediaFile: null, editMediaFile: null, selectedMsgKey: null, selectedMsgObj: null, activeStatusObj: null,
   audioCtx: null, posts: [],
-  pc: null, localStream: null, callPath: null, incoming: null, pending: [], callUnsubs: [], callTimer: null, ending: false
+  incoming: null
 };
 
 const $ = id => document.getElementById(id);
@@ -448,7 +523,7 @@ function startMainApp() {
   showScreen('screen-main');
   updateProfileHeader(); buildUI(); updatePerm();
   if (App.started) return; App.started = true;
-  listenUserStatuses(); listenIncomingCalls(); listenInbox(); listenGroups(); listenVoicemails();
+  listenUserStatuses(); listenInvites(); listenInbox(); listenGroups(); listenVoicemails();
   App.contacts.forEach(c => setupMessageListener(c.slug, false));
   App.groups.forEach(g => setupMessageListener(g.id, true));
   App.contacts.forEach(async c => { // refresh names/photos
@@ -785,116 +860,418 @@ $('groupModalConfirm').addEventListener('click', async () => {
   } catch { toast('Failed to create group', true); }
 });
 
-/* ---------- calling ---------- */
-const cref = p => dbRef(db, p);
-function resetCallUI() { $('muteBtn').textContent = '🎤'; $('remoteVideo').srcObject = $('remoteAudio').srcObject = $('localVideo').srcObject = null; }
+/* ---------- conference (mesh WebRTC: up to ~6 people) ---------- */
+const Conf = {
+  room: null, isHost: false, type: 'video', peers: {}, unsubs: [], parts: {}, invited: {},
+  mic: null, audioStream: null, cam: null, camOn: false, screen: null, sharing: false,
+  out: null, preview: new MediaStream(), fx: 'none', fxTrack: null, fxTimer: null, seg: null, busy: false,
+  rec: null, joinedAt: 0, unread: 0, chatOpen: false, timer: null, startTimeout: null, aloneTimer: null,
+  ending: false, od: null, everOthers: false
+};
+const me = () => App.mySlug;
+const cdb = p => dbRef(db, p);
+const SEG_BASE = 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1.1675465747/';
+const FILTER_OK = typeof CanvasRenderingContext2D !== 'undefined' && 'filter' in CanvasRenderingContext2D.prototype;
+const FILTERS = { 'f-gray': 'grayscale(1)', 'f-sepia': 'sepia(.9)', 'f-warm': 'sepia(.35) saturate(1.3) hue-rotate(-10deg)', 'f-cool': 'saturate(1.1) hue-rotate(15deg) brightness(1.05)', 'f-vivid': 'saturate(1.7) contrast(1.1)', 'f-soften': 'blur(2px) brightness(1.08)' };
+const BGS = { 'bg-office': ['#e0e7ee', '#8fa3b5'], 'bg-beach': ['#7fd4ff', '#f6e3a1'], 'bg-sunset': ['#ff9a5a', '#6a3fa0'], 'bg-night': ['#0b1a3a', '#3c2a6e'] };
+const nameOf = s => Conf.parts[s]?.name || App.contacts.find(c => c.slug === s)?.name || s;
 
-async function makePeer(isVideo) {
-  App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo ? { facingMode: 'user' } : false });
-  if (isVideo) $('localVideo').srcObject = App.localStream;
-  const pc = App.pc = new RTCPeerConnection(ICE); App.pending = [];
-  App.localStream.getTracks().forEach(t => pc.addTrack(t, App.localStream));
-  pc.ontrack = e => { const s = e.streams[0]; if (!s) return; $('remoteVideo').srcObject = s; $('remoteAudio').srcObject = s; $('remoteAudio').play().catch(() => {}); };
-  pc.onconnectionstatechange = () => {
-    if (pc.connectionState === 'connected') { $('callStatus').textContent = 'Connected'; clearTimeout(App.callTimer); }
-    if (pc.connectionState === 'failed') { toast('Call connection failed', true); hangUp(); }
-  };
-  return pc;
+/* --- tiles --- */
+function makeTile(slug, local) {
+  let t = $('tile_' + slug); if (t) return t;
+  t = document.createElement('div'); t.className = 'tile' + (local ? ' local' : ''); t.id = 'tile_' + slug;
+  t.innerHTML = `<video autoplay playsinline ${local ? 'muted' : ''}></video><div class="tav"><div class="avc"></div></div><div class="tname"></div>`;
+  $('tiles').appendChild(t);
+  if (local) t.querySelector('video').srcObject = Conf.preview;
+  refreshTile(slug); layoutTiles(); return t;
 }
-const addCand = c => { try { const ic = new RTCIceCandidate(c); (App.pc?.remoteDescription ? App.pc.addIceCandidate(ic).catch(() => {}) : App.pending.push(ic)); } catch {} };
-async function flushCand() { for (const c of App.pending) await App.pc.addIceCandidate(c).catch(() => {}); App.pending = []; }
-function watchStatus(path) {
-  let seen = false;
-  App.callUnsubs.push(onValue(cref(path + '/status'), s => {
-    const v = s.val();
-    if (v !== null) seen = true;
-    if ((v === null && seen) || v === 'ended' || v === 'rejected') { if (!App.ending) { toast(v === 'rejected' ? 'Call declined' : 'Call ended'); endCallLocally(); } }
-  }));
+function refreshTile(slug) {
+  const t = $('tile_' + slug); if (!t) return;
+  const mine = slug === me();
+  const p = mine ? { name: App.myName + ' (You)', cam: Conf.camOn || Conf.sharing, mic: !!(Conf.mic && Conf.mic.enabled), share: Conf.sharing, rec: !!Conf.rec } : (Conf.parts[slug] || {});
+  const name = mine ? p.name : nameOf(slug), c = App.contacts.find(x => x.slug === slug);
+  t.querySelector('.avc').innerHTML = avatarInner(mine ? App.myPhoto : c?.photo, name);
+  t.querySelector('.tname').textContent = (p.mic === false ? '🔇 ' : '') + name + (p.rec ? ' ●REC' : '');
+  t.classList.toggle('hasvid', !!p.cam); t.classList.toggle('share', !!p.share);
+}
+function layoutTiles() {
+  const n = $('tiles').children.length, wide = innerWidth > innerHeight;
+  $('tiles').style.setProperty('--cols', n <= 1 ? 1 : n === 2 ? (wide ? 2 : 1) : n <= 4 ? 2 : 3);
+}
+addEventListener('resize', layoutTiles);
+function pushFlags() {
+  if (!Conf.room || Conf.ending) return;
+  update(cdb(`conferences/${Conf.room}/participants/${me()}`), { cam: Conf.camOn || Conf.sharing, mic: !!(Conf.mic && Conf.mic.enabled), share: Conf.sharing, rec: !!Conf.rec }).catch(() => {});
+  refreshTile(me());
+}
+function updateButtons() {
+  const on = (id, cls) => $(id).className = 'cbtn ' + (cls || '');
+  on('cMic', Conf.mic && Conf.mic.enabled ? '' : 'off'); $('cMic').textContent = Conf.mic && Conf.mic.enabled ? '🎤' : '🔇';
+  on('cCam', Conf.camOn ? 'on' : 'off'); $('cCam').textContent = Conf.camOn ? '📷' : '🚫';
+  on('cShare', Conf.sharing ? 'on' : ''); on('cFx', Conf.fx !== 'none' ? 'on' : '');
+  on('cRec', Conf.rec ? 'off' : ''); $('cRec').textContent = Conf.rec ? '⏹️' : '⏺️';
+  $('cChat').className = 'cbtn' + (Conf.chatOpen ? ' on' : ''); $('cEnd').className = 'cbtn end';
+  const l = $('tile_' + me()); if (l) l.classList.toggle('share', Conf.sharing);
 }
 
-async function startCall(target, isVideo) {
-  if (!target || target === App.mySlug) return toast('Select a valid contact', true);
-  if (App.pc || App.incoming) return toast('Already in a call', true);
-  const c = App.contacts.find(x => x.slug === target), name = c ? c.name : target;
-  const path = App.callPath = `calls/${target}/call_${Date.now()}`;
-  $('callName').textContent = name; $('callStatus').textContent = 'Calling…'; $('callAvatar').innerHTML = avatarInner(c?.photo, name);
-  $('videoContainer').classList.toggle('active', isVideo); showScreen('screen-call');
+/* --- media --- */
+function setOut(track) {
+  Conf.out = track;
+  Conf.preview.getVideoTracks().forEach(t => Conf.preview.removeTrack(t));
+  if (track) Conf.preview.addTrack(track);
+  Object.values(Conf.peers).forEach(p => p.vSender?.replaceTrack(track).catch(() => {}));
+}
+function applyOut() {
+  let t = null;
+  if (Conf.sharing && Conf.screen) t = Conf.screen.getVideoTracks()[0];
+  else if (Conf.camOn && Conf.cam) t = Conf.fx === 'none' ? Conf.cam.getVideoTracks()[0] : ensureFx();
+  setOut(t); updateButtons(); pushFlags();
+}
+async function camOnNow() {
   try {
-    const pc = await makePeer(isVideo);
-    pc.onicecandidate = e => e.candidate && push(cref(path + '/offerCandidates'), e.candidate.toJSON());
-    const offer = await pc.createOffer();
-    await set(cref(path), { caller: App.mySlug, callerName: App.myName, type: isVideo ? 'video' : 'voice', sdp: offer.sdp, status: 'calling', time: Date.now() });
-    await pc.setLocalDescription(offer); // candidates now go to an existing node (not wiped)
-    App.callUnsubs.push(onValue(cref(path + '/answer'), async s => {
-      const a = s.val();
-      if (a && App.pc && !App.pc.remoteDescription) { await App.pc.setRemoteDescription(new RTCSessionDescription(a)); await flushCand(); $('callStatus').textContent = 'Connecting…'; }
-    }));
-    App.callUnsubs.push(onChildAdded(cref(path + '/answerCandidates'), s => addCand(s.val())));
-    watchStatus(path);
-    App.callTimer = setTimeout(() => { if (App.pc && App.pc.connectionState !== 'connected') { toast('No answer'); hangUp(); } }, CALL_TIMEOUT);
-  } catch (err) {
-    console.error(err); toast('Could not start call (check mic/camera permission)', true); hangUp();
+    const s = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' } });
+    Conf.cam = s; $('srcVideo').srcObject = s; await $('srcVideo').play().catch(() => {});
+    Conf.camOn = true; applyOut();
+  } catch { toast('Camera unavailable or permission denied', true); }
+}
+function camOffNow() {
+  Conf.cam?.getTracks().forEach(t => t.stop()); Conf.cam = null; Conf.camOn = false; stopFxLoop(); applyOut();
+}
+
+/* --- effects (canvas pipeline) --- */
+function ensureFx() {
+  const cv = $('fxCanvas'), st = Conf.cam.getVideoTracks()[0].getSettings();
+  cv.width = st.width || 640; cv.height = st.height || 480;
+  if (!Conf.fxTrack) Conf.fxTrack = cv.captureStream(30).getVideoTracks()[0];
+  if (!Conf.fxTimer) Conf.fxTimer = setInterval(fxFrame, 40);
+  return Conf.fxTrack;
+}
+function stopFxLoop() { clearInterval(Conf.fxTimer); Conf.fxTimer = null; Conf.fxTrack?.stop(); Conf.fxTrack = null; }
+async function fxFrame() {
+  if (Conf.busy) return; const v = $('srcVideo'); if (v.readyState < 2) return;
+  Conf.busy = true;
+  try {
+    const cv = $('fxCanvas'), x = cv.getContext('2d');
+    if (Conf.fx.startsWith('bg-') && Conf.seg) await Conf.seg.send({ image: v });
+    else { x.filter = FILTER_OK ? (FILTERS[Conf.fx] || 'none') : 'none'; x.drawImage(v, 0, 0, cv.width, cv.height); x.filter = 'none'; }
+  } catch (e) { console.error(e); }
+  Conf.busy = false;
+}
+function segResults(r) {
+  const cv = $('fxCanvas'), x = cv.getContext('2d'), w = cv.width, h = cv.height;
+  x.save(); x.clearRect(0, 0, w, h);
+  x.drawImage(r.segmentationMask, 0, 0, w, h);
+  x.globalCompositeOperation = 'source-in'; x.drawImage(r.image, 0, 0, w, h);
+  x.globalCompositeOperation = 'destination-over';
+  if (Conf.fx === 'bg-blur') { if (FILTER_OK) x.filter = 'blur(14px)'; x.drawImage(r.image, 0, 0, w, h); x.filter = 'none'; }
+  else { const c = BGS[Conf.fx] || ['#222', '#444'], g = x.createLinearGradient(0, 0, w, h); g.addColorStop(0, c[0]); g.addColorStop(1, c[1]); x.fillStyle = g; x.fillRect(0, 0, w, h); }
+  x.restore();
+}
+async function loadSeg() {
+  if (Conf.seg) return true;
+  try {
+    toast('Loading background model…');
+    if (!window.SelfieSegmentation) await new Promise((res, rej) => { const s = document.createElement('script'); s.src = SEG_BASE + 'selfie_segmentation.js'; s.crossOrigin = 'anonymous'; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+    const seg = new window.SelfieSegmentation({ locateFile: f => SEG_BASE + f });
+    seg.setOptions({ modelSelection: 1 }); seg.onResults(segResults); await seg.initialize(); Conf.seg = seg; return true;
+  } catch (e) { console.error(e); toast('Background effects unavailable (model failed to load)', true); return false; }
+}
+async function setFx(id) {
+  if ((id === 'bg-blur' || id.startsWith('f-')) && !FILTER_OK) toast('This browser has limited filter support', true);
+  if (id.startsWith('bg-') && !(await loadSeg())) id = 'none';
+  Conf.fx = id; if (id === 'none') stopFxLoop();
+  document.querySelectorAll('#fxModal [data-fx]').forEach(b => b.classList.toggle('sel', b.dataset.fx === id));
+  if (!Conf.camOn && id !== 'none') toast('Effect will apply when your camera is on');
+  applyOut();
+}
+
+/* --- screen share --- */
+async function toggleShare() {
+  if (Conf.sharing) return stopShare();
+  if (!navigator.mediaDevices.getDisplayMedia) return toast('Screen sharing is not supported on this device', true);
+  try {
+    const s = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+    Conf.screen = s; Conf.sharing = true; s.getVideoTracks()[0].onended = stopShare; applyOut();
+  } catch { toast('Screen share cancelled'); }
+}
+function stopShare() {
+  if (!Conf.sharing) return;
+  Conf.screen?.getTracks().forEach(t => t.stop()); Conf.screen = null; Conf.sharing = false; applyOut();
+}
+
+/* --- recording (saves a file to this device) --- */
+function connectAudio(key, stream) {
+  const r = Conf.rec; if (!r || !stream || r.srcs[key] || !stream.getAudioTracks().length) return;
+  try { r.srcs[key] = r.actx.createMediaStreamSource(new MediaStream(stream.getAudioTracks())); r.srcs[key].connect(r.dest); } catch {}
+}
+function recDraw() {
+  const r = Conf.rec; if (!r) return; const x = r.cx, W = 1280, H = 720;
+  x.fillStyle = '#04121f'; x.fillRect(0, 0, W, H);
+  const tiles = [...document.querySelectorAll('#tiles .tile')], n = tiles.length || 1, cols = Math.ceil(Math.sqrt(n)), rows = Math.ceil(n / cols), w = W / cols, h = H / rows;
+  tiles.forEach((t, i) => {
+    const px = (i % cols) * w, py = Math.floor(i / cols) * h, v = t.querySelector('video'), label = t.querySelector('.tname').textContent;
+    if (t.classList.contains('hasvid') && v.videoWidth) { const s = Math.min((w - 8) / v.videoWidth, (h - 8) / v.videoHeight), dw = v.videoWidth * s, dh = v.videoHeight * s; x.drawImage(v, px + (w - dw) / 2, py + (h - dh) / 2, dw, dh); }
+    else { x.fillStyle = '#143a5f'; x.fillRect(px + 4, py + 4, w - 8, h - 8); x.fillStyle = '#fff'; x.font = '56px Calibri,Carlito,sans-serif'; x.textAlign = 'center'; x.fillText(label.replace(/^🔇 /, '').charAt(0).toUpperCase(), px + w / 2, py + h / 2 + 18); }
+    x.fillStyle = 'rgba(0,0,0,.6)'; x.fillRect(px + 8, py + h - 40, Math.min(w - 16, 360), 32);
+    x.fillStyle = '#fff'; x.font = '19px Calibri,Carlito,sans-serif'; x.textAlign = 'left'; x.fillText(label, px + 16, py + h - 18);
+  });
+}
+function startRecording() {
+  if (typeof MediaRecorder === 'undefined') return toast('Recording is not supported here', true);
+  const cv = document.createElement('canvas'); cv.width = 1280; cv.height = 720;
+  const AC = window.AudioContext || window.webkitAudioContext, actx = new AC(), dest = actx.createMediaStreamDestination();
+  const r = Conf.rec = { cv, cx: cv.getContext('2d'), actx, dest, srcs: {}, chunks: [], iv: null, rc: null };
+  connectAudio('me', Conf.audioStream); Object.entries(Conf.peers).forEach(([s, p]) => connectAudio(s, p.stream));
+  const stream = new MediaStream([...cv.captureStream(25).getVideoTracks(), ...dest.stream.getAudioTracks()]);
+  const mime = ['video/webm;codecs=vp8,opus', 'video/webm', 'video/mp4'].find(t => MediaRecorder.isTypeSupported(t)) || '';
+  const rc = r.rc = new MediaRecorder(stream, mime ? { mimeType: mime } : {});
+  rc.ondataavailable = e => e.data.size && r.chunks.push(e.data);
+  rc.onstop = () => {
+    const type = rc.mimeType || mime || 'video/webm', blob = new Blob(r.chunks, { type }), a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = `conference-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.${type.includes('mp4') ? 'mp4' : 'webm'}`;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 3000);
+    actx.close().catch(() => {}); toast('Recording saved to your device ✓');
+  };
+  r.iv = setInterval(recDraw, 40); rc.start(1000); toast('Recording started — others can see the REC label'); pushFlags(); updateButtons();
+}
+function stopRecording() {
+  const r = Conf.rec; if (!r) return; clearInterval(r.iv); Conf.rec = null;
+  try { if (r.rc.state !== 'inactive') r.rc.stop(); } catch {}
+  pushFlags(); updateButtons();
+}
+
+/* --- peers & signaling --- */
+const sigRef = (room, to) => cdb(`conf_sig/${room}/${to}`);
+const sendSig = (to, kind, data) => push(sigRef(Conf.room, to), { from: me(), kind, data: JSON.stringify(data), time: Date.now() }).catch(() => {});
+function getPeer(slug, initiator) {
+  if (Conf.peers[slug]) return Conf.peers[slug];
+  const pc = new RTCPeerConnection(ICE), peer = { pc, pending: [], stream: new MediaStream(), slug };
+  Conf.peers[slug] = peer;
+  if (initiator) {
+    const a = pc.addTransceiver('audio', { direction: 'sendrecv' }), v = pc.addTransceiver('video', { direction: 'sendrecv' });
+    peer.aSender = a.sender; peer.vSender = v.sender;
+    if (Conf.mic) a.sender.replaceTrack(Conf.mic).catch(() => {}); if (Conf.out) v.sender.replaceTrack(Conf.out).catch(() => {});
+  }
+  pc.onicecandidate = e => e.candidate && sendSig(slug, 'cand', e.candidate.toJSON());
+  pc.ontrack = e => {
+    peer.stream.addTrack(e.track); if (e.track.kind === 'audio') connectAudio(slug, peer.stream);
+    const v = makeTile(slug).querySelector('video'); if (v.srcObject !== peer.stream) v.srcObject = peer.stream; v.play().catch(() => {});
+  };
+  pc.onconnectionstatechange = () => { if (pc.connectionState === 'failed') toast('Connection to ' + nameOf(slug) + ' failed', true); };
+  makeTile(slug).querySelector('video').srcObject = peer.stream;
+  return peer;
+}
+function closePeer(slug, keepTile) {
+  const p = Conf.peers[slug]; if (!p) return;
+  try { p.pc.close(); } catch {} delete Conf.peers[slug];
+  if (Conf.rec) delete Conf.rec.srcs[slug];
+  if (!keepTile) { $('tile_' + slug)?.remove(); layoutTiles(); }
+}
+async function flush(peer) { for (const c of peer.pending) await peer.pc.addIceCandidate(c).catch(() => {}); peer.pending = []; }
+function attachTracks(peer) {
+  for (const t of peer.pc.getTransceivers()) {
+    const k = t.receiver.track.kind; t.direction = 'sendrecv';
+    t.sender.replaceTrack(k === 'audio' ? Conf.mic : Conf.out).catch(() => {});
+    if (k === 'video') peer.vSender = t.sender; else peer.aSender = t.sender;
+  }
+}
+async function offerTo(slug) {
+  const peer = getPeer(slug, true);
+  try { const o = await peer.pc.createOffer(); await peer.pc.setLocalDescription(o); await sendSig(slug, 'offer', { type: o.type, sdp: o.sdp }); } catch (e) { console.error(e); }
+}
+async function handleSig(m) {
+  if (!Conf.room) return;
+  const from = m.from, data = JSON.parse(m.data);
+  try {
+    if (m.kind === 'offer') {
+      closePeer(from, true);
+      const peer = getPeer(from, false);
+      await peer.pc.setRemoteDescription(data); attachTracks(peer); await flush(peer);
+      const a = await peer.pc.createAnswer(); await peer.pc.setLocalDescription(a); await sendSig(from, 'answer', { type: a.type, sdp: a.sdp });
+    } else if (m.kind === 'answer') {
+      const peer = Conf.peers[from];
+      if (peer && peer.pc.signalingState === 'have-local-offer') { await peer.pc.setRemoteDescription(data); await flush(peer); }
+    } else if (m.kind === 'cand') {
+      const peer = Conf.peers[from]; if (!peer) return;
+      const ic = new RTCIceCandidate(data); if (peer.pc.remoteDescription) await peer.pc.addIceCandidate(ic).catch(() => {}); else peer.pending.push(ic);
+    }
+  } catch (e) { console.error('signal error', e); }
+}
+function shouldOffer(slug) {
+  const p = Conf.parts[slug]; if (!p) return false;
+  return p.joinedAt < Conf.joinedAt || (p.joinedAt === Conf.joinedAt && slug < me());
+}
+function onParts(snap) {
+  if (!Conf.room) return;
+  Conf.parts = snap.val() || {};
+  const others = Object.keys(Conf.parts).filter(s => s !== me());
+  if (others.length) { Conf.everOthers = true; clearTimeout(Conf.aloneTimer); Conf.aloneTimer = null; }
+  others.forEach(s => { if (!Conf.peers[s] && shouldOffer(s)) offerTo(s); refreshTile(s); });
+  Object.keys(Conf.peers).forEach(s => { if (!Conf.parts[s]) closePeer(s); });
+  $('confTitle').textContent = `Conference · ${Object.keys(Conf.parts).length} in call`;
+  const rec = others.find(s => Conf.parts[s].rec);
+  $('recBanner').style.display = (rec || Conf.rec) ? 'inline' : 'none';
+  $('recBanner').textContent = Conf.rec ? '● You are recording' : rec ? `● ${nameOf(rec)} is recording` : '';
+  if (Conf.everOthers && !others.length && !Conf.aloneTimer) {
+    toast('Everyone else left the call');
+    Conf.aloneTimer = setTimeout(() => leaveConf(), 15000);
   }
 }
 
-function listenIncomingCalls() {
-  onChildAdded(cref(`calls/${App.mySlug}`), snap => {
-    const d = snap.val();
-    if (!d || d.status !== 'calling' || Date.now() - (d.time || 0) > CALL_TIMEOUT) return;
-    if (App.pc || App.incoming) { update(snap.ref, { status: 'rejected' }); return; } // busy
-    App.incoming = { key: snap.key, data: d };
-    $('incomingName').textContent = d.callerName || d.caller; $('incomingAvatar').innerHTML = avatarInner(null, d.callerName || d.caller);
-    $('incomingType').textContent = `Incoming ${d.type === 'video' ? '📹 Video' : '📞 Voice'} Call…`;
-    $('incoming-call').classList.add('show'); tone(800, 1000); notify('Incoming call', d.callerName || d.caller);
-    let seen = false;
-    App.callUnsubs.push(onValue(cref(`calls/${App.mySlug}/${snap.key}/status`), s => {
-      const v = s.val(); if (v) seen = true;
-      if (App.incoming?.key === snap.key && !App.pc && ((v === null && seen) || v === 'ended')) { $('incoming-call').classList.remove('show'); App.incoming = null; toast('Missed call'); }
-    }));
+/* --- join / start / leave --- */
+async function joinRoom(room, isHost, withVideo, type) {
+  Object.assign(Conf, { room, isHost, type: type || 'video', ending: false, joinedAt: Date.now(), peers: {}, parts: {}, unread: 0, chatOpen: false, sharing: false, fx: 'none', camOn: false, everOthers: false });
+  $('tiles').innerHTML = ''; $('confMsgs').innerHTML = ''; $('confChat').classList.remove('show'); updateChatBadge();
+  $('cAdd').style.display = isHost ? '' : 'none'; $('recBanner').style.display = 'none'; $('confTitle').textContent = 'Conference';
+  showScreen('screen-conf'); makeTile(me(), true);
+  try { const a = await navigator.mediaDevices.getUserMedia({ audio: true }); Conf.audioStream = a; Conf.mic = a.getAudioTracks()[0]; }
+  catch { toast('Microphone unavailable — listen-only', true); Conf.audioStream = new MediaStream(); Conf.mic = null; }
+  if (withVideo) await camOnNow();
+  updateButtons();
+  const pRef = cdb(`conferences/${room}/participants/${me()}`);
+  await set(pRef, { name: App.myName, joinedAt: Conf.joinedAt, cam: Conf.camOn, mic: !!Conf.mic, share: false, rec: false });
+  Conf.od = onDisconnect(pRef); Conf.od.remove();
+  await remove(sigRef(room, me())).catch(() => {});
+  Conf.unsubs.push(onChildAdded(sigRef(room, me()), s => { const m = s.val(); remove(s.ref).catch(() => {}); if (m) handleSig(m); }));
+  Conf.unsubs.push(onValue(cdb(`conferences/${room}/participants`), onParts));
+  Conf.unsubs.push(onValue(cdb(`conferences/${room}/meta`), s => { if (!s.exists() && Conf.room === room && !Conf.ending) { toast('Conference ended'); leaveConf(); } }));
+  Conf.unsubs.push(onChildAdded(query(cdb(`conferences/${room}/chat`), limitToLast(50)), onChat));
+  clearInterval(Conf.timer);
+  Conf.timer = setInterval(() => { const s = Math.floor((Date.now() - Conf.joinedAt) / 1000); $('confTimer').textContent = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }, 1000);
+}
+async function startConference(targets, video) {
+  if (Conf.room || App.incoming) return toast('Already in a call', true);
+  if (!targets.length) return toast('Select at least one person', true);
+  const room = 'conf_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  Conf.invited = {};
+  try { await set(cdb(`conferences/${room}/meta`), { host: me(), hostName: App.myName, type: video ? 'video' : 'voice', time: Date.now(), status: 'live' }); }
+  catch { return toast('Network error', true); }
+  await joinRoom(room, true, video, video ? 'video' : 'voice');
+  await inviteUsers(targets);
+  Conf.startTimeout = setTimeout(() => { if (Conf.room === room && !Conf.everOthers) { toast('No answer'); leaveConf(); } }, 45000);
+}
+const startCall = (t, v) => startConference([t], v);
+async function inviteUsers(slugs) {
+  const room = Conf.room; if (!room) return;
+  for (const s of slugs) {
+    try { await set(cdb(`conf_invites/${s}/${room}`), { room, host: me(), hostName: App.myName, type: Conf.type, time: Date.now() }); Conf.invited[s] = 1; } catch {}
+  }
+  toast('Invitation sent ✓');
+}
+async function leaveConf() {
+  if (!Conf.room || Conf.ending) return;
+  Conf.ending = true;
+  const room = Conf.room, invited = Object.keys(Conf.invited || {}), host = Conf.isHost, od = Conf.od;
+  clearTimeout(Conf.startTimeout); clearTimeout(Conf.aloneTimer); clearInterval(Conf.timer); Conf.aloneTimer = null;
+  try { stopRecording(); } catch {}
+  Conf.unsubs.forEach(u => { try { u(); } catch {} }); Conf.unsubs = [];
+  Object.keys(Conf.peers).forEach(s => closePeer(s));
+  stopFxLoop();
+  [Conf.cam, Conf.screen, Conf.audioStream].forEach(s => { try { s?.getTracks().forEach(t => t.stop()); } catch {} });
+  Conf.preview.getTracks().forEach(t => Conf.preview.removeTrack(t));
+  Object.assign(Conf, { cam: null, screen: null, audioStream: null, mic: null, out: null, camOn: false, sharing: false, fx: 'none', room: null, parts: {}, invited: {}, od: null, chatOpen: false });
+  $('tiles').innerHTML = ''; $('srcVideo').srcObject = null;
+  ['confChat', 'fxModal', 'inviteModal'].forEach(id => $(id).classList.remove('show'));
+  document.querySelectorAll('#fxModal [data-fx]').forEach(b => b.classList.remove('sel'));
+  showScreen(App.activeChat ? 'screen-chat' : 'screen-main');
+  Conf.ending = false;
+  try {
+    od?.cancel();
+    await remove(cdb(`conferences/${room}/participants/${me()}`));
+    if (host) await Promise.all(invited.map(s => remove(cdb(`conf_invites/${s}/${room}`)).catch(() => {})));
+    const s = await get(cdb(`conferences/${room}/participants`));
+    if (!s.exists() || !Object.keys(s.val()).length) { await remove(cdb(`conferences/${room}`)); await remove(cdb(`conf_sig/${room}`)); }
+  } catch (e) { console.error(e); }
+}
+
+/* --- invitations (incoming) --- */
+let ringTimer = null, missTimer = null;
+function hideIncoming() { clearInterval(ringTimer); clearTimeout(missTimer); $('incoming-call').classList.remove('show'); App.incoming = null; }
+function listenInvites() {
+  onValue(cdb(`conf_invites/${me()}`), snap => {
+    const v = snap.val() || {};
+    if (App.incoming && !v[App.incoming.room]) { hideIncoming(); toast('Call cancelled'); }
+    for (const [room, d] of Object.entries(v)) {
+      if (Date.now() - (d.time || 0) > 60000 || Conf.room === room) { remove(cdb(`conf_invites/${me()}/${room}`)).catch(() => {}); continue; }
+      if (Conf.room || App.incoming) continue;
+      App.incoming = { room, d };
+      $('incomingName').textContent = d.hostName || d.host; $('incomingAvatar').innerHTML = avatarInner(null, d.hostName || d.host);
+      $('incomingType').textContent = `${d.type === 'video' ? '📹 Video' : '📞 Voice'} conference invitation…`;
+      $('incoming-call').classList.add('show'); tone(800, 1000); notify('Conference invitation', (d.hostName || d.host) + ' is calling');
+      clearInterval(ringTimer); ringTimer = setInterval(() => tone(800, 1000), 2000);
+      clearTimeout(missTimer); missTimer = setTimeout(() => { if (App.incoming?.room === room) { remove(cdb(`conf_invites/${me()}/${room}`)).catch(() => {}); hideIncoming(); toast('Missed call'); } }, 45000);
+    }
   });
 }
-
 $('acceptCallBtn').addEventListener('click', async () => {
-  const inc = App.incoming; if (!inc) return;
-  $('incoming-call').classList.remove('show');
-  const d = inc.data, path = App.callPath = `calls/${App.mySlug}/${inc.key}`, isVideo = d.type === 'video';
-  $('callName').textContent = d.callerName || d.caller; $('callStatus').textContent = 'Connecting…'; $('callAvatar').innerHTML = avatarInner(null, d.callerName || d.caller);
-  $('videoContainer').classList.toggle('active', isVideo); showScreen('screen-call');
-  try {
-    const pc = await makePeer(isVideo);
-    pc.onicecandidate = e => e.candidate && push(cref(path + '/answerCandidates'), e.candidate.toJSON());
-    await pc.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: d.sdp })); await flushCand();
-    const ans = await pc.createAnswer(); await pc.setLocalDescription(ans);
-    await update(cref(path), { answer: { type: ans.type, sdp: ans.sdp }, status: 'connected' });
-    App.callUnsubs.push(onChildAdded(cref(path + '/offerCandidates'), s => addCand(s.val())));
-    watchStatus(path);
-  } catch (err) { console.error(err); toast('Error answering call', true); hangUp(); }
+  const inc = App.incoming; if (!inc) return; hideIncoming();
+  remove(cdb(`conf_invites/${me()}/${inc.room}`)).catch(() => {});
+  try { const m = await get(cdb(`conferences/${inc.room}/meta`)); if (!m.exists()) return toast('That call has already ended', true); } catch { return toast('Network error', true); }
+  await joinRoom(inc.room, false, inc.d.type === 'video', inc.d.type);
 });
-$('rejectCallBtn').addEventListener('click', async () => {
-  const inc = App.incoming; $('incoming-call').classList.remove('show'); App.incoming = null;
-  if (inc) { try { await update(cref(`calls/${App.mySlug}/${inc.key}`), { status: 'rejected' }); } catch {} }
-});
+$('rejectCallBtn').addEventListener('click', () => { const inc = App.incoming; hideIncoming(); if (inc) remove(cdb(`conf_invites/${me()}/${inc.room}`)).catch(() => {}); });
 
-function endCallLocally() {
-  if (App.ending) return; App.ending = true;
-  clearTimeout(App.callTimer);
-  App.callUnsubs.forEach(u => { try { u(); } catch {} }); App.callUnsubs = [];
-  App.localStream?.getTracks().forEach(t => t.stop()); App.localStream = null;
-  App.pc?.close(); App.pc = null; App.pending = []; App.callPath = null; App.incoming = null;
-  $('incoming-call').classList.remove('show'); $('videoContainer').classList.remove('active'); resetCallUI();
-  showScreen(App.activeChat ? 'screen-chat' : 'screen-main');
-  App.ending = false;
+/* --- in-call chat --- */
+function updateChatBadge() { const b = $('cChatBadge'); b.textContent = Conf.unread; b.style.display = Conf.unread ? 'block' : 'none'; }
+function onChat(snap) {
+  const m = snap.val(); if (!m) return;
+  const out = m.from === me(), d = document.createElement('div'), att = m.attachment ? renderAttachment(m.attachment) : '';
+  d.className = 'cmsg ' + (out ? 'out' : 'in');
+  d.innerHTML = `<b>${out ? 'You' : esc(m.fromName || m.from)}</b>${att}${m.text ? `<div>${esc(m.text)}</div>` : ''}`;
+  $('confMsgs').appendChild(d); $('confMsgs').scrollTop = $('confMsgs').scrollHeight;
+  if (!out && m.time >= Conf.joinedAt && !Conf.chatOpen) { Conf.unread++; updateChatBadge(); tone(700, 1000); }
 }
-async function hangUp() {
-  const p = App.callPath;
-  if (p) { try { await update(cref(p), { status: 'ended' }); } catch {} setTimeout(() => remove(cref(p)).catch(() => {}), 4000); }
-  endCallLocally();
+async function sendConfChat(att = null) {
+  const inp = $('confInput'), text = inp.value.trim(); if ((!text && !att) || !Conf.room) return;
+  inp.value = '';
+  try { await push(cdb(`conferences/${Conf.room}/chat`), { from: me(), fromName: App.myName, text, attachment: att, time: Date.now() }); }
+  catch { toast('Message failed', true); inp.value = text; }
 }
-$('endCallBtn').addEventListener('click', hangUp);
-$('muteBtn').addEventListener('click', () => {
-  const t = App.localStream?.getAudioTracks()[0]; if (!t) return;
-  t.enabled = !t.enabled; $('muteBtn').textContent = t.enabled ? '🎤' : '🔇';
+$('confSend').addEventListener('click', () => sendConfChat());
+$('confInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendConfChat(); });
+$('confAttachBtn').addEventListener('click', () => $('confFile').click());
+$('confFile').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try { toast('Sending…'); const p = await prepareFile(f); await sendConfChat({ ...p, name: f.name, size: f.size }); } catch (err) { toast(err.message || 'Upload failed', true); }
 });
+$('confMsgs').addEventListener('click', e => { const i = e.target.closest('img[data-lb]'); if (i) { $('lightboxImg').src = i.src; $('lightboxDownload').href = i.src; $('lightbox').classList.add('show'); } });
+$('confEmoji').innerHTML = '😀😂🥰😍😎🤔😢😭😡😱👍👏🙏❤️🔥🎉💯✅👋😅🤝💪🙌😴'.match(/\p{Extended_Pictographic}\uFE0F?/gu).map(e => `<button class="emoji-item">${e}</button>`).join('');
+$('confEmoji').addEventListener('click', e => { const b = e.target.closest('.emoji-item'); if (b) { $('confInput').value += b.textContent; $('confInput').focus(); } });
+$('confEmojiBtn').addEventListener('click', () => $('confEmoji').classList.toggle('show'));
+$('cChat').addEventListener('click', () => {
+  Conf.chatOpen = !Conf.chatOpen; $('confChat').classList.toggle('show', Conf.chatOpen);
+  if (Conf.chatOpen) { Conf.unread = 0; updateChatBadge(); $('confMsgs').scrollTop = $('confMsgs').scrollHeight; } updateButtons();
+});
+$('confChatClose').addEventListener('click', () => { Conf.chatOpen = false; $('confChat').classList.remove('show'); updateButtons(); });
+
+/* --- invite / add people --- */
+let inviteMode = 'add';
+function openInvite(mode) {
+  inviteMode = mode; const inCall = Object.keys(Conf.parts), list = App.contacts.filter(c => !inCall.includes(c.slug));
+  $('inviteTitle').textContent = mode === 'new' ? 'Start conference call' : 'Add people to this call';
+  $('inviteConfirm').textContent = mode === 'new' ? 'Start' : 'Invite';
+  $('inviteList').innerHTML = list.length ? list.map(c => `<div class="group-select-item"><input type="checkbox" value="${esc(c.slug)}" id="inv_${esc(c.slug)}" style="width:20px;height:20px"><label for="inv_${esc(c.slug)}">${esc(c.name)} (@${esc(c.slug)})</label></div>`).join('') : '<div style="color:var(--muted)">No contacts to invite. Add contacts first.</div>';
+  $('inviteModal').classList.add('show');
+}
+$('inviteCancel').addEventListener('click', () => $('inviteModal').classList.remove('show'));
+$('inviteConfirm').addEventListener('click', () => {
+  const picked = [...document.querySelectorAll('#inviteList input:checked')].map(i => i.value);
+  if (!picked.length) return toast('Select at least one person', true);
+  $('inviteModal').classList.remove('show');
+  if (inviteMode === 'new') startConference(picked, true); else inviteUsers(picked);
+});
+$('startConfBtn').addEventListener('click', () => openInvite('new'));
+$('cAdd').addEventListener('click', () => openInvite('add'));
+
+/* --- control bar --- */
+$('cMic').addEventListener('click', () => { if (!Conf.mic) return toast('No microphone', true); Conf.mic.enabled = !Conf.mic.enabled; updateButtons(); pushFlags(); });
+$('cCam').addEventListener('click', () => Conf.camOn ? camOffNow() : camOnNow());
+$('cShare').addEventListener('click', toggleShare);
+$('cFx').addEventListener('click', () => $('fxModal').classList.add('show'));
+$('fxClose').addEventListener('click', () => $('fxModal').classList.remove('show'));
+$('fxModal').addEventListener('click', e => { const b = e.target.closest('[data-fx]'); if (b) setFx(b.dataset.fx); });
+$('cRec').addEventListener('click', () => Conf.rec ? stopRecording() : startRecording());
+$('cEnd').addEventListener('click', () => leaveConf());
 $('voiceCallFromChatBtn').addEventListener('click', () => App.activeChat && !App.activeIsGroup && startCall(App.activeChat, false));
 $('videoCallFromChatBtn').addEventListener('click', () => App.activeChat && !App.activeIsGroup && startCall(App.activeChat, true));
 
