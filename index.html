@@ -818,11 +818,11 @@ function buildUI() {
   cl.innerHTML = html;
   ccl.innerHTML = App.contacts.map(c => `
     <div class="list-item">
-      <div class="avatar accent" onclick="window.__viewAvatar('${c.photo||''}','${esc(c.name)}')">${avatarInner(c.photo, c.name)}</div>
+      <div class="avatar accent" onclick="event.stopPropagation(); window.__viewAvatar('${c.photo||''}','${esc(c.name)}')">${avatarInner(c.photo, c.name)}</div>
       <div class="list-item-body"><div class="list-item-title">${esc(c.name)}</div><div class="list-item-sub">@${c.slug}</div></div>
       <div style="display:flex;gap:10px;">
-        <button class="header-call-btn" style="color:var(--navy);background:#e0f2fe;padding:8px 14px;border-radius:18px;font-size:19px !important;font-weight:600;" onclick="window.startCall('${c.slug}', false)">📞 Voice</button>
-        <button class="header-call-btn" style="color:var(--navy);background:#dcfce7;padding:8px 14px;border-radius:18px;font-size:19px !important;font-weight:600;" onclick="window.startCall('${c.slug}', true)">📹 Video</button>
+        <button class="header-call-btn" style="color:var(--navy);background:#e0f2fe;padding:8px 14px;border-radius:18px;font-size:19px !important;font-weight:600;cursor:pointer;" onclick="window.startCall('${c.slug}', false)">📞 Voice</button>
+        <button class="header-call-btn" style="color:var(--navy);background:#dcfce7;padding:8px 14px;border-radius:18px;font-size:19px !important;font-weight:600;cursor:pointer;" onclick="window.startCall('${c.slug}', true)">📹 Video</button>
       </div>
     </div>`).join('');
   vmSel.innerHTML = '<option value="">Select recipient</option>' + App.contacts.map(c => `<option value="${c.slug}">${esc(c.name)}</option>`).join('');
@@ -1110,113 +1110,138 @@ window.startCall = async (targetSlug, isVideo) => {
   }
 };
 
-/* Conference Tools: Screen Share, Filters, Add Participant, Recording, In-Call Chat */
-$('screenShareBtn').addEventListener('click', async () => {
-  try {
-    const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-    const videoTrack = screenStream.getVideoTracks()[0];
-    if (App.peerConn) {
-      const sender = App.peerConn.getSenders().find(s => s.track && s.track.kind === 'video');
-      if (sender) sender.replaceTrack(videoTrack);
-    }
-    if ($('localVideo')) $('localVideo').srcObject = screenStream;
-    videoTrack.onended = () => {
-      if (App.localStream) {
-        const origTrack = App.localStream.getVideoTracks()[0];
-        if (App.peerConn && origTrack) {
-          const sender = App.peerConn.getSenders().find(s => s.track && s.track.kind === 'video');
-          if (sender) sender.replaceTrack(origTrack);
-        }
-        if ($('localVideo')) $('localVideo').srcObject = App.localStream;
+// Explicit Call Control Event Listeners with Touch and Click Support
+const muteBtn = $('muteBtn');
+if (muteBtn) {
+  muteBtn.onclick = () => {
+    if (App.localStream) {
+      const audioTrack = App.localStream.getAudioTracks()[0];
+      if (audioTrack) {
+        audioTrack.enabled = !audioTrack.enabled;
+        muteBtn.style.background = audioTrack.enabled ? 'rgba(255,255,255,.2)' : '#ff4757';
+        toast(audioTrack.enabled ? 'Microphone unmuted' : 'Microphone muted');
       }
-    };
-    toast('Screen sharing started ✓');
-  } catch { toast('Screen sharing cancelled', true); }
-});
+    }
+  };
+}
 
+const screenShareBtn = $('screenShareBtn');
+if (screenShareBtn) {
+  screenShareBtn.onclick = async () => {
+    try {
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      const videoTrack = screenStream.getVideoTracks()[0];
+      if (App.peerConn) {
+        const sender = App.peerConn.getSenders().find(s => s.track && s.track.kind === 'video');
+        if (sender) sender.replaceTrack(videoTrack);
+      }
+      if ($('localVideo')) $('localVideo').srcObject = screenStream;
+      videoTrack.onended = () => {
+        if (App.localStream) {
+          const origTrack = App.localStream.getVideoTracks()[0];
+          if (App.peerConn && origTrack) {
+            const sender = App.peerConn.getSenders().find(s => s.track && s.track.kind === 'video');
+            if (sender) sender.replaceTrack(origTrack);
+          }
+          if ($('localVideo')) $('localVideo').srcObject = App.localStream;
+        }
+      };
+      toast('Screen sharing started ✓');
+    } catch { toast('Screen sharing cancelled', true); }
+  };
+}
+
+const filterBtn = $('filterBtn');
 const filtersList = ['', 'blur(6px)', 'sepia(1) hue-rotate(90deg)', 'contrast(150%)', 'invert(80%)'];
 let currentFilterIdx = 0;
-$('filterBtn').addEventListener('click', () => {
-  currentFilterIdx = (currentFilterIdx + 1) % filtersList.length;
-  const filter = filtersList[currentFilterIdx];
-  if ($('localVideo')) $('localVideo').style.filter = filter;
-  toast(`Camera filter applied (${currentFilterIdx === 0 ? 'Normal' : 'Effect ' + currentFilterIdx}) ✓`);
-});
+if (filterBtn) {
+  filterBtn.onclick = () => {
+    currentFilterIdx = (currentFilterIdx + 1) % filtersList.length;
+    const filter = filtersList[currentFilterIdx];
+    if ($('localVideo')) $('localVideo').style.filter = filter;
+    toast(`Camera filter applied (${currentFilterIdx === 0 ? 'Normal' : 'Effect ' + currentFilterIdx}) ✓`);
+  };
+}
 
-$('addParticipantBtn').addEventListener('click', () => {
-  const friendSlugs = App.contacts.map(c => c.slug).join(', ');
-  const inviteSlug = prompt(`Conference invite: Enter friend's username handle from your contacts:\n(${friendSlugs || 'No contacts'})`);
-  if (!inviteSlug) return;
-  const cleanSlug = slugify(inviteSlug);
-  if (!App.contacts.some(c => c.slug === cleanSlug)) return toast('User not found on your Friend List', true);
-  window.startCall(cleanSlug, true);
-  toast(`Inviting @${cleanSlug} to conference call…`);
-});
+const addParticipantBtn = $('addParticipantBtn');
+if (addParticipantBtn) {
+  addParticipantBtn.onclick = () => {
+    const friendSlugs = App.contacts.map(c => c.slug).join(', ');
+    const inviteSlug = prompt(`Conference invite: Enter friend's username handle from your contacts:\n(${friendSlugs || 'No contacts'})`);
+    if (!inviteSlug) return;
+    const cleanSlug = slugify(inviteSlug);
+    if (!App.contacts.some(c => c.slug === cleanSlug)) return toast('User not found on your Friend List', true);
+    window.startCall(cleanSlug, true);
+    toast(`Inviting @${cleanSlug} to conference call…`);
+  };
+}
 
-$('callChatToggleBtn').addEventListener('click', () => {
-  let drawer = $('callChatDrawer');
-  if (!drawer) {
-    drawer = document.createElement('div');
-    drawer.id = 'callChatDrawer';
-    drawer.innerHTML = `
-      <div style="font-weight:700;margin-bottom:6px;font-size:19px !important;display:flex;justify-content:space-between;"><span>In-Call Chat</span><span style="cursor:pointer" onclick="$('callChatDrawer').classList.remove('show')">✕</span></div>
-      <div id="callChatMsgs" style="flex:1;overflow-y:auto;background:rgba(255,255,255,.1);border-radius:8px;padding:6px;margin-bottom:6px;font-size:19px !important;"></div>
-      <div style="display:flex;gap:4px;">
-        <input id="callChatInp" type="text" placeholder="Comment or emoji..." style="flex:1;padding:6px;border-radius:6px;border:none;font-size:19px !important;font-family:Calibri,sans-serif;">
-        <button id="callChatSend" style="background:var(--gold);color:var(--navy);border:none;padding:6px 10px;border-radius:6px;font-weight:700;font-size:19px !important;">➤</button>
-      </div>`;
-    $('screen-call').appendChild(drawer);
-    $('callChatSend').addEventListener('click', () => {
-      const val = $('callChatInp').value.trim();
-      if (!val) return;
-      const box = $('callChatMsgs');
-      box.innerHTML += `<div style="margin-bottom:4px;"><strong>@${App.mySlug}:</strong> ${esc(val)}</div>`;
-      box.scrollTop = box.scrollHeight;
-      $('callChatInp').value = '';
-    });
-  }
-  drawer.classList.toggle('show');
-});
-
-$('recordCallBtn').addEventListener('click', () => {
-  if (!activeMediaRecorder || activeMediaRecorder.state === 'inactive') {
-    try {
-      const stream = $('remoteVideo').srcObject || App.localStream;
-      if (!stream) return toast('No active media stream to record', true);
-      recordedChunks = [];
-      activeMediaRecorder = new MediaRecorder(stream);
-      activeMediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
-      activeMediaRecorder.onstop = () => {
-        const blob = new Blob(recordedChunks, { type: 'video/webm' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = `JARVIS_Call_${Date.now()}.webm`;
-        a.click();
-        toast('Call recording saved to device ✓');
+const callChatToggleBtn = $('callChatToggleBtn');
+if (callChatToggleBtn) {
+  callChatToggleBtn.onclick = () => {
+    let drawer = $('callChatDrawer');
+    if (!drawer) {
+      drawer = document.createElement('div');
+      drawer.id = 'callChatDrawer';
+      drawer.innerHTML = `
+        <div style="font-weight:700;margin-bottom:6px;font-size:19px !important;display:flex;justify-content:space-between;"><span>In-Call Chat</span><span style="cursor:pointer" onclick="$('callChatDrawer').classList.remove('show')">✕</span></div>
+        <div id="callChatMsgs" style="flex:1;overflow-y:auto;background:rgba(255,255,255,.1);border-radius:8px;padding:6px;margin-bottom:6px;font-size:19px !important;"></div>
+        <div style="display:flex;gap:4px;">
+          <input id="callChatInp" type="text" placeholder="Comment or emoji..." style="flex:1;padding:6px;border-radius:6px;border:none;font-size:19px !important;font-family:Calibri,sans-serif;">
+          <button id="callChatSend" style="background:var(--gold);color:var(--navy);border:none;padding:6px 10px;border-radius:6px;font-weight:700;font-size:19px !important;">➤</button>
+        </div>`;
+      $('screen-call').appendChild(drawer);
+      $('callChatSend').onclick = () => {
+        const val = $('callChatInp').value.trim();
+        if (!val) return;
+        const box = $('callChatMsgs');
+        box.innerHTML += `<div style="margin-bottom:4px;"><strong>@${App.mySlug}:</strong> ${esc(val)}</div>`;
+        box.scrollTop = box.scrollHeight;
+        $('callChatInp').value = '';
       };
-      activeMediaRecorder.start();
-      $('recordCallBtn').style.background = '#ff4757';
-      toast('🔴 Call recording started…');
-    } catch { toast('Call recording not supported on this browser', true); }
-  } else {
-    activeMediaRecorder.stop();
-    $('recordCallBtn').style.background = 'rgba(13,122,140,.8)';
-  }
-});
+    }
+    drawer.classList.toggle('show');
+  };
+}
 
-function listenIncomingCalls() {
-  onChildAdded(dbRef(db, `calls/${App.mySlug}`), snap => {
-    const callData = snap.val();
-    if (!callData || callData.status !== 'calling') return;
-    App.activeCallId = snap.key;
-    App.currentCallTarget = callData.caller;
-    App.isVideoCall = callData.type === 'video';
-    $('incomingName').textContent = callData.callerName || callData.caller;
-    $('incomingAvatar').innerHTML = avatarInner(null, callData.callerName || callData.caller);
-    $('incomingType').textContent = `Incoming ${callData.type === 'video' ? '📹 Video Conference' : '📞 Voice'} Call…`;
-    $('incoming-call').classList.add('show');
-    window._incomingCallData = callData;
-  });
+const recordCallBtn = $('recordCallBtn');
+if (recordCallBtn) {
+  recordCallBtn.onclick = () => {
+    if (!activeMediaRecorder || activeMediaRecorder.state === 'inactive') {
+      try {
+        const stream = $('remoteVideo').srcObject || App.localStream;
+        if (!stream) return toast('No active media stream to record', true);
+        recordedChunks = [];
+        activeMediaRecorder = new MediaRecorder(stream);
+        activeMediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+        activeMediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: 'video/webm' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = `JARVIS_Call_${Date.now()}.webm`;
+          a.click();
+          toast('Call recording saved to device ✓');
+        };
+        activeMediaRecorder.start();
+        recordCallBtn.style.background = '#ff4757';
+        toast('🔴 Call recording started…');
+      } catch { toast('Call recording not supported on this browser', true); }
+    } else {
+      activeMediaRecorder.stop();
+      recordCallBtn.style.background = 'rgba(13,122,140,.8)';
+    }
+  };
+}
+
+const endCallBtn = $('endCallBtn');
+if (endCallBtn) {
+  endCallBtn.onclick = async () => {
+    if (App.activeCallId && App.currentCallTarget) {
+      await set(dbRef(db, `calls/${App.currentCallTarget}/${App.activeCallId}/status`), 'ended');
+      await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'ended');
+    }
+    endCallLocally();
+  };
 }
 
 $('acceptCallBtn').addEventListener('click', async () => {
