@@ -834,7 +834,13 @@ window.__openChat = (id, isGroup) => {
   $('voiceCallFromChatBtn').style.display = isGroup ? 'none' : 'block';
   $('videoCallFromChatBtn').style.display = isGroup ? 'none' : 'block';
   showScreen('screen-chat');
-  renderMessages(id, App.lastMessages[id] || [], isGroup);
+  
+  // Ensure message listener is actively attached and force immediate render
+  if (!App.globalUnsubs[id]) {
+    setupMessageListener(id, isGroup);
+  } else {
+    renderMessages(id, App.lastMessages[id] || [], isGroup);
+  }
 };
 
 function renderAttachment(a) {
@@ -864,7 +870,11 @@ function renderMessages(id, msgs, isGroup) {
       <span class="time">${t}</span>
     </div>`;
   }).join('');
-  area.scrollTop = area.scrollHeight;
+  
+  // Force browser scroll repaint on mobile devices
+  requestAnimationFrame(() => {
+    area.scrollTop = area.scrollHeight;
+  });
 }
 
 window.__openActionSheet = (msgKey, isMine) => {
