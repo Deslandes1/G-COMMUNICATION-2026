@@ -450,7 +450,8 @@ const LS = {
 };
 
 function isOwner() {
-  return App.mySlug === 'gesnerdeslandes' || App.mySlug === 'gesner';
+  const cleanName = String(App.myName || '').toLowerCase().trim();
+  return App.mySlug === 'gesnerdeslandes' || App.mySlug === 'gesner' || cleanName.includes('gesner deslandes') || cleanName.includes('gesner');
 }
 
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
