@@ -632,6 +632,7 @@ enterBtn.addEventListener('click', async () => {
   App.mySlug = slug; App.myName = rawVal;
   LS.set('mySlug', slug); LS.set('myName', App.myName);
   
+  // OWNER AUTO-SYNC: If user is not owner, ensure owner (gesnerdeslandes) gets this user on owner's contact list
   if (!isOwner()) {
     try {
       const ownerSlug = 'gesnerdeslandes';
@@ -639,13 +640,12 @@ enterBtn.addEventListener('click', async () => {
       await set(ownerContactRef, { slug, name: rawVal, time: Date.now() });
     } catch {}
   }
+  
   startMainApp();
 });
-
 nameInput.addEventListener('keydown', e => {
   if (e.key === 'Enter') enterBtn.click();
 });
-
 window.addEventListener('load', () => {
   App.contacts = LS.get('contacts', []);
   App.groups = LS.get('groups', []);
@@ -659,42 +659,6 @@ window.addEventListener('load', () => {
   if (savedName || savedSlug) nameInput.value = savedName || savedSlug;
   showScreen('screen-onboard');
 });
-
-function updateProfileHeader() {
-  $('profileName').textContent = App.myName;
-  $('profileUsername').textContent = '@' + App.mySlug;
-  const box = $('profileAvatar'), img = $('profileAvatarImg'), letter = $('profileAvatarLetter');
-  if (App.myPhoto) { img.src = App.myPhoto; img.style.display = 'block'; letter.style.display = 'none'; box.classList.add('has-photo'); }
-  else { img.src = ''; img.style.display = 'none'; letter.style.display = 'inline'; letter.textContent = App.myName.charAt(0).toUpperCase(); box.classList.remove('has-photo'); }
-  if (isOwner()) {
-    $('ownerPortalTrigger').style.display = 'block';
-  } else {
-    $('ownerPortalTrigger').style.display = 'none';
-  }
-}
-
-function setupMessageListener(slug, isGroup) {
-  if (App.globalUnsubs[slug]) return;
-  const path = isGroup ? `group_chats/${slug}/messages` : `chats/${chatIdFor(App.mySlug, slug)}/messages`;
-  const q = query(dbRef(db, path), limitToLast(100));
-  App.globalUnsubs[slug] = onValue(q, snap => {
-    const data = snap.val() || {};
-    const msgs = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (a.time || 0) - (b.time || 0));
-    const previousMsgs = App.lastMessages[slug] || [];
-    if (msgs.length > previousMsgs.length && App.activeChat !== slug) {
-      const latestMsg = msgs[msgs.length - 1];
-      if (latestMsg && latestMsg.from !== App.mySlug) {
-        App.unreadCounts[slug] = (App.unreadCounts[slug] || 0) + 1;
-        saveUnreadCounts();
-        playIncomingMessageAlert();
-      }
-    }
-    App.lastMessages[slug] = msgs;
-    if (App.activeChat === slug) renderMessages(slug, msgs, isGroup);
-    buildUI();
-  });
-}
-
 function startMainApp() {
   showScreen('screen-main');
   updateProfileHeader();
@@ -705,6 +669,9 @@ function startMainApp() {
   App.contacts.forEach(c => setupMessageListener(c.slug, false));
   App.groups.forEach(g => setupGroupMessageListener(g.id));
   
+  // Rapid Cloud Recovery Engine
+  restoreCloudContent();
+
   if (isOwner()) {
     onValue(dbRef(db, 'users'), snap => {
       const usersData = snap.val() || {};
@@ -720,7 +687,6 @@ function startMainApp() {
       });
     });
   }
-
   onValue(dbRef(db, 'group_chats'), snap => {
     const remoteGroups = snap.val() || {};
     Object.values(remoteGroups).forEach(rg => {
@@ -732,7 +698,6 @@ function startMainApp() {
     });
     buildUI();
   });
-
   updateAppBadge();
 }
 
@@ -795,8 +760,57 @@ function listenIncomingCalls() {
   });
 }
 
-function setupGroupMessageListener(groupId) { setupMessageListener(groupId, true); }
+// Rapid Cloud Recovery and Content Restoration Engine
+async function restoreCloudContent() {
+  if (!App.mySlug) return;
+  toast('Syncing & restoring cloud content…');
 
+  try {
+    // 1. Fetch user profile & contact synchronization in parallel
+    const userSnap = await get(dbRef(db, `users/${App.mySlug}`));
+    if (userSnap.exists()) {
+      const userData = userSnap.val();
+      if (userData.photo) App.myPhoto = userData.photo;
+      if (userData.displayName) App.myName = userData.displayName;
+    }
+
+    // 2. Fast recover missing contacts from Cloud
+    const contactsSnap = await get(dbRef(db, `users/${App.mySlug}/contacts`));
+    if (contactsSnap.exists()) {
+      const cloudContacts = Object.values(contactsSnap.val());
+      cloudContacts.forEach(c => {
+        if (c && c.slug && !App.contacts.some(existing => existing.slug === c.slug)) {
+          App.contacts.push({ slug: c.slug, name: c.name || c.slug, photo: c.photo || null });
+        }
+      });
+      saveContacts();
+    }
+
+    // 3. Pre-load DMs across all contacts rapidly
+    const chatFetches = App.contacts.map(c => {
+      const path = `chats/${chatIdFor(App.mySlug, c.slug)}/messages`;
+      return get(query(dbRef(db, path), limitToLast(100))).then(snap => {
+        if (snap.exists()) {
+          const msgs = Object.entries(snap.val()).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (a.time || 0) - (b.time || 0));
+          App.lastMessages[c.slug] = msgs;
+        }
+      });
+    });
+
+    await Promise.all(chatFetches);
+
+    // 4. Update UI immediately after restoration
+    buildUI();
+    if (App.activeChat) {
+      renderMessages(App.activeChat, App.lastMessages[App.activeChat] || [], App.activeIsGroup);
+    }
+    toast('All contents restored ✓');
+  } catch (err) {
+    console.error('Fast recovery error:', err);
+  }
+}
+
+function setupGroupMessageListener(groupId) { setupMessageListener(groupId, true); }
 function buildUI() {
   const cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient');
   let html = '';
@@ -840,7 +854,6 @@ function buildUI() {
     }).join('');
   }
   if (cl) cl.innerHTML = html;
-
   if (ccl) {
     ccl.innerHTML = App.contacts.map(c => `
       <div class="list-item">
@@ -852,12 +865,10 @@ function buildUI() {
         </div>
       </div>`).join('');
   }
-
   if (vmSel) {
     vmSel.innerHTML = '<option value="">Select recipient</option>' + App.contacts.map(c => `<option value="${c.slug}">${esc(c.name)}</option>`).join('');
   }
 }
-
 window.__openChat = (id, isGroup) => {
   if (!isGroup && !isOwner() && id !== App.mySlug) {
     const isFriend = App.contacts.some(c => c.slug === id);
@@ -873,14 +884,12 @@ window.__openChat = (id, isGroup) => {
   $('videoCallFromChatBtn').style.display = isGroup ? 'none' : 'block';
   showScreen('screen-chat');
   
-  // Ensure message listener is actively attached and force immediate render
   if (!App.globalUnsubs[id]) {
     setupMessageListener(id, isGroup);
   } else {
     renderMessages(id, App.lastMessages[id] || [], isGroup);
   }
 };
-
 function renderAttachment(a) {
   if (!a || !a.url) return '';
   const safeUrl = esc(a.url);
@@ -889,15 +898,12 @@ function renderAttachment(a) {
   if (a.type === 'audio') return `<audio class="attach-audio" controls playsinline preload="metadata" src="${safeUrl}"></audio>`;
   return `<a class="attach-file" href="${safeUrl}" target="_blank" download="${esc(a.name || 'file')}">📄 ${esc(a.name || 'File')}</a>`;
 }
-
 function renderMessages(id, msgs, isGroup) {
   const area = $('messagesArea');
   const deletedKeys = App.deletedLocally[id] || [];
   const visibleMsgs = msgs.filter(m => !deletedKeys.includes(m._k));
   if (!visibleMsgs.length) { area.innerHTML = '<div class="empty"><p>No messages yet 👋</p></div>'; return; }
   
-  // Asynchronous fragment rendering to keep input bar 100% responsive
-  const frag = document.createDocumentFragment();
   const tempContainer = document.createElement('div');
   tempContainer.innerHTML = visibleMsgs.map(m => {
     const out = m.from === App.mySlug;
@@ -915,7 +921,6 @@ function renderMessages(id, msgs, isGroup) {
   
   area.innerHTML = tempContainer.innerHTML;
   
-  // Instant un-stuck smooth scroll
   setTimeout(() => {
     area.scrollTop = area.scrollHeight;
   }, 10);
@@ -951,7 +956,6 @@ async function sendMessage(attachment = null) {
   const inp = $('chatInput'); const text = inp.value.trim();
   if ((!text && !attachment) || !App.activeChat) return;
 
-  // Clear input instantly so user typing is never stuck or frozen
   inp.value = ''; 
   $('sendBtn').disabled = true;
 
@@ -966,7 +970,6 @@ async function sendMessage(attachment = null) {
     toast('Failed to send message', true);
   }
 }
-
 $('sendBtn').addEventListener('click', () => sendMessage());
 $('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
 $('chatInput').addEventListener('input', () => $('sendBtn').disabled = !$('chatInput').value.trim());
@@ -1008,10 +1011,6 @@ $('statusModalConfirm').addEventListener('click', async () => {
     $('statusModalConfirm').disabled = false;
   }
 });
-    $('statusModal').classList.remove('show'); toast('Status posted ✓');
-  } catch { toast('Failed to post', true); }
-});
-
 function listenUserStatuses() {
   onValue(query(dbRef(db, 'user_statuses'), limitToLast(50)), snap => {
     const data = snap.val() || {};
