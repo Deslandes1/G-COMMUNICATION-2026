@@ -174,8 +174,8 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
   <div class="onboard-logo">G</div>
   <h1>JARVIS</h1>
   <p>Enter or update your username handle to continue.</p>
-  <input id="nameInput" class="onboard-input" type="text" placeholder="Your username handle (e.g. gesner)" maxlength="30" autocomplete="off" autocapitalize="none">
-  <div class="name-status" id="nameStatus">Lowercase letters and numbers only</div>
+  <input id="nameInput" class="onboard-input" type="text" value="Gesner Deslandes" placeholder="Gesner Deslandes" maxlength="30" autocomplete="off" autocapitalize="none">
+  <div class="name-status" id="nameStatus">Owner Gesner Deslandes ready ✓</div>
   <button id="enterBtn" class="btn-primary">Enter Portal</button>
 </section>
 <section id="screen-main" class="screen">
@@ -492,81 +492,26 @@ function unlockAudio() { const ctx = getAudioCtx(); if (ctx && ctx.state === 'su
 document.addEventListener('click', unlockAudio);
 document.addEventListener('touchstart', unlockAudio, { passive: true });
 
-function playSentSound() {
-  const ctx = getAudioCtx(); if (!ctx) return;
-  if (ctx.state === 'suspended') ctx.resume().catch(() => {});
-  const now = ctx.currentTime;
-  const osc = ctx.createOscillator(); const gain = ctx.createGain();
-  osc.type = 'sine'; osc.frequency.setValueAtTime(900, now);
-  osc.frequency.exponentialRampToValueAtTime(600, now + 0.08);
-  gain.gain.setValueAtTime(0, now);
-  gain.gain.linearRampToValueAtTime(0.05, now + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-  osc.connect(gain); gain.connect(ctx.destination);
-  osc.start(now); osc.stop(now + 0.12);
-}
-
-function playIncomingMessageAlert() {
-  const ctx = getAudioCtx(); if (!ctx) return;
-  if (ctx.state === 'suspended') ctx.resume().catch(() => {});
-  const now = ctx.currentTime;
-  const osc1 = ctx.createOscillator(); const osc2 = ctx.createOscillator(); const gain = ctx.createGain();
-  osc1.type = 'sine'; osc2.type = 'sine';
-  osc1.frequency.setValueAtTime(587.33, now);
-  osc2.frequency.setValueAtTime(880, now + 0.08);
-  gain.gain.setValueAtTime(0, now);
-  gain.gain.linearRampToValueAtTime(0.1, now + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-  osc1.connect(gain); osc2.connect(gain); gain.connect(ctx.destination);
-  osc1.start(now); osc1.stop(now + 0.08);
-  osc2.start(now + 0.08); osc2.stop(now + 0.25);
-}
-
-function startRingtoneSound() {
-  stopRingtoneSound();
-  const ctx = getAudioCtx(); if (!ctx) return;
-  if (ctx.state === 'suspended') ctx.resume().catch(() => {});
-  const playPulse = () => {
-    const now = ctx.currentTime;
-    const osc = ctx.createOscillator(); const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(440, now);
-    osc.frequency.setValueAtTime(480, now + 0.1);
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.12, now + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(now); osc.stop(now + 1.25);
-  };
-  playPulse();
-  App.ringtoneInterval = setInterval(playPulse, 2200);
-}
-
-function stopRingtoneSound() {
-  if (App.ringtoneInterval) { clearInterval(App.ringtoneInterval); App.ringtoneInterval = null; }
-}
-
-function updateAppBadge() {
-  let totalUnread = 0;
-  Object.values(App.unreadCounts).forEach(c => totalUnread += (c || 0));
-  if ('setAppBadge' in navigator) {
-    if (totalUnread > 0) navigator.setAppBadge(totalUnread).catch(() => {});
-    else navigator.clearAppBadge().catch(() => {});
-  }
-}
-
-window.__viewAvatar = (photoUrl, displayName) => {
-  if (!photoUrl) return;
-  $('avatarViewerImg').src = photoUrl;
-  $('avatarViewerName').textContent = displayName || 'User Profile Picture';
-  $('avatarViewerModal').classList.add('show');
-};
-
-window.__enlargeActiveAvatar = () => {
-  if (!App.activeChat) return;
-  const target = App.activeIsGroup ? App.groups.find(g => g.id === App.activeChat) : App.contacts.find(c => c.slug === App.activeChat);
-  if (target && target.photo) window.__viewAvatar(target.photo, target.name);
-};
+window.addEventListener('load', () => {
+  App.contacts = LS.get('contacts', []);
+  App.groups = LS.get('groups', []);
+  App.deletedLocally = LS.get('deletedLocally', {});
+  App.unreadCounts = LS.get('unreadCounts', {});
+  const savedSlug = LS.get('mySlug', null);
+  const savedName = LS.get('myName', null);
+  const savedPhoto = LS.get('avatar', null);
+  if (savedPhoto) App.myPhoto = savedPhoto;
+  
+  // Default to Gesner Deslandes if no saved user exists
+  const activeName = savedName || savedSlug ? (savedName || savedSlug) : 'Gesner Deslandes';
+  const cleaned = slugify(activeName);
+  nameInput.value = activeName;
+  nameStatus.textContent = `Owner ${activeName} ready ✓`;
+  nameStatus.className = 'name-status ok';
+  enterBtn.disabled = false;
+  
+  showScreen('screen-onboard');
+});
 
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
 let nameCheckTimer = null;
@@ -598,38 +543,19 @@ nameInput.addEventListener('keydown', e => {
 });
 
 enterBtn.addEventListener('click', async () => {
-  const rawVal = nameInput.value.trim();
+  const rawVal = nameInput.value.trim() || 'Gesner Deslandes';
   const slug = processInputHandle(rawVal);
   if (!slug) return toast('Please enter a valid username', true);
   try {
     const userRef = dbRef(db, 'users/' + slug);
     const snap = await get(userRef);
     if (!snap.exists()) {
-      await set(userRef, { slug, displayName: rawVal || slug, createdAt: Date.now(), photo: App.myPhoto || null });
+      await set(userRef, { slug, displayName: rawVal, createdAt: Date.now(), photo: App.myPhoto || null });
     }
   } catch {}
-  App.mySlug = slug; App.myName = rawVal || slug;
+  App.mySlug = slug; App.myName = rawVal;
   LS.set('mySlug', slug); LS.set('myName', App.myName);
   startMainApp();
-});
-
-window.addEventListener('load', () => {
-  App.contacts = LS.get('contacts', []);
-  App.groups = LS.get('groups', []);
-  App.deletedLocally = LS.get('deletedLocally', {});
-  App.unreadCounts = LS.get('unreadCounts', {});
-  const savedSlug = LS.get('mySlug', null);
-  const savedName = LS.get('myName', null);
-  const savedPhoto = LS.get('avatar', null);
-  if (savedPhoto) App.myPhoto = savedPhoto;
-  if (savedName || savedSlug) {
-    const cleaned = processInputHandle(savedName || savedSlug);
-    nameInput.value = cleaned;
-    nameStatus.textContent = `Welcome back, @${cleaned} ✓`;
-    nameStatus.className = 'name-status ok';
-    enterBtn.disabled = false;
-  }
-  showScreen('screen-onboard');
 });
 
 function startMainApp() {
