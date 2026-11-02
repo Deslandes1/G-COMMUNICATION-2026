@@ -219,6 +219,10 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
       <div id="ownerPortalTrigger" style="display:none;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;padding:16px;border-radius:10px;margin-bottom:10px;text-align:center;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(11,42,74,.3);">
         🛡️ Owner Security & Monitoring Space
       </div>
+      <div style="background:#fff;padding:16px;border-radius:10px;margin-bottom:10px;font-size:19px !important;font-family:Calibri,sans-serif;">
+        <div style="font-weight:700;margin-bottom:8px;color:var(--navy);">🚫 Blocked Users List</div>
+        <div id="blockedUsersContainer" style="font-size:16px;color:var(--muted)">No blocked users.</div>
+      </div>
       <button class="btn-primary" id="clearBtn" style="background:#ff4757;color:#fff;width:100%">Clear Local Data</button>
     </div>
   </div>
@@ -609,13 +613,13 @@ window.addEventListener('load', () => {
 function startMainApp() {
   showScreen('screen-main');
   updateProfileHeader();
+  renderBlockedUsersList();
   buildUI();
   listenUserStatuses();
   listenIncomingCalls();
   App.contacts.forEach(c => setupMessageListener(c.slug, false));
   App.groups.forEach(g => setupGroupMessageListener(g.id));
   
-  // If owner, automatically sync all registered users into contact list
   if (isOwner()) {
     onValue(dbRef(db, 'users'), snap => {
       const usersData = snap.val() || {};
@@ -646,160 +650,21 @@ function startMainApp() {
 
   updateAppBadge();
 }
-function updateProfileHeader() {
-  $('profileName').textContent = App.myName;
-  $('profileUsername').textContent = '@' + App.mySlug;
-  const box = $('profileAvatar'), img = $('profileAvatarImg'), letter = $('profileAvatarLetter');
-  if (App.myPhoto) { img.src = App.myPhoto; img.style.display = 'block'; letter.style.display = 'none'; box.classList.add('has-photo'); }
-  else { img.src = ''; img.style.display = 'none'; letter.style.display = 'inline'; letter.textContent = App.myName.charAt(0).toUpperCase(); box.classList.remove('has-photo'); }
-  if (isOwner()) $('ownerPortalTrigger').style.display = 'block';
-  else $('ownerPortalTrigger').style.display = 'none';
-}
-$('ownerPortalTrigger').addEventListener('click', () => {
-  $('ownerPassInput').value = '';
-  $('ownerAuthModal').classList.add('show');
-});
-$('ownerAuthCancel').addEventListener('click', () => $('ownerAuthModal').classList.remove('show'));
-$('ownerAuthConfirm').addEventListener('click', () => {
-  const pwd = $('ownerPassInput').value;
-  if (pwd === 'a20carterpilar08B!') {
-    $('ownerAuthModal').classList.remove('show');
-    openOwnerSpace();
-  } else {
-    toast('Invalid owner password', true);
-  }
-});
-function openOwnerSpace() {
-  loadOwnerStatuses();
-  $('ownerSpaceModal').classList.add('show');
-}
-$('ownerSpaceClose').addEventListener('click', () => $('ownerSpaceModal').classList.remove('show'));
-$('ownerTabStatusBtn').addEventListener('click', () => {
-  $('ownerTabStatusBtn').style.background = 'linear-gradient(135deg,#f0d369,#d4af37)';
-  $('ownerTabStatusBtn').style.color = 'var(--navy)';
-  $('ownerTabChatsBtn').style.background = '#143a5f';
-  $('ownerTabChatsBtn').style.color = '#fff';
-  loadOwnerStatuses();
-});
-$('ownerTabChatsBtn').addEventListener('click', () => {
-  $('ownerTabChatsBtn').style.background = 'linear-gradient(135deg,#f0d369,#d4af37)';
-  $('ownerTabChatsBtn').style.color = 'var(--navy)';
-  $('ownerTabStatusBtn').style.background = '#143a5f';
-  $('ownerTabStatusBtn').style.color = '#fff';
-  loadOwnerReports();
-});
-function loadOwnerStatuses() {
-  const area = $('ownerContentArea');
-  const posts = window._cachedPosts || [];
-  if (!posts.length) {
-    area.innerHTML = '<div class="empty"><p>No user statuses found.</p></div>';
+
+function renderBlockedUsersList() {
+  const container = $('blockedUsersContainer');
+  if (!container) return;
+  if (!App.blockedUsers || !App.blockedUsers.length) {
+    container.innerHTML = '<div style="font-size:16px;color:var(--muted)">No blocked users.</div>';
     return;
   }
-  area.innerHTML = posts.map(p => `
-    <div style="background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:14px;">
-      <div style="display:flex;justify-content:space-between;font-size:17px !important;font-family:Calibri,sans-serif;font-weight:700;margin-bottom:6px;">
-        <span>User: @${esc(p.authorSlug)}(${esc(p.authorName)})</span>
-        <span style="color:var(--muted);">${new Date(p.time).toLocaleString()}</span>
-      </div>
-      <div style="font-size:18px !important;font-family:Calibri,sans-serif;margin-bottom:6px;">${esc(p.text || '')}</div>
-      ${p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" style="max-width:100%;max-height:220px;border-radius:8px;display:block;" onclick="window.__viewAvatar('${p.mediaUrl}','${esc(p.authorName)}')">` : `<video src="${p.mediaUrl}" controls playsinline preload="metadata" style="max-width:100%;max-height:220px;border-radius:8px;display:block;background:#000;"></video>`) : ''}
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;">
-        <button class="btn-primary" style="max-width:none;padding:8px 14px;font-size:16px !important;font-family:Calibri,sans-serif;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus('${p._k}')">🗑️ Delete Status</button>
-        <button class="btn-primary" style="max-width:none;padding:8px 14px;font-size:16px !important;font-family:Calibri,sans-serif;background:#143a5f;color:#fff;" onclick="window.__ownerReportStatus('${p._k}','@${esc(p.authorSlug)}')">🚩 Report Violation</button>
-      </div>
-    </div>`).join('');
+  container.innerHTML = App.blockedUsers.map(slug => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed #e1e7ed">
+      <span>@${esc(slug)}</span>
+      <button onclick="window.unblockUser('${esc(slug)}')" style="background:#0d7a8c;color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:15px;cursor:pointer;font-family:Calibri,sans-serif;">Unblock</button>
+    </div>
+  `).join('');
 }
-window.__ownerDeleteStatus = async (key) => {
-  if (confirm('Owner Action: Permanently delete this status post and its media?')) {
-    await remove(dbRef(db, 'user_statuses/' + key));
-    toast('Status post deleted by Owner ✓');
-    loadOwnerStatuses();
-  }
-};
-window.__ownerReportStatus = async (key, userTag) => {
-  const reason = prompt('Specify violation reason:', 'Nudes or Violence violation');
-  if (!reason) return;
-  await push(dbRef(db, 'owner_reports'), { type: 'Status Violation', targetUser: userTag, reason, time: Date.now(), reporter: App.mySlug });
-  toast('Violation report uploaded to Owner Space ✓');
-};
-function loadOwnerReports() {
-  const area = $('ownerContentArea');
-  onValue(dbRef(db, 'users'), snap => {
-    const usersData = snap.val() || {};
-    const userList = Object.values(usersData);
-    let html = `<div style="font-size:18px !important;font-family:Calibri,sans-serif;font-weight:700;color:var(--navy);margin-bottom:8px;">👥 Registered App Users (${userList.length})</div>`;
-    html += userList.map(u => `
-      <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-size:18px !important;font-family:Calibri,sans-serif;">
-        <div><strong>${esc(u.displayName)}</strong> (@${esc(u.slug)})</div>
-        <button style="background:var(--accent);color:#fff;border:none;padding:6px 12px;border-radius:6px;font-size:16px !important;font-family:Calibri,sans-serif;cursor:pointer;" onclick="window.__ownerDirectDM('${u.slug}','${esc(u.displayName)}')">💬 DM User</button>
-      </div>`).join('');
-    
-    onValue(dbRef(db, 'chats'), snapChats => {
-      const chatsData = snapChats.val() || {};
-      let allDMs = [];
-      Object.entries(chatsData).forEach(([chatId, chatObj]) => {
-        if (chatObj && chatObj.messages) {
-          Object.entries(chatObj.messages).forEach(([msgKey, msgObj]) => {
-            allDMs.push({ ...msgObj, chatId, _k: msgKey });
-          });
-        }
-      });
-      allDMs.sort((a, b) => (b.time || 0) - (a.time || 0));
-      html += `<div style="font-size:18px !important;font-family:Calibri,sans-serif;font-weight:700;color:var(--navy);margin:14px 0 8px;">🔒 P2P Private Message Monitor</div>`;
-      if (!allDMs.length) {
-        html += '<div style="font-size:16px !important;font-family:Calibri,sans-serif;color:var(--muted)">No P2P messages yet.</div>';
-      } else {
-        html += allDMs.slice(0, 40).map(m => `
-          <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:17px !important;font-family:Calibri,sans-serif;margin-bottom:6px;">
-            <div style="display:flex;justify-content:space-between;color:var(--muted);font-size:14px !important;font-family:Calibri,sans-serif;margin-bottom:2px;">
-              <span>Chat: ${esc(m.chatId)}</span>
-              <span>${new Date(m.time || Date.now()).toLocaleString()}</span>
-            </div>
-            <div><strong>@${esc(m.fromName || m.from)}:</strong> ${esc(m.text || '[Attachment]')}</div>
-            ${m.attachment ? renderAttachment(m.attachment) : ''}
-            <div style="display:flex;justify-content:flex-end;margin-top:4px;">
-              <button style="background:#ff4757;color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:15px !important;font-family:Calibri,sans-serif;cursor:pointer;" onclick="window.__ownerDeleteP2PMessage('${m.chatId}','${m._k}')">🗑️ Delete</button>
-            </div>
-          </div>`).join('');
-      }
-      area.innerHTML = html;
-    }, { onlyOnce: true });
-  }, { onlyOnce: true });
-}
-window.__ownerDirectDM = (targetSlug, targetName) => {
-  $('ownerSpaceModal').classList.remove('show');
-  if (!App.contacts.some(c => c.slug === targetSlug)) {
-    App.contacts.push({ slug: targetSlug, name: targetName, photo: null });
-    saveContacts();
-    setupMessageListener(targetSlug, false);
-    buildUI();
-  }
-  window.__openChat(targetSlug, false);
-};
-window.__ownerDeleteP2PMessage = async (chatId, msgKey) => {
-  if (confirm('Owner Action: Delete this private message?')) {
-    await remove(dbRef(db, `chats/${chatId}/messages/${msgKey}`));
-    toast('Private message removed by Owner ✓');
-    loadOwnerReports();
-  }
-};
-$('profileAvatar').addEventListener('click', () => $('avatarInput').click());
-$('avatarInput').addEventListener('change', async e => {
-  const file = e.target.files && e.target.files[0]; if (!file) return;
-  try {
-    toast('Processing photo…');
-    const url = await fileToBase64(file);
-    App.myPhoto = url; LS.set('avatar', url); updateProfileHeader();
-    await set(dbRef(db, 'users/' + App.mySlug + '/photo'), url);
-    toast('Photo updated ✓');
-  } catch { toast('Failed to update photo', true); }
-  e.target.value = '';
-});
-function saveContacts() { LS.set('contacts', App.contacts); }
-function saveGroups() { LS.set('groups', App.groups); }
-function saveDeletedLocally() { LS.set('deletedLocally', App.deletedLocally); }
-function saveUnreadCounts() { LS.set('unreadCounts', App.unreadCounts); updateAppBadge(); }
-function saveBlockedUsers() { LS.set('blockedUsers', App.blockedUsers); }
 
 window.blockUser = (slug) => {
   if (!slug || slug === App.mySlug) return;
@@ -809,6 +674,7 @@ window.blockUser = (slug) => {
     saveBlockedUsers();
     App.contacts = App.contacts.filter(c => c.slug !== slug);
     saveContacts();
+    renderBlockedUsersList();
     buildUI();
     if (App.activeChat === slug) {
       App.activeChat = null;
@@ -821,31 +687,26 @@ window.blockUser = (slug) => {
 window.unblockUser = (slug) => {
   App.blockedUsers = App.blockedUsers.filter(s => s !== slug);
   saveBlockedUsers();
+  renderBlockedUsersList();
   buildUI();
   toast(`Unblocked @${slug} ✓`);
 };
 
-function setupMessageListener(slug, isGroup) {
-  if (App.globalUnsubs[slug]) return;
-  const path = isGroup ? `group_chats/${slug}/messages` : `chats/${chatIdFor(App.mySlug, slug)}/messages`;
-  const q = query(dbRef(db, path), limitToLast(100));
-  let isFirstLoad = true;
-  App.globalUnsubs[slug] = onValue(q, snap => {
-    const data = snap.val() || {};
-    const msgs = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (a.time || 0) - (b.time || 0));
-    
-    if (!isFirstLoad && msgs.length) {
-      const lastMsg = msgs[msgs.length - 1];
-      if (lastMsg.from !== App.mySlug && App.activeChat !== slug) {
-        App.unreadCounts[slug] = (App.unreadCounts[slug] || 0) + 1;
-        saveUnreadCounts();
-        playIncomingMessageAlert();
-      }
-    }
-    isFirstLoad = false;
-    App.lastMessages[slug] = msgs;
-    if (App.activeChat === slug) renderMessages(slug, msgs, isGroup);
-    buildUI();
+function listenIncomingCalls() {
+  const myCallsRef = dbRef(db, `calls/${App.mySlug}`);
+  onChildAdded(myCallsRef, snap => {
+    const callData = snap.val();
+    if (!callData || callData.status !== 'calling') return;
+    if (App.blockedUsers.includes(callData.caller)) return; // Block calls from blocked users
+    App.activeCallId = snap.key;
+    App.currentCallTarget = callData.caller;
+    App.isVideoCall = callData.type === 'video';
+    $('incomingName').textContent = callData.callerName || callData.caller;
+    $('incomingAvatar').innerHTML = avatarInner(null, callData.callerName || callData.caller);
+    $('incomingType').textContent = `Incoming ${callData.type === 'video' ? '📹 Video' : '📞 Voice'} Call…`;
+    $('incoming-call').classList.add('show');
+    window._incomingCallData = callData;
+    startRingtoneSound();
   });
 }
 function setupGroupMessageListener(groupId) { setupMessageListener(groupId, true); }
