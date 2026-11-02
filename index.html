@@ -482,10 +482,48 @@ function detectFileType(file) {
 }
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+    // Check file size cap to prevent freezing (12MB limit for base64 storage)
+    if (file.size > 12 * 1024 * 1024) {
+      toast('File is too large (max 12MB). Please select a smaller clip.', true);
+      return reject(new Error('File too large'));
+    }
+
+    // Compress images before converting to base64 for instant upload
+    if (file.type.startsWith('image/')) {
+      const img = new Image();
+      const reader = new FileReader();
+      reader.onload = e => {
+        img.src = e.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 1200;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.8));
+        };
+        img.onerror = () => resolve(e.target.result);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    } else {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    }
   });
 }
 function getAudioCtx() { if (!App.audioCtx) { try { App.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch {} } return App.audioCtx; }
@@ -857,7 +895,11 @@ function renderMessages(id, msgs, isGroup) {
   const deletedKeys = App.deletedLocally[id] || [];
   const visibleMsgs = msgs.filter(m => !deletedKeys.includes(m._k));
   if (!visibleMsgs.length) { area.innerHTML = '<div class="empty"><p>No messages yet 👋</p></div>'; return; }
-  area.innerHTML = visibleMsgs.map(m => {
+  
+  // Asynchronous fragment rendering to keep input bar 100% responsive
+  const frag = document.createDocumentFragment();
+  const tempContainer = document.createElement('div');
+  tempContainer.innerHTML = visibleMsgs.map(m => {
     const out = m.from === App.mySlug;
     const t = m.time ? new Date(m.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
     const attHtml = m.attachment ? renderAttachment(m.attachment) : '';
@@ -871,10 +913,12 @@ function renderMessages(id, msgs, isGroup) {
     </div>`;
   }).join('');
   
-  // Force browser scroll repaint on mobile devices
-  requestAnimationFrame(() => {
+  area.innerHTML = tempContainer.innerHTML;
+  
+  // Instant un-stuck smooth scroll
+  setTimeout(() => {
     area.scrollTop = area.scrollHeight;
-  });
+  }, 10);
 }
 
 window.__openActionSheet = (msgKey, isMine) => {
@@ -906,12 +950,21 @@ $('actDeleteEveryoneBtn').addEventListener('click', async () => {
 async function sendMessage(attachment = null) {
   const inp = $('chatInput'); const text = inp.value.trim();
   if ((!text && !attachment) || !App.activeChat) return;
+
+  // Clear input instantly so user typing is never stuck or frozen
+  inp.value = ''; 
+  $('sendBtn').disabled = true;
+
   const path = App.activeIsGroup ? `group_chats/${App.activeChat}/messages` : `chats/${chatIdFor(App.mySlug, App.activeChat)}/messages`;
-  await push(dbRef(db, path), {
-    from: App.mySlug, fromName: App.myName, text, attachment, time: Date.now()
-  });
-  inp.value = ''; $('sendBtn').disabled = true;
-  playSentSound();
+  
+  try {
+    await push(dbRef(db, path), {
+      from: App.mySlug, fromName: App.myName, text, attachment, time: Date.now()
+    });
+    playSentSound();
+  } catch (err) {
+    toast('Failed to send message', true);
+  }
 }
 
 $('sendBtn').addEventListener('click', () => sendMessage());
@@ -933,7 +986,10 @@ $('statusModalConfirm').addEventListener('click', async () => {
   const link = $('statusLinkInput').value.trim();
   const bgColor = $('statusBgColor').value;
   if (!text && !link && !App.statusMediaFile) return toast('Add content to post', true);
-  toast('Posting status…');
+  
+  toast('Uploading public status…');
+  $('statusModalConfirm').disabled = true;
+  
   try {
     let mediaUrl = null, mediaType = null;
     if (App.statusMediaFile) {
@@ -944,6 +1000,14 @@ $('statusModalConfirm').addEventListener('click', async () => {
       authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto,
       text, link, bgColor, mediaUrl, mediaType, time: Date.now()
     });
+    $('statusModal').classList.remove('show'); 
+    toast('Status posted successfully ✓');
+  } catch (err) { 
+    toast('Failed to post status', true); 
+  } finally {
+    $('statusModalConfirm').disabled = false;
+  }
+});
     $('statusModal').classList.remove('show'); toast('Status posted ✓');
   } catch { toast('Failed to post', true); }
 });
