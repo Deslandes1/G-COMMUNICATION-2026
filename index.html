@@ -550,6 +550,12 @@ function updateAppBadge() {
     else navigator.clearAppBadge().catch(() => {});
   }
 }
+function saveContacts() { LS.set('contacts', App.contacts); }
+function saveGroups() { LS.set('groups', App.groups); }
+function saveDeletedLocally() { LS.set('deletedLocally', App.deletedLocally); }
+function saveUnreadCounts() { LS.set('unreadCounts', App.unreadCounts); updateAppBadge(); }
+function saveBlockedUsers() { LS.set('blockedUsers', App.blockedUsers); }
+
 window.__viewAvatar = (photoUrl, displayName) => {
   if (!photoUrl) return;
   $('avatarViewerImg').src = photoUrl;
@@ -561,6 +567,7 @@ window.__enlargeActiveAvatar = () => {
   const target = App.activeIsGroup ? App.groups.find(g => g.id === App.activeChat) : App.contacts.find(c => c.slug === App.activeChat);
   if (target && target.photo) window.__viewAvatar(target.photo, target.name);
 };
+
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
 let nameCheckTimer = null;
 nameInput.addEventListener('input', () => {
@@ -572,6 +579,7 @@ nameInput.addEventListener('input', () => {
     nameStatus.textContent = `"${slug}" ready ✓`; nameStatus.className = 'name-status ok';
   }, 250);
 });
+
 enterBtn.addEventListener('click', async () => {
   const rawVal = nameInput.value.trim() || 'Gesner Deslandes';
   const slug = slugify(rawVal);
@@ -586,7 +594,6 @@ enterBtn.addEventListener('click', async () => {
   App.mySlug = slug; App.myName = rawVal;
   LS.set('mySlug', slug); LS.set('myName', App.myName);
   
-  // OWNER AUTO-SYNC: If user is not owner, ensure owner (gesnerdeslandes) gets this user on owner's contact list
   if (!isOwner()) {
     try {
       const ownerSlug = 'gesnerdeslandes';
@@ -594,9 +601,13 @@ enterBtn.addEventListener('click', async () => {
       await set(ownerContactRef, { slug, name: rawVal, time: Date.now() });
     } catch {}
   }
-  
   startMainApp();
 });
+
+nameInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') enterBtn.click();
+});
+
 window.addEventListener('load', () => {
   App.contacts = LS.get('contacts', []);
   App.groups = LS.get('groups', []);
@@ -610,6 +621,42 @@ window.addEventListener('load', () => {
   if (savedName || savedSlug) nameInput.value = savedName || savedSlug;
   showScreen('screen-onboard');
 });
+
+function updateProfileHeader() {
+  $('profileName').textContent = App.myName;
+  $('profileUsername').textContent = '@' + App.mySlug;
+  const box = $('profileAvatar'), img = $('profileAvatarImg'), letter = $('profileAvatarLetter');
+  if (App.myPhoto) { img.src = App.myPhoto; img.style.display = 'block'; letter.style.display = 'none'; box.classList.add('has-photo'); }
+  else { img.src = ''; img.style.display = 'none'; letter.style.display = 'inline'; letter.textContent = App.myName.charAt(0).toUpperCase(); box.classList.remove('has-photo'); }
+  if (isOwner()) {
+    $('ownerPortalTrigger').style.display = 'block';
+  } else {
+    $('ownerPortalTrigger').style.display = 'none';
+  }
+}
+
+function setupMessageListener(slug, isGroup) {
+  if (App.globalUnsubs[slug]) return;
+  const path = isGroup ? `group_chats/${slug}/messages` : `chats/${chatIdFor(App.mySlug, slug)}/messages`;
+  const q = query(dbRef(db, path), limitToLast(100));
+  App.globalUnsubs[slug] = onValue(q, snap => {
+    const data = snap.val() || {};
+    const msgs = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (a.time || 0) - (b.time || 0));
+    const previousMsgs = App.lastMessages[slug] || [];
+    if (msgs.length > previousMsgs.length && App.activeChat !== slug) {
+      const latestMsg = msgs[msgs.length - 1];
+      if (latestMsg && latestMsg.from !== App.mySlug) {
+        App.unreadCounts[slug] = (App.unreadCounts[slug] || 0) + 1;
+        saveUnreadCounts();
+        playIncomingMessageAlert();
+      }
+    }
+    App.lastMessages[slug] = msgs;
+    if (App.activeChat === slug) renderMessages(slug, msgs, isGroup);
+    buildUI();
+  });
+}
+
 function startMainApp() {
   showScreen('screen-main');
   updateProfileHeader();
@@ -697,7 +744,7 @@ function listenIncomingCalls() {
   onChildAdded(myCallsRef, snap => {
     const callData = snap.val();
     if (!callData || callData.status !== 'calling') return;
-    if (App.blockedUsers.includes(callData.caller)) return; // Block calls from blocked users
+    if (App.blockedUsers.includes(callData.caller)) return;
     App.activeCallId = snap.key;
     App.currentCallTarget = callData.caller;
     App.isVideoCall = callData.type === 'video';
@@ -709,7 +756,9 @@ function listenIncomingCalls() {
     startRingtoneSound();
   });
 }
+
 function setupGroupMessageListener(groupId) { setupMessageListener(groupId, true); }
+
 function buildUI() {
   const cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient');
   let html = '';
