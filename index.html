@@ -1174,7 +1174,7 @@ $('recordCallBtn').addEventListener('click', () => {
         toast('Call recording saved to device ✓');
       };
       activeMediaRecorder.start();
-      $('recordCallBtn.style.background = '#ff4757';
+      $('recordCallBtn').style.background = '#ff4757';
       toast('🔴 Call recording started…');
     } catch { toast('Call recording not supported on this browser', true); }
   } else {
