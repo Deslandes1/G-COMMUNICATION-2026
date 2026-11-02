@@ -638,11 +638,21 @@ async function uploadAccountDataToCloud() {
 }
 const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('enterBtn');
 
+// Normalizes email addresses or full names into valid handles automatically
+function sanitizeInputHandle(val) {
+  if (!val) return '';
+  let clean = val.trim();
+  if (clean.includes('@')) {
+    clean = clean.split('@')[0]; // Extract handle part if email is entered (e.g. deslandes78@gmail.com -> deslandes78)
+  }
+  return slugify(clean);
+}
+
 nameInput.addEventListener('input', () => {
-  const rawVal = nameInput.value.trim();
-  const slug = slugify(rawVal);
+  const rawVal = nameInput.value;
+  const slug = sanitizeInputHandle(rawVal);
   if (!slug) {
-    nameStatus.textContent = 'Enter a valid username';
+    nameStatus.textContent = 'Enter a valid username or email';
     nameStatus.className = 'name-status';
     enterBtn.disabled = true;
     return;
@@ -653,8 +663,8 @@ nameInput.addEventListener('input', () => {
 });
 
 async function loginAndEnter() {
-  const rawVal = nameInput.value.trim();
-  const slug = slugify(rawVal);
+  const rawVal = nameInput.value;
+  const slug = sanitizeInputHandle(rawVal);
   if (!slug) return toast('Please enter a valid username', true);
   try {
     const userRef = dbRef(db, 'users/' + slug);
@@ -684,24 +694,18 @@ window.addEventListener('load', () => {
   const savedPhoto = LS.get('avatar', null);
   if (savedPhoto) App.myPhoto = savedPhoto;
 
+  // Default owner handle to gesnerdeslandes instead of email
   const savedName = LS.get('myName', null) || LS.get('mySlug', null) || 'gesnerdeslandes';
   nameInput.value = savedName;
+  const sanitizedSlug = sanitizeInputHandle(savedName);
+  
+  // Enable enter button immediately regardless of email or handle format
   enterBtn.disabled = false;
-  nameStatus.textContent = `Welcome back, @${slugify(savedName)} ✓`;
+  nameStatus.textContent = `Welcome back, Owner @${sanitizedSlug} ✓`;
   nameStatus.className = 'name-status ok';
 
   showScreen('screen-onboard');
 });
 
 function startMainApp() {
-  showScreen('screen-main');
-  updateProfileHeader();
-  buildUI();
-  listenUserStatuses();
-  listenIncomingCalls();
-  App.contacts.forEach(c => setupMessageListener(c.slug, false));
-  App.groups.forEach(g => setupGroupMessageListener(g.id));
-  updateAppBadge();
-  setInterval(syncAccountDataFromCloud, 5000);
-}
 <!-- ... existing code -->
