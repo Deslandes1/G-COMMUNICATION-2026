@@ -446,7 +446,7 @@ const App = {
   statusMediaFile: null, editMediaFile: null, selectedMsgKey: null, selectedMsgObj: null,
   activeStatusObj: null, audioCtx: null, ringtoneInterval: null,
   peerConn: null, localStream: null, activeCallId: null, isVideoCall: false, currentCallTarget: null,
-  mediaRecorder: null, recordedChunks: []
+  mediaRecorder: null, recordedChunks: [], blockedUsers: []
 };
 const $ = id => document.getElementById(id);
 const LS = {
@@ -598,6 +598,7 @@ window.addEventListener('load', () => {
   App.groups = LS.get('groups', []);
   App.deletedLocally = LS.get('deletedLocally', {});
   App.unreadCounts = LS.get('unreadCounts', {});
+  App.blockedUsers = LS.get('blockedUsers', []);
   const savedSlug = LS.get('mySlug', null);
   const savedName = LS.get('myName', null);
   const savedPhoto = LS.get('avatar', null);
@@ -798,13 +799,31 @@ function saveContacts() { LS.set('contacts', App.contacts); }
 function saveGroups() { LS.set('groups', App.groups); }
 function saveDeletedLocally() { LS.set('deletedLocally', App.deletedLocally); }
 function saveUnreadCounts() { LS.set('unreadCounts', App.unreadCounts); updateAppBadge(); }
-function setupMessageListener(slug, isGroup) {
-  if (App.globalUnsubs[slug]) return;
-  const path = isGroup ? `group_chats/${slug}/messages` : `chats/${chatIdFor(App.mySlug, slug)}/messages`;
-  const q = query(dbRef(db, path), limitToLast(100));
-  let isFirstLoad = true;
-  App.globalUnsubs[slug] = onValue(q, snap => {
-    const data = snap.val() || {};
+function saveBlockedUsers() { LS.set('blockedUsers', App.blockedUsers); }
+
+window.blockUser = (slug) => {
+  if (!slug || slug === App.mySlug) return;
+  if (App.blockedUsers.includes(slug)) return toast('User is already blocked', true);
+  if (confirm(`Are you sure you want to block @${slug}? You will no longer receive messages or calls from them.`)) {
+    App.blockedUsers.push(slug);
+    saveBlockedUsers();
+    App.contacts = App.contacts.filter(c => c.slug !== slug);
+    saveContacts();
+    buildUI();
+    if (App.activeChat === slug) {
+      App.activeChat = null;
+      showScreen('screen-main');
+    }
+    toast(`Blocked @${slug} ✓`);
+  }
+};
+
+window.unblockUser = (slug) => {
+  App.blockedUsers = App.blockedUsers.filter(s => s !== slug);
+  saveBlockedUsers();
+  buildUI();
+  toast(`Unblocked @${slug} ✓`);
+};
     const msgs = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (a.time || 0) - (b.time || 0));
     
     if (!isFirstLoad && msgs.length) {
@@ -844,10 +863,11 @@ function buildUI() {
     }).join('');
   }
   html += '<div class="section-title">Friend List</div>';
-  if (!App.contacts.length) {
+  const activeContacts = App.contacts.filter(c => !App.blockedUsers.includes(c.slug));
+  if (!activeContacts.length) {
     html += '<div class="empty"><div class="empty-icon">💬</div><p>No contacts on your Friend List yet.<br>Tap <strong>＋</strong> to add someone.</p></div>';
   } else {
-    html += App.contacts.map(c => {
+    html += activeContacts.map(c => {
       const unread = App.unreadCounts[c.slug] || 0;
       return `
       <div class="list-item" onclick="window.__openChat('${c.slug}', false)">
@@ -859,12 +879,15 @@ function buildUI() {
           </div>
           <div class="list-item-sub">@${c.slug}</div>
         </div>
-        <div class="list-item-action">›</div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--red);" onclick="event.stopPropagation(); window.blockUser('${c.slug}')" title="Block User">🚫</button>
+          <div class="list-item-action">›</div>
+        </div>
       </div>`;
     }).join('');
   }
   cl.innerHTML = html;
-  ccl.innerHTML = App.contacts.map(c => `
+  ccl.innerHTML = activeContacts.map(c => `
     <div class="list-item">
       <div class="avatar accent" onclick="window.__viewAvatar('${esc(c.photo || '')}','${esc(c.name)}')">${avatarInner(c.photo, c.name)}</div>
       <div class="list-item-body"><div class="list-item-title">${esc(c.name)}</div><div class="list-item-sub">@${c.slug}</div></div>
@@ -873,9 +896,12 @@ function buildUI() {
         <button class="header-call-btn" style="color:var(--navy);background:#dcfce7;padding:8px 14px;border-radius:18px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;" onclick="window.startCall('${c.slug}', true)">📹 Video</button>
       </div>
     </div>`).join('');
-  vmSel.innerHTML = '<option value="">Select recipient</option>' + App.contacts.map(c => `<option value="${c.slug}">${esc(c.name)}</option>`).join('');
+  vmSel.innerHTML = '<option value="">Select recipient</option>' + activeContacts.map(c => `<option value="${c.slug}">${esc(c.name)}</option>`).join('');
 }
 window.__openChat = (id, isGroup) => {
+  if (!isGroup && App.blockedUsers.includes(id)) {
+    return toast('You have blocked this user. Unblock them first to open chat.', true);
+  }
   if (!isGroup && !isOwner() && id !== App.mySlug) {
     const isFriend = App.contacts.some(c => c.slug === id);
     if (!isFriend) return toast('You must add this user to your Friend List to DM them', true);
@@ -1088,10 +1114,10 @@ $('groupModalConfirm').addEventListener('click', async () => {
   saveGroups(); setupGroupMessageListener(groupId); buildUI();
   $('groupModal').classList.remove('show'); toast('Group (👥) created ✓');
 });
-
-/* Video & Voice Call Suite with Conference Features */
+/* Calling Engine Safety Checks */
 window.startCall = async (targetSlug, isVideo) => {
   if (!targetSlug || targetSlug === App.mySlug) return toast('Select a valid contact to call', true);
+  if (App.blockedUsers.includes(targetSlug)) return toast('Cannot call a blocked user', true);
   App.currentCallTarget = targetSlug;
   App.isVideoCall = isVideo;
   App.activeCallId = `call_${chatIdFor(App.mySlug, targetSlug)}`;
@@ -1142,6 +1168,7 @@ function listenIncomingCalls() {
   onChildAdded(dbRef(db, `calls/${App.mySlug}`), snap => {
     const callData = snap.val();
     if (!callData || callData.status !== 'calling') return;
+    if (App.blockedUsers.includes(callData.caller)) return; // Ignore calls from blocked users
     App.activeCallId = snap.key;
     App.currentCallTarget = callData.caller;
     App.isVideoCall = callData.type === 'video';
@@ -1338,6 +1365,7 @@ function listenUserStatuses() {
     
     const posts = Object.entries(data)
       .map(([k, v]) => ({ ...v, _k: k }))
+      .filter(p => !App.blockedUsers.includes(p.authorSlug)) // Filter out blocked users
       .filter(p => (now - (p.time || 0)) <= TWENTY_FOUR_HOURS)
       .filter(p => isOwner() || p.authorSlug === App.mySlug || friendSlugs.includes(p.authorSlug))
       .sort((a, b) => b.time - a.time);
