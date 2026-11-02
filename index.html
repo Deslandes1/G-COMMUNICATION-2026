@@ -223,6 +223,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
         <div style="font-weight:700;margin-bottom:8px;color:var(--navy);">🚫 Blocked Users List</div>
         <div id="blockedUsersContainer" style="font-size:16px;color:var(--muted)">No blocked users.</div>
       </div>
+      <button class="btn-primary" id="forceSyncBtn" style="background:#0d7a8c;color:#fff;width:100%;margin-bottom:10px;">🔄 Force Refresh & Restore Cloud Data</button>
       <button class="btn-primary" id="clearBtn" style="background:#ff4757;color:#fff;width:100%">Clear Local Data</button>
     </div>
   </div>
@@ -482,50 +483,88 @@ function detectFileType(file) {
 }
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
-    // Check file size cap to prevent freezing (12MB limit for base64 storage)
-    if (file.size > 12 * 1024 * 1024) {
-      toast('File is too large (max 12MB). Please select a smaller clip.', true);
-      return reject(new Error('File too large'));
-    }
-
-    // Compress images before converting to base64 for instant upload
-    if (file.type.startsWith('image/')) {
-      const img = new Image();
-      const reader = new FileReader();
-      reader.onload = e => {
-        img.src = e.target.result;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-          const maxDim = 1200;
-          if (width > maxDim || height > maxDim) {
-            if (width > height) {
-              height = Math.round((height * maxDim) / width);
-              width = maxDim;
-            } else {
-              width = Math.round((width * maxDim) / height);
-              height = maxDim;
-            }
-          }
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', 0.8));
-        };
-        img.onerror = () => resolve(e.target.result);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    } else {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    }
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
   });
 }
+
+function updateProfileHeader() {
+  const pName = $('profileName');
+  const pUser = $('profileUsername');
+  const pImg = $('profileAvatarImg');
+  const pLetter = $('profileAvatarLetter');
+  
+  if (pName) pName.textContent = App.myName || 'Gesner Deslandes';
+  if (pUser) pUser.textContent = '@' + (App.mySlug || 'gesnerdeslandes');
+  
+  if (App.myPhoto) {
+    if (pImg) { pImg.src = App.myPhoto; pImg.style.display = 'block'; }
+    if (pLetter) pLetter.style.display = 'none';
+  } else {
+    if (pImg) pImg.style.display = 'none';
+    if (pLetter) { pLetter.textContent = (App.myName || 'G').charAt(0).toUpperCase(); pLetter.style.display = 'inline'; }
+  }
+}
+
+// Rapid Cloud Recovery and Content Restoration Engine
+async function restoreCloudContent() {
+  if (!App.mySlug) return;
+  toast('Syncing & restoring cloud content…');
+
+  try {
+    // 1. Fetch user profile & contact synchronization in parallel
+    const userSnap = await get(dbRef(db, `users/${App.mySlug}`));
+    if (userSnap.exists()) {
+      const userData = userSnap.val();
+      if (userData.photo) App.myPhoto = userData.photo;
+      if (userData.displayName) App.myName = userData.displayName;
+      updateProfileHeader();
+    }
+
+    // 2. Fast recover missing contacts from Cloud
+    const contactsSnap = await get(dbRef(db, `users/${App.mySlug}/contacts`));
+    if (contactsSnap.exists()) {
+      const cloudContacts = Object.values(contactsSnap.val());
+      cloudContacts.forEach(c => {
+        if (c && c.slug && !App.contacts.some(existing => existing.slug === c.slug)) {
+          App.contacts.push({ slug: c.slug, name: c.name || c.slug, photo: c.photo || null });
+        }
+      });
+      saveContacts();
+    }
+
+    // 3. Pre-load DMs across all contacts rapidly
+    const chatFetches = App.contacts.map(c => {
+      const path = `chats/${chatIdFor(App.mySlug, c.slug)}/messages`;
+      return get(query(dbRef(db, path), limitToLast(100))).then(snap => {
+        if (snap.exists()) {
+          const msgs = Object.entries(snap.val()).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (a.time || 0) - (b.time || 0));
+          App.lastMessages[c.slug] = msgs;
+        }
+      });
+    });
+
+    await Promise.all(chatFetches);
+
+    // 4. Update UI immediately after restoration
+    buildUI();
+    if (App.activeChat) {
+      renderMessages(App.activeChat, App.lastMessages[App.activeChat] || [], App.activeIsGroup);
+    }
+    toast('All contents restored ✓');
+  } catch (err) {
+    console.error('Fast recovery error:', err);
+  }
+}
+
+function saveContacts() { LS.set('contacts', App.contacts); }
+function saveGroups() { LS.set('groups', App.groups); }
+function saveDeletedLocally() { LS.set('deletedLocally', App.deletedLocally); }
+function saveUnreadCounts() { LS.set('unreadCounts', App.unreadCounts); updateAppBadge(); }
+function saveBlockedUsers() { LS.set('blockedUsers', App.blockedUsers); }
+
 function getAudioCtx() { if (!App.audioCtx) { try { App.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch {} } return App.audioCtx; }
 function unlockAudio() { const ctx = getAudioCtx(); if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {}); }
 document.addEventListener('click', unlockAudio);
@@ -588,11 +627,6 @@ function updateAppBadge() {
     else navigator.clearAppBadge().catch(() => {});
   }
 }
-function saveContacts() { LS.set('contacts', App.contacts); }
-function saveGroups() { LS.set('groups', App.groups); }
-function saveDeletedLocally() { LS.set('deletedLocally', App.deletedLocally); }
-function saveUnreadCounts() { LS.set('unreadCounts', App.unreadCounts); updateAppBadge(); }
-function saveBlockedUsers() { LS.set('blockedUsers', App.blockedUsers); }
 
 window.__viewAvatar = (photoUrl, displayName) => {
   if (!photoUrl) return;
@@ -657,8 +691,13 @@ window.addEventListener('load', () => {
   const savedPhoto = LS.get('avatar', null);
   if (savedPhoto) App.myPhoto = savedPhoto;
   if (savedName || savedSlug) nameInput.value = savedName || savedSlug;
+
+  const fsBtn = $('forceSyncBtn');
+  if (fsBtn) fsBtn.addEventListener('click', () => restoreCloudContent());
+
   showScreen('screen-onboard');
 });
+
 function startMainApp() {
   showScreen('screen-main');
   updateProfileHeader();
@@ -760,54 +799,22 @@ function listenIncomingCalls() {
   });
 }
 
-// Rapid Cloud Recovery and Content Restoration Engine
-async function restoreCloudContent() {
-  if (!App.mySlug) return;
-  toast('Syncing & restoring cloud content…');
-
-  try {
-    // 1. Fetch user profile & contact synchronization in parallel
-    const userSnap = await get(dbRef(db, `users/${App.mySlug}`));
-    if (userSnap.exists()) {
-      const userData = userSnap.val();
-      if (userData.photo) App.myPhoto = userData.photo;
-      if (userData.displayName) App.myName = userData.displayName;
+function setupMessageListener(id, isGroup) {
+  const path = isGroup ? `group_chats/${id}/messages` : `chats/${chatIdFor(App.mySlug, id)}/messages`;
+  if (App.globalUnsubs[id]) return;
+  App.globalUnsubs[id] = true;
+  onValue(query(dbRef(db, path), limitToLast(100)), snap => {
+    const data = snap.val() || {};
+    const msgs = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (a.time || 0) - (b.time || 0));
+    App.lastMessages[id] = msgs;
+    if (App.activeChat === id) {
+      renderMessages(id, msgs, isGroup);
+    } else {
+      App.unreadCounts[id] = (App.unreadCounts[id] || 0) + 1;
+      saveUnreadCounts();
+      buildUI();
     }
-
-    // 2. Fast recover missing contacts from Cloud
-    const contactsSnap = await get(dbRef(db, `users/${App.mySlug}/contacts`));
-    if (contactsSnap.exists()) {
-      const cloudContacts = Object.values(contactsSnap.val());
-      cloudContacts.forEach(c => {
-        if (c && c.slug && !App.contacts.some(existing => existing.slug === c.slug)) {
-          App.contacts.push({ slug: c.slug, name: c.name || c.slug, photo: c.photo || null });
-        }
-      });
-      saveContacts();
-    }
-
-    // 3. Pre-load DMs across all contacts rapidly
-    const chatFetches = App.contacts.map(c => {
-      const path = `chats/${chatIdFor(App.mySlug, c.slug)}/messages`;
-      return get(query(dbRef(db, path), limitToLast(100))).then(snap => {
-        if (snap.exists()) {
-          const msgs = Object.entries(snap.val()).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (a.time || 0) - (b.time || 0));
-          App.lastMessages[c.slug] = msgs;
-        }
-      });
-    });
-
-    await Promise.all(chatFetches);
-
-    // 4. Update UI immediately after restoration
-    buildUI();
-    if (App.activeChat) {
-      renderMessages(App.activeChat, App.lastMessages[App.activeChat] || [], App.activeIsGroup);
-    }
-    toast('All contents restored ✓');
-  } catch (err) {
-    console.error('Fast recovery error:', err);
-  }
+  });
 }
 
 function setupGroupMessageListener(groupId) { setupMessageListener(groupId, true); }
