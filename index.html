@@ -493,8 +493,13 @@ document.addEventListener('click', unlockAudio);
 document.addEventListener('touchstart', unlockAudio, { passive: true });
 
 window.addEventListener('load', () => {
-  App.contacts = LS.get('contacts', []);
-  App.groups = LS.get('groups', []);
+  App.contacts = LS.get('contacts', [
+    { slug: 'assistant', name: 'JARVIS Assistant', photo: null },
+    { slug: 'friend1', name: 'Friend One', photo: null }
+  ]);
+  App.groups = LS.get('groups', [
+    { id: 'group_master', name: 'Master Group', members: ['gesnerdeslandes', 'assistant', 'friend1'] }
+  ]);
   App.deletedLocally = LS.get('deletedLocally', {});
   App.unreadCounts = LS.get('unreadCounts', {});
   const savedSlug = LS.get('mySlug', null);
@@ -564,6 +569,20 @@ function startMainApp() {
   listenIncomingCalls();
   App.contacts.forEach(c => setupMessageListener(c.slug, false));
   App.groups.forEach(g => setupGroupMessageListener(g.id));
+  
+  // Also listen to master groups from DB
+  onValue(dbRef(db, 'group_chats'), snap => {
+    const remoteGroups = snap.val() || {};
+    Object.values(remoteGroups).forEach(rg => {
+      if (rg && rg.id && !App.groups.some(g => g.id === rg.id)) {
+        App.groups.push(rg);
+        saveGroups();
+        setupGroupMessageListener(rg.id);
+      }
+    });
+    buildUI();
+  });
+
   updateAppBadge();
 }
 
@@ -744,7 +763,6 @@ function setupMessageListener(slug, isGroup) {
       if (lastMsg.from !== App.mySlug && App.activeChat !== slug) {
         App.unreadCounts[slug] = (App.unreadCounts[slug] || 0) + 1;
         saveUnreadCounts();
-        playIncomingMessageAlert();
       }
     }
     isFirstLoad = false;
@@ -923,7 +941,6 @@ async function sendMessage(attachment = null) {
     from: App.mySlug, fromName: App.myName, text, attachment, time: Date.now()
   });
   inp.value = ''; $('sendBtn').disabled = true;
-  playSentSound();
 }
 
 $('sendBtn').addEventListener('click', () => sendMessage());
@@ -1011,9 +1028,13 @@ $('modalConfirm').addEventListener('click', async () => {
   const exists = App.contacts.some(c => c.slug === slug || (c.name && c.name.trim().toLowerCase() === rawInputName));
   if (exists) return toast('This contact is already on your Friend List', true);
   const snap = await get(dbRef(db, 'users/' + slug));
-  if (!snap.exists()) return toast('User not found in database', true);
-  const friendName = snap.val().displayName || slug;
-  App.contacts.push({ slug, name: friendName, photo: snap.val().photo || null });
+  let friendName = slug;
+  let friendPhoto = null;
+  if (snap.exists()) {
+    friendName = snap.val().displayName || slug;
+    friendPhoto = snap.val().photo || null;
+  }
+  App.contacts.push({ slug, name: friendName, photo: friendPhoto });
   saveContacts(); setupMessageListener(slug, false); buildUI(); listenUserStatuses();
   $('addModal').classList.remove('show'); toast('Added @' + slug + ' to Friend List ✓');
 });
