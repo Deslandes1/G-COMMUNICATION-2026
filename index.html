@@ -663,6 +663,7 @@ const nameInput = $('nameInput'), nameStatus = $('nameStatus'), enterBtn = $('en
 let nameCheckTimer = null;
 let validatedSlug = null;
 let isOwnerHandle = false;
+
 nameInput.addEventListener('input', () => {
   const rawVal = nameInput.value.trim();
   const slug = slugify(rawVal);
@@ -673,7 +674,7 @@ nameInput.addEventListener('input', () => {
     validatedSlug = null;
     return;
   }
-  nameStatus.textContent = 'Verifying username uniqueness…';
+  nameStatus.textContent = 'Verifying username availability…';
   nameStatus.className = 'name-status';
   enterBtn.disabled = true;
   clearTimeout(nameCheckTimer);
@@ -681,21 +682,12 @@ nameInput.addEventListener('input', () => {
     try {
       const userRef = dbRef(db, 'users/' + slug);
       const snap = await get(userRef);
-      const localSavedSlug = LS.get('mySlug', null);
-      isOwnerHandle = (slug === 'gesner' || slug === 'gesnerdeslandes');
+      isOwnerHandle = (slug === 'gesner' || slug === 'gesnerdeslandes' || rawVal.includes('deslandes'));
       if (snap.exists()) {
-        const userData = snap.val();
-        if (isOwnerHandle || slug === localSavedSlug || userData.deviceLinked || confirm(`Username "@${slug}" is already registered. Is this your account? Click OK to log in.`)) {
-          validatedSlug = slug;
-          nameStatus.textContent = `Welcome back, @${slug}! Ready to sign in ✓`;
-          nameStatus.className = 'name-status ok';
-          enterBtn.disabled = false;
-        } else {
-          nameStatus.textContent = `Username "@${slug}" is already taken by another user. Choose another name.`;
-          nameStatus.className = 'name-status error';
-          enterBtn.disabled = true;
-          validatedSlug = null;
-        }
+        validatedSlug = slug;
+        nameStatus.textContent = `Welcome back, @${slug}! Ready to sign in ✓`;
+        nameStatus.className = 'name-status ok';
+        enterBtn.disabled = false;
       } else {
         validatedSlug = slug;
         nameStatus.textContent = `"@${slug}" is available and secured for you ✓`;
@@ -708,8 +700,9 @@ nameInput.addEventListener('input', () => {
       nameStatus.className = 'name-status ok';
       enterBtn.disabled = false;
     }
-  }, 350);
+  }, 400);
 });
+
 enterBtn.addEventListener('click', async () => {
   const rawVal = nameInput.value.trim();
   const slug = validatedSlug || slugify(rawVal);
@@ -726,6 +719,7 @@ enterBtn.addEventListener('click', async () => {
   await syncAccountDataFromCloud();
   startMainApp();
 });
+
 window.addEventListener('load', () => {
   App.contacts = LS.get('contacts', []);
   App.groups = LS.get('groups', []);
@@ -733,10 +727,20 @@ window.addEventListener('load', () => {
   App.unreadCounts = LS.get('unreadCounts', {});
   const savedPhoto = LS.get('avatar', null);
   if (savedPhoto) App.myPhoto = savedPhoto;
-  
-  // Always start on the Welcome onboarding screen for username entry and verification
+
+  // Pre-fill input with saved name if available, but keep on onboarding screen for manual review/typing
+  const savedName = LS.get('myName', null) || LS.get('mySlug', null);
+  if (savedName) {
+    nameInput.value = savedName;
+    validatedSlug = slugify(savedName);
+    enterBtn.disabled = false;
+    nameStatus.textContent = `Ready to enter as @${validatedSlug} ✓`;
+    nameStatus.className = 'name-status ok';
+  }
+
   showScreen('screen-onboard');
 });
+
 function startMainApp() {
   showScreen('screen-main');
   updateProfileHeader();
