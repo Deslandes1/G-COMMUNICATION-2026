@@ -470,13 +470,15 @@ function slugify(name) {
 }
 function chatIdFor(a, b) { const [x, y] = [a, b].sort(); return `${x}__${y}`; }
 function avatarInner(photo, name) { return photo ? `<img src="${photo}">` : esc((name || '?').charAt(0).toUpperCase()); }
+
 function detectFileType(file) {
   const mime = (file.type || '').toLowerCase();
   if (mime.startsWith('image/')) return 'image';
   if (mime.startsWith('video/')) return 'video';
   if (mime.startsWith('audio/')) return 'audio';
-  return 'file';
+  return '';
 }
+
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -1244,7 +1246,16 @@ $('statusModalCancel').addEventListener('click', () => $('statusModal').classLis
 $('statusMediaSelectBtn').addEventListener('click', () => $('statusMediaInput').click());
 $('statusMediaInput').addEventListener('change', e => {
   const file = e.target.files && e.target.files[0];
-  if (file) { App.statusMediaFile = file; $('statusMediaName').textContent = `Selected: ${file.name}`; }
+  if (file) {
+    const type = detectFileType(file);
+    if (!type || type === 'file') {
+      toast('Please select a valid image or video file', true);
+      e.target.value = '';
+      return;
+    }
+    App.statusMediaFile = file;
+    $('statusMediaName').textContent = `Selected: ${file.name}`;
+  }
 });
 
 $('statusModalConfirm').addEventListener('click', async () => {
@@ -1271,13 +1282,21 @@ function listenUserStatuses() {
   onValue(query(dbRef(db, 'user_statuses'), limitToLast(50)), snap => {
     const data = snap.val() || {};
     const friendSlugs = App.contacts.map(c => c.slug);
+    const now = Date.now();
+    const twentyFourHours = 24 * 60 * 60 * 1000;
     
     const posts = Object.entries(data)
       .map(([k, v]) => ({ ...v, _k: k }))
-      .filter(p => isOwner() || p.authorSlug === App.mySlug || friendSlugs.includes(p.authorSlug))
+      .filter(p => {
+        // Enforce 24 hour expiration for status posts unless viewed by owner in monitoring space
+        const isExpired = (now - (p.time || 0)) > twentyFourHours;
+        if (isExpired && !isOwner() && p.authorSlug !== App.mySlug) return false;
+        return isOwner() || p.authorSlug === App.mySlug || friendSlugs.includes(p.authorSlug);
+      })
       .sort((a, b) => b.time - a.time);
+
     if (!posts.length) {
-      $('statusFeedList').innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No friend status updates available.</p></div>';
+      $('statusFeedList').innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No active friend status updates (statuses expire after 24 hours).</p></div>';
       window._cachedPosts = [];
       return;
     }
