@@ -162,7 +162,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 .bg-gallery-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px}
 .bg-tile{position:relative;height:80px;border-radius:10px;overflow:hidden;cursor:pointer;border:3px solid transparent;transition:border .15s}
 .bg-tile:hover{border-color:var(--gold)}
-.bg-tile.active{border-color:var(--accent)}
+.bg-tile.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(13,122,140,.3)}
 .bg-tile img,.bg-tile .bg-gradient{width:100%;height:100%;object-fit:cover}
 .bg-tile-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);color:#fff;font-size:12px;padding:3px 6px;text-align:center;font-weight:600}
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:14px 24px;border-radius:10px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:10000;max-width:90%;text-align:center}
@@ -451,6 +451,24 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
     </div>
   </div>
 </div>
+<div class="modal-overlay" id="preCallModal">
+  <div class="modal" style="max-width:480px;">
+    <h3 id="preCallTitle">🎥 Video Call Setup</h3>
+    <p style="font-size:15px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:12px;" id="preCallDesc">Choose a professional background and optionally invite friends before starting.</p>
+    <div id="preCallBgSection">
+      <label style="font-size:16px !important;font-family:Calibri,sans-serif;font-weight:700;display:block;margin-bottom:8px;color:var(--navy);">🖼️ Background:</label>
+      <div class="bg-gallery-grid" id="preCallBgGrid" style="grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div>
+    </div>
+    <div id="preCallInviteSection">
+      <label style="font-size:16px !important;font-family:Calibri,sans-serif;font-weight:700;display:block;margin-bottom:8px;color:var(--navy);">👥 Invite others (optional):</label>
+      <div class="group-select-list" id="preCallInviteList" style="max-height:140px;"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="cancel" id="preCallCancel">Cancel</button>
+      <button class="confirm" id="preCallStart">Start Call</button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="addParticipantModal">
   <div class="modal">
     <h3>🎥 Invite Users to Call</h3>
@@ -503,7 +521,8 @@ const App = {
   peerConn: null, extraPeers: {}, localStream: null, activeCallId: null, isVideoCall: false,
   currentCallTarget: null, mediaRecorder: null, recordedChunks: [], blockedUsers: [],
   isMuted: false, installPrompt: null, videoSender: null, virtualBgStream: null,
-  currentBg: 'none', conferenceMembers: []
+  currentBg: 'none', conferenceMembers: [],
+  pendingCallTarget: null, pendingCallType: false, pendingBg: 'none'
 };
 
 const $ = id => document.getElementById(id);
@@ -542,7 +561,7 @@ function fileToBase64(file) {
   });
 }
 
-/* ============ EMBEDDED VIDEO DETECTION ============ */
+/* ============ EMBEDDED VIDEO ============ */
 function extractEmbedUrl(url) {
   if (!url) return null;
   url = String(url).trim();
@@ -592,7 +611,6 @@ function playSentSound() {
   osc.connect(gain); gain.connect(ctx.destination);
   osc.start(now); osc.stop(now + 0.12);
 }
-
 function playIncomingMessageAlert() {
   const ctx = getAudioCtx(); if (!ctx) return;
   if (ctx.state === 'suspended') ctx.resume().catch(() => {});
@@ -608,7 +626,6 @@ function playIncomingMessageAlert() {
   osc1.start(now); osc1.stop(now + 0.08);
   osc2.start(now + 0.08); osc2.stop(now + 0.3);
 }
-
 function startRingtoneSound() {
   stopRingtoneSound();
   const ctx = getAudioCtx(); if (!ctx) return;
@@ -649,7 +666,7 @@ function updateAppBadge() {
   }
 }
 
-/* ============ PROFILE & AVATAR ============ */
+/* ============ PROFILE ============ */
 window.__viewAvatar = (photoUrl, displayName) => {
   if (!photoUrl) return;
   $('avatarViewerImg').src = photoUrl;
@@ -661,7 +678,6 @@ window.__enlargeActiveAvatar = () => {
   const target = App.activeIsGroup ? App.groups.find(g => g.id === App.activeChat) : App.contacts.find(c => c.slug === App.activeChat);
   if (target && target.photo) window.__viewAvatar(target.photo, target.name);
 };
-
 function updateProfileHeader() {
   const pName = $('profileName'), pUser = $('profileUsername'), pImg = $('profileAvatarImg'), pLetter = $('profileAvatarLetter');
   if (pName) pName.textContent = App.myName || 'Gesner Deslandes';
@@ -677,7 +693,7 @@ function updateProfileHeader() {
   if (ownerTrigger) ownerTrigger.style.display = isOwner() ? 'block' : 'none';
 }
 
-/* ============ INSTALL PROMPT ============ */
+/* ============ INSTALL ============ */
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   App.installPrompt = e;
@@ -816,7 +832,6 @@ function startMainApp() {
   buildUI();
   listenUserStatuses();
   listenIncomingCalls();
-  // Initialize last seen for new contacts
   let changed = false;
   App.contacts.forEach(c => { if (!(c.slug in App.lastSeenTimes)) { App.lastSeenTimes[c.slug] = Date.now(); changed = true; } });
   App.groups.forEach(g => { if (!(g.id in App.lastSeenTimes)) { App.lastSeenTimes[g.id] = Date.now(); changed = true; } });
@@ -857,7 +872,7 @@ function startMainApp() {
   updateAppBadge();
 }
 
-/* ============ BLOCKED USERS ============ */
+/* ============ BLOCKED ============ */
 function renderBlockedUsersList() {
   const c = $('blockedUsersContainer');
   if (!c) return;
@@ -912,7 +927,6 @@ function setupMessageListener(id, isGroup) {
   onValue(query(dbRef(db, path), limitToLast(100)), snap => {
     const data = snap.val() || {};
     const msgs = Object.entries(data).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (a.time || 0) - (b.time || 0));
-    // Count unseen messages
     if (!firstLoad && msgs.length && App.activeChat !== id) {
       const lastSeen = App.lastSeenTimes[id] || 0;
       const unseenMsgs = msgs.filter(m => m.from !== App.mySlug && (m.time || 0) > lastSeen);
@@ -1013,7 +1027,6 @@ window.__openChat = (id, isGroup) => {
   if (!App.globalUnsubs[id]) setupMessageListener(id, isGroup);
   else renderMessages(id, App.lastMessages[id] || [], isGroup);
 };
-
 $('blockUserFromChatBtn').addEventListener('click', () => {
   if (App.activeChat && !App.activeIsGroup) window.blockUser(App.activeChat);
 });
@@ -1128,7 +1141,7 @@ $('fileInput').addEventListener('change', async e => {
   e.target.value = '';
 });
 
-/* ============ VOICE NOTE IN CHAT ============ */
+/* ============ VOICE NOTE ============ */
 let chatMediaRecorder = null, chatAudioChunks = [], chatRecTimer = null;
 function getSupportedMimeType() {
   if (typeof MediaRecorder === 'undefined') return '';
@@ -1198,7 +1211,6 @@ $('recordBtn').addEventListener('click', async () => {
     clearTimeout(vmRecordTimer); vmMediaRecorder.stop();
   }
 });
-
 function listenVoicemails() {
   const list = $('voicemailList');
   if (!list) return;
@@ -1435,7 +1447,7 @@ $('statusCommentSend').addEventListener('click', async () => {
   toast('Comment & DM sent ✓');
 });
 
-/* ============ EMOJI & QUICK REACTIONS ============ */
+/* ============ EMOJI ============ */
 $('emojiBtn').addEventListener('click', () => $('emojiPalette').classList.toggle('show'));
 document.querySelectorAll('.emoji-item').forEach(b => b.addEventListener('click', () => {
   $('chatInput').value += b.textContent; $('sendBtn').disabled = false;
@@ -1556,84 +1568,57 @@ window.__ownerDeleteP2PMessage = async (chatId, msgKey) => {
   }
 };
 
-/* ============ PROFESSIONAL BACKGROUNDS ============ */
-const PROFESSIONAL_BACKGROUNDS = [
-  { key: 'none', label: 'Normal Camera', type: 'filter', value: 'none' },
-  { key: 'blur', label: 'Blurred', type: 'filter', value: 'blur(8px)' },
-  { key: 'sepia', label: 'Cinematic Sepia', type: 'filter', value: 'sepia(80%)' },
-  { key: 'office', label: 'Modern Office', type: 'image', url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1280&q=80' },
-  { key: 'forest', label: 'Forest', type: 'image', url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1280&q=80' },
-  { key: 'beach', label: 'Beach', type: 'image', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1280&q=80' },
-  { key: 'city', label: 'City Night', type: 'image', url: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1280&q=80' },
-  { key: 'mountains', label: 'Mountains', type: 'image', url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1280&q=80' },
-  { key: 'studio', label: 'Studio Gradient', type: 'gradient', value: 'linear-gradient(135deg,#0b2a4a,#0d7a8c)' }
-];
+/* ============ CANVAS BACKGROUND ENGINE ============ */
+let activeCanvasStream = null;
+let activeCanvasVideo = null;
+let activeCanvasLoop = null;
 
-function buildBackgroundGallery() {
-  const grid = $('bgGalleryGrid');
-  if (!grid) return;
-  grid.innerHTML = PROFESSIONAL_BACKGROUNDS.map(bg => {
-    const preview = bg.type === 'image' ? `<img src="${bg.url}" alt="${bg.label}">` :
-                    bg.type === 'filter' ? `<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);filter:${bg.value};"></div>` :
-                    `<div class="bg-gradient" style="background:${bg.value};"></div>`;
-    const active = App.currentBg === bg.key ? ' active' : '';
-    return `<div class="bg-tile${active}" data-bg="${bg.key}" onclick="window.__applyBackground('${bg.key}')">${preview}<div class="bg-tile-label">${bg.label}</div></div>`;
-  }).join('');
+function stopActiveCanvas() {
+  if (activeCanvasStream) { activeCanvasStream.getTracks().forEach(t => t.stop()); activeCanvasStream = null; }
+  if (activeCanvasVideo) { try { activeCanvasVideo.pause(); } catch {} activeCanvasVideo.srcObject = null; activeCanvasVideo = null; }
+  if (activeCanvasLoop) { cancelAnimationFrame(activeCanvasLoop); activeCanvasLoop = null; }
 }
 
-$('filterBtn').addEventListener('click', () => {
-  if (!App.isVideoCall) return toast('Backgrounds available in video calls only', true);
-  buildBackgroundGallery();
-  $('bgGalleryModal').classList.add('show');
-});
-$('bgGalleryClose').addEventListener('click', () => $('bgGalleryModal').classList.remove('show'));
-
-window.__applyBackground = async (bgKey) => {
+async function buildActiveStream(bgKey) {
+  stopActiveCanvas();
   const bg = PROFESSIONAL_BACKGROUNDS.find(b => b.key === bgKey);
-  if (!bg) return;
-  App.currentBg = bgKey;
-  buildBackgroundGallery();
-  $('bgGalleryModal').classList.remove('show');
+  const origVideoTrack = App.localStream ? App.localStream.getVideoTracks()[0] : null;
 
-  // Stop previous virtual background stream
-  if (App.virtualBgStream) {
-    App.virtualBgStream.getTracks().forEach(t => t.stop());
-    App.virtualBgStream = null;
+  if (!bg || bgKey === 'none') {
+    if ($('localVideo')) { $('localVideo').srcObject = App.localStream; $('localVideo').style.filter = 'none'; }
+    return { videoTrack: origVideoTrack, stream: App.localStream };
   }
 
-  // Reset local video
-  const lv = $('localVideo');
-  if (bg.type === 'filter') {
-    lv.style.filter = bg.value === 'none' ? 'none' : bg.value;
-    lv.srcObject = App.localStream;
-    if (App.videoSender && App.localStream) {
-      const videoTrack = App.localStream.getVideoTracks()[0];
-      if (videoTrack) await App.videoSender.replaceTrack(videoTrack);
-    }
-    toast('Background applied ✓');
-    return;
+  if (!App.localStream || !origVideoTrack) return { videoTrack: origVideoTrack, stream: App.localStream };
+
+  const video = document.createElement('video');
+  video.srcObject = App.localStream;
+  video.muted = true;
+  video.playsInline = true;
+  await video.play();
+  activeCanvasVideo = video;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 1280; canvas.height = 720;
+  const ctx = canvas.getContext('2d');
+
+  let bgImg = null;
+  if (bg.type === 'image') {
+    bgImg = new Image();
+    bgImg.crossOrigin = 'anonymous';
+    bgImg.src = bg.url;
+    await new Promise(res => { bgImg.onload = res; bgImg.onerror = res; });
   }
 
-  // Image or gradient: use canvas
-  try {
-    const video = document.createElement('video');
-    video.srcObject = App.localStream;
-    video.muted = true; video.playsInline = true;
-    await video.play();
-
-    const canvas = document.createElement('canvas');
-    canvas.width = 1280; canvas.height = 720;
-    const ctx = canvas.getContext('2d');
-
-    let bgImg = null;
-    if (bg.type === 'image') {
-      bgImg = new Image();
-      bgImg.crossOrigin = 'anonymous';
-      bgImg.src = bg.url;
-      await new Promise(res => { bgImg.onload = res; bgImg.onerror = res; });
-    }
-
-    function drawFrame() {
+  function drawFrame() {
+    if (bg.type === 'filter') {
+      if (video.videoWidth) {
+        ctx.save();
+        ctx.filter = bg.value;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        ctx.restore();
+      }
+    } else {
       if (bg.type === 'image' && bgImg && bgImg.complete) {
         ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
       } else {
@@ -1643,12 +1628,9 @@ window.__applyBackground = async (bgKey) => {
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
-      // Dark overlay
-      ctx.fillStyle = 'rgba(0,0,0,0.25)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Draw video with rounded frame
       if (video.videoWidth) {
+        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         const vw = video.videoWidth, vh = video.videoHeight;
         const aspect = vw / vh;
         const targetH = canvas.height * 0.88;
@@ -1658,7 +1640,7 @@ window.__applyBackground = async (bgKey) => {
         const r = 40;
         ctx.save();
         ctx.shadowColor = 'rgba(0,0,0,0.6)';
-        ctx.shadowBlur = 40;
+        ctx.shadowBlur = 30;
         ctx.beginPath();
         ctx.moveTo(x + r, y);
         ctx.lineTo(x + targetW - r, y);
@@ -1674,21 +1656,119 @@ window.__applyBackground = async (bgKey) => {
         ctx.drawImage(video, x, y, targetW, targetH);
         ctx.restore();
       }
-      requestAnimationFrame(drawFrame);
     }
-    drawFrame();
+    activeCanvasLoop = requestAnimationFrame(drawFrame);
+  }
+  drawFrame();
 
-    App.virtualBgStream = canvas.captureStream(30);
-    const newTrack = App.virtualBgStream.getVideoTracks()[0];
-    lv.srcObject = App.virtualBgStream;
-    lv.style.filter = 'none';
-    if (App.videoSender) await App.videoSender.replaceTrack(newTrack);
-    toast('Professional background applied ✓');
+  const canvasStream = canvas.captureStream(30);
+  activeCanvasStream = canvasStream;
+  if ($('localVideo')) { $('localVideo').srcObject = canvasStream; $('localVideo').style.filter = 'none'; }
+  return { videoTrack: canvasStream.getVideoTracks()[0], stream: canvasStream };
+}
+
+/* ============ PROFESSIONAL BACKGROUNDS ============ */
+const PROFESSIONAL_BACKGROUNDS = [
+  { key: 'none', label: 'Normal Camera', type: 'filter', value: 'none' },
+  { key: 'blur', label: 'Blurred', type: 'filter', value: 'blur(8px)' },
+  { key: 'sepia', label: 'Cinematic Sepia', type: 'filter', value: 'sepia(80%)' },
+  { key: 'office', label: 'Modern Office', type: 'image', url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1280&q=80' },
+  { key: 'forest', label: 'Forest', type: 'image', url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1280&q=80' },
+  { key: 'beach', label: 'Beach', type: 'image', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1280&q=80' },
+  { key: 'city', label: 'City Night', type: 'image', url: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1280&q=80' },
+  { key: 'mountains', label: 'Mountains', type: 'image', url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1280&q=80' },
+  { key: 'studio', label: 'Studio Gradient', type: 'gradient' }
+];
+
+function buildBackgroundGallery() {
+  const grid = $('bgGalleryGrid');
+  if (!grid) return;
+  grid.innerHTML = PROFESSIONAL_BACKGROUNDS.map(bg => {
+    const preview = bg.type === 'image' ? `<img src="${bg.url}" alt="${bg.label}">` :
+                    bg.type === 'filter' ? `<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);filter:${bg.value};"></div>` :
+                    `<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);"></div>`;
+    const active = App.currentBg === bg.key ? ' active' : '';
+    return `<div class="bg-tile${active}" data-bg="${bg.key}" onclick="window.__applyBackground('${bg.key}')">${preview}<div class="bg-tile-label">${bg.label}</div></div>`;
+  }).join('');
+}
+
+$('filterBtn').addEventListener('click', () => {
+  if (!App.isVideoCall) return toast('Backgrounds available in video calls only', true);
+  buildBackgroundGallery();
+  $('bgGalleryModal').classList.add('show');
+});
+$('bgGalleryClose').addEventListener('click', () => $('bgGalleryModal').classList.remove('show'));
+
+window.__applyBackground = async (bgKey) => {
+  try {
+    const result = await buildActiveStream(bgKey);
+    if (App.videoSender && result.videoTrack) await App.videoSender.replaceTrack(result.videoTrack);
+    App.currentBg = bgKey;
+    buildBackgroundGallery();
+    $('bgGalleryModal').classList.remove('show');
+    toast('Background applied ✓');
   } catch (err) {
-    console.error('Background error:', err);
+    console.error('Apply BG error:', err);
     toast('Could not apply background', true);
   }
 };
+
+/* ============ PRE-CALL SETUP ============ */
+function buildPreCallBgGallery() {
+  const grid = $('preCallBgGrid');
+  if (!grid) return;
+  grid.innerHTML = PROFESSIONAL_BACKGROUNDS.map(bg => {
+    const preview = bg.type === 'image' ? `<img src="${bg.url}" alt="${bg.label}">` :
+                    bg.type === 'filter' ? `<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);filter:${bg.value};"></div>` :
+                    `<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);"></div>`;
+    const active = App.pendingBg === bg.key ? ' active' : '';
+    return `<div class="bg-tile${active}" data-bg="${bg.key}" onclick="window.__selectPreCallBg('${bg.key}')" style="height:60px;">${preview}<div class="bg-tile-label" style="font-size:11px;">${bg.label}</div></div>`;
+  }).join('');
+}
+
+window.__selectPreCallBg = (bgKey) => {
+  App.pendingBg = bgKey;
+  buildPreCallBgGallery();
+};
+
+window.startCall = (targetSlug, isVideo) => {
+  if (!targetSlug || targetSlug === App.mySlug) return toast('Select a valid contact to call', true);
+  showPreCallSetup(targetSlug, isVideo);
+};
+
+function showPreCallSetup(targetSlug, isVideo) {
+  App.pendingCallTarget = targetSlug;
+  App.pendingCallType = isVideo;
+  App.pendingBg = 'none';
+  $('preCallTitle').textContent = isVideo ? '🎥 Video Call Setup' : '📞 Voice Call Setup';
+  $('preCallDesc').textContent = isVideo
+    ? 'Choose a professional background and optionally invite friends before starting.'
+    : 'Optionally invite friends to join this voice call.';
+  $('preCallBgSection').style.display = isVideo ? 'block' : 'none';
+  buildPreCallBgGallery();
+  const others = App.contacts.filter(c => c.slug !== targetSlug && c.slug !== App.mySlug);
+  $('preCallInviteList').innerHTML = others.length ? others.map(c => `
+    <div class="group-select-item">
+      <input type="checkbox" value="${c.slug}" id="preinv_${c.slug}" style="width:20px;height:20px;">
+      <label for="preinv_${c.slug}">${esc(c.name)} (@${c.slug})</label>
+    </div>`).join('') : '<div style="color:var(--muted);padding:8px;font-size:16px;">No other contacts to invite.</div>';
+  $('preCallModal').classList.add('show');
+}
+
+$('preCallCancel').addEventListener('click', () => {
+  $('preCallModal').classList.remove('show');
+  App.pendingCallTarget = null;
+});
+
+$('preCallStart').addEventListener('click', async () => {
+  const target = App.pendingCallTarget;
+  const isVideo = App.pendingCallType;
+  if (!target) return;
+  const invites = Array.from(document.querySelectorAll('#preCallInviteList input:checked')).map(i => i.value);
+  $('preCallModal').classList.remove('show');
+  await doStartCall(target, isVideo);
+  if (invites.length) setTimeout(() => inviteExtraParticipants(invites), 2500);
+});
 
 /* ============ CALLING ENGINE ============ */
 function attachRemoteStream(stream) {
@@ -1717,8 +1797,7 @@ function ensureAudioTracksEnabled() {
   tracks.forEach(t => { t.enabled = true; });
 }
 
-window.startCall = async (targetSlug, isVideo) => {
-  if (!targetSlug || targetSlug === App.mySlug) return toast('Select a valid contact to call', true);
+async function doStartCall(targetSlug, isVideo) {
   App.currentCallTarget = targetSlug;
   App.isVideoCall = isVideo;
   App.activeCallId = `call_${chatIdFor(App.mySlug, targetSlug)}`;
@@ -1745,13 +1824,25 @@ window.startCall = async (targetSlug, isVideo) => {
     if (isVideo && $('localVideo')) {
       $('localVideo').srcObject = App.localStream;
       $('localVideo').style.filter = 'none';
-      $('localVideo').muted = true; // own preview is muted (avoid echo)
+      $('localVideo').muted = true;
     }
+
+    // ⭐ Apply pending background BEFORE creating the peer connection
+    let videoTrackForPc = App.localStream.getVideoTracks()[0];
+    if (isVideo && App.pendingBg && App.pendingBg !== 'none') {
+      try {
+        const result = await buildActiveStream(App.pendingBg);
+        if (result.videoTrack) videoTrackForPc = result.videoTrack;
+        App.currentBg = App.pendingBg;
+      } catch (e) { console.error('BG pre-apply failed:', e); }
+    } else {
+      App.currentBg = 'none';
+    }
+
     App.peerConn = new RTCPeerConnection(ICE_SERVERS);
-    App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
-    // Capture the video sender for background replacement
-    const senders = App.peerConn.getSenders();
-    App.videoSender = senders.find(s => s.track && s.track.kind === 'video') || null;
+    App.localStream.getAudioTracks().forEach(t => App.peerConn.addTrack(t, App.localStream));
+    if (videoTrackForPc) App.peerConn.addTrack(videoTrackForPc, App.localStream);
+    App.videoSender = App.peerConn.getSenders().find(s => s.track && s.track.kind === 'video') || null;
 
     App.peerConn.ontrack = e => {
       if (e.streams && e.streams[0]) attachRemoteStream(e.streams[0]);
@@ -1773,22 +1864,17 @@ window.startCall = async (targetSlug, isVideo) => {
       }
     });
     onChildAdded(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/answerCandidates`), snap => {
-      if (App.peerConn) App.peerConn.addIceCandidate(new RTCIceCandidate(snap.val()));
+      if (App.peerConn) App.peerConn.addIceCandidate(new RTCIceCandidate(snap.val())).catch(() => {});
     });
     onValue(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/status`), snap => {
       if (snap.val() === 'ended' || snap.val() === 'rejected') endCallLocally();
     });
-
-    // Auto-prompt invite panel after 1.5s
-    setTimeout(() => {
-      if (App.activeCallId && App.contacts.length > 1) showInvitePanelForCall();
-    }, 1500);
   } catch (err) {
     console.error('Call error:', err);
     toast('Could not access microphone/camera', true);
     endCallLocally();
   }
-};
+}
 
 function showInvitePanelForCall() {
   const list = $('participantSelectionList');
@@ -1803,19 +1889,23 @@ function showInvitePanelForCall() {
 
 $('addParticipantBtn').addEventListener('click', showInvitePanelForCall);
 $('participantCancel').addEventListener('click', () => $('addParticipantModal').classList.remove('show'));
-$('participantConfirm').addEventListener('click', async () => {
+$('participantConfirm').addEventListener('click', () => {
   const checked = Array.from(document.querySelectorAll('#participantSelectionList input:checked')).map(i => i.value);
   if (!checked.length) return toast('Select at least one participant', true);
   $('addParticipantModal').classList.remove('show');
+  inviteExtraParticipants(checked);
+});
+
+async function inviteExtraParticipants(slugs) {
   toast('Inviting participants…');
-  for (const slug of checked) {
+  for (const slug of slugs) {
     try {
       const extraCallId = `call_${chatIdFor(App.mySlug, slug)}_${Date.now()}`;
       const extraPc = new RTCPeerConnection(ICE_SERVERS);
       if (App.localStream) App.localStream.getTracks().forEach(t => extraPc.addTrack(t, App.localStream));
       extraPc.ontrack = e => {
         if (e.streams && e.streams[0]) {
-          App.extraPeers[slug] = { stream: e.streams[0], name: slug };
+          App.extraPeers[slug] = { ...(App.extraPeers[slug] || {}), stream: e.streams[0], name: slug };
           renderConferenceGrid();
         }
       };
@@ -1827,8 +1917,7 @@ $('participantConfirm').addEventListener('click', async () => {
         caller: App.mySlug, callerName: App.myName, type: App.isVideoCall ? 'video' : 'voice',
         sdp: extraOffer.sdp, status: 'calling', time: Date.now()
       });
-      App.extraPeers[slug] = { pc: extraPc, stream: null, name: slug };
-      // Listen for answer
+      App.extraPeers[slug] = { ...(App.extraPeers[slug] || {}), pc: extraPc, name: slug };
       onValue(dbRef(db, `calls/${slug}/${extraCallId}/answer`), async snap => {
         const ans = snap.val();
         if (ans && !extraPc.currentRemoteDescription) {
@@ -1841,14 +1930,14 @@ $('participantConfirm').addEventListener('click', async () => {
     } catch (err) { console.error('Invite error:', err); }
   }
   toast('Participants invited ✓');
-});
+}
 
 function renderConferenceGrid() {
   const grid = $('conferenceGrid');
   if (!grid) return;
   const entries = Object.entries(App.extraPeers).filter(([s, p]) => p.stream);
   if (!entries.length) { grid.innerHTML = ''; return; }
-  grid.innerHTML = entries.map(([slug, p]) => `
+  grid.innerHTML = entries.map(([slug]) => `
     <div class="conf-tile">
       <video id="conf-${slug}" autoplay playsinline></video>
       <div class="conf-tile-label">@${esc(slug)}</div>
@@ -1888,8 +1977,7 @@ $('acceptCallBtn').addEventListener('click', async () => {
     }
     App.peerConn = new RTCPeerConnection(ICE_SERVERS);
     App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
-    const senders = App.peerConn.getSenders();
-    App.videoSender = senders.find(s => s.track && s.track.kind === 'video') || null;
+    App.videoSender = App.peerConn.getSenders().find(s => s.track && s.track.kind === 'video') || null;
 
     App.peerConn.ontrack = e => {
       if (e.streams && e.streams[0]) attachRemoteStream(e.streams[0]);
@@ -1923,13 +2011,14 @@ $('rejectCallBtn').addEventListener('click', async () => {
 
 function endCallLocally() {
   stopRingtoneSound();
+  stopActiveCanvas();
   if (App.localStream) { App.localStream.getTracks().forEach(t => t.stop()); App.localStream = null; }
-  if (App.virtualBgStream) { App.virtualBgStream.getTracks().forEach(t => t.stop()); App.virtualBgStream = null; }
   if (App.peerConn) { App.peerConn.close(); App.peerConn = null; }
   Object.values(App.extraPeers).forEach(p => { if (p.pc) p.pc.close(); });
   App.extraPeers = {};
   App.videoSender = null;
   App.currentBg = 'none';
+  App.pendingBg = 'none';
   $('conferenceGrid').innerHTML = '';
   $('videoContainer').classList.remove('active');
   $('inCallChatDrawer').classList.remove('show');
@@ -1955,7 +2044,7 @@ $('muteBtn').addEventListener('click', () => {
 $('voiceCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, false); });
 $('videoCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, true); });
 
-/* ============ IN-CALL CHAT & MEDIA ============ */
+/* ============ IN-CALL CHAT ============ */
 $('inCallChatBtn').addEventListener('click', () => $('inCallChatDrawer').classList.toggle('show'));
 function setupCallChatListeners() {
   if (!App.activeCallId) return;
