@@ -217,6 +217,20 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       banner.classList.add('show');
     }
   }
+  var debugOn = /[?&]debug=1/.test(window.location.search);
+  if (debugOn) {
+    var panel = document.createElement('div');
+    panel.style.cssText = 'position:fixed;bottom:0;left:0;right:0;max-height:40vh;background:rgba(0,0,0,.92);color:#4aff7a;font-family:monospace;font-size:11px;padding:8px;overflow-y:auto;z-index:999999;white-space:pre-wrap;border-top:2px solid #d4af37;';
+    document.body.appendChild(panel);
+    var log = function(msg) { panel.textContent += '[' + new Date().toLocaleTimeString() + '] ' + msg + '\n'; panel.scrollTop = panel.scrollHeight; };
+    log('JARVIS debug ON — iOS=' + iOSMajor + ' | Safari=' + window.__jarvisIsIOS);
+    var origErr = console.error, origWarn = console.warn, origLog = console.log;
+    console.error = function() { log('ERR: ' + Array.prototype.join.call(arguments, ' ')); origErr.apply(console, arguments); };
+    console.warn = function() { log('WRN: ' + Array.prototype.join.call(arguments, ' ')); origWarn.apply(console, arguments); };
+    console.log = function() { log('LOG: ' + Array.prototype.join.call(arguments, ' ')); origLog.apply(console, arguments); };
+    window.addEventListener('error', function(e) { log('ERR: ' + (e.message || e.error)); });
+    window.addEventListener('unhandledrejection', function(e) { log('REJ: ' + e.reason); });
+  }
   setTimeout(function() {
     if (!window.__jarvisAppStarted) {
       var lo = document.getElementById('loadingOverlay');
@@ -631,7 +645,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref as dbRef, push, onValue, remove, set, get, query, limitToLast, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref as dbRef, push, onValue, remove, set, get, query, limitToLast, onChildAdded, goOffline, goOnline } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 if (window.__jarvisMarkStarted) window.__jarvisMarkStarted();
@@ -649,6 +663,18 @@ const firebaseConfig = {
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
 const auth = getAuth(fbApp);
+
+if (window.__jarvisIsIOS) {
+  try {
+    var repo = db._repoInternal || db.repo_ || db._repo;
+    if (repo) {
+      repo.forceLongPolling = true;
+      if (repo.persistentConnection_) repo.persistentConnection_.forceLongPolling = true;
+    }
+    console.log('iOS: long-polling forced');
+  } catch (e) { console.warn('Could not force long-polling:', e); }
+}
+
 const ICE_SERVERS = { iceServers: [
   { urls: "stun:stun.l.google.com:19302" },
   { urls: "stun:stun1.l.google.com:19302" },
@@ -667,8 +693,12 @@ const App = {
   isMuted: false, installPrompt: null, videoSender: null, virtualBgStream: null,
   currentBg: 'none', conferenceMembers: [],
   pendingCallTarget: null, pendingCallType: false, pendingBg: 'none',
-  isIOS: /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
-  isStandalone: window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+  isIOS: window.__jarvisIsIOS === true,
+  isStandalone: window.__jarvisIsStandalone === true,
+  _cloudSynced: false,
+  _contactsListener: null,
+  listenerWatchdogs: {},
+  listenerAttempts: {}
 };
 
 let currentAuthUser = null;
@@ -757,7 +787,6 @@ function withTimeout(promise, ms) {
   });
 }
 
-/* AUTH TABS */
 $('authTabSignIn').addEventListener('click', function() {
   $('authTabSignIn').classList.add('active'); $('authTabSignUp').classList.remove('active');
   $('authSignInForm').style.display = 'flex'; $('authSignUpForm').style.display = 'none';
@@ -893,48 +922,30 @@ async function handleForgotPassword() {
   var confirmPwd = $('forgotConfirmPassword').value;
   var status = $('forgotStatus');
   var slug = slugify(name);
-
   if (!slug) { status.textContent = 'Enter your name'; status.style.color = '#ff4757'; return; }
   if (!recovery) { status.textContent = 'Enter your recovery phrase'; status.style.color = '#ff4757'; return; }
   if (!newPwd || newPwd.length < 6) { status.textContent = 'New password needs 6+ chars'; status.style.color = '#ff4757'; return; }
   if (newPwd !== confirmPwd) { status.textContent = 'Passwords do not match'; status.style.color = '#ff4757'; return; }
-
   status.textContent = 'Verifying…'; status.style.color = '#d4af37';
-
   try {
     var snap = await get(dbRef(db, 'users/' + slug));
     if (!snap.exists()) { status.textContent = 'No account with this name'; status.style.color = '#ff4757'; return; }
     var userData = snap.val();
-    if (!userData.recoveryHash) { status.textContent = 'No recovery phrase set for this account. Sign in and add one from Profile.'; status.style.color = '#ff4757'; return; }
-
+    if (!userData.recoveryHash) { status.textContent = 'No recovery phrase set. Sign in and add one from Profile.'; status.style.color = '#ff4757'; return; }
     var inputHash = await sha256Hex(recovery);
     if (inputHash !== userData.recoveryHash) { status.textContent = 'Recovery phrase is incorrect'; status.style.color = '#ff4757'; return; }
-
     status.textContent = 'Reset in progress…';
-
     var newEmail = slug + '-v' + Date.now() + '@jarvis-app.local';
     var userCred;
-    try {
-      userCred = await createUserWithEmailAndPassword(auth, newEmail, newPwd);
-    } catch (err) {
-      console.error('Recovery auth:', err);
-      status.textContent = 'Reset failed. Try again.'; status.style.color = '#ff4757';
-      return;
-    }
-
+    try { userCred = await createUserWithEmailAndPassword(auth, newEmail, newPwd); }
+    catch (err) { console.error('Recovery auth:', err); status.textContent = 'Reset failed. Try again.'; status.style.color = '#ff4757'; return; }
     await set(dbRef(db, 'users/' + slug + '/activeAuthEmail'), newEmail);
     await set(dbRef(db, 'users/' + slug + '/authUid'), userCred.user.uid);
-
     currentAuthUser = userCred.user;
     App.mySlug = slug; App.myName = userData.displayName || name;
     LS.set('mySlug', slug); LS.set('myName', App.myName);
-
     status.textContent = 'Success! Signing in…'; status.style.color = '#4aff7a';
-    setTimeout(function() {
-      $('forgotPasswordModal').classList.remove('show');
-      startMainApp();
-      toast('Password reset ✓');
-    }, 600);
+    setTimeout(function() { $('forgotPasswordModal').classList.remove('show'); startMainApp(); toast('Password reset ✓'); }, 600);
   } catch (err) {
     console.error('Forgot:', err);
     status.textContent = 'Reset failed. Try again.'; status.style.color = '#ff4757';
@@ -945,11 +956,9 @@ async function handleSetRecovery() {
   var currentPwd = $('setRecoveryCurrentPwd').value;
   var newPhrase = $('setRecoveryPhrase').value.trim();
   var confirmPhrase = $('setRecoveryPhraseConfirm').value.trim();
-
   if (!currentPwd) return toast('Enter current password', true);
   if (!newPhrase || newPhrase.length < 4) return toast('Recovery phrase needs 4+ chars', true);
   if (newPhrase !== confirmPhrase) return toast('Phrases do not match', true);
-
   try {
     var activeEmail = await lookupActiveAuthEmail(App.mySlug);
     var credential = EmailAuthProvider.credential(activeEmail, currentPwd);
@@ -995,9 +1004,7 @@ onAuthStateChanged(auth, async function(user) {
         var d = snap.val();
         App.myName = d.displayName || slug;
         App.myPhoto = d.photo || null;
-      } else {
-        App.myName = slug;
-      }
+      } else { App.myName = slug; }
       LS.set('mySlug', slug); LS.set('myName', App.myName);
       startMainApp();
     } catch (err) {
@@ -1080,6 +1087,7 @@ function updateSyncIndicator(state) {
   var dot = document.querySelector('.app-header .online-dot'); if (!dot) return;
   if (state === 'cached') dot.style.background = '#8a9baa';
   else if (state === 'syncing') dot.style.background = '#d4af37';
+  else if (state === 'error') dot.style.background = '#ff4757';
   else dot.style.background = '#4aff7a';
 }
 function notificationState() {
@@ -1169,6 +1177,33 @@ window.addEventListener('load', function() {
   updateNotifPermStatus();
 });
 
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible' && App.isIOS && App.mySlug) {
+    console.log('iOS foreground — reconnecting');
+    try { goOffline(db); } catch (e) {}
+    setTimeout(function() {
+      try { goOnline(db); } catch (e) {}
+      setTimeout(function() {
+        if (App.mySlug && (!App._contactsListener || App.contacts.length === 0)) restoreCloudContent();
+      }, 1200);
+    }, 500);
+  }
+});
+window.addEventListener('online', function() {
+  if (App.mySlug) {
+    toast('Reconnected — syncing…');
+    setTimeout(function() { forceFullRefresh(); }, 1000);
+  }
+});
+window.addEventListener('offline', function() {
+  if (App.mySlug) toast('You are offline', true);
+});
+
+window.__hardRefresh = function() {
+  toast('Reloading…');
+  setTimeout(function() { location.reload(); }, 400);
+};
+
 function startMainApp() {
   showScreen('screen-main');
   updateSyncIndicator('cached');
@@ -1217,16 +1252,27 @@ async function forceFullRefresh() {
   var btn = $('forceSyncBtn'), orig = btn ? btn.textContent : '';
   if (btn) { btn.disabled = true; btn.textContent = '🔄 Refreshing…'; }
   toast('Refreshing from cloud…');
+  // Unsubscribe all existing listeners so they re-establish fresh
+  Object.keys(App.globalUnsubs).forEach(function(id) {
+    try { if (typeof App.globalUnsubs[id] === 'function') App.globalUnsubs[id](); } catch (e) {}
+  });
+  App.globalUnsubs = {};
+  App.listenerWatchdogs = {};
+  App.listenerAttempts = {};
+  if (App._contactsListener) {
+    try { if (typeof App._contactsListener === 'function') App._contactsListener(); } catch (e) {}
+    App._contactsListener = null;
+  }
   try {
     LS.del('cached_chats'); LS.del('cached_statuses');
-    var ures = await withTimeout(get(dbRef(db, 'users/' + App.mySlug)), 12000);
+    var ures = await withTimeout(get(dbRef(db, 'users/' + App.mySlug)), 25000);
     if (ures && ures.result && ures.result.exists && ures.result.exists()) {
       var u = ures.result.val();
       if (u.photo) App.myPhoto = u.photo;
       if (u.displayName) App.myName = u.displayName;
       updateProfileHeader();
     }
-    var cres = await withTimeout(get(dbRef(db, 'users/' + App.mySlug + '/contacts')), 12000);
+    var cres = await withTimeout(get(dbRef(db, 'users/' + App.mySlug + '/contacts')), 25000);
     if (cres && cres.result && cres.result.exists && cres.result.exists()) {
       var data = cres.result.val() || {}, slugs = Object.keys(data);
       for (var i = 0; i < slugs.length; i++) {
@@ -1237,6 +1283,7 @@ async function forceFullRefresh() {
         }
       }
       saveContacts(); saveLastSeenTimes();
+      App._cloudSynced = true;
     }
     for (var j = 0; j < App.contacts.length; j++) if (!App.globalUnsubs[App.contacts[j].slug]) setupMessageListener(App.contacts[j].slug, false);
     for (var k = 0; k < App.groups.length; k++) if (!App.globalUnsubs[App.groups[k].id]) setupGroupMessageListener(App.groups[k].id);
@@ -1257,28 +1304,37 @@ async function restoreCloudContent() {
   if (cachedStatus.length > 0) renderStatusFeedList(cachedStatus);
   updateSyncIndicator('syncing');
   try {
-    var ures = await withTimeout(get(dbRef(db, 'users/' + App.mySlug)), 10000);
+    var ures = await withTimeout(get(dbRef(db, 'users/' + App.mySlug)), 20000);
     if (ures && ures.result && ures.result.exists && ures.result.exists()) {
       var u = ures.result.val();
       if (u.photo) App.myPhoto = u.photo;
       if (u.displayName) App.myName = u.displayName;
       updateProfileHeader();
     }
-    var cres = await withTimeout(get(dbRef(db, 'users/' + App.mySlug + '/contacts')), 10000);
-    if (cres && cres.result && cres.result.exists && cres.result.exists()) {
-      var data = cres.result.val() || {}, slugs = Object.keys(data), changed = false;
-      for (var i2 = 0; i2 < slugs.length; i2++) {
-        var c = data[slugs[i2]];
-        if (c && c.slug && !findContact(c.slug)) {
-          App.contacts.push({ slug: c.slug, name: c.name || c.slug, photo: c.photo || null });
-          App.lastSeenTimes[c.slug] = App.lastSeenTimes[c.slug] || Date.now();
-          setupMessageListener(c.slug, false); changed = true;
+    // Use onValue for contacts — auto-retries if connection drops
+    if (!App._contactsListener) {
+      App._contactsListener = onValue(dbRef(db, 'users/' + App.mySlug + '/contacts'), function(snap) {
+        if (!snap.exists()) { updateSyncIndicator('live'); return; }
+        var data = snap.val() || {}, slugs = Object.keys(data), changed = false;
+        for (var i2 = 0; i2 < slugs.length; i2++) {
+          var c = data[slugs[i2]];
+          if (c && c.slug && !findContact(c.slug)) {
+            App.contacts.push({ slug: c.slug, name: c.name || c.slug, photo: c.photo || null });
+            App.lastSeenTimes[c.slug] = App.lastSeenTimes[c.slug] || Date.now();
+            setupMessageListener(c.slug, false); changed = true;
+          }
         }
-      }
-      if (changed) { saveContacts(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); }
+        if (changed) { saveContacts(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); }
+        App._cloudSynced = true;
+        updateSyncIndicator('live');
+      }, function(error) {
+        console.error('Contacts listener error:', error);
+        App._contactsListener = null;
+        updateSyncIndicator('error');
+        setTimeout(function() { if (App.mySlug) restoreCloudContent(); }, 5000);
+      });
     }
-    updateSyncIndicator('live');
-  } catch (err) { console.warn('Restore:', err); updateSyncIndicator('live'); }
+  } catch (err) { console.warn('Restore:', err); updateSyncIndicator('error'); }
 }
 
 function findContact(slug) { for (var i = 0; i < App.contacts.length; i++) if (App.contacts[i].slug === slug) return App.contacts[i]; return null; }
@@ -1350,9 +1406,28 @@ function listenIncomingCalls() {
 function setupMessageListener(id, isGroup) {
   var path = isGroup ? 'group_chats/' + id + '/messages' : 'chats/' + chatIdFor(App.mySlug, id) + '/messages';
   if (App.globalUnsubs[id]) return;
-  App.globalUnsubs[id] = true;
   var firstLoad = true;
-  onValue(query(dbRef(db, path), limitToLast(100)), function(snap) {
+  var attempts = App.listenerAttempts[id] || 0;
+
+  App.listenerWatchdogs[id] = setTimeout(function() {
+    if (firstLoad && attempts < 2) {
+      console.warn('Listener timeout for ' + id + ' — retrying (' + (attempts + 1) + ')');
+      try { if (typeof App.globalUnsubs[id] === 'function') App.globalUnsubs[id](); } catch (e) {}
+      delete App.globalUnsubs[id];
+      App.listenerAttempts[id] = attempts + 1;
+      setupMessageListener(id, isGroup);
+    } else if (firstLoad && attempts >= 2) {
+      console.warn('Listener giving up for ' + id);
+      delete App.globalUnsubs[id];
+      delete App.listenerAttempts[id];
+      updateSyncIndicator('error');
+    }
+  }, 25000);
+
+  var unsub = onValue(query(dbRef(db, path), limitToLast(100)), function(snap) {
+    clearTimeout(App.listenerWatchdogs[id]);
+    delete App.listenerWatchdogs[id];
+    delete App.listenerAttempts[id];
     var data = snap.val() || {};
     var msgs = Object.keys(data).map(function(k) { var v = data[k]; v._k = k; return v; }).sort(function(a, b) { return (a.time || 0) - (b.time || 0); });
     if (!firstLoad && msgs.length && App.activeChat !== id) {
@@ -1367,10 +1442,22 @@ function setupMessageListener(id, isGroup) {
     }
     firstLoad = false;
     App.lastMessages[id] = msgs;
+    updateSyncIndicator('live');
     if (debouncedSaveCache) debouncedSaveCache();
     if (App.activeChat === id) renderMessages(id, msgs, isGroup);
     if (debouncedBuildUI) debouncedBuildUI();
+  }, function(error) {
+    console.error('Listener error for ' + id + ':', error);
+    clearTimeout(App.listenerWatchdogs[id]);
+    delete App.listenerWatchdogs[id];
+    delete App.globalUnsubs[id];
+    if (attempts < 2) {
+      App.listenerAttempts[id] = attempts + 1;
+      setTimeout(function() { setupMessageListener(id, isGroup); }, 3000);
+    }
   });
+
+  App.globalUnsubs[id] = unsub;
 }
 function setupGroupMessageListener(id) { setupMessageListener(id, true); }
 
@@ -1385,8 +1472,10 @@ function buildUI() {
     }
   }
   html += '<div class="section-title">Friend List</div>';
-  if (!App.contacts.length) html += '<div class="empty"><div class="empty-icon">💬</div><p>No contacts yet.<br>Tap <strong>＋</strong> to add.</p></div>';
-  else {
+  if (!App.contacts.length) {
+    var syncState = App._cloudSynced === true ? '' : '<div style="margin-top:10px;color:#d4af37;font-size:13px;">Syncing from cloud…</div>';
+    html += '<div class="empty"><div class="empty-icon">💬</div><p>No contacts yet.<br>Tap <strong>＋</strong> to add.</p>' + syncState + '<button onclick="window.__hardRefresh()" style="margin-top:16px;padding:12px 22px;background:#0d7a8c;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">🔄 Reload from cloud</button></div>';
+  } else {
     for (var j = 0; j < App.contacts.length; j++) {
       var c = App.contacts[j], uc = App.unreadCounts[c.slug] || 0;
       html += '<div class="list-item" onclick="window.__openChat(\'' + c.slug + '\', false)"><div class="avatar" onclick="event.stopPropagation(); window.__viewAvatar(\'' + (c.photo || '') + '\',\'' + esc(c.name) + '\')">' + avatarInner(c.photo, c.name) + '</div><div class="list-item-body"><div class="list-item-header"><div class="list-item-title">' + esc(c.name) + '</div>' + (uc > 0 ? '<div class="badge-unread">' + uc + '</div>' : '') + '</div><div class="list-item-sub">@' + c.slug + '</div></div><div class="list-item-action">›</div></div>';
@@ -1409,7 +1498,34 @@ function buildUI() {
   }
 }
 debouncedBuildUI = debounce(buildUI, 250);
-debouncedSaveCache = debounce(function() { try { LS.set('cached_chats', App.lastMessages); } catch (e) {} }, 800);
+debouncedSaveCache = debounce(function() {
+  try {
+    var result = {};
+    var totalSize = 0;
+    var MAX_SIZE = 1500000;
+    var ids = Object.keys(App.lastMessages);
+    for (var i = 0; i < ids.length; i++) {
+      var id = ids[i];
+      var arr = App.lastMessages[id] || [];
+      var trimmed = arr.slice(-20);
+      var compact = [];
+      for (var j = 0; j < trimmed.length; j++) {
+        var m = trimmed[j];
+        var cm = { _k: m._k, from: m.from, fromName: m.fromName, text: m.text, time: m.time, edited: m.edited };
+        if (m.attachment) cm.attachment = { type: m.attachment.type, name: m.attachment.name };
+        compact.push(cm);
+      }
+      var size = JSON.stringify(compact).length;
+      if (totalSize + size > MAX_SIZE) break;
+      result[id] = compact;
+      totalSize += size;
+    }
+    localStorage.setItem('gcp_cached_chats', JSON.stringify(result));
+  } catch (e) {
+    console.warn('Cache write failed (likely quota):', e);
+    try { localStorage.removeItem('gcp_cached_chats'); } catch (e2) {}
+  }
+}, 800);
 
 window.__openChat = function(id, isGroup) {
   if (!isGroup && !isOwner() && id !== App.mySlug && !findContact(id)) return toast('Add this user to DM them', true);
