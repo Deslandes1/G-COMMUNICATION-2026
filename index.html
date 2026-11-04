@@ -36,7 +36,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 .app-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;min-height:64px;border-bottom:2px solid var(--gold);flex-shrink:0;z-index:5}
 .app-header .logo{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px !important;font-family:Calibri,sans-serif;flex-shrink:0}
 .app-header h2{font-size:21px !important;font-family:Calibri,sans-serif;font-weight:700;flex:1}
-.app-header .online-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+.app-header .online-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);transition:background .3s}
 .tab-content{flex:1;overflow-y:auto;padding-bottom:80px;position:relative;z-index:1}
 .tab-content::-webkit-scrollbar{display:none}
 .bottom-nav{position:absolute;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-top:1px solid rgba(11,42,74,.08);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:10;box-shadow:0 -4px 20px rgba(11,42,74,.06)}
@@ -526,6 +526,18 @@ const App = {
 };
 
 const $ = id => document.getElementById(id);
+
+/* ============ PATCH 1: Debounce utility ============ */
+function debounce(fn, delay) {
+  let timer = null;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+let debouncedBuildUI = null;
+let debouncedSaveCache = null;
+
 const LS = {
   get: (k, d) => { try { return JSON.parse(localStorage.getItem('gcp_' + k)) ?? d; } catch { return d; } },
   set: (k, v) => { try { localStorage.setItem('gcp_' + k, JSON.stringify(v)); } catch {} },
@@ -559,6 +571,15 @@ function fileToBase64(file) {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+}
+
+/* ============ PATCH 7: Sync indicator ============ */
+function updateSyncIndicator(state) {
+  const dot = document.querySelector('.app-header .online-dot');
+  if (!dot) return;
+  if (state === 'cached') dot.style.background = '#8a9baa';
+  else if (state === 'syncing') dot.style.background = '#d4af37';
+  else dot.style.background = '#4aff7a';
 }
 
 /* ============ EMBEDDED VIDEO ============ */
@@ -708,17 +729,22 @@ $('installBannerBtn')?.addEventListener('click', async () => {
 });
 $('installBannerClose')?.addEventListener('click', () => $('installBanner').classList.remove('show'));
 
-/* ============ FAST RESTORE ============ */
+/* ============ PATCH 4: Optimized restore (no duplicate message fetch) ============ */
 async function restoreCloudContent() {
   if (!App.mySlug) return;
+
+  // STEP 1 — Instant cache paint
   const cachedChats = LS.get('cached_chats', {});
   if (Object.keys(cachedChats).length > 0) {
-    App.lastMessages = cachedChats;
+    App.lastMessages = { ...App.lastMessages, ...cachedChats };
     if (App.activeChat) renderMessages(App.activeChat, App.lastMessages[App.activeChat] || [], App.activeIsGroup);
   }
   const cachedStatus = LS.get('cached_statuses', []);
   if (cachedStatus.length > 0) renderStatusFeedList(cachedStatus);
-  toast('Fast syncing cloud contents…');
+
+  updateSyncIndicator('syncing');
+
+  // STEP 2 — Only fetch profile + contacts (messages come from onValue listeners)
   try {
     const [userSnap, contactsSnap] = await Promise.all([
       get(dbRef(db, `users/${App.mySlug}`)),
@@ -730,29 +756,37 @@ async function restoreCloudContent() {
       if (u.displayName) App.myName = u.displayName;
       updateProfileHeader();
     }
+    let contactsChanged = false;
     if (contactsSnap.exists()) {
       Object.values(contactsSnap.val()).forEach(c => {
         if (c && c.slug && !App.contacts.some(e => e.slug === c.slug)) {
           App.contacts.push({ slug: c.slug, name: c.name || c.slug, photo: c.photo || null });
+          App.lastSeenTimes[c.slug] = App.lastSeenTimes[c.slug] || Date.now();
+          setupMessageListener(c.slug, false);
+          contactsChanged = true;
         }
       });
-      saveContacts();
+      if (contactsChanged) {
+        saveContacts();
+        saveLastSeenTimes();
+        debouncedBuildUI();
+      }
     }
-    const fetches = App.contacts.map(c => {
-      const path = `chats/${chatIdFor(App.mySlug, c.slug)}/messages`;
-      return get(query(dbRef(db, path), limitToLast(100))).then(snap => {
-        if (snap.exists()) {
-          const msgs = Object.entries(snap.val()).map(([k, v]) => ({ ...v, _k: k })).sort((a, b) => (a.time || 0) - (b.time || 0));
-          App.lastMessages[c.slug] = msgs;
-        }
-      }).catch(() => {});
-    });
-    await Promise.all(fetches);
-    LS.set('cached_chats', App.lastMessages);
-    buildUI();
-    if (App.activeChat) renderMessages(App.activeChat, App.lastMessages[App.activeChat] || [], App.activeIsGroup);
-    toast('All contents restored ✓');
-  } catch (err) { console.error('Recovery error:', err); }
+    updateSyncIndicator('live');
+  } catch (err) { console.warn('Recovery error:', err); updateSyncIndicator('live'); }
+}
+
+async function syncAccountDataFromCloud() {
+  if (!App.mySlug) return;
+  try {
+    const userSnap = await get(dbRef(db, 'users/' + App.mySlug));
+    if (userSnap.exists()) {
+      const u = userSnap.val();
+      if (u.photo) App.myPhoto = u.photo;
+      if (u.displayName) App.myName = u.displayName;
+      updateProfileHeader();
+    }
+  } catch (e) { console.warn("Cloud sync error:", e); }
 }
 
 function saveContacts() { LS.set('contacts', App.contacts); }
@@ -792,6 +826,7 @@ enterBtn.addEventListener('click', async () => {
 });
 nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') enterBtn.click(); });
 
+/* ============ PATCH 5: Load cached messages on startup ============ */
 window.addEventListener('load', () => {
   App.contacts = LS.get('contacts', []);
   App.groups = LS.get('groups', []);
@@ -799,6 +834,7 @@ window.addEventListener('load', () => {
   App.unreadCounts = LS.get('unreadCounts', {});
   App.lastSeenTimes = LS.get('lastSeenTimes', {});
   App.blockedUsers = LS.get('blockedUsers', []);
+  App.lastMessages = LS.get('cached_chats', {});
   const savedSlug = LS.get('mySlug', null);
   const savedName = LS.get('myName', null);
   const savedPhoto = LS.get('avatar', null);
@@ -827,6 +863,7 @@ $('permBtn')?.addEventListener('click', async () => {
 
 function startMainApp() {
   showScreen('screen-main');
+  updateSyncIndicator('cached');
   updateProfileHeader();
   renderBlockedUsersList();
   buildUI();
@@ -852,7 +889,7 @@ function startMainApp() {
           uiChanged = true;
         }
       });
-      if (uiChanged) buildUI();
+      if (uiChanged) debouncedBuildUI();
     });
   }
   onValue(dbRef(db, 'group_chats'), snap => {
@@ -867,9 +904,11 @@ function startMainApp() {
         uiChanged = true;
       }
     });
-    if (uiChanged) buildUI();
+    if (uiChanged) debouncedBuildUI();
   });
   updateAppBadge();
+  /* PATCH 6: reduced poll frequency */
+  setInterval(syncAccountDataFromCloud, 60000);
 }
 
 /* ============ BLOCKED ============ */
@@ -918,7 +957,7 @@ function listenIncomingCalls() {
   });
 }
 
-/* ============ MESSAGE LISTENER ============ */
+/* ============ PATCH 3: Debounced listener updates ============ */
 function setupMessageListener(id, isGroup) {
   const path = isGroup ? `group_chats/${id}/messages` : `chats/${chatIdFor(App.mySlug, id)}/messages`;
   if (App.globalUnsubs[id]) return;
@@ -940,9 +979,9 @@ function setupMessageListener(id, isGroup) {
     }
     firstLoad = false;
     App.lastMessages[id] = msgs;
-    LS.set('cached_chats', App.lastMessages);
+    debouncedSaveCache();
     if (App.activeChat === id) renderMessages(id, msgs, isGroup);
-    buildUI();
+    debouncedBuildUI();
   });
 }
 function setupGroupMessageListener(groupId) { setupMessageListener(groupId, true); }
@@ -1009,6 +1048,12 @@ function buildUI() {
   }
 }
 
+/* ============ PATCH 2: Initialize debounced functions after buildUI ============ */
+debouncedBuildUI = debounce(buildUI, 250);
+debouncedSaveCache = debounce(() => {
+  try { LS.set('cached_chats', App.lastMessages); } catch {}
+}, 800);
+
 window.__openChat = (id, isGroup) => {
   if (!isGroup && !isOwner() && id !== App.mySlug) {
     if (!App.contacts.some(c => c.slug === id)) return toast('You must add this user to your Friend List to DM them', true);
@@ -1024,8 +1069,8 @@ window.__openChat = (id, isGroup) => {
   $('videoCallFromChatBtn').style.display = isGroup ? 'none' : 'block';
   $('blockUserFromChatBtn').style.display = isGroup ? 'none' : 'block';
   showScreen('screen-chat');
+  renderMessages(id, App.lastMessages[id] || [], isGroup);
   if (!App.globalUnsubs[id]) setupMessageListener(id, isGroup);
-  else renderMessages(id, App.lastMessages[id] || [], isGroup);
 };
 $('blockUserFromChatBtn').addEventListener('click', () => {
   if (App.activeChat && !App.activeIsGroup) window.blockUser(App.activeChat);
@@ -1572,36 +1617,29 @@ window.__ownerDeleteP2PMessage = async (chatId, msgKey) => {
 let activeCanvasStream = null;
 let activeCanvasVideo = null;
 let activeCanvasLoop = null;
-
 function stopActiveCanvas() {
   if (activeCanvasStream) { activeCanvasStream.getTracks().forEach(t => t.stop()); activeCanvasStream = null; }
   if (activeCanvasVideo) { try { activeCanvasVideo.pause(); } catch {} activeCanvasVideo.srcObject = null; activeCanvasVideo = null; }
   if (activeCanvasLoop) { cancelAnimationFrame(activeCanvasLoop); activeCanvasLoop = null; }
 }
-
 async function buildActiveStream(bgKey) {
   stopActiveCanvas();
   const bg = PROFESSIONAL_BACKGROUNDS.find(b => b.key === bgKey);
   const origVideoTrack = App.localStream ? App.localStream.getVideoTracks()[0] : null;
-
   if (!bg || bgKey === 'none') {
     if ($('localVideo')) { $('localVideo').srcObject = App.localStream; $('localVideo').style.filter = 'none'; }
     return { videoTrack: origVideoTrack, stream: App.localStream };
   }
-
   if (!App.localStream || !origVideoTrack) return { videoTrack: origVideoTrack, stream: App.localStream };
-
   const video = document.createElement('video');
   video.srcObject = App.localStream;
   video.muted = true;
   video.playsInline = true;
   await video.play();
   activeCanvasVideo = video;
-
   const canvas = document.createElement('canvas');
   canvas.width = 1280; canvas.height = 720;
   const ctx = canvas.getContext('2d');
-
   let bgImg = null;
   if (bg.type === 'image') {
     bgImg = new Image();
@@ -1609,24 +1647,18 @@ async function buildActiveStream(bgKey) {
     bgImg.src = bg.url;
     await new Promise(res => { bgImg.onload = res; bgImg.onerror = res; });
   }
-
   function drawFrame() {
     if (bg.type === 'filter') {
       if (video.videoWidth) {
-        ctx.save();
-        ctx.filter = bg.value;
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        ctx.restore();
+        ctx.save(); ctx.filter = bg.value; ctx.drawImage(video, 0, 0, canvas.width, canvas.height); ctx.restore();
       }
     } else {
       if (bg.type === 'image' && bgImg && bgImg.complete) {
         ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
       } else {
         const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-        grad.addColorStop(0, '#0b2a4a');
-        grad.addColorStop(1, '#0d7a8c');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        grad.addColorStop(0, '#0b2a4a'); grad.addColorStop(1, '#0d7a8c');
+        ctx.fillStyle = grad; ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
       if (video.videoWidth) {
         ctx.fillStyle = 'rgba(0,0,0,0.2)';
@@ -1639,8 +1671,7 @@ async function buildActiveStream(bgKey) {
         const y = (canvas.height - targetH) / 2;
         const r = 40;
         ctx.save();
-        ctx.shadowColor = 'rgba(0,0,0,0.6)';
-        ctx.shadowBlur = 30;
+        ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 30;
         ctx.beginPath();
         ctx.moveTo(x + r, y);
         ctx.lineTo(x + targetW - r, y);
@@ -1651,8 +1682,7 @@ async function buildActiveStream(bgKey) {
         ctx.quadraticCurveTo(x, y + targetH, x, y + targetH - r);
         ctx.lineTo(x, y + r);
         ctx.quadraticCurveTo(x, y, x + r, y);
-        ctx.closePath();
-        ctx.clip();
+        ctx.closePath(); ctx.clip();
         ctx.drawImage(video, x, y, targetW, targetH);
         ctx.restore();
       }
@@ -1660,14 +1690,13 @@ async function buildActiveStream(bgKey) {
     activeCanvasLoop = requestAnimationFrame(drawFrame);
   }
   drawFrame();
-
   const canvasStream = canvas.captureStream(30);
   activeCanvasStream = canvasStream;
   if ($('localVideo')) { $('localVideo').srcObject = canvasStream; $('localVideo').style.filter = 'none'; }
   return { videoTrack: canvasStream.getVideoTracks()[0], stream: canvasStream };
 }
 
-/* ============ PROFESSIONAL BACKGROUNDS ============ */
+/* ============ BACKGROUNDS ============ */
 const PROFESSIONAL_BACKGROUNDS = [
   { key: 'none', label: 'Normal Camera', type: 'filter', value: 'none' },
   { key: 'blur', label: 'Blurred', type: 'filter', value: 'blur(8px)' },
@@ -1691,14 +1720,12 @@ function buildBackgroundGallery() {
     return `<div class="bg-tile${active}" data-bg="${bg.key}" onclick="window.__applyBackground('${bg.key}')">${preview}<div class="bg-tile-label">${bg.label}</div></div>`;
   }).join('');
 }
-
 $('filterBtn').addEventListener('click', () => {
   if (!App.isVideoCall) return toast('Backgrounds available in video calls only', true);
   buildBackgroundGallery();
   $('bgGalleryModal').classList.add('show');
 });
 $('bgGalleryClose').addEventListener('click', () => $('bgGalleryModal').classList.remove('show'));
-
 window.__applyBackground = async (bgKey) => {
   try {
     const result = await buildActiveStream(bgKey);
@@ -1713,7 +1740,7 @@ window.__applyBackground = async (bgKey) => {
   }
 };
 
-/* ============ PRE-CALL SETUP ============ */
+/* ============ PRE-CALL ============ */
 function buildPreCallBgGallery() {
   const grid = $('preCallBgGrid');
   if (!grid) return;
@@ -1725,17 +1752,11 @@ function buildPreCallBgGallery() {
     return `<div class="bg-tile${active}" data-bg="${bg.key}" onclick="window.__selectPreCallBg('${bg.key}')" style="height:60px;">${preview}<div class="bg-tile-label" style="font-size:11px;">${bg.label}</div></div>`;
   }).join('');
 }
-
-window.__selectPreCallBg = (bgKey) => {
-  App.pendingBg = bgKey;
-  buildPreCallBgGallery();
-};
-
+window.__selectPreCallBg = (bgKey) => { App.pendingBg = bgKey; buildPreCallBgGallery(); };
 window.startCall = (targetSlug, isVideo) => {
   if (!targetSlug || targetSlug === App.mySlug) return toast('Select a valid contact to call', true);
   showPreCallSetup(targetSlug, isVideo);
 };
-
 function showPreCallSetup(targetSlug, isVideo) {
   App.pendingCallTarget = targetSlug;
   App.pendingCallType = isVideo;
@@ -1754,12 +1775,10 @@ function showPreCallSetup(targetSlug, isVideo) {
     </div>`).join('') : '<div style="color:var(--muted);padding:8px;font-size:16px;">No other contacts to invite.</div>';
   $('preCallModal').classList.add('show');
 }
-
 $('preCallCancel').addEventListener('click', () => {
   $('preCallModal').classList.remove('show');
   App.pendingCallTarget = null;
 });
-
 $('preCallStart').addEventListener('click', async () => {
   const target = App.pendingCallTarget;
   const isVideo = App.pendingCallType;
@@ -1770,12 +1789,11 @@ $('preCallStart').addEventListener('click', async () => {
   if (invites.length) setTimeout(() => inviteExtraParticipants(invites), 2500);
 });
 
-/* ============ CALLING ENGINE ============ */
+/* ============ CALLING ============ */
 function attachRemoteStream(stream) {
   const rv = $('remoteVideo');
   rv.srcObject = stream;
-  rv.muted = false;
-  rv.volume = 1;
+  rv.muted = false; rv.volume = 1;
   const p = rv.play();
   if (p && p.catch) {
     p.catch(() => {
@@ -1789,14 +1807,12 @@ function attachRemoteStream(stream) {
     });
   }
 }
-
 function ensureAudioTracksEnabled() {
   if (!App.localStream) return;
   const tracks = App.localStream.getAudioTracks();
   if (!tracks.length) { toast('⚠️ No microphone detected — others will not hear you', true); return; }
   tracks.forEach(t => { t.enabled = true; });
 }
-
 async function doStartCall(targetSlug, isVideo) {
   App.currentCallTarget = targetSlug;
   App.isVideoCall = isVideo;
@@ -1817,7 +1833,6 @@ async function doStartCall(targetSlug, isVideo) {
   showScreen('screen-call');
   startRingtoneSound();
   setupCallChatListeners();
-
   try {
     App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
     ensureAudioTracksEnabled();
@@ -1826,8 +1841,6 @@ async function doStartCall(targetSlug, isVideo) {
       $('localVideo').style.filter = 'none';
       $('localVideo').muted = true;
     }
-
-    // ⭐ Apply pending background BEFORE creating the peer connection
     let videoTrackForPc = App.localStream.getVideoTracks()[0];
     if (isVideo && App.pendingBg && App.pendingBg !== 'none') {
       try {
@@ -1835,26 +1848,18 @@ async function doStartCall(targetSlug, isVideo) {
         if (result.videoTrack) videoTrackForPc = result.videoTrack;
         App.currentBg = App.pendingBg;
       } catch (e) { console.error('BG pre-apply failed:', e); }
-    } else {
-      App.currentBg = 'none';
-    }
-
+    } else App.currentBg = 'none';
     App.peerConn = new RTCPeerConnection(ICE_SERVERS);
     App.localStream.getAudioTracks().forEach(t => App.peerConn.addTrack(t, App.localStream));
     if (videoTrackForPc) App.peerConn.addTrack(videoTrackForPc, App.localStream);
     App.videoSender = App.peerConn.getSenders().find(s => s.track && s.track.kind === 'video') || null;
-
-    App.peerConn.ontrack = e => {
-      if (e.streams && e.streams[0]) attachRemoteStream(e.streams[0]);
-    };
-
+    App.peerConn.ontrack = e => { if (e.streams && e.streams[0]) attachRemoteStream(e.streams[0]); };
     const callRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}`);
     const offerCandidatesRef = dbRef(db, `calls/${targetSlug}/${App.activeCallId}/offerCandidates`);
     App.peerConn.onicecandidate = e => { if (e.candidate) push(offerCandidatesRef, e.candidate.toJSON()); };
     const offer = await App.peerConn.createOffer();
     await App.peerConn.setLocalDescription(offer);
     await set(callRef, { caller: App.mySlug, callerName: App.myName, type: isVideo ? 'video' : 'voice', sdp: offer.sdp, status: 'calling', time: Date.now() });
-
     onValue(dbRef(db, `calls/${targetSlug}/${App.activeCallId}/answer`), async snap => {
       const answer = snap.val();
       if (answer && App.peerConn && !App.peerConn.currentRemoteDescription) {
@@ -1875,7 +1880,6 @@ async function doStartCall(targetSlug, isVideo) {
     endCallLocally();
   }
 }
-
 function showInvitePanelForCall() {
   const list = $('participantSelectionList');
   const others = App.contacts.filter(c => c.slug !== App.mySlug && c.slug !== App.currentCallTarget);
@@ -1886,7 +1890,6 @@ function showInvitePanelForCall() {
     </div>`).join('') : '<div style="color:var(--muted);padding:10px;font-size:16px;">No other contacts to invite.</div>';
   $('addParticipantModal').classList.add('show');
 }
-
 $('addParticipantBtn').addEventListener('click', showInvitePanelForCall);
 $('participantCancel').addEventListener('click', () => $('addParticipantModal').classList.remove('show'));
 $('participantConfirm').addEventListener('click', () => {
@@ -1895,7 +1898,6 @@ $('participantConfirm').addEventListener('click', () => {
   $('addParticipantModal').classList.remove('show');
   inviteExtraParticipants(checked);
 });
-
 async function inviteExtraParticipants(slugs) {
   toast('Inviting participants…');
   for (const slug of slugs) {
@@ -1931,7 +1933,6 @@ async function inviteExtraParticipants(slugs) {
   }
   toast('Participants invited ✓');
 }
-
 function renderConferenceGrid() {
   const grid = $('conferenceGrid');
   if (!grid) return;
@@ -1948,7 +1949,6 @@ function renderConferenceGrid() {
     if (v && p.stream) { v.srcObject = p.stream; v.muted = false; v.volume = 1; v.play().catch(() => {}); }
   });
 }
-
 $('acceptCallBtn').addEventListener('click', async () => {
   stopRingtoneSound();
   $('incoming-call').classList.remove('show');
@@ -1966,7 +1966,6 @@ $('acceptCallBtn').addEventListener('click', async () => {
   else $('videoContainer').classList.remove('active');
   showScreen('screen-call');
   setupCallChatListeners();
-
   try {
     App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
     ensureAudioTracksEnabled();
@@ -1978,21 +1977,15 @@ $('acceptCallBtn').addEventListener('click', async () => {
     App.peerConn = new RTCPeerConnection(ICE_SERVERS);
     App.localStream.getTracks().forEach(track => App.peerConn.addTrack(track, App.localStream));
     App.videoSender = App.peerConn.getSenders().find(s => s.track && s.track.kind === 'video') || null;
-
-    App.peerConn.ontrack = e => {
-      if (e.streams && e.streams[0]) attachRemoteStream(e.streams[0]);
-    };
-
+    App.peerConn.ontrack = e => { if (e.streams && e.streams[0]) attachRemoteStream(e.streams[0]); };
     const answerCandRef = dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/answerCandidates`);
     App.peerConn.onicecandidate = e => { if (e.candidate) push(answerCandRef, e.candidate.toJSON()); };
-
     await App.peerConn.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: callData.sdp }));
     const answer = await App.peerConn.createAnswer();
     await App.peerConn.setLocalDescription(answer);
     await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/answer`), { type: answer.type, sdp: answer.sdp });
     await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'connected');
     $('callStatus').textContent = 'Connected';
-
     onChildAdded(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/offerCandidates`), snap => {
       if (App.peerConn) App.peerConn.addIceCandidate(new RTCIceCandidate(snap.val())).catch(() => {});
     });
@@ -2002,13 +1995,11 @@ $('acceptCallBtn').addEventListener('click', async () => {
     endCallLocally();
   }
 });
-
 $('rejectCallBtn').addEventListener('click', async () => {
   stopRingtoneSound();
   $('incoming-call').classList.remove('show');
   if (App.activeCallId) await set(dbRef(db, `calls/${App.mySlug}/${App.activeCallId}/status`), 'rejected');
 });
-
 function endCallLocally() {
   stopRingtoneSound();
   stopActiveCanvas();
@@ -2024,7 +2015,6 @@ function endCallLocally() {
   $('inCallChatDrawer').classList.remove('show');
   showScreen('screen-main');
 }
-
 $('endCallBtn').addEventListener('click', async () => {
   if (App.activeCallId) {
     if (App.currentCallTarget) await set(dbRef(db, `calls/${App.currentCallTarget}/${App.activeCallId}/status`), 'ended').catch(() => {});
@@ -2032,7 +2022,6 @@ $('endCallBtn').addEventListener('click', async () => {
   }
   endCallLocally();
 });
-
 $('muteBtn').addEventListener('click', () => {
   if (!App.localStream) return;
   App.isMuted = !App.isMuted;
@@ -2040,7 +2029,6 @@ $('muteBtn').addEventListener('click', () => {
   $('muteBtn').classList.toggle('active', App.isMuted);
   toast(App.isMuted ? 'Microphone muted' : 'Microphone unmuted');
 });
-
 $('voiceCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, false); });
 $('videoCallFromChatBtn').addEventListener('click', () => { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, true); });
 
@@ -2106,7 +2094,6 @@ $('screenShareBtn').addEventListener('click', async () => {
     toast('Screen sharing active ✓');
   } catch { toast('Screen sharing cancelled', true); }
 });
-
 $('recordCallBtn').addEventListener('click', () => {
   const btn = $('recordCallBtn');
   if (!App.mediaRecorder || App.mediaRecorder.state === 'inactive') {
