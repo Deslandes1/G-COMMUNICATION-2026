@@ -6,44 +6,55 @@
 <meta name="theme-color" content="#0b2a4a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JARVIS">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
 <title>JARVIS</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNjYiIGZpbGw9IiNkNGFlMzciLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5MiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzBiMmE0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RzwvdGV4dD48L3N2Zz4=">
 <style>
 :root{--navy:#0b2a4a;--navy-light:#143a5f;--accent:#0d7a8c;--gold:#d4af37;--green:#4aff7a;--red:#ff4757;--bg:#f2f5f8;--card:#fff;--text:#1e2a33;--muted:#6b7a87;--border:#e1e7ed}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Arial,sans-serif;font-size:19px !important;line-height:1.55;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Arial,sans-serif;font-size:19px !important;line-height:1.55;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+@supports(height:100dvh){html,body{height:100dvh}}
 #app{height:100%;width:100%;display:flex;flex-direction:column;max-width:100%;margin:0 auto;background:var(--bg);position:relative;box-shadow:0 0 40px rgba(0,0,0,.15);overflow:hidden}
 .screen{flex:1;display:none;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);position:relative}
 .screen.active{display:flex}
-.install-banner{background:linear-gradient(90deg,#0b2a4a 0%,#143a5f 40%,#0d7a8c 100%);color:#fff;padding:12px 16px;display:none;align-items:center;gap:10px;font-size:19px !important;font-family:Calibri,sans-serif;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.1);position:relative;z-index:20}
+#loadingOverlay{position:fixed;inset:0;background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 50%,#0d7a8c 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999999;text-align:center;padding:30px 24px;transition:opacity .35s}
+#loadingOverlay.hidden{opacity:0;pointer-events:none}
+#loadingSpinner{width:60px;height:60px;border:5px solid rgba(255,255,255,.2);border-top-color:var(--gold);border-radius:50%;animation:jarvisSpin 1s linear infinite;margin-bottom:22px}
+@keyframes jarvisSpin{to{transform:rotate(360deg)}}
+#loadingText{font-size:24px !important;font-family:Calibri,sans-serif;font-weight:800;letter-spacing:2px;margin-bottom:10px}
+#loadingSub{font-size:16px !important;font-family:Calibri,sans-serif;opacity:.85;max-width:340px;line-height:1.5}
+.loading-retry-btn{margin-top:22px;padding:14px 28px;background:linear-gradient(135deg,#f0d369,#d4af37);color:#0b2a4a;border:none;border-radius:10px;font-weight:800;cursor:pointer;font-size:17px;font-family:Calibri,sans-serif;box-shadow:0 6px 20px rgba(212,175,55,.4)}
+.loading-error-icon{font-size:56px;margin-bottom:14px}
+.install-banner{background:linear-gradient(90deg,#0b2a4a 0%,#143a5f 40%,#0d7a8c 100%);color:#fff;padding:12px 16px;display:none;align-items:center;gap:10px;font-size:16px !important;font-family:Calibri,sans-serif;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.1);position:relative;z-index:20}
 .install-banner.show{display:flex}
 .install-banner .inst-icon{width:36px;height:36px;border-radius:8px;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;flex-shrink:0}
 .install-banner .inst-text{flex:1;line-height:1.4}
-.install-banner button{background:#fff;color:var(--navy);border:none;padding:8px 14px;border-radius:18px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0}
+.install-banner button{background:#fff;color:var(--navy);border:none;padding:8px 14px;border-radius:18px;font-size:14px !important;font-family:Calibri,sans-serif;font-weight:700;cursor:pointer;flex-shrink:0}
 .install-banner .inst-close{background:transparent;color:#fff;padding:4px 6px;font-size:20px;border:none;cursor:pointer;flex-shrink:0;opacity:.7}
 #screen-onboard{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 25%,#0d7a8c 55%,#143a5f 80%,#0b2a4a 100%);color:#fff;justify-content:center;align-items:center;padding:32px 28px;text-align:center;position:relative}
 .onboard-logo{width:115px;height:115px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 50%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:58px;font-weight:800;margin-bottom:24px;box-shadow:0 16px 50px rgba(212,175,55,.55)}
-#screen-onboard h1{font-size:36px !important;font-family:Calibri,sans-serif;letter-spacing:4px;margin-bottom:8px;font-weight:800}
-#screen-onboard p{font-size:19px !important;font-family:Calibri,sans-serif;opacity:.9;line-height:1.55;max-width:340px;margin-bottom:24px}
+#screen-onboard h1{font-size:34px !important;font-family:Calibri,sans-serif;letter-spacing:4px;margin-bottom:8px;font-weight:800}
+#screen-onboard p{font-size:18px !important;font-family:Calibri,sans-serif;opacity:.9;line-height:1.55;max-width:340px;margin-bottom:24px}
 .onboard-input{width:100%;max-width:340px;padding:16px 20px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.14);border-radius:12px;font-size:19px !important;font-family:Calibri,sans-serif;color:#fff;outline:none;margin-bottom:12px;text-align:center}
 .onboard-input::placeholder{color:rgba(255,255,255,.55)}
-.name-status{font-size:17px !important;font-family:Calibri,sans-serif;color:rgba(255,255,255,.8);margin-bottom:14px;min-height:20px}
+.name-status{font-size:15px !important;font-family:Calibri,sans-serif;color:rgba(255,255,255,.8);margin-bottom:14px;min-height:20px}
 .name-status.ok{color:#4aff7a;font-weight:600}
 .name-status.bad{color:#ff8b8b;font-weight:600}
-.btn-primary{width:100%;max-width:340px;padding:16px;border:none;border-radius:12px;background:linear-gradient(135deg,#f0d369 0%,#d4af37 50%,#b8912a 100%);color:var(--navy);font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(212,175,55,.4)}
+.btn-primary{width:100%;max-width:340px;padding:16px;border:none;border-radius:12px;background:linear-gradient(135deg,#f0d369 0%,#d4af37 50%,#b8912a 100%);color:var(--navy);font-size:18px !important;font-family:Calibri,sans-serif;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(212,175,55,.4)}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
 #screen-main{background-color:#f4efe6;background-image:linear-gradient(180deg,#f7f2e8 0%,#ede6d8 100%);position:relative;overflow:hidden}
 .app-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;min-height:64px;border-bottom:2px solid var(--gold);flex-shrink:0;z-index:5}
-.app-header .logo{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px !important;font-family:Calibri,sans-serif;flex-shrink:0}
-.app-header h2{font-size:21px !important;font-family:Calibri,sans-serif;font-weight:700;flex:1}
+.app-header .logo{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px !important;font-family:Calibri,sans-serif;flex-shrink:0}
+.app-header h2{font-size:20px !important;font-family:Calibri,sans-serif;font-weight:700;flex:1}
 .app-header .online-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);transition:background .3s}
-.tab-content{flex:1;overflow-y:auto;padding-bottom:80px;position:relative;z-index:1}
+.tab-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:80px;position:relative;z-index:1}
 .tab-content::-webkit-scrollbar{display:none}
-.bottom-nav{position:absolute;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-top:1px solid rgba(11,42,74,.08);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:10;box-shadow:0 -4px 20px rgba(11,42,74,.06)}
-.nav-item{flex:1;padding:10px 0 12px;text-align:center;font-size:15px !important;font-family:Calibri,sans-serif;color:var(--muted);cursor:pointer;font-weight:700;border:none;background:none;position:relative}
-.nav-item .icon{display:block;font-size:24px;margin-bottom:2px}
+.bottom-nav{position:absolute;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid rgba(11,42,74,.08);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:10;box-shadow:0 -4px 20px rgba(11,42,74,.06)}
+.nav-item{flex:1;padding:10px 2px 12px;text-align:center;font-size:12px !important;font-family:Calibri,sans-serif;color:var(--muted);cursor:pointer;font-weight:700;border:none;background:none;position:relative;line-height:1.2}
+.nav-item .icon{display:block;font-size:22px;margin-bottom:2px;line-height:1}
 .nav-item.active{color:var(--navy)}
-.section-title{font-size:16px !important;font-family:Calibri,sans-serif;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:16px 20px 8px}
+.section-title{font-size:14px !important;font-family:Calibri,sans-serif;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:16px 20px 8px}
 .list-item{background:#fff;padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;border-bottom:1px solid var(--border)}
 .list-item:active{background:#f8f9fa}
 .avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px !important;font-family:Calibri,sans-serif;flex-shrink:0;overflow:hidden;box-shadow:0 3px 10px rgba(11,42,74,.15);cursor:pointer}
@@ -52,11 +63,11 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 .avatar.group{background:linear-gradient(135deg,#d4af37 0%,#a8872f 100%);color:var(--navy)}
 .list-item-body{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
 .list-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
-.list-item-title{font-weight:700;font-size:19px !important;font-family:Calibri,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.badge-unread{background:#ff4757;color:#fff;font-size:15px !important;font-family:Calibri,sans-serif;font-weight:800;padding:2px 9px;border-radius:12px;min-width:22px;text-align:center;box-shadow:0 2px 6px rgba(255,71,87,.4)}
-.list-item-sub{font-size:17px !important;font-family:Calibri,sans-serif;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-item-title{font-weight:700;font-size:18px !important;font-family:Calibri,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge-unread{background:#ff4757;color:#fff;font-size:14px !important;font-family:Calibri,sans-serif;font-weight:800;padding:2px 9px;border-radius:12px;min-width:22px;text-align:center;box-shadow:0 2px 6px rgba(255,71,87,.4)}
+.list-item-sub{font-size:15px !important;font-family:Calibri,sans-serif;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .list-item-action{font-size:19px !important;color:var(--muted)}
-.empty{text-align:center;padding:50px 30px;color:var(--muted);font-size:19px !important;font-family:Calibri,sans-serif;}
+.empty{text-align:center;padding:50px 30px;color:var(--muted);font-size:17px !important;font-family:Calibri,sans-serif;}
 .empty .empty-icon{font-size:46px;margin-bottom:10px;opacity:.5}
 .fab-container{position:absolute;bottom:84px;right:20px;display:flex;flex-direction:column;gap:12px;z-index:9}
 .fab{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(13,122,140,.4)}
@@ -66,28 +77,28 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 .chat-header .chat-avatar{width:46px;height:46px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px !important;font-family:Calibri,sans-serif;flex-shrink:0;overflow:hidden;cursor:pointer}
 .chat-header .chat-avatar img{width:100%;height:100%;object-fit:cover;display:block}
 .chat-header .chat-title{flex:1;min-width:0}
-.chat-header .chat-title h3{font-size:20px !important;font-family:Calibri,sans-serif;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.chat-header .chat-title small{font-size:15px !important;font-family:Calibri,sans-serif;color:var(--green);display:block}
+.chat-header .chat-title h3{font-size:18px !important;font-family:Calibri,sans-serif;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-header .chat-title small{font-size:13px !important;font-family:Calibri,sans-serif;color:var(--green);display:block}
 .chat-header .header-call-btn{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:6px;border-radius:50%;background:rgba(255,255,255,.1);flex-shrink:0}
 .chat-header .header-block-btn{background:rgba(255,71,87,.25);color:#fff;border:none;font-size:18px;cursor:pointer;padding:6px 8px;border-radius:50%;flex-shrink:0}
-.messages{flex:1;overflow-y:auto;padding:16px 14px;position:relative;background:#fdf6ec;scroll-behavior:smooth}
+.messages{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 14px;position:relative;background:#fdf6ec;scroll-behavior:smooth}
 .messages::-webkit-scrollbar{display:none}
-.msg{max-width:82%;padding:13px 17px;border-radius:18px;font-size:19px !important;font-family:Calibri,sans-serif;line-height:1.55;margin-bottom:10px;word-wrap:break-word;position:relative;cursor:pointer}
+.msg{max-width:82%;padding:13px 17px;border-radius:18px;font-size:17px !important;font-family:Calibri,sans-serif;line-height:1.55;margin-bottom:10px;word-wrap:break-word;position:relative;cursor:pointer}
 .msg.out{background:linear-gradient(135deg,#d4fbc9 0%,#bef5b1 100%);margin-left:auto;border-bottom-right-radius:4px;box-shadow:0 2px 6px rgba(74,177,80,.15)}
 .msg.in{background:#ffffff;margin-right:auto;border-bottom-left-radius:4px;box-shadow:0 2px 8px rgba(11,42,74,.08);border:1px solid rgba(11,42,74,.05)}
-.msg .sender-tag{font-size:16px !important;font-family:Calibri,sans-serif;font-weight:700;color:var(--accent);margin-bottom:3px;display:block}
-.msg .edited-tag{font-size:14px !important;font-family:Calibri,sans-serif;opacity:.6;font-style:italic;margin-left:4px}
-.msg .time{font-size:15px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-top:4px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:4px}
+.msg .sender-tag{font-size:14px !important;font-family:Calibri,sans-serif;font-weight:700;color:var(--accent);margin-bottom:3px;display:block}
+.msg .edited-tag{font-size:12px !important;font-family:Calibri,sans-serif;opacity:.6;font-style:italic;margin-left:4px}
+.msg .time{font-size:12px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-top:4px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:4px}
 .msg.has-attachment{padding:6px;max-width:84%}
 .msg .attach-img{max-width:100%;width:100%;display:block;border-radius:12px;cursor:pointer;background:#dfe6ed}
 .msg .attach-video{max-width:100%;width:100%;display:block;border-radius:12px;background:#000}
 .msg .attach-audio{width:100%;max-width:280px;margin-top:2px}
-.msg .attach-file{display:flex;align-items:center;gap:10px;padding:12px;background:#f2f7fb;border-radius:10px;text-decoration:none;color:var(--text);font-size:18px !important;font-family:Calibri,sans-serif;}
-.quick-reactions{display:flex;gap:6px;padding:8px 12px;background:#fff;border-top:1px solid var(--border);flex-shrink:0;overflow-x:auto}
+.msg .attach-file{display:flex;align-items:center;gap:10px;padding:12px;background:#f2f7fb;border-radius:10px;text-decoration:none;color:var(--text);font-size:16px !important;font-family:Calibri,sans-serif;}
+.quick-reactions{display:flex;gap:6px;padding:8px 12px;background:#fff;border-top:1px solid var(--border);flex-shrink:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .quick-reactions::-webkit-scrollbar{display:none}
 .quick-reaction{font-size:26px;width:44px;height:44px;background:#f7f9fb;border:1px solid var(--border);border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.chat-input-bar{background:rgba(255,255,255,.98);border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:6px;align-items:center;flex-shrink:0;position:relative}
-.chat-input-bar input[type="text"]{flex:1;padding:14px 18px;border:1px solid var(--border);border-radius:24px;font-size:19px !important;font-family:Calibri,sans-serif;outline:none;background:#f7f9fb;min-width:0}
+.chat-input-bar{background:rgba(255,255,255,.98);border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:6px;align-items:center;flex-shrink:0;position:relative;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+.chat-input-bar input[type="text"]{flex:1;padding:14px 18px;border:1px solid var(--border);border-radius:24px;font-size:16px !important;font-family:Calibri,sans-serif;outline:none;background:#f7f9fb;min-width:0;-webkit-appearance:none;appearance:none}
 .emoji-btn,.attach-btn{background:transparent;border:none;font-size:24px;color:var(--accent);width:40px;height:40px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .chat-input-bar .send-btn{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff;border:none;font-size:20px;cursor:pointer;flex-shrink:0}
 .chat-input-bar .send-btn:disabled{opacity:.4}
@@ -98,40 +109,40 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 #emojiPalette.show{display:flex}
 .emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
 .emoji-item{font-size:24px;height:40px;background:transparent;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.action-sheet{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top-left-radius:20px;border-top-right-radius:20px;padding:20px;z-index:10000;box-shadow:0 -10px 30px rgba(0,0,0,.2);display:none;flex-direction:column;gap:10px}
+.action-sheet{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top-left-radius:20px;border-top-right-radius:20px;padding:20px 20px calc(20px + env(safe-area-inset-bottom)) 20px;z-index:10000;box-shadow:0 -10px 30px rgba(0,0,0,.2);display:none;flex-direction:column;gap:10px}
 .action-sheet.show{display:flex}
-.action-btn{padding:14px;border-radius:10px;border:none;background:#f2f5f8;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;color:var(--text);cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px}
+.action-btn{padding:14px;border-radius:10px;border:none;background:#f2f5f8;font-size:16px !important;font-family:Calibri,sans-serif;font-weight:600;color:var(--text);cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px}
 .action-btn.danger{background:#fff0f0;color:var(--red)}
 .status-feed{padding:12px;display:flex;flex-direction:column;gap:14px}
 .status-card{background:#fff;border-radius:16px;padding:18px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(11,42,74,.05)}
 .status-card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.status-content-box{border-radius:12px;padding:20px;color:#fff;font-weight:700;font-size:20px !important;font-family:Calibri,sans-serif;line-height:1.55;text-align:center;word-break:break-word;margin-bottom:12px}
+.status-content-box{border-radius:12px;padding:20px;color:#fff;font-weight:700;font-size:18px !important;font-family:Calibri,sans-serif;line-height:1.55;text-align:center;word-break:break-word;margin-bottom:12px}
 .status-media{width:100%;border-radius:12px;margin-bottom:10px;max-height:75vh;object-fit:contain;background:#000;display:block}
-.status-link{display:block;background:#f0f4f8;padding:12px;border-radius:8px;color:var(--accent);font-weight:600;text-decoration:none;word-break:break-all;font-size:18px !important;font-family:Calibri,sans-serif;margin-bottom:10px;border:1px dashed var(--accent)}
+.status-link{display:block;background:#f0f4f8;padding:12px;border-radius:8px;color:var(--accent);font-weight:600;text-decoration:none;word-break:break-all;font-size:15px !important;font-family:Calibri,sans-serif;margin-bottom:10px;border:1px dashed var(--accent)}
 .status-embed{position:relative;width:100%;padding-bottom:56.25%;margin-bottom:10px;border-radius:12px;overflow:hidden;background:#000;box-shadow:0 4px 14px rgba(11,42,74,.15)}
 .status-embed iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
-#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px;flex-direction:column}
+#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:99999;padding:20px;flex-direction:column}
 #lightbox.show{display:flex}
 #lightbox img{max-width:100%;max-height:85vh;border-radius:8px}
-#lightbox .close-lb{position:absolute;top:20px;right:20px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;border:none;font-size:24px;cursor:pointer}
-#lightbox .dl-lb{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);padding:12px 26px;border-radius:20px;background:var(--gold);color:var(--navy);font-weight:700;text-decoration:none;font-size:19px !important;font-family:Calibri,sans-serif;}
-#avatarViewerModal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:10005;padding:20px;flex-direction:column}
+#lightbox .close-lb{position:absolute;top:calc(20px + env(safe-area-inset-top));right:20px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;border:none;font-size:24px;cursor:pointer}
+#lightbox .dl-lb{position:absolute;bottom:calc(30px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);padding:12px 26px;border-radius:20px;background:var(--gold);color:var(--navy);font-weight:700;text-decoration:none;font-size:16px !important;font-family:Calibri,sans-serif;}
+#avatarViewerModal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:100005;padding:20px;flex-direction:column}
 #avatarViewerModal.show{display:flex}
 #avatarViewerImg{max-width:90%;max-height:80vh;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.8);object-fit:contain}
-#avatarViewerName{color:#fff;font-size:22px !important;font-family:Calibri,sans-serif;font-weight:700;margin-top:14px;text-align:center}
+#avatarViewerName{color:#fff;font-size:20px !important;font-family:Calibri,sans-serif;font-weight:700;margin-top:14px;text-align:center}
 #screen-call{background:radial-gradient(circle at 50% 15%,#1a4870 0%,#0f3050 35%,#08203a 70%,#04121f 100%);color:#fff;justify-content:center;align-items:center;padding:10px;text-align:center;position:relative;z-index:150}
 .call-video-container{position:absolute;inset:0;width:100%;height:100%;background:#000;display:none;z-index:1}
 .call-video-container.active{display:block}
 #remoteVideo{width:100%;height:100%;object-fit:cover;display:block}
-#localVideo{position:absolute;top:20px;right:20px;width:110px;height:150px;object-fit:cover;border-radius:12px;border:2px solid var(--gold);z-index:2;background:#222;box-shadow:0 8px 24px rgba(0,0,0,.5)}
-#conferenceGrid{position:absolute;top:20px;left:20px;display:flex;flex-direction:column;gap:10px;z-index:4;max-height:calc(100% - 200px);overflow-y:auto}
+#localVideo{position:absolute;top:calc(20px + env(safe-area-inset-top));right:20px;width:110px;height:150px;object-fit:cover;border-radius:12px;border:2px solid var(--gold);z-index:2;background:#222;box-shadow:0 8px 24px rgba(0,0,0,.5);transform:scaleX(-1)}
+#conferenceGrid{position:absolute;top:calc(20px + env(safe-area-inset-top));left:20px;display:flex;flex-direction:column;gap:10px;z-index:4;max-height:calc(100% - 200px);overflow-y:auto}
 .conf-tile{width:130px;height:110px;border-radius:10px;border:2px solid var(--gold);background:#000;overflow:hidden;position:relative;box-shadow:0 6px 18px rgba(0,0,0,.5)}
 .conf-tile video{width:100%;height:100%;object-fit:cover}
 .conf-tile-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.65);color:#fff;font-size:12px;padding:3px 6px;text-align:center;font-weight:600}
 .call-overlay-ui{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:space-between;height:100%;width:100%;padding:30px 14px}
 .call-avatar{width:110px;height:110px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:50px;font-weight:800;margin-bottom:14px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.4)}
 .call-avatar img{width:100%;height:100%;object-fit:cover;display:block}
-.call-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:auto;z-index:4;background:rgba(0,0,0,.45);padding:12px;border-radius:24px;backdrop-filter:blur(8px);max-width:100%}
+.call-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:auto;z-index:4;background:rgba(0,0,0,.45);padding:12px;border-radius:24px;backdrop-filter:blur(8px);max-width:100%;margin-bottom:env(safe-area-inset-bottom)}
 .call-btn{width:52px;height:52px;border-radius:50%;border:none;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.3);transition:transform .1s}
 .call-btn:active{transform:scale(1.1)}
 .call-btn.end{background:#ff4757;color:#fff}
@@ -151,21 +162,21 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:24px}
 .modal-overlay.show{display:flex}
 .modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:440px;max-height:85vh;overflow-y:auto}
-.modal h3{font-size:22px !important;font-family:Calibri,sans-serif;margin-bottom:10px}
-.modal input[type="text"],.modal textarea,.modal input[type="password"]{width:100%;padding:14px;border:1.5px solid var(--border);border-radius:10px;font-size:19px !important;font-family:Calibri,sans-serif;margin-bottom:12px;outline:none}
+.modal h3{font-size:20px !important;font-family:Calibri,sans-serif;margin-bottom:10px}
+.modal input[type="text"],.modal textarea,.modal input[type="password"]{width:100%;padding:14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px !important;font-family:Calibri,sans-serif;margin-bottom:12px;outline:none;-webkit-appearance:none;appearance:none}
 .modal-actions{display:flex;gap:10px;margin-top:10px}
-.modal-actions button{flex:1;padding:14px;border-radius:10px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:700;cursor:pointer;border:none}
+.modal-actions button{flex:1;padding:14px;border-radius:10px;font-size:16px !important;font-family:Calibri,sans-serif;font-weight:700;cursor:pointer;border:none}
 .modal-actions .cancel{background:#eef2f6;color:var(--text)}
 .modal-actions .confirm{background:linear-gradient(135deg,#0d7a8c 0%,#0a6474 100%);color:#fff}
 .group-select-list{max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px;margin-bottom:12px}
-.group-select-item{display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid #f0f0f0;font-size:19px !important;font-family:Calibri,sans-serif;}
+.group-select-item{display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid #f0f0f0;font-size:16px !important;font-family:Calibri,sans-serif;}
 .bg-gallery-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px}
 .bg-tile{position:relative;height:80px;border-radius:10px;overflow:hidden;cursor:pointer;border:3px solid transparent;transition:border .15s}
 .bg-tile:hover{border-color:var(--gold)}
 .bg-tile.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(13,122,140,.3)}
 .bg-tile img,.bg-tile .bg-gradient{width:100%;height:100%;object-fit:cover}
 .bg-tile-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);color:#fff;font-size:12px;padding:3px 6px;text-align:center;font-weight:600}
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:14px 24px;border-radius:10px;font-size:19px !important;font-family:Calibri,sans-serif;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:10000;max-width:90%;text-align:center}
+.toast{position:fixed;bottom:calc(90px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:14px 24px;border-radius:10px;font-size:15px !important;font-family:Calibri,sans-serif;font-weight:600;border:2px solid var(--gold);box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:all .3s;z-index:10000;max-width:90%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media (min-width: 640px) {
   body { padding: 16px; background: #e4e9ef; }
@@ -176,6 +187,58 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 </style>
 </head>
 <body>
+
+<div id="loadingOverlay">
+  <div id="loadingSpinner"></div>
+  <div id="loadingText">Loading JARVIS…</div>
+  <div id="loadingSub">Connecting to the cloud…</div>
+</div>
+
+<noscript>
+  <div style="position:fixed;inset:0;background:#0b2a4a;color:#fff;display:flex;align-items:center;justify-content:center;padding:30px;text-align:center;z-index:999999;font-family:Calibri,sans-serif;font-size:18px;">
+    JavaScript is required to run JARVIS. Please enable JavaScript in your browser settings and reload this page.
+  </div>
+</noscript>
+
+<script>
+  // Bootstrap safety net — must be OUTSIDE the module
+  (function() {
+    let appStarted = false;
+    window.__jarvisAppStarted = function() { appStarted = true; };
+    
+    function showFatalError(msg) {
+      const lo = document.getElementById('loadingOverlay');
+      if (!lo) return;
+      lo.innerHTML =
+        '<div class="loading-error-icon">⚠️</div>' +
+        '<div id="loadingText">Could Not Start JARVIS</div>' +
+        '<div id="loadingSub">' + msg + '</div>' +
+        '<button class="loading-retry-btn" onclick="location.reload()">Retry</button>';
+    }
+    
+    // Wait for module to start
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        if (!appStarted) {
+          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+          const hint = isIOS 
+            ? 'On iPhone, try opening this link in Safari. Some in-app browsers block modern features.'
+            : 'Check your internet connection and reload the page.';
+          showFatalError('The app did not load in time. ' + hint);
+        }
+      }, 15000);
+    });
+    
+    // Global error handler
+    window.addEventListener('error', function(e) {
+      console.error('[JARVIS Error]', e.message || e.error, e.filename, e.lineno);
+    });
+    window.addEventListener('unhandledrejection', function(e) {
+      console.error('[JARVIS Promise Rejection]', e.reason);
+    });
+  })();
+</script>
+
 <div id="app">
 <div class="install-banner" id="installBanner">
   <div class="inst-icon">G</div>
@@ -211,7 +274,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
   </div>
   <div id="tabVoicemail" class="tab-content" style="display:none;">
     <div class="section-title">Send Voicemail</div>
-    <div style="padding:0 20px 10px"><select id="vmRecipient" style="width:100%;padding:12px;border-radius:8px;font-size:19px !important;font-family:Calibri,sans-serif;"><option value="">Select recipient</option></select></div>
+    <div style="padding:0 20px 10px"><select id="vmRecipient" style="width:100%;padding:12px;border-radius:8px;font-size:16px !important;font-family:Calibri,sans-serif;"><option value="">Select recipient</option></select></div>
     <button id="recordBtn" class="btn-primary" style="margin:0 20px 20px;width:calc(100% - 40px);background:#ff4757;color:#fff">⬤ Record (max 30s)</button>
     <div class="section-title">Inbox</div>
     <div id="voicemailList"></div>
@@ -223,19 +286,19 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
         <img id="profileAvatarImg" alt="" style="display:none;">
       </div>
       <h3 id="profileName">—</h3>
-      <div style="font-size:17px !important;font-family:Calibri,sans-serif;color:var(--accent);font-weight:600" id="profileUsername">@—</div>
+      <div style="font-size:15px !important;font-family:Calibri,sans-serif;color:var(--accent);font-weight:600" id="profileUsername">@—</div>
     </div>
     <div style="padding:0 20px">
-      <div style="background:#fff;padding:16px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;font-size:19px !important;font-family:Calibri,sans-serif;" id="permBtn">
-        <span>📢 Browser Notifications</span>
-        <span id="permStatus" style="font-size:18px !important;font-family:Calibri,sans-serif;font-weight:600;color:var(--gold)">checking…</span>
+      <div style="background:#fff;padding:16px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;font-size:16px !important;font-family:Calibri,sans-serif;" id="permBtn">
+        <span>📢 Notifications</span>
+        <span id="permStatus" style="font-size:14px !important;font-family:Calibri,sans-serif;font-weight:600;color:var(--gold)">checking…</span>
       </div>
       <div id="ownerPortalTrigger" style="display:none;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;padding:16px;border-radius:10px;margin-bottom:10px;text-align:center;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(11,42,74,.3);">
         🛡️ Owner Security & Monitoring Space
       </div>
-      <div style="background:#fff;padding:16px;border-radius:10px;margin-bottom:10px;font-size:19px !important;font-family:Calibri,sans-serif;">
+      <div style="background:#fff;padding:16px;border-radius:10px;margin-bottom:10px;font-size:16px !important;font-family:Calibri,sans-serif;">
         <div style="font-weight:700;margin-bottom:8px;color:var(--navy);">🚫 Blocked Users List</div>
-        <div id="blockedUsersContainer" style="font-size:16px;color:var(--muted)">No blocked users.</div>
+        <div id="blockedUsersContainer" style="font-size:14px;color:var(--muted)">No blocked users.</div>
       </div>
       <button class="btn-primary" id="forceSyncBtn" style="background:#0d7a8c;color:#fff;width:100%;margin-bottom:10px;">🔄 Force Refresh & Restore Cloud Data</button>
       <button class="btn-primary" id="clearBtn" style="background:#ff4757;color:#fff;width:100%">Clear Local Data</button>
@@ -246,7 +309,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
     <button id="addContactFab" class="fab" title="Add Contact">＋</button>
   </div>
   <nav class="bottom-nav">
-    <button class="nav-item active" data-tab="chats"><span class="icon">💬</span>Friend List</button>
+    <button class="nav-item active" data-tab="chats"><span class="icon">💬</span>Friends</button>
     <button class="nav-item" data-tab="status"><span class="icon">⭕</span>Status</button>
     <button class="nav-item" data-tab="calls"><span class="icon">📞</span>Calls</button>
     <button class="nav-item" data-tab="voicemail"><span class="icon">🎙</span>Voicemail</button>
@@ -291,7 +354,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
   </div>
 </div>
 <div class="action-sheet" id="actionSheet">
-  <div style="font-size:16px !important;font-family:Calibri,sans-serif;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Message Options</div>
+  <div style="font-size:14px !important;font-family:Calibri,sans-serif;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Message Options</div>
   <button class="action-btn" id="actEditBtn">✏️ Edit Message / Media</button>
   <button class="action-btn danger" id="actDeleteForMeBtn">🗑️ Delete for Me</button>
   <button class="action-btn danger" id="actDeleteEveryoneBtn">💥 Delete for Everyone</button>
@@ -299,19 +362,19 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 </div>
 <section id="screen-call" class="screen">
   <div class="call-video-container" id="videoContainer">
-    <video id="remoteVideo" autoplay playsinline></video>
-    <video id="localVideo" autoplay playsinline muted></video>
+    <video id="remoteVideo" autoplay playsinline webkit-playsinline></video>
+    <video id="localVideo" autoplay playsinline muted webkit-playsinline></video>
   </div>
   <div id="conferenceGrid"></div>
   <div class="call-overlay-ui">
     <div style="display:flex;flex-direction:column;align-items:center;">
       <div class="call-avatar" id="callAvatar">G</div>
-      <div style="font-size:24px !important;font-family:Calibri,sans-serif;font-weight:700;margin-bottom:6px" id="callName">—</div>
-      <div style="font-size:19px !important;font-family:Calibri,sans-serif;opacity:.8" id="callStatus">Calling…</div>
+      <div style="font-size:22px !important;font-family:Calibri,sans-serif;font-weight:700;margin-bottom:6px" id="callName">—</div>
+      <div style="font-size:16px !important;font-family:Calibri,sans-serif;opacity:.8" id="callStatus">Calling…</div>
     </div>
     <div id="inCallChatDrawer">
-      <div style="font-weight:700;font-size:16px !important;font-family:Calibri,sans-serif;margin-bottom:4px;display:flex;justify-content:space-between;"><span>💬 In-Call Chat & Media</span><button onclick="document.getElementById('inCallChatDrawer').classList.remove('show')" style="border:none;background:none;font-weight:700;cursor:pointer;font-size:20px;">✕</button></div>
-      <div id="inCallMsgList" style="max-height:120px;overflow-y:auto;font-size:16px !important;font-family:Calibri,sans-serif;margin-bottom:8px;border:1px solid var(--border);border-radius:6px;padding:6px;"></div>
+      <div style="font-weight:700;font-size:15px !important;font-family:Calibri,sans-serif;margin-bottom:4px;display:flex;justify-content:space-between;"><span>💬 In-Call Chat & Media</span><button onclick="document.getElementById('inCallChatDrawer').classList.remove('show')" style="border:none;background:none;font-weight:700;cursor:pointer;font-size:20px;">✕</button></div>
+      <div id="inCallMsgList" style="max-height:120px;overflow-y:auto;font-size:14px !important;font-family:Calibri,sans-serif;margin-bottom:8px;border:1px solid var(--border);border-radius:6px;padding:6px;"></div>
       <div class="in-call-emoji-row" id="inCallEmojiRow">
         <button class="in-call-emoji" onclick="window.__sendInCallEmoji('👍')">👍</button>
         <button class="in-call-emoji" onclick="window.__sendInCallEmoji('❤️')">❤️</button>
@@ -323,7 +386,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
         <button class="in-call-emoji" onclick="window.__sendInCallEmoji('💯')">💯</button>
       </div>
       <div style="display:flex;gap:6px;">
-        <input id="inCallInput" type="text" placeholder="Comment or emoji..." style="flex:1;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:16px !important;font-family:Calibri,sans-serif;">
+        <input id="inCallInput" type="text" placeholder="Comment or emoji..." style="flex:1;padding:8px;border-radius:6px;border:1px solid var(--border);font-size:14px !important;font-family:Calibri,sans-serif;">
         <button onclick="window.__sendInCallMsg()" style="background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:6px;font-weight:700;">Send</button>
         <button onclick="document.getElementById('inCallMediaInput').click()" style="background:var(--gold);color:var(--navy);border:none;padding:8px 10px;border-radius:6px;font-weight:700;">📎</button>
         <input type="file" id="inCallMediaInput" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt" style="display:none;" onchange="window.__sendInCallMedia(this)">
@@ -342,8 +405,8 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 </section>
 <div id="incoming-call">
   <div class="call-avatar" id="incomingAvatar">G</div>
-  <div style="font-size:24px !important;font-family:Calibri,sans-serif;font-weight:700;margin-bottom:6px" id="incomingName">—</div>
-  <div style="font-size:19px !important;font-family:Calibri,sans-serif;opacity:.8;margin-bottom:40px" id="incomingType">Incoming Call…</div>
+  <div style="font-size:22px !important;font-family:Calibri,sans-serif;font-weight:700;margin-bottom:6px" id="incomingName">—</div>
+  <div style="font-size:16px !important;font-family:Calibri,sans-serif;opacity:.8;margin-bottom:40px" id="incomingType">Incoming Call…</div>
   <div class="call-actions">
     <button class="call-btn end" id="rejectCallBtn">📵</button>
     <button class="call-btn accept" id="acceptCallBtn">📞</button>
@@ -353,7 +416,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
   <div class="modal">
     <h3>Add Contact</h3>
     <input id="modalName" type="text" placeholder="Enter username" maxlength="20" autocapitalize="none">
-    <div id="modalStatus" style="font-size:17px !important;font-family:Calibri,sans-serif;margin-bottom:10px"></div>
+    <div id="modalStatus" style="font-size:14px !important;font-family:Calibri,sans-serif;margin-bottom:10px"></div>
     <div class="modal-actions">
       <button class="cancel" id="modalCancel">Cancel</button>
       <button class="confirm" id="modalConfirm" disabled>Add</button>
@@ -364,7 +427,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
   <div class="modal">
     <h3>Create Group Chat (👥)</h3>
     <input id="groupNameInput" type="text" placeholder="Group Name" maxlength="30">
-    <div style="font-size:17px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:6px">Select Members from Friends:</div>
+    <div style="font-size:14px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:6px">Select Members from Friends:</div>
     <div class="group-select-list" id="groupMembersSelection"></div>
     <div class="modal-actions">
       <button class="cancel" id="groupModalCancel">Cancel</button>
@@ -374,17 +437,17 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 </div>
 <div class="modal-overlay" id="statusModal">
   <div class="modal">
-    <h3>Post Public Status (Video / Photo / Text / Link)</h3>
+    <h3>Post Public Status</h3>
     <textarea id="statusTextInput" rows="2" placeholder="Write status text..."></textarea>
     <input id="statusLinkInput" type="text" placeholder="Paste YouTube / Vimeo / Dropbox / Google Drive link to auto-embed video" style="margin-top:8px;">
-    <div style="font-size:14px;color:var(--muted);margin-top:-8px;margin-bottom:8px;">💡 Paste a video link to auto-play it on your status</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:-8px;margin-bottom:8px;">💡 Paste a video link to auto-play it on your status</div>
     <div style="margin-bottom:10px">
-      <label style="font-size:17px !important;font-family:Calibri,sans-serif;display:block;margin-bottom:4px">Background Color:</label>
+      <label style="font-size:14px !important;font-family:Calibri,sans-serif;display:block;margin-bottom:4px">Background Color:</label>
       <input type="color" id="statusBgColor" value="#0d7a8c" style="width:100%;height:40px;border-radius:6px;padding:2px;cursor:pointer;">
     </div>
     <div style="margin-bottom:10px">
-      <button class="btn-primary" id="statusMediaSelectBtn" style="width:100%;max-width:none;padding:12px;font-size:19px !important;font-family:Calibri,sans-serif;background:#143a5f;color:#fff;">📹 Select Public Photo or Video Clip</button>
-      <div id="statusMediaName" style="font-size:16px !important;font-family:Calibri,sans-serif;color:var(--accent);margin-top:4px;word-break:break-all;"></div>
+      <button class="btn-primary" id="statusMediaSelectBtn" style="width:100%;max-width:none;padding:12px;font-size:15px !important;font-family:Calibri,sans-serif;background:#143a5f;color:#fff;">📹 Select Photo or Video Clip</button>
+      <div id="statusMediaName" style="font-size:13px !important;font-family:Calibri,sans-serif;color:var(--accent);margin-top:4px;word-break:break-all;"></div>
     </div>
     <div class="modal-actions">
       <button class="cancel" id="statusModalCancel">Cancel</button>
@@ -397,7 +460,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
     <h3>Edit Message / Media</h3>
     <input id="editMsgInput" type="text" placeholder="Edit caption or text..." autocomplete="off" style="margin-bottom:10px;">
     <div style="margin-bottom:12px">
-      <label style="font-size:17px !important;font-family:Calibri,sans-serif;display:block;margin-bottom:4px">Replace Attached Media (Optional):</label>
+      <label style="font-size:14px !important;font-family:Calibri,sans-serif;display:block;margin-bottom:4px">Replace Attached Media (Optional):</label>
       <input type="file" id="editMediaInput" accept="image/*,video/*,audio/*">
     </div>
     <div class="modal-actions">
@@ -420,7 +483,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 <div class="modal-overlay" id="ownerAuthModal">
   <div class="modal">
     <h3>Owner Authentication</h3>
-    <p style="font-size:18px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:10px;">Enter owner password to unlock monitoring space:</p>
+    <p style="font-size:15px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:10px;">Enter owner password to unlock monitoring space:</p>
     <input id="ownerPassInput" type="password" placeholder="Password..." autocomplete="off">
     <div class="modal-actions">
       <button class="cancel" id="ownerAuthCancel">Cancel</button>
@@ -435,8 +498,8 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
       <button id="ownerSpaceClose" style="background:none;border:none;font-size:22px;cursor:pointer;">✕</button>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:12px;">
-      <button class="btn-primary" id="ownerTabStatusBtn" style="flex:1;max-width:none;padding:10px;font-size:17px !important;font-family:Calibri,sans-serif;">Monitor Statuses</button>
-      <button class="btn-primary" id="ownerTabChatsBtn" style="flex:1;max-width:none;padding:10px;font-size:17px !important;font-family:Calibri,sans-serif;background:#143a5f;">Monitor P2P DMs & Accounts</button>
+      <button class="btn-primary" id="ownerTabStatusBtn" style="flex:1;max-width:none;padding:10px;font-size:14px !important;font-family:Calibri,sans-serif;">Monitor Statuses</button>
+      <button class="btn-primary" id="ownerTabChatsBtn" style="flex:1;max-width:none;padding:10px;font-size:14px !important;font-family:Calibri,sans-serif;background:#143a5f;">Monitor P2P DMs</button>
     </div>
     <div id="ownerContentArea" style="max-height:55vh;overflow-y:auto;display:flex;flex-direction:column;gap:10px;"></div>
   </div>
@@ -444,7 +507,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 <div class="modal-overlay" id="bgGalleryModal">
   <div class="modal" style="max-width:460px;">
     <h3>🖼️ Professional Backgrounds</h3>
-    <p style="font-size:15px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:10px;">Choose a beautiful background for your video call — applies to your camera in real time.</p>
+    <p style="font-size:14px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:10px;">Choose a beautiful background for your video call — applies to your camera in real time.</p>
     <div class="bg-gallery-grid" id="bgGalleryGrid"></div>
     <div class="modal-actions">
       <button class="cancel" id="bgGalleryClose" style="width:100%;max-width:none;">Close</button>
@@ -454,13 +517,13 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 <div class="modal-overlay" id="preCallModal">
   <div class="modal" style="max-width:480px;">
     <h3 id="preCallTitle">🎥 Video Call Setup</h3>
-    <p style="font-size:15px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:12px;" id="preCallDesc">Choose a professional background and optionally invite friends before starting.</p>
+    <p style="font-size:14px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:12px;" id="preCallDesc">Choose a professional background and optionally invite friends before starting.</p>
     <div id="preCallBgSection">
-      <label style="font-size:16px !important;font-family:Calibri,sans-serif;font-weight:700;display:block;margin-bottom:8px;color:var(--navy);">🖼️ Background:</label>
+      <label style="font-size:15px !important;font-family:Calibri,sans-serif;font-weight:700;display:block;margin-bottom:8px;color:var(--navy);">🖼️ Background:</label>
       <div class="bg-gallery-grid" id="preCallBgGrid" style="grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div>
     </div>
     <div id="preCallInviteSection">
-      <label style="font-size:16px !important;font-family:Calibri,sans-serif;font-weight:700;display:block;margin-bottom:8px;color:var(--navy);">👥 Invite others (optional):</label>
+      <label style="font-size:15px !important;font-family:Calibri,sans-serif;font-weight:700;display:block;margin-bottom:8px;color:var(--navy);">👥 Invite others (optional):</label>
       <div class="group-select-list" id="preCallInviteList" style="max-height:140px;"></div>
     </div>
     <div class="modal-actions">
@@ -472,7 +535,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 <div class="modal-overlay" id="addParticipantModal">
   <div class="modal">
     <h3>🎥 Invite Users to Call</h3>
-    <div style="font-size:15px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:8px;">Turn this into a conference call — select friends to invite:</div>
+    <div style="font-size:14px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:8px;">Turn this into a conference call — select friends to invite:</div>
     <div class="group-select-list" id="participantSelectionList"></div>
     <div class="modal-actions">
       <button class="cancel" id="participantCancel">Skip</button>
@@ -486,7 +549,7 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
   <a class="dl-lb" id="lightboxDownload" download target="_blank">⬇ Download</a>
 </div>
 <div id="avatarViewerModal">
-  <button class="close-lb" id="avatarViewerClose" onclick="document.getElementById('avatarViewerModal').classList.remove('show')" style="position:absolute;top:20px;right:20px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;border:none;font-size:24px;cursor:pointer;">✕</button>
+  <button class="close-lb" id="avatarViewerClose" onclick="document.getElementById('avatarViewerModal').classList.remove('show')" style="position:absolute;top:calc(20px + env(safe-area-inset-top));right:20px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;border:none;font-size:24px;cursor:pointer;">✕</button>
   <img id="avatarViewerImg" src="" alt="User Profile Picture">
   <div id="avatarViewerName">User Profile</div>
 </div>
@@ -495,9 +558,13 @@ html,body{height:100%;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Aria
 <input type="file" id="fileInput" style="display:none;">
 <input type="file" id="statusMediaInput" accept="image/*,video/*" style="display:none;">
 </div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref as dbRef, push, onValue, remove, set, get, query, limitToLast, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+// Signal to bootstrap that we started
+if (window.__jarvisAppStarted) window.__jarvisAppStarted();
 
 const firebaseConfig = {
   apiKey: "AIzaSyBfqTPdNq31MegFF_vh08D2K_6-2GMeIrY",
@@ -508,9 +575,24 @@ const firebaseConfig = {
   messagingSenderId: "994161558903",
   appId: "1:994161558903:web:c978951c451a305b6d0d72"
 };
+
 const fbApp = initializeApp(firebaseConfig);
 const db = getDatabase(fbApp);
-const ICE_SERVERS = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] };
+const ICE_SERVERS = {
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" },
+    { urls: "stun:stun.cloudflare.com:3478" }
+  ]
+};
+
+// 🔒 FORCE FRONT CAMERA on every getUserMedia call
+const VIDEO_CONSTRAINTS = {
+  facingMode: 'user',
+  width: { ideal: 1280 },
+  height: { ideal: 720 }
+};
+const VIDEO_QUALITY = { facingMode: 'user', width: { ideal: 1920 }, height: { ideal: 1080 } };
 
 const App = {
   mySlug: null, myName: '', myPhoto: null,
@@ -522,12 +604,18 @@ const App = {
   currentCallTarget: null, mediaRecorder: null, recordedChunks: [], blockedUsers: [],
   isMuted: false, installPrompt: null, videoSender: null, virtualBgStream: null,
   currentBg: 'none', conferenceMembers: [],
-  pendingCallTarget: null, pendingCallType: false, pendingBg: 'none'
+  pendingCallTarget: null, pendingCallType: false, pendingBg: 'none',
+  isIOS: /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
+  isStandalone: window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches
 };
 
 const $ = id => document.getElementById(id);
+const LS = {
+  get: (k, d) => { try { return JSON.parse(localStorage.getItem('gcp_' + k)) ?? d; } catch { return d; } },
+  set: (k, v) => { try { localStorage.setItem('gcp_' + k, JSON.stringify(v)); } catch {} },
+  del: (k) => localStorage.removeItem('gcp_' + k)
+};
 
-/* ============ PATCH 1: Debounce utility ============ */
 function debounce(fn, delay) {
   let timer = null;
   return function(...args) {
@@ -538,25 +626,27 @@ function debounce(fn, delay) {
 let debouncedBuildUI = null;
 let debouncedSaveCache = null;
 
-const LS = {
-  get: (k, d) => { try { return JSON.parse(localStorage.getItem('gcp_' + k)) ?? d; } catch { return d; } },
-  set: (k, v) => { try { localStorage.setItem('gcp_' + k, JSON.stringify(v)); } catch {} },
-  del: (k) => localStorage.removeItem('gcp_' + k)
-};
-
 function isOwner() { return App.mySlug === 'gesnerdeslandes' || App.mySlug === 'gesner'; }
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); }
+
+function hideLoading() {
+  const lo = $('loadingOverlay');
+  if (lo) { lo.classList.add('hidden'); setTimeout(() => { lo.style.display = 'none'; }, 400); }
+}
+
 let toastTimer;
 function toast(msg, isError) {
   const t = $('toast'); t.textContent = msg;
   t.style.borderColor = isError ? '#ff4757' : '#d4af37';
   t.classList.add('show'); clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
 }
+
 function esc(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function slugify(name) { return String(name).toLowerCase().trim().replace(/[^a-z0-9]/g, '').slice(0, 20); }
 function chatIdFor(a, b) { const [x, y] = [a, b].sort(); return `${x}__${y}`; }
 function avatarInner(photo, name) { return photo ? `<img src="${photo}">` : esc((name || '?').charAt(0).toUpperCase()); }
+
 function detectFileType(file) {
   const mime = (file.type || '').toLowerCase();
   if (mime.startsWith('image/')) return 'image';
@@ -573,49 +663,92 @@ function fileToBase64(file) {
   });
 }
 
-/* ============ PATCH 7: Sync indicator ============ */
-function updateSyncIndicator(state) {
-  const dot = document.querySelector('.app-header .online-dot');
-  if (!dot) return;
-  if (state === 'cached') dot.style.background = '#8a9baa';
-  else if (state === 'syncing') dot.style.background = '#d4af37';
-  else dot.style.background = '#4aff7a';
+/* ============ NOTIFICATION SUPPORT — PROPER iOS DETECTION ============ */
+function notificationState() {
+  if (!('Notification' in window)) return 'unsupported';
+  // iOS: notifications only work in installed PWA (Add to Home Screen)
+  if (App.isIOS && !App.isStandalone) return 'ios-not-installed';
+  if (Notification.permission === 'granted') return 'granted';
+  if (Notification.permission === 'denied') return 'denied';
+  return 'default';
 }
 
-/* ============ EMBEDDED VIDEO ============ */
-function extractEmbedUrl(url) {
-  if (!url) return null;
-  url = String(url).trim();
-  const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-  if (yt) return { type: 'iframe', url: `https://www.youtube.com/embed/${yt[1]}?rel=0`, provider: 'YouTube' };
-  const vimeo = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-  if (vimeo) return { type: 'iframe', url: `https://player.vimeo.com/video/${vimeo[1]}`, provider: 'Vimeo' };
-  const gd = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
-  if (gd) return { type: 'iframe', url: `https://drive.google.com/file/d/${gd[1]}/preview`, provider: 'Google Drive' };
-  const dm = url.match(/dailymotion\.com\/video\/([a-zA-Z0-9]+)/);
-  if (dm) return { type: 'iframe', url: `https://www.dailymotion.com/embed/video/${dm[1]}`, provider: 'Dailymotion' };
-  if (url.includes('dropbox.com')) {
-    let dbox = url;
-    if (dbox.includes('dl=0')) dbox = dbox.replace('dl=0', 'raw=1');
-    else if (!dbox.includes('raw=1') && !dbox.includes('dl=1')) dbox += (dbox.includes('?') ? '&raw=1' : '?raw=1');
-    if (/\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(dbox)) return { type: 'video', url: dbox, provider: 'Dropbox' };
-    return null;
-  }
-  if (/\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(url)) return { type: 'video', url, provider: 'Video' };
-  return null;
+function updateNotifPermStatus() {
+  const el = $('permStatus');
+  if (!el) return;
+  const state = notificationState();
+  const map = {
+    'unsupported': { text: 'not supported', color: '#6b7a87' },
+    'ios-not-installed': { text: 'install first', color: '#d4af37' },
+    'granted': { text: 'enabled ✓', color: '#4aff7a' },
+    'denied': { text: 'blocked', color: '#ff4757' },
+    'default': { text: 'tap to enable', color: '#d4af37' }
+  };
+  const info = map[state] || map['default'];
+  el.textContent = info.text;
+  el.style.color = info.color;
 }
-function renderEmbeddedVideo(url) {
-  const embed = extractEmbedUrl(url);
-  if (!embed) return '';
-  if (embed.type === 'iframe') {
-    return `<div class="status-embed"><iframe src="${embed.url}" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`;
+
+$('permBtn')?.addEventListener('click', async () => {
+  const state = notificationState();
+  if (state === 'unsupported') {
+    return toast('Notifications are not supported in this browser', true);
   }
-  return `<video src="${embed.url}" controls playsinline preload="metadata" class="status-media"></video>`;
+  if (state === 'ios-not-installed') {
+    return toast('On iPhone: tap Share → "Add to Home Screen", then reopen JARVIS to enable notifications', false);
+  }
+  if (state === 'granted') {
+    return toast('Notifications are already enabled ✓');
+  }
+  if (state === 'denied') {
+    return toast('Notifications are blocked. Enable them in your browser settings.', true);
+  }
+  try {
+    const res = await Notification.requestPermission();
+    updateNotifPermStatus();
+    if (res === 'granted') toast('Notifications enabled ✓');
+    else toast('Notifications not enabled', true);
+  } catch (err) {
+    console.warn('Notification permission error:', err);
+    toast('Could not request notification permission', true);
+  }
+});
+
+/* ============ MEDIA ERROR HANDLING ============ */
+function handleMediaError(err) {
+  console.error('[getUserMedia error]', err);
+  let msg;
+  if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+    msg = App.isIOS
+      ? 'Camera/microphone blocked. Tap the "Aa" icon in Safari\'s address bar → Website Settings → Allow Camera & Microphone → Reload.'
+      : 'Camera/microphone permission denied. Allow access in your browser settings and reload.';
+  } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+    msg = 'No camera or microphone found on this device.';
+  } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+    msg = 'Camera/microphone is in use by another app. Close other apps and try again.';
+  } else if (err.name === 'OverconstrainedError') {
+    msg = 'This device does not support the requested camera settings.';
+  } else if (err.name === 'SecurityError' || !window.isSecureContext) {
+    msg = 'Camera/microphone requires a secure (HTTPS) connection.';
+  } else if (err.name === 'AbortError') {
+    msg = 'Camera/microphone access was interrupted. Please try again.';
+  } else {
+    msg = 'Could not access camera/microphone: ' + (err.message || 'unknown error');
+  }
+  toast(msg, true);
 }
 
 /* ============ AUDIO ============ */
-function getAudioCtx() { if (!App.audioCtx) { try { App.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch {} } return App.audioCtx; }
-function unlockAudio() { const ctx = getAudioCtx(); if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {}); }
+function getAudioCtx() {
+  if (!App.audioCtx) {
+    try { App.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch {}
+  }
+  return App.audioCtx;
+}
+function unlockAudio() {
+  const ctx = getAudioCtx();
+  if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+}
 document.addEventListener('click', unlockAudio);
 document.addEventListener('touchstart', unlockAudio, { passive: true });
 
@@ -687,6 +820,46 @@ function updateAppBadge() {
   }
 }
 
+/* ============ SYNC INDICATOR ============ */
+function updateSyncIndicator(state) {
+  const dot = document.querySelector('.app-header .online-dot');
+  if (!dot) return;
+  if (state === 'cached') dot.style.background = '#8a9baa';
+  else if (state === 'syncing') dot.style.background = '#d4af37';
+  else dot.style.background = '#4aff7a';
+}
+
+/* ============ EMBEDDED VIDEO ============ */
+function extractEmbedUrl(url) {
+  if (!url) return null;
+  url = String(url).trim();
+  const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (yt) return { type: 'iframe', url: `https://www.youtube.com/embed/${yt[1]}?rel=0`, provider: 'YouTube' };
+  const vimeo = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (vimeo) return { type: 'iframe', url: `https://player.vimeo.com/video/${vimeo[1]}`, provider: 'Vimeo' };
+  const gd = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+  if (gd) return { type: 'iframe', url: `https://drive.google.com/file/d/${gd[1]}/preview`, provider: 'Google Drive' };
+  const dm = url.match(/dailymotion\.com\/video\/([a-zA-Z0-9]+)/);
+  if (dm) return { type: 'iframe', url: `https://www.dailymotion.com/embed/video/${dm[1]}`, provider: 'Dailymotion' };
+  if (url.includes('dropbox.com')) {
+    let dbox = url;
+    if (dbox.includes('dl=0')) dbox = dbox.replace('dl=0', 'raw=1');
+    else if (!dbox.includes('raw=1') && !dbox.includes('dl=1')) dbox += (dbox.includes('?') ? '&raw=1' : '?raw=1');
+    if (/\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(dbox)) return { type: 'video', url: dbox, provider: 'Dropbox' };
+    return null;
+  }
+  if (/\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(url)) return { type: 'video', url, provider: 'Video' };
+  return null;
+}
+function renderEmbeddedVideo(url) {
+  const embed = extractEmbedUrl(url);
+  if (!embed) return '';
+  if (embed.type === 'iframe') {
+    return `<div class="status-embed"><iframe src="${embed.url}" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`;
+  }
+  return `<video src="${embed.url}" controls playsinline webkit-playsinline preload="metadata" class="status-media"></video>`;
+}
+
 /* ============ PROFILE ============ */
 window.__viewAvatar = (photoUrl, displayName) => {
   if (!photoUrl) return;
@@ -718,22 +891,43 @@ function updateProfileHeader() {
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   App.installPrompt = e;
-  $('installBanner').classList.add('show');
+  const banner = $('installBanner');
+  if (banner) banner.classList.add('show');
 });
-$('installBannerBtn')?.addEventListener('click', async () => {
-  if (!App.installPrompt) { toast('Use browser menu → Add to Home Screen'); return; }
-  App.installPrompt.prompt();
-  await App.installPrompt.userChoice;
-  App.installPrompt = null;
-  $('installBanner').classList.remove('show');
-});
-$('installBannerClose')?.addEventListener('click', () => $('installBanner').classList.remove('show'));
 
-/* ============ PATCH 4: Optimized restore (no duplicate message fetch) ============ */
+// Show iOS install hint if not installed
+setTimeout(() => {
+  if (App.isIOS && !App.isStandalone && !LS.get('iosHintDismissed', false)) {
+    const banner = $('installBanner');
+    if (banner) {
+      banner.querySelector('.inst-text').innerHTML = '<strong>Install JARVIS</strong><br><span style="font-size:13px;opacity:.85">Tap Share → "Add to Home Screen"</span>';
+      const btn = $('installBannerBtn');
+      if (btn) btn.textContent = 'Got it';
+      banner.classList.add('show');
+    }
+  }
+}, 3000);
+
+$('installBannerBtn')?.addEventListener('click', async () => {
+  if (App.isIOS) {
+    LS.set('iosHintDismissed', true);
+    $('installBanner')?.classList.remove('show');
+    toast('Tap Share → "Add to Home Screen" in Safari');
+    return;
+  }
+  if (!App.installPrompt) { toast('Use browser menu → Add to Home Screen'); return; }
+  try {
+    App.installPrompt.prompt();
+    await App.installPrompt.userChoice;
+    App.installPrompt = null;
+    $('installBanner')?.classList.remove('show');
+  } catch (err) { console.warn('Install prompt error:', err); }
+});
+$('installBannerClose')?.addEventListener('click', () => $('installBanner')?.classList.remove('show'));
+
+/* ============ RESTORE ============ */
 async function restoreCloudContent() {
   if (!App.mySlug) return;
-
-  // STEP 1 — Instant cache paint
   const cachedChats = LS.get('cached_chats', {});
   if (Object.keys(cachedChats).length > 0) {
     App.lastMessages = { ...App.lastMessages, ...cachedChats };
@@ -741,10 +935,7 @@ async function restoreCloudContent() {
   }
   const cachedStatus = LS.get('cached_statuses', []);
   if (cachedStatus.length > 0) renderStatusFeedList(cachedStatus);
-
   updateSyncIndicator('syncing');
-
-  // STEP 2 — Only fetch profile + contacts (messages come from onValue listeners)
   try {
     const [userSnap, contactsSnap] = await Promise.all([
       get(dbRef(db, `users/${App.mySlug}`)),
@@ -826,7 +1017,6 @@ enterBtn.addEventListener('click', async () => {
 });
 nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') enterBtn.click(); });
 
-/* ============ PATCH 5: Load cached messages on startup ============ */
 window.addEventListener('load', () => {
   App.contacts = LS.get('contacts', []);
   App.groups = LS.get('groups', []);
@@ -843,22 +1033,7 @@ window.addEventListener('load', () => {
   $('forceSyncBtn')?.addEventListener('click', () => restoreCloudContent());
   updateNotifPermStatus();
   showScreen('screen-onboard');
-});
-
-function updateNotifPermStatus() {
-  const el = $('permStatus');
-  if (!el) return;
-  if (!('Notification' in window)) { el.textContent = 'unsupported'; return; }
-  if (Notification.permission === 'granted') el.textContent = 'enabled ✓';
-  else if (Notification.permission === 'denied') el.textContent = 'blocked';
-  else el.textContent = 'tap to enable';
-}
-$('permBtn')?.addEventListener('click', async () => {
-  if (!('Notification' in window)) return toast('Notifications not supported', true);
-  if (Notification.permission === 'granted') return toast('Notifications already enabled');
-  const res = await Notification.requestPermission();
-  updateNotifPermStatus();
-  toast(res === 'granted' ? 'Notifications enabled ✓' : 'Notifications blocked', res !== 'granted');
+  hideLoading();
 });
 
 function startMainApp() {
@@ -907,7 +1082,6 @@ function startMainApp() {
     if (uiChanged) debouncedBuildUI();
   });
   updateAppBadge();
-  /* PATCH 6: reduced poll frequency */
   setInterval(syncAccountDataFromCloud, 60000);
 }
 
@@ -915,11 +1089,11 @@ function startMainApp() {
 function renderBlockedUsersList() {
   const c = $('blockedUsersContainer');
   if (!c) return;
-  if (!App.blockedUsers.length) { c.innerHTML = '<div style="font-size:16px;color:var(--muted)">No blocked users.</div>'; return; }
+  if (!App.blockedUsers.length) { c.innerHTML = '<div style="font-size:14px;color:var(--muted)">No blocked users.</div>'; return; }
   c.innerHTML = App.blockedUsers.map(s => `
     <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed #e1e7ed">
       <span>@${esc(s)}</span>
-      <button onclick="window.unblockUser('${esc(s)}')" style="background:#0d7a8c;color:#fff;border:none;padding:6px 12px;border-radius:6px;font-size:15px;cursor:pointer;font-family:Calibri,sans-serif;">Unblock</button>
+      <button onclick="window.unblockUser('${esc(s)}')" style="background:#0d7a8c;color:#fff;border:none;padding:6px 12px;border-radius:6px;font-size:14px;cursor:pointer;font-family:Calibri,sans-serif;">Unblock</button>
     </div>`).join('');
 }
 window.blockUser = (slug) => {
@@ -957,7 +1131,7 @@ function listenIncomingCalls() {
   });
 }
 
-/* ============ PATCH 3: Debounced listener updates ============ */
+/* ============ MESSAGES ============ */
 function setupMessageListener(id, isGroup) {
   const path = isGroup ? `group_chats/${id}/messages` : `chats/${chatIdFor(App.mySlug, id)}/messages`;
   if (App.globalUnsubs[id]) return;
@@ -986,12 +1160,12 @@ function setupMessageListener(id, isGroup) {
 }
 function setupGroupMessageListener(groupId) { setupMessageListener(groupId, true); }
 
-/* ============ UI BUILD ============ */
+/* ============ UI ============ */
 function buildUI() {
   const cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient');
   let html = '';
   if (App.groups.length) {
-    html += '<div class="section-title">Group Friend List (👥)</div>';
+    html += '<div class="section-title">Groups</div>';
     html += App.groups.map(g => {
       const unread = App.unreadCounts[g.id] || 0;
       return `
@@ -1010,7 +1184,7 @@ function buildUI() {
   }
   html += '<div class="section-title">Friend List</div>';
   if (!App.contacts.length) {
-    html += '<div class="empty"><div class="empty-icon">💬</div><p>No contacts on your Friend List yet.<br>Tap <strong>＋</strong> to add someone.</p></div>';
+    html += '<div class="empty"><div class="empty-icon">💬</div><p>No contacts yet.<br>Tap <strong>＋</strong> to add someone.</p></div>';
   } else {
     html += App.contacts.map(c => {
       const unread = App.unreadCounts[c.slug] || 0;
@@ -1035,9 +1209,9 @@ function buildUI() {
         <div class="avatar accent" onclick="window.__viewAvatar('${c.photo||''}','${esc(c.name)}')">${avatarInner(c.photo, c.name)}</div>
         <div class="list-item-body"><div class="list-item-title">${esc(c.name)}</div><div class="list-item-sub">@${c.slug}</div></div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <button class="header-call-btn" style="color:var(--navy);background:#e0f2fe;padding:8px 12px;border-radius:14px;font-size:14px;font-weight:600;border:none;cursor:pointer;" onclick="window.startCall('${c.slug}', false)">📞 Voice</button>
-          <button class="header-call-btn" style="color:var(--navy);background:#dcfce7;padding:8px 12px;border-radius:14px;font-size:14px;font-weight:600;border:none;cursor:pointer;" onclick="window.startCall('${c.slug}', true)">📹 Video</button>
-          <button class="header-call-btn" style="color:#fff;background:#ff4757;padding:8px 12px;border-radius:14px;font-size:14px;font-weight:600;border:none;cursor:pointer;" onclick="window.blockUser('${c.slug}')">🚫 Block</button>
+          <button class="header-call-btn" style="color:var(--navy);background:#e0f2fe;padding:8px 12px;border-radius:14px;font-size:13px;font-weight:600;border:none;cursor:pointer;" onclick="window.startCall('${c.slug}', false)">📞 Voice</button>
+          <button class="header-call-btn" style="color:var(--navy);background:#dcfce7;padding:8px 12px;border-radius:14px;font-size:13px;font-weight:600;border:none;cursor:pointer;" onclick="window.startCall('${c.slug}', true)">📹 Video</button>
+          <button class="header-call-btn" style="color:#fff;background:#ff4757;padding:8px 12px;border-radius:14px;font-size:13px;font-weight:600;border:none;cursor:pointer;" onclick="window.blockUser('${c.slug}')">🚫 Block</button>
         </div>
       </div>`).join('') || '<div class="empty"><p>No contacts yet.</p></div>';
   }
@@ -1047,8 +1221,6 @@ function buildUI() {
     if (cur && App.contacts.some(c => c.slug === cur)) vmSel.value = cur;
   }
 }
-
-/* ============ PATCH 2: Initialize debounced functions after buildUI ============ */
 debouncedBuildUI = debounce(buildUI, 250);
 debouncedSaveCache = debounce(() => {
   try { LS.set('cached_chats', App.lastMessages); } catch {}
@@ -1080,7 +1252,7 @@ function renderAttachment(a) {
   if (!a || !a.url) return '';
   const safeUrl = esc(a.url);
   if (a.type === 'image') return `<img class="attach-img" src="${safeUrl}" loading="lazy" onclick="window.__lb('${safeUrl}')">`;
-  if (a.type === 'video') return `<video class="attach-video" controls playsinline src="${safeUrl}"></video>`;
+  if (a.type === 'video') return `<video class="attach-video" controls playsinline webkit-playsinline src="${safeUrl}"></video>`;
   if (a.type === 'audio') return `<audio class="attach-audio" controls playsinline preload="metadata" src="${safeUrl}"></audio>`;
   return `<a class="attach-file" href="${safeUrl}" target="_blank" download="${esc(a.name || 'file')}">📄 ${esc(a.name || 'File')}</a>`;
 }
@@ -1191,7 +1363,7 @@ let chatMediaRecorder = null, chatAudioChunks = [], chatRecTimer = null;
 function getSupportedMimeType() {
   if (typeof MediaRecorder === 'undefined') return '';
   const types = ['audio/mp4', 'audio/aac', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus'];
-  for (const t of types) { if (MediaRecorder.isTypeSupported(t)) return t; }
+  for (const t of types) { try { if (MediaRecorder.isTypeSupported(t)) return t; } catch {} }
   return '';
 }
 $('chatRecordBtn').addEventListener('click', async () => {
@@ -1218,7 +1390,7 @@ $('chatRecordBtn').addEventListener('click', async () => {
       toast('Recording voice note (max 30s)…');
       clearTimeout(chatRecTimer);
       chatRecTimer = setTimeout(() => { if (chatMediaRecorder && chatMediaRecorder.state === 'recording') chatMediaRecorder.stop(); }, 30000);
-    } catch { toast('Microphone permission denied', true); }
+    } catch (err) { handleMediaError(err); }
   } else if (chatMediaRecorder && chatMediaRecorder.state === 'recording') {
     clearTimeout(chatRecTimer); chatMediaRecorder.stop();
   }
@@ -1251,7 +1423,7 @@ $('recordBtn').addEventListener('click', async () => {
       toast('Recording audio…');
       clearTimeout(vmRecordTimer);
       vmRecordTimer = setTimeout(() => { if (vmMediaRecorder && vmMediaRecorder.state === 'recording') vmMediaRecorder.stop(); }, 30000);
-    } catch { toast('Microphone permission denied', true); }
+    } catch (err) { handleMediaError(err); }
   } else if (vmMediaRecorder && vmMediaRecorder.state === 'recording') {
     clearTimeout(vmRecordTimer); vmMediaRecorder.stop();
   }
@@ -1265,7 +1437,7 @@ function listenVoicemails() {
     if (!items.length) { list.innerHTML = '<div class="empty"><p>No voicemails received.</p></div>'; return; }
     list.innerHTML = items.map(v => `
       <div style="background:#fff;margin:8px 16px;padding:12px;border-radius:10px;border:1px solid var(--border);">
-        <div style="font-size:18px !important;font-family:Calibri,sans-serif;font-weight:700;margin-bottom:6px;">From: @${esc(v.fromName || v.from)}</div>
+        <div style="font-size:15px !important;font-family:Calibri,sans-serif;font-weight:700;margin-bottom:6px;">From: @${esc(v.fromName || v.from)}</div>
         <audio controls playsinline preload="metadata" src="${v.url}" style="width:100%;"></audio>
       </div>`).join('');
   });
@@ -1301,7 +1473,7 @@ $('addGroupFab').addEventListener('click', () => {
     <div class="group-select-item">
       <input type="checkbox" value="${c.slug}" id="chk_${c.slug}" style="width:20px;height:20px;">
       <label for="chk_${c.slug}">${esc(c.name)} (@${c.slug})</label>
-    </div>`).join('') : '<div style="font-size:17px;color:var(--muted)">Add contacts to your Friend List first.</div>';
+    </div>`).join('') : '<div style="font-size:15px;color:var(--muted)">Add contacts first.</div>';
   $('groupNameInput').value = ''; $('groupModal').classList.add('show');
 });
 $('groupModalCancel').addEventListener('click', () => $('groupModal').classList.remove('show'));
@@ -1391,7 +1563,7 @@ function renderStatusFeedList(posts) {
   }
   $('statusFeedList').innerHTML = posts.map(p => {
     const isMine = p.authorSlug === App.mySlug;
-    const mediaHtml = p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" class="status-media" onclick="window.__viewAvatar('${p.mediaUrl}', '${esc(p.authorName)}')">` : `<video src="${p.mediaUrl}" controls playsinline preload="metadata" class="status-media"></video>`) : '';
+    const mediaHtml = p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" class="status-media" onclick="window.__viewAvatar('${p.mediaUrl}', '${esc(p.authorName)}')">` : `<video src="${p.mediaUrl}" controls playsinline webkit-playsinline preload="metadata" class="status-media"></video>`) : '';
     const embedHtml = p.link ? renderEmbeddedVideo(p.link) : '';
     const linkHtml = p.link && !embedHtml ? `<a href="${p.link}" target="_blank" rel="noopener" class="status-link">🔗 ${esc(p.link)}</a>` : '';
     const textHtml = p.text ? `<div class="status-content-box" style="background:${p.bgColor || '#0d7a8c'}">${esc(p.text)}</div>` : '';
@@ -1403,16 +1575,16 @@ function renderStatusFeedList(posts) {
     return `<div class="status-card" data-key="${p._k}">
       <div class="status-card-header">
         <div class="avatar" style="width:44px;height:44px;font-size:18px" onclick="window.__viewAvatar('${p.authorPhoto || ''}','${esc(p.authorName)}')">${avatarInner(p.authorPhoto, p.authorName)}</div>
-        <div style="flex:1"><div style="font-weight:700;font-size:18px;">${esc(p.authorName)} <small style="color:var(--accent)">(@${esc(p.authorSlug)})</small></div><small style="color:var(--muted);font-size:14px;">${new Date(p.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small></div>
+        <div style="flex:1"><div style="font-weight:700;font-size:16px;">${esc(p.authorName)} <small style="color:var(--accent)">(@${esc(p.authorSlug)})</small></div><small style="color:var(--muted);font-size:13px;">${new Date(p.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small></div>
         ${isMine || isOwner() ? `<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:18px" onclick="window.__delStatus('${p._k}')">🗑</button>` : ''}
       </div>
       ${textHtml}${mediaHtml}${embedHtml}${linkHtml}
       <div style="display:flex;gap:8px;align-items:center;margin-top:10px;border-top:1px solid #f0f0f0;padding-top:8px;flex-wrap:wrap;">
-        <button style="background:${myLiked?'#d4af37':'#eef2f6'};color:${myLiked?'#0b2a4a':'var(--text)'};border:none;padding:8px 12px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__toggleStatusLike('${p._k}')">👍 (${likeCount})</button>
-        <button style="background:#eef2f6;border:none;padding:8px 12px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__openStatusComments('${p._k}')">💬 (${commentCount})</button>
-        <button style="background:#eef2f6;border:none;padding:8px 10px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '❤️')">❤️</button>
-        <button style="background:#eef2f6;border:none;padding:8px 10px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '🔥')">🔥</button>
-        <button style="background:#eef2f6;border:none;padding:8px 10px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '😂')">😂</button>
+        <button style="background:${myLiked?'#d4af37':'#eef2f6'};color:${myLiked?'#0b2a4a':'var(--text)'};border:none;padding:8px 12px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;" onclick="window.__toggleStatusLike('${p._k}')">👍 (${likeCount})</button>
+        <button style="background:#eef2f6;border:none;padding:8px 12px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;" onclick="window.__openStatusComments('${p._k}')">💬 (${commentCount})</button>
+        <button style="background:#eef2f6;border:none;padding:8px 10px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '❤️')">❤️</button>
+        <button style="background:#eef2f6;border:none;padding:8px 10px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '🔥')">🔥</button>
+        <button style="background:#eef2f6;border:none;padding:8px 10px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji('${p._k}', '😂')">😂</button>
       </div>
     </div>`;
   }).join('');
@@ -1468,9 +1640,9 @@ function renderStatusCommentsLocal() {
   const data = App.activeStatusObj.comments || {};
   const comments = Object.values(data).sort((a, b) => a.time - b.time);
   const list = $('statusCommentsList');
-  if (!comments.length) { list.innerHTML = '<div style="font-size:17px;color:var(--muted);text-align:center;padding:8px;">No comments yet.</div>'; return; }
+  if (!comments.length) { list.innerHTML = '<div style="font-size:15px;color:var(--muted);text-align:center;padding:8px;">No comments yet.</div>'; return; }
   list.innerHTML = comments.map(c => `
-    <div style="background:#f7f9fb;padding:10px 12px;border-radius:8px;font-size:18px;font-family:Calibri,sans-serif;">
+    <div style="background:#f7f9fb;padding:10px 12px;border-radius:8px;font-size:15px;font-family:Calibri,sans-serif;">
       <strong style="color:var(--accent);">@${esc(c.author)}:</strong> ${esc(c.text)}
     </div>`).join('');
 }
@@ -1533,15 +1705,15 @@ function loadOwnerStatuses() {
   if (!posts.length) { area.innerHTML = '<div class="empty"><p>No user statuses.</p></div>'; return; }
   area.innerHTML = posts.map(p => `
     <div style="background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:12px;">
-      <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;margin-bottom:6px;">
+      <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-bottom:6px;">
         <span>@${esc(p.authorSlug)} (${esc(p.authorName)})</span>
         <span style="color:var(--muted);">${new Date(p.time).toLocaleString()}</span>
       </div>
-      <div style="font-size:17px;margin-bottom:8px;">${esc(p.text || '')}</div>
-      ${p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" style="width:100%;max-height:260px;object-fit:contain;background:#000;border-radius:8px;" onclick="window.__viewAvatar('${p.mediaUrl}','${esc(p.authorName)}')">` : `<video src="${p.mediaUrl}" controls playsinline preload="metadata" style="width:100%;max-height:260px;background:#000;border-radius:8px;display:block;"></video>`) : ''}
+      <div style="font-size:15px;margin-bottom:8px;">${esc(p.text || '')}</div>
+      ${p.mediaUrl ? (p.mediaType === 'image' ? `<img src="${p.mediaUrl}" style="width:100%;max-height:260px;object-fit:contain;background:#000;border-radius:8px;" onclick="window.__viewAvatar('${p.mediaUrl}','${esc(p.authorName)}')">` : `<video src="${p.mediaUrl}" controls playsinline webkit-playsinline preload="metadata" style="width:100%;max-height:260px;background:#000;border-radius:8px;display:block;"></video>`) : ''}
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;">
-        <button class="btn-primary" style="max-width:none;padding:8px 12px;font-size:16px;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus('${p._k}')">🗑️ Delete</button>
-        <button class="btn-primary" style="max-width:none;padding:8px 12px;font-size:16px;background:#143a5f;color:#fff;" onclick="window.__ownerReportStatus('${p._k}','@${esc(p.authorSlug)}')">🚩 Report</button>
+        <button class="btn-primary" style="max-width:none;padding:8px 12px;font-size:14px;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus('${p._k}')">🗑️ Delete</button>
+        <button class="btn-primary" style="max-width:none;padding:8px 12px;font-size:14px;background:#143a5f;color:#fff;" onclick="window.__ownerReportStatus('${p._k}','@${esc(p.authorSlug)}')">🚩 Report</button>
       </div>
     </div>`).join('');
 }
@@ -1562,11 +1734,11 @@ function loadOwnerReports() {
   onValue(dbRef(db, 'users'), snap => {
     const usersData = snap.val() || {};
     const userList = Object.values(usersData);
-    let html = `<div style="font-size:17px;font-weight:700;color:var(--navy);margin-bottom:8px;">👥 Registered Users (${userList.length})</div>`;
+    let html = `<div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:8px;">👥 Registered Users (${userList.length})</div>`;
     html += userList.map(u => `
       <div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-        <div style="font-size:17px;"><strong>${esc(u.displayName)}</strong> (@${esc(u.slug)})</div>
-        <button style="background:var(--accent);color:#fff;border:none;padding:6px 10px;border-radius:4px;font-size:15px;cursor:pointer;" onclick="window.__ownerDirectDM('${u.slug}','${esc(u.displayName)}')">💬 DM</button>
+        <div style="font-size:15px;"><strong>${esc(u.displayName)}</strong> (@${esc(u.slug)})</div>
+        <button style="background:var(--accent);color:#fff;border:none;padding:6px 10px;border-radius:4px;font-size:13px;cursor:pointer;" onclick="window.__ownerDirectDM('${u.slug}','${esc(u.displayName)}')">💬 DM</button>
       </div>`).join('');
     onValue(dbRef(db, 'chats'), snapChats => {
       const chatsData = snapChats.val() || {};
@@ -1577,18 +1749,18 @@ function loadOwnerReports() {
         }
       });
       allDMs.sort((a, b) => (b.time || 0) - (a.time || 0));
-      html += `<div style="font-size:17px;font-weight:700;color:var(--navy);margin:12px 0 6px;">🔒 P2P DM Monitor</div>`;
-      if (!allDMs.length) html += '<div style="font-size:16px;color:var(--muted)">No messages yet.</div>';
+      html += `<div style="font-size:15px;font-weight:700;color:var(--navy);margin:12px 0 6px;">🔒 P2P DM Monitor</div>`;
+      if (!allDMs.length) html += '<div style="font-size:14px;color:var(--muted)">No messages yet.</div>';
       else {
         html += allDMs.slice(0, 25).map(m => `
-          <div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;font-size:16px;margin-bottom:6px;">
-            <div style="display:flex;justify-content:space-between;color:var(--muted);font-size:14px;margin-bottom:4px;">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;font-size:14px;margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-bottom:4px;">
               <span>Chat: ${esc(m.chatId)}</span>
               <span>${new Date(m.time || Date.now()).toLocaleString()}</span>
             </div>
             <div><strong>@${esc(m.fromName || m.from)}:</strong> ${esc(m.text || '[Attachment]')}</div>
             <div style="display:flex;justify-content:flex-end;margin-top:6px;">
-              <button style="background:#ff4757;color:#fff;border:none;padding:4px 8px;border-radius:4px;font-size:14px;cursor:pointer;" onclick="window.__ownerDeleteP2PMessage('${m.chatId}','${m._k}')">🗑️ Delete</button>
+              <button style="background:#ff4757;color:#fff;border:none;padding:4px 8px;border-radius:4px;font-size:12px;cursor:pointer;" onclick="window.__ownerDeleteP2PMessage('${m.chatId}','${m._k}')">🗑️ Delete</button>
             </div>
           </div>`).join('');
       }
@@ -1613,7 +1785,7 @@ window.__ownerDeleteP2PMessage = async (chatId, msgKey) => {
   }
 };
 
-/* ============ CANVAS BACKGROUND ENGINE ============ */
+/* ============ CANVAS BACKGROUND ============ */
 let activeCanvasStream = null;
 let activeCanvasVideo = null;
 let activeCanvasLoop = null;
@@ -1635,7 +1807,7 @@ async function buildActiveStream(bgKey) {
   video.srcObject = App.localStream;
   video.muted = true;
   video.playsInline = true;
-  await video.play();
+  try { await video.play(); } catch (e) { console.warn('Video play error:', e); }
   activeCanvasVideo = video;
   const canvas = document.createElement('canvas');
   canvas.width = 1280; canvas.height = 720;
@@ -1772,7 +1944,7 @@ function showPreCallSetup(targetSlug, isVideo) {
     <div class="group-select-item">
       <input type="checkbox" value="${c.slug}" id="preinv_${c.slug}" style="width:20px;height:20px;">
       <label for="preinv_${c.slug}">${esc(c.name)} (@${c.slug})</label>
-    </div>`).join('') : '<div style="color:var(--muted);padding:8px;font-size:16px;">No other contacts to invite.</div>';
+    </div>`).join('') : '<div style="color:var(--muted);padding:8px;font-size:14px;">No other contacts to invite.</div>';
   $('preCallModal').classList.add('show');
 }
 $('preCallCancel').addEventListener('click', () => {
@@ -1834,13 +2006,19 @@ async function doStartCall(targetSlug, isVideo) {
   startRingtoneSound();
   setupCallChatListeners();
   try {
-    App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
+    // 🔒 FORCE FRONT CAMERA
+    const mediaConstraints = {
+      audio: true,
+      video: isVideo ? VIDEO_CONSTRAINTS : false
+    };
+    App.localStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
     ensureAudioTracksEnabled();
     if (isVideo && $('localVideo')) {
       $('localVideo').srcObject = App.localStream;
       $('localVideo').style.filter = 'none';
       $('localVideo').muted = true;
     }
+    // Apply background BEFORE peer connection
     let videoTrackForPc = App.localStream.getVideoTracks()[0];
     if (isVideo && App.pendingBg && App.pendingBg !== 'none') {
       try {
@@ -1875,8 +2053,7 @@ async function doStartCall(targetSlug, isVideo) {
       if (snap.val() === 'ended' || snap.val() === 'rejected') endCallLocally();
     });
   } catch (err) {
-    console.error('Call error:', err);
-    toast('Could not access microphone/camera', true);
+    handleMediaError(err);
     endCallLocally();
   }
 }
@@ -1887,7 +2064,7 @@ function showInvitePanelForCall() {
     <div class="group-select-item">
       <input type="checkbox" value="${c.slug}" id="pi_${c.slug}" style="width:20px;height:20px;">
       <label for="pi_${c.slug}">${esc(c.name)} (@${c.slug})</label>
-    </div>`).join('') : '<div style="color:var(--muted);padding:10px;font-size:16px;">No other contacts to invite.</div>';
+    </div>`).join('') : '<div style="color:var(--muted);padding:10px;font-size:14px;">No other contacts to invite.</div>';
   $('addParticipantModal').classList.add('show');
 }
 $('addParticipantBtn').addEventListener('click', showInvitePanelForCall);
@@ -1940,7 +2117,7 @@ function renderConferenceGrid() {
   if (!entries.length) { grid.innerHTML = ''; return; }
   grid.innerHTML = entries.map(([slug]) => `
     <div class="conf-tile">
-      <video id="conf-${slug}" autoplay playsinline></video>
+      <video id="conf-${slug}" autoplay playsinline webkit-playsinline></video>
       <div class="conf-tile-label">@${esc(slug)}</div>
     </div>
   `).join('');
@@ -1967,7 +2144,12 @@ $('acceptCallBtn').addEventListener('click', async () => {
   showScreen('screen-call');
   setupCallChatListeners();
   try {
-    App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
+    // 🔒 FORCE FRONT CAMERA
+    const mediaConstraints = {
+      audio: true,
+      video: isVideo ? VIDEO_CONSTRAINTS : false
+    };
+    App.localStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
     ensureAudioTracksEnabled();
     if (isVideo && $('localVideo')) {
       $('localVideo').srcObject = App.localStream;
@@ -1990,8 +2172,7 @@ $('acceptCallBtn').addEventListener('click', async () => {
       if (App.peerConn) App.peerConn.addIceCandidate(new RTCIceCandidate(snap.val())).catch(() => {});
     });
   } catch (err) {
-    console.error('Accept error:', err);
-    toast('Error answering call', true);
+    handleMediaError(err);
     endCallLocally();
   }
 });
@@ -2041,7 +2222,7 @@ function setupCallChatListeners() {
     const msgs = Object.values(data).sort((a, b) => (a.time || 0) - (b.time || 0));
     const list = $('inCallMsgList');
     if (!list) return;
-    if (!msgs.length) { list.innerHTML = '<div style="font-size:14px;color:var(--muted)">No in-call messages yet.</div>'; return; }
+    if (!msgs.length) { list.innerHTML = '<div style="font-size:13px;color:var(--muted)">No in-call messages yet.</div>'; return; }
     list.innerHTML = msgs.map(m => `
       <div style="background:#f2f5f8;padding:6px 8px;border-radius:6px;margin-bottom:4px;">
         <strong style="color:var(--accent);">${esc(m.name)}:</strong> ${esc(m.text || '')}
@@ -2077,7 +2258,7 @@ window.__sendInCallMedia = async (input) => {
   input.value = '';
 };
 
-/* ============ SCREEN SHARE / RECORD ============ */
+/* ============ SCREEN SHARE ============ */
 $('screenShareBtn').addEventListener('click', async () => {
   try {
     const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
