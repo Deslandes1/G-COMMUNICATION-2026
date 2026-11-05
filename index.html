@@ -766,13 +766,6 @@ function emailToSlug(email) {
   var local = email.split('@')[0];
   return local.replace(/-v\d+$/, '');
 }
-async function lookupActiveAuthEmail(slug) {
-  try {
-    var snap = await get(dbRef(db, 'users/' + slug + '/activeAuthEmail'));
-    if (snap.exists()) return snap.val();
-  } catch (e) {}
-  return slug + '@jarvis-app.local';
-}
 
 function detectFileType(file) {
   var mime = (file.type || '').toLowerCase();
@@ -933,6 +926,7 @@ async function handleSignUp() {
   }
 }
 
+/* ⭐ FIXED SIGN-IN — tries multiple emails to handle password-reset accounts */
 async function handleSignIn() {
   var nameVal = $('signInName').value.trim();
   var password = $('signInPassword').value;
@@ -941,22 +935,46 @@ async function handleSignIn() {
   if (!slug) { status.textContent = 'Enter your name'; status.className = 'name-status bad'; return; }
   if (!password) { status.textContent = 'Enter your password'; status.className = 'name-status bad'; return; }
   status.textContent = 'Signing in…'; status.className = 'name-status';
+
+  // Build list of emails to try — activeAuthEmail first (if readable), then default
+  var emailsToTry = [];
   try {
-    var activeEmail = await lookupActiveAuthEmail(slug);
-    var userCred = await signInWithEmailAndPassword(auth, activeEmail, password);
-    currentAuthUser = userCred.user;
-    App.mySlug = slug; App.myName = nameVal;
-    LS.set('mySlug', slug); LS.set('myName', nameVal);
-    status.textContent = 'Welcome back ✓'; status.className = 'name-status ok';
-    safeStartMainApp();
-  } catch (err) {
-    console.error('Signin:', err);
-    if (err.code === 'auth/user-not-found') status.textContent = 'No account with this name. Create one first.';
-    else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') status.textContent = 'Incorrect password.';
-    else if (err.code === 'auth/operation-not-allowed') status.textContent = 'Firebase Auth not enabled.';
-    else status.textContent = 'Error: ' + (err.message || 'unknown');
-    status.className = 'name-status bad';
+    var snap = await get(dbRef(db, 'users/' + slug + '/activeAuthEmail'));
+    if (snap.exists() && snap.val()) emailsToTry.push(snap.val());
+  } catch (e) { /* signed out — read denied — expected */ }
+  var defaultEmail = slug + '@jarvis-app.local';
+  if (emailsToTry.indexOf(defaultEmail) === -1) emailsToTry.push(defaultEmail);
+
+  var lastErr = null;
+  for (var i = 0; i < emailsToTry.length; i++) {
+    try {
+      var cred = await signInWithEmailAndPassword(auth, emailsToTry[i], password);
+      currentAuthUser = cred.user;
+      App.mySlug = slug; App.myName = nameVal;
+      LS.set('mySlug', slug); LS.set('myName', nameVal);
+      // Repair activeAuthEmail to match the email we successfully used
+      try {
+        var checkSnap = await get(dbRef(db, 'users/' + slug + '/activeAuthEmail'));
+        if (!checkSnap.exists() || checkSnap.val() !== emailsToTry[i]) {
+          await set(dbRef(db, 'users/' + slug + '/activeAuthEmail'), emailsToTry[i]);
+        }
+      } catch (e) { /* not critical */ }
+      status.textContent = 'Welcome back ✓'; status.className = 'name-status ok';
+      safeStartMainApp();
+      return;
+    } catch (err) {
+      lastErr = err;
+    }
   }
+
+  if (lastErr) {
+    if (lastErr.code === 'auth/too-many-requests') status.textContent = 'Too many attempts. Wait 5 minutes and try again.';
+    else if (lastErr.code === 'auth/user-not-found') status.textContent = 'No account with this name. Tap "Create Account" first.';
+    else if (lastErr.code === 'auth/wrong-password' || lastErr.code === 'auth/invalid-credential') status.textContent = 'Password does not match. If you reset your password before, contact owner: (509) 4738-5663';
+    else if (lastErr.code === 'auth/operation-not-allowed') status.textContent = 'Firebase Auth not enabled in Console.';
+    else status.textContent = 'Error: ' + (lastErr.message || 'unknown');
+  }
+  status.className = 'name-status bad';
 }
 
 async function handleSignOut() {
@@ -981,7 +999,7 @@ async function handleChangePassword() {
   if (!newPwd || newPwd.length < 6) return toast('New password needs 6+ chars', true);
   if (newPwd !== confirmPwd) return toast('New passwords do not match', true);
   try {
-    var activeEmail = await lookupActiveAuthEmail(App.mySlug);
+    var activeEmail = currentAuthUser.email;
     var credential = EmailAuthProvider.credential(activeEmail, current);
     await reauthenticateWithCredential(currentAuthUser, credential);
     await updatePassword(currentAuthUser, newPwd);
@@ -1052,7 +1070,7 @@ async function handleSetRecovery() {
   if (!newPhrase || newPhrase.length < 4) return toast('Recovery phrase needs 4+ chars', true);
   if (newPhrase !== confirmPhrase) return toast('Phrases do not match', true);
   try {
-    var activeEmail = await lookupActiveAuthEmail(App.mySlug);
+    var activeEmail = currentAuthUser.email;
     var credential = EmailAuthProvider.credential(activeEmail, currentPwd);
     await reauthenticateWithCredential(currentAuthUser, credential);
     var hash = await sha256Hex(newPhrase);
@@ -1072,7 +1090,7 @@ async function openOwnerSpaceWithAuth() {
   var inputPwd = $('ownerPassInput').value;
   if (!inputPwd) return toast('Enter password', true);
   try {
-    var activeEmail = await lookupActiveAuthEmail(App.mySlug);
+    var activeEmail = currentAuthUser.email;
     var credential = EmailAuthProvider.credential(activeEmail, inputPwd);
     await reauthenticateWithCredential(currentAuthUser, credential);
     $('ownerAuthModal').classList.remove('show');
@@ -1323,9 +1341,7 @@ function startMainApp() {
           }
         }
         if (uiChanged) { saveContacts(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); }
-      }, function() {
-        console.warn('Owner users read denied — check Firebase rules');
-      });
+      }, function() { console.warn('Owner users read denied'); });
     }, 5000);
   }
   onValue(dbRef(db, 'group_chats'), function(snap) {
@@ -2038,7 +2054,7 @@ function loadOwnerReports() {
     }, { onlyOnce: true });
   }, function(err) {
     console.warn('Owner users read denied:', err);
-    area.innerHTML = '<div class="empty"><p style="color:#d4af37;">Cannot load users.</p><p style="font-size:13px;">Ask owner to add <code style="background:#fff3cd;padding:2px 6px;border-radius:4px;">.read on "users"</code> in Firebase Rules.</p></div>';
+    area.innerHTML = '<div class="empty"><p style="color:#d4af37;">Cannot load users.</p><p style="font-size:13px;">Verify Firebase Rules allow owner to read "users".</p></div>';
   }, { onlyOnce: true });
 }
 window.__ownerDirectDM = function(slug, name) {
