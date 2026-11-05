@@ -30,6 +30,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 #loadingOverlay.hidden{opacity:0;pointer-events:none;display:none}
 #loadingSpinner{width:60px;height:60px;border:5px solid rgba(255,255,255,.2);border-top-color:var(--gold);border-radius:50%;animation:jarvisSpin 1s linear infinite;margin-bottom:22px}
 @keyframes jarvisSpin{to{transform:rotate(360deg)}}
+@keyframes nbcPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
 #loadingText{font-size:22px !important;font-weight:800;letter-spacing:2px;margin-bottom:10px}
 #loadingSub{font-size:15px !important;opacity:.85;max-width:340px;line-height:1.5}
 #loadErrorBanner{position:fixed;top:calc(8px + env(safe-area-inset-top));left:8px;right:8px;background:#ff4757;color:#fff;padding:12px 14px;border-radius:10px;z-index:999998;display:none;font-size:13px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.3);font-weight:600;line-height:1.4}
@@ -352,7 +353,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   <header class="app-header">
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
-    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v7</div>
+    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v8</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
@@ -363,6 +364,21 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div id="newUsersList"></div>
   </div>
   <div id="tabStatus" class="tab-content" style="display:none;">
+    <div id="nbcLiveNewsCard" style="margin:12px 12px 0;border-radius:16px;overflow:hidden;border:2px solid #0b2a4a;background:#000;box-shadow:0 4px 16px rgba(11,42,74,.15);">
+      <div style="background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:8px;">
+        <span style="width:10px;height:10px;border-radius:50%;background:#ff4757;box-shadow:0 0 8px #ff4757;animation:nbcPulse 1.4s infinite;display:inline-block;"></span>
+        <span style="flex:1;font-weight:800;font-size:14px;letter-spacing:.3px;">NBC LIVE NEWS</span>
+        <span style="font-size:11px;opacity:.85;font-weight:600;">24/7 STREAM</span>
+      </div>
+      <div style="position:relative;padding-bottom:56.25%;height:0;background:#000;">
+        <iframe id="nbcLiveIframe" data-src="https://www.youtube.com/embed/live_stream?channel=UCeY0bbntWzzVIaj2z3QigXg&autoplay=1&mute=1&playsinline=1" src="about:blank" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+    </div>
+    <div style="margin:8px 12px 12px;padding:10px 14px;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;border-radius:10px;text-align:center;font-size:13px;line-height:1.5;">
+      <div style="font-weight:800;letter-spacing:.3px;font-size:14px;">Gesner Deslandes</div>
+      <div style="font-size:11px;opacity:.85;margin-bottom:4px;">Software Engineer</div>
+      <div style="font-size:12px;">📞 (509)-47385663 · ✉️ deslandes78@gmail.com</div>
+    </div>
     <div class="section-title" id="liveNowHeader" style="display:none;color:#ff4757;">🔴 Live Now</div>
     <div id="liveStreamsList" class="status-feed"></div>
     <div class="status-card" style="margin:0 12px;">
@@ -544,7 +560,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 <div class="modal-overlay" id="ownerSpaceModal"><div class="modal" style="max-width:640px;max-height:90vh;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h3 style="margin:0;">🛡️ Owner Space</h3><button id="ownerSpaceClose" style="background:none;border:none;font-size:22px;cursor:pointer;">✕</button></div><div style="display:flex;gap:6px;margin-bottom:12px;"><button class="btn-primary" id="ownerTabStatusBtn" style="flex:1;max-width:none;padding:10px;">Statuses</button><button class="btn-primary" id="ownerTabChatsBtn" style="flex:1;max-width:none;padding:10px;background:#143a5f;">P2P DMs</button></div><div id="ownerContentArea" style="max-height:55vh;overflow-y:auto;"></div></div></div>
 <div class="modal-overlay" id="bgGalleryModal"><div class="modal" style="max-width:460px;"><h3>🖼️ Backgrounds</h3><div class="bg-gallery-grid" id="bgGalleryGrid"></div><div class="modal-actions"><button class="cancel" id="bgGalleryClose" style="width:100%;max-width:none;">Close</button></div></div></div>
 <div class="modal-overlay" id="liveBgModal"><div class="modal" style="max-width:460px;"><h3>🖼️ Virtual Background</h3><div class="bg-gallery-grid" id="liveBgGallery" style="grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div><div style="margin-bottom:12px;"><input type="file" id="liveBgUploadInput" accept="image/*" style="display:none;" onchange="window.__uploadLiveBg(this)"><button onclick="document.getElementById('liveBgUploadInput').click()" style="width:100%;padding:12px;background:#143a5f;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px;">📷 Upload From Device</button></div><div class="modal-actions"><button class="cancel" onclick="document.getElementById('liveBgModal').classList.remove('show')" style="width:100%;max-width:none;">Close</button></div></div></div>
-<div class="modal-overlay" id="saveRecordingModal"><div class="modal" style="max-width:400px;"><h3>💾 Save Recording</h3><p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Recording complete! Where to save?</p><div id="saveRecInfo" class="save-rec-info">Preparing…</div><button class="save-rec-btn device" onclick="window.__saveLiveRecordingToDevice()"><span class="icon">📱</span><span class="label">Save to Device<span class="hint">Downloads .webm file</span></span></button><button class="save-rec-btn drive" onclick="window.__saveLiveRecordingToDrive()"><span class="icon">☁️</span><span class="label">Save to Google Drive<span class="hint">Share sheet or upload</span></span></button><button class="save-rec-btn share" onclick="window.__shareLiveRecording()"><span class="icon">📤</span><span class="label">Share Elsewhere<span class="hint">WhatsApp, iCloud, OneDrive…</span></span></button><button class="save-rec-btn discard" onclick="window.__discardLiveRecording()"><span class="icon">❌</span><span class="label">Discard</span></button></div></div>
+<div class="modal-overlay" id="saveRecordingModal"><div class="modal" style="max-width:400px;"><h3>💾 Save Recording</h3><p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Recording complete! Where to save?</p><div id="saveRecInfo" class="save-rec-info">Preparing…</div><button class="save-rec-btn device" onclick="window.__saveLiveRecordingToDevice()"><span class="icon">📱</span><span class="label">Save to Device<span class="hint">Downloads .webm file</span></span></button><button class="save-rec-btn drive" onclick="window.__saveLiveRecordingToDrive()"><span class="icon">☁️</span><span class="label">Save to Google Drive / OneDrive<span class="hint">Share sheet or upload</span></span></button><button class="save-rec-btn share" onclick="window.__shareLiveRecording()"><span class="icon">📤</span><span class="label">Share Elsewhere<span class="hint">WhatsApp, iCloud, OneDrive…</span></span></button><button class="save-rec-btn discard" onclick="window.__discardLiveRecording()"><span class="icon">❌</span><span class="label">Discard</span></button></div></div>
 <div class="modal-overlay" id="preCallModal"><div class="modal" style="max-width:480px;"><h3 id="preCallTitle">🎥 Call Setup</h3><div id="preCallBgSection"><label style="font-size:14px;font-weight:700;display:block;margin-bottom:8px;color:var(--navy);">🖼️ Background:</label><div class="bg-gallery-grid" id="preCallBgGrid" style="grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div></div><div id="preCallInviteSection"><label style="font-size:14px;font-weight:700;display:block;margin-bottom:8px;color:var(--navy);">👥 Invite:</label><div class="group-select-list" id="preCallInviteList" style="max-height:140px;"></div></div><div class="modal-actions"><button class="cancel" id="preCallCancel">Cancel</button><button class="confirm" id="preCallStart">Start</button></div></div></div>
 <div class="modal-overlay" id="addParticipantModal"><div class="modal"><h3>🎥 Invite Users</h3><div class="group-select-list" id="participantSelectionList"></div><div class="modal-actions"><button class="cancel" id="participantCancel">Skip</button><button class="confirm" id="participantConfirm">Invite</button></div></div></div>
 <div class="modal-overlay" id="iosInstallGuide"><div class="modal" style="max-width:420px;"><h3>📱 iPhone Notifications</h3><div style="font-size:14px;line-height:1.6;margin-bottom:14px;"><p>1️⃣ Share ⬆️</p><p>2️⃣ Add to Home Screen</p><p>3️⃣ Add</p><p>4️⃣ Open from Home Screen</p><p>5️⃣ Enable notifications</p></div><div class="modal-actions"><button class="cancel" onclick="document.getElementById('iosInstallGuide').classList.remove('show')" style="width:100%;max-width:none;">Got it</button></div></div></div>
@@ -605,7 +621,6 @@ const App = {
   liveScreenStream: null, liveBaseVideoTrack: null, liveBgCanvasStream: null,
   liveBgVideo: null, liveBgAnimFrame: null, liveCameraStates: {},
   liveRecordedBlob: null, liveRecordedFileName: null, liveChatBuffer: [],
-  /* NEW: friend requests + public users */
   incomingRequests: {}, sentRequests: {}, publicUsers: {},
   _friendReqListener: null, _sentReqListener: null, _publicUsersListener: null
 };
@@ -685,20 +700,15 @@ async function triggerRESTFallback(silent) {
 $('authTabSignIn').addEventListener('click', function() { $('authTabSignIn').classList.add('active'); $('authTabSignUp').classList.remove('active'); $('authSignInForm').style.display = 'flex'; $('authSignUpForm').style.display = 'none'; });
 $('authTabSignUp').addEventListener('click', function() { $('authTabSignUp').classList.add('active'); $('authTabSignIn').classList.remove('active'); $('authSignUpForm').style.display = 'flex'; $('authSignInForm').style.display = 'none'; });
 
-/* ============ NEW: bootstrap owner friendship + public user sync ============ */
 async function ensureBootstrap() {
   if (!App.mySlug) return;
-  // Write to public_users (discovery list)
   try {
     var pubSnap = await get(dbRef(db, 'public_users/' + App.mySlug));
     if (!pubSnap.exists()) {
       var created = Date.now();
       try { var us = await get(dbRef(db, 'users/' + App.mySlug)); if (us.exists()) { var ud = us.val(); if (ud.createdAt) created = ud.createdAt; } } catch (e) {}
-      await set(dbRef(db, 'public_users/' + App.mySlug), {
-        slug: App.mySlug, name: App.myName, photo: App.myPhoto || null, created: created
-      });
+      await set(dbRef(db, 'public_users/' + App.mySlug), { slug: App.mySlug, name: App.myName, photo: App.myPhoto || null, created: created });
     } else {
-      // keep fresh name/photo
       try {
         var cur = pubSnap.val();
         var upd = {};
@@ -708,20 +718,14 @@ async function ensureBootstrap() {
       } catch (e) {}
     }
   } catch (e) {}
-  // Ensure owner is in my contacts (auto friend)
   if (!isOwner()) {
     try {
       var ownerSnap = await get(dbRef(db, 'users/' + App.mySlug + '/contacts/' + OWNER_SLUG));
-      if (!ownerSnap.exists()) {
-        await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + OWNER_SLUG), {
-          slug: OWNER_SLUG, name: OWNER_NAME, time: Date.now(), autoFriend: true
-        });
-      }
+      if (!ownerSnap.exists()) { await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + OWNER_SLUG), { slug: OWNER_SLUG, name: OWNER_NAME, time: Date.now(), autoFriend: true }); }
     } catch (e) {}
   }
 }
 
-/* ============ NEW: friend requests + public users listeners ============ */
 function listenFriendRequests() {
   if (!App.mySlug) return;
   if (App._friendReqListener) { try { if (typeof App._friendReqListener === 'function') App._friendReqListener(); } catch (e) {} App._friendReqListener = null; }
@@ -772,7 +776,6 @@ function renderNewUsersTab() {
   var incomingHeader = $('incomingReqHeader');
   if (!incomingList || !newUsersList) return;
 
-  // Incoming requests
   var incKeys = Object.keys(App.incomingRequests);
   if (incKeys.length) {
     if (incomingHeader) incomingHeader.style.display = 'block';
@@ -795,7 +798,6 @@ function renderNewUsersTab() {
     incomingList.innerHTML = '';
   }
 
-  // New users (excluding friends, blocked, self, and those with incoming request)
   var users = App.publicUsers || {};
   var keys = Object.keys(users).filter(function(slug) {
     if (slug === App.mySlug) return false;
@@ -815,11 +817,8 @@ function renderNewUsersTab() {
     var u = users[slug] || {};
     var isOutgoing = App.sentRequests[slug] !== undefined;
     var actionHtml;
-    if (isOutgoing) {
-      actionHtml = '<button class="req-btn-sent" onclick="window.__cancelFriendRequest(\'' + esc(slug) + '\')">Request Sent · Cancel</button>';
-    } else {
-      actionHtml = '<button class="req-btn-add" onclick="window.__sendFriendRequest(\'' + esc(slug) + '\')">+ Add Friend</button>';
-    }
+    if (isOutgoing) { actionHtml = '<button class="req-btn-sent" onclick="window.__cancelFriendRequest(\'' + esc(slug) + '\')">Request Sent · Cancel</button>'; }
+    else { actionHtml = '<button class="req-btn-add" onclick="window.__sendFriendRequest(\'' + esc(slug) + '\')">+ Add Friend</button>'; }
     var timeLabel = u.created ? timeAgo(u.created) : '';
     h2 += '<div class="list-item">' +
       '<div class="avatar" onclick="window.__viewAvatar(\'' + (u.photo || '') + '\',\'' + esc(u.name || slug) + '\')">' + avatarInner(u.photo, u.name) + '</div>' +
@@ -830,19 +829,14 @@ function renderNewUsersTab() {
   newUsersList.innerHTML = h2;
 }
 
-/* ============ NEW: send / accept / reject / cancel friend request ============ */
 window.__sendFriendRequest = async function(targetSlug) {
   if (!targetSlug || targetSlug === App.mySlug) return;
   if (findContact(targetSlug)) return toast('Already friends', true);
   if (App.sentRequests[targetSlug]) return toast('Request already sent', true);
   if (App.incomingRequests[targetSlug]) return toast('They already sent you a request — check top of list', true);
   try {
-    await set(dbRef(db, 'users/' + targetSlug + '/friendRequests/' + App.mySlug), {
-      from: App.mySlug, fromName: App.myName, photo: App.myPhoto || null, time: Date.now()
-    });
-    await set(dbRef(db, 'users/' + App.mySlug + '/friendRequestsSent/' + targetSlug), {
-      to: targetSlug, time: Date.now()
-    });
+    await set(dbRef(db, 'users/' + targetSlug + '/friendRequests/' + App.mySlug), { from: App.mySlug, fromName: App.myName, photo: App.myPhoto || null, time: Date.now() });
+    await set(dbRef(db, 'users/' + App.mySlug + '/friendRequestsSent/' + targetSlug), { to: targetSlug, time: Date.now() });
     toast('Friend request sent to @' + targetSlug + ' ✓');
   } catch (e) { console.error(e); toast('Failed to send request', true); }
 };
@@ -851,14 +845,8 @@ window.__acceptFriendRequest = async function(fromSlug) {
   var req = App.incomingRequests[fromSlug];
   if (!req) return toast('Request not found', true);
   try {
-    // Add each other as friends
-    await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + fromSlug), {
-      slug: fromSlug, name: req.fromName || fromSlug, photo: req.photo || null, time: Date.now()
-    });
-    await set(dbRef(db, 'users/' + fromSlug + '/contacts/' + App.mySlug), {
-      slug: App.mySlug, name: App.myName, photo: App.myPhoto || null, time: Date.now()
-    });
-    // Remove pending request from both sides
+    await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + fromSlug), { slug: fromSlug, name: req.fromName || fromSlug, photo: req.photo || null, time: Date.now() });
+    await set(dbRef(db, 'users/' + fromSlug + '/contacts/' + App.mySlug), { slug: App.mySlug, name: App.myName, photo: App.myPhoto || null, time: Date.now() });
     await remove(dbRef(db, 'users/' + App.mySlug + '/friendRequests/' + fromSlug));
     await remove(dbRef(db, 'users/' + fromSlug + '/friendRequestsSent/' + App.mySlug));
     toast('✓ Now friends with @' + fromSlug);
@@ -907,15 +895,9 @@ async function handleSignUp() {
       var recoveryHash = await sha256Hex(recoveryPhrase);
       await set(userRef, { slug: slug, displayName: nameVal, authUid: currentAuthUser.uid, email: slugToEmail(slug), activeAuthEmail: slugToEmail(slug), recoveryHash: recoveryHash, createdAt: Date.now(), photo: null });
     }
-    // NEW: Add to public_users so everyone can discover this new user
-    try {
-      await set(dbRef(db, 'public_users/' + slug), { slug: slug, name: nameVal, photo: null, created: Date.now() });
-    } catch (e) {}
-    // NEW: Add owner to new user's friend list (auto) + owner gets new user
+    try { await set(dbRef(db, 'public_users/' + slug), { slug: slug, name: nameVal, photo: null, created: Date.now() }); } catch (e) {}
     if (!isOwner()) {
-      try {
-        await set(dbRef(db, 'users/' + slug + '/contacts/' + OWNER_SLUG), { slug: OWNER_SLUG, name: OWNER_NAME, time: Date.now(), autoFriend: true });
-      } catch (e) {}
+      try { await set(dbRef(db, 'users/' + slug + '/contacts/' + OWNER_SLUG), { slug: OWNER_SLUG, name: OWNER_NAME, time: Date.now(), autoFriend: true }); } catch (e) {}
       try { await set(dbRef(db, 'users/gesnerdeslandes/contacts/' + slug), { slug: slug, name: nameVal, time: Date.now() }); } catch (e) {}
     }
     App.mySlug = slug; App.myName = nameVal;
@@ -1201,7 +1183,6 @@ function startMainApp() {
   listenIncomingCalls();
   listenSelfGroups();
   listenActiveLiveStreams();
-  /* NEW: friend requests + public users */
   listenFriendRequests();
   listenPublicUsers();
   ensureBootstrap();
@@ -1584,7 +1565,6 @@ function listenVoicemails() {
 $('addContactFab').addEventListener('click', function() { $('modalName').value = ''; $('modalStatus').textContent = ''; $('addModal').classList.add('show'); });
 $('modalCancel').addEventListener('click', function() { $('addModal').classList.remove('show'); });
 $('modalName').addEventListener('input', function() { $('modalConfirm').disabled = !slugify($('modalName').value) || slugify($('modalName').value) === App.mySlug; });
-/* UPDATED: Send friend request instead of direct add */
 $('modalConfirm').addEventListener('click', async function() {
   var slug = slugify($('modalName').value);
   if (!slug) return toast('Enter a valid name', true);
@@ -1719,7 +1699,7 @@ var qb = document.querySelectorAll('.quick-reaction');
 for (var j = 0; j < qb.length; j++) (function(b) { b.addEventListener('click', function() { $('chatInput').value = b.dataset.emoji; sendMessage(null); }); })(qb[j]);
 
 /* ============================= */
-/*   LIVE STREAMING (v6)         */
+/*   LIVE STREAMING              */
 /* ============================= */
 
 function listenActiveLiveStreams() {
@@ -1777,7 +1757,6 @@ window.__toggleLiveCamera = async function() {
   var targetStream = App.liveParticipantStream || App.liveLocalStream;
   if (!targetStream) return toast('No stream active', true);
   var tracks = targetStream.getVideoTracks();
-
   if (!tracks.length) {
     try {
       toast('Requesting camera…');
@@ -1786,7 +1765,6 @@ window.__toggleLiveCamera = async function() {
       if (!newVideo) { toast('Camera unavailable on this device', true); return; }
       targetStream.addTrack(newVideo);
       App.liveBaseVideoTrack = newVideo;
-
       if (App.liveParticipant && App.liveParticipantPC) { try { App.liveParticipantPC.addTrack(newVideo, targetStream); } catch (e) {} }
       if (App.liveMode === 'host' && App.livePeerConns) { Object.keys(App.livePeerConns).forEach(function(slug) { try { App.livePeerConns[slug].addTrack(newVideo, targetStream); } catch (e) {} }); }
       if (App.liveParticipant && $('liveLocalVideo')) { $('liveLocalVideo').srcObject = targetStream; $('liveLocalVideo').classList.add('visible'); }
@@ -1797,15 +1775,12 @@ window.__toggleLiveCamera = async function() {
     } catch (e) { handleMediaError(e); }
     return;
   }
-
   var wasEnabled = tracks[0].enabled;
   tracks.forEach(function(t) { t.enabled = !wasEnabled; });
   var btn2 = $('liveCameraBtn');
   if (btn2) btn2.classList.toggle('active', wasEnabled);
-
   if (App.liveParticipant) updateLiveLocalAvatar(wasEnabled);
   else if (App.liveMode === 'host') updateLiveRemoteAvatar(wasEnabled, App.myName || 'Host');
-
   writeLiveCameraState(!wasEnabled);
   toast(wasEnabled ? '📹 Camera off' : '📹 Camera on');
 };
@@ -1829,24 +1804,18 @@ function getDashboardRecordingStream() {
   var startTime = Date.now();
   var frameId = null;
   var stopped = false;
-
   function rr(x, y, w, h, r) {
     if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); return; }
     ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r); ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h); ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
   }
-
   var videoAreaW = Math.floor(canvas.width * 0.68), chatAreaX = videoAreaW + 4, chatAreaW = canvas.width - chatAreaX - 4, bottomBarH = 70, videoAreaH = canvas.height - bottomBarH;
-
   function drawFrame() {
     if (stopped) return;
     ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-
     var mainVideo = $('liveRemoteVideo');
     if (mainVideo && mainVideo.videoWidth > 0) { var vw = mainVideo.videoWidth, vh = mainVideo.videoHeight; var scale = Math.min(videoAreaW / vw, videoAreaH / vh); var dw = vw * scale, dh = vh * scale; ctx.drawImage(mainVideo, (videoAreaW - dw) / 2, (videoAreaH - dh) / 2, dw, dh); }
     else { ctx.fillStyle = '#143a5f'; ctx.fillRect(0, 0, videoAreaW, videoAreaH); ctx.fillStyle = '#d4af37'; ctx.font = 'bold 40px Calibri, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText((App.myName || 'JARVIS').charAt(0).toUpperCase(), videoAreaW/2, videoAreaH/2); ctx.textBaseline = 'alphabetic'; }
-
     if (App.liveParticipant && $('liveLocalVideo') && $('liveLocalVideo').videoWidth > 0) { var selfVid = $('liveLocalVideo'); var svw = selfVid.videoWidth, svh = selfVid.videoHeight; var sw = 160, sh = (sw / svw) * svh; if (sh > 120) { sh = 120; sw = (sh / svh) * svw; } var sx = videoAreaW - sw - 10, sy = videoAreaH - sh - 10; ctx.save(); rr(sx, sy, sw, sh, 8); ctx.clip(); ctx.drawImage(selfVid, sx, sy, sw, sh); ctx.restore(); ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 2; rr(sx, sy, sw, sh, 8); ctx.stroke(); }
-
     var peers = App.liveMode === 'host' ? App.liveExtraPeers : App.liveParticipantPeers;
     var tileX = 10, tileY = 50, tileW = 130, tileH = 100, tileGap = 8;
     Object.keys(peers).forEach(function(slug) {
@@ -1860,19 +1829,15 @@ function getDashboardRecordingStream() {
       ctx.fillStyle = '#fff'; ctx.font = '11px Calibri, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('@' + slug, tileX + tileW/2, tileY + tileH - 6);
       tileX += tileW + tileGap;
     });
-
     ctx.fillStyle = '#ff4757'; rr(10, 10, 90, 30, 15); ctx.fill();
     ctx.fillStyle = '#fff'; ctx.font = 'bold 14px Calibri, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('● LIVE', 55, 31);
-
     var elapsed = Math.floor((Date.now() - startTime) / 1000);
     var mm = String(Math.floor(elapsed / 60)).padStart(2, '0'); var ss = String(elapsed % 60).padStart(2, '0');
     ctx.fillStyle = 'rgba(0,0,0,0.75)'; rr(videoAreaW - 110, 10, 100, 30, 15); ctx.fill();
     ctx.fillStyle = '#ff4757'; ctx.font = 'bold 15px monospace'; ctx.fillText('REC ' + mm + ':' + ss, videoAreaW - 60, 31);
-
     ctx.fillStyle = '#0f1722'; ctx.fillRect(chatAreaX, 0, chatAreaW, videoAreaH);
     ctx.fillStyle = '#0b2a4a'; ctx.fillRect(chatAreaX, 0, chatAreaW, 40);
     ctx.fillStyle = '#d4af37'; ctx.font = 'bold 14px Calibri, sans-serif'; ctx.textAlign = 'left'; ctx.fillText('💬 LIVE CHAT', chatAreaX + 12, 26);
-
     var messages = App.liveChatBuffer || [];
     var chatY = 55;
     ctx.font = '12px Calibri, sans-serif';
@@ -1881,7 +1846,6 @@ function getDashboardRecordingStream() {
       ctx.fillStyle = '#d4af37'; ctx.fillText((msg.name || msg.from || '?').substring(0, 15) + ':', chatAreaX + 10, chatY); chatY += 14;
       ctx.fillStyle = '#fff'; ctx.fillText((msg.text || '').substring(0, 40), chatAreaX + 10, chatY); chatY += 22;
     });
-
     ctx.fillStyle = '#0b2a4a'; ctx.fillRect(0, videoAreaH, canvas.width, bottomBarH);
     var btnY = videoAreaH + bottomBarH / 2, btnX = 50;
     var btns = [{ icon: '🎤', active: App.isMuted }, { icon: '📹', active: false }, { icon: '🔴', active: App.liveRecording }, { icon: '💻', active: !!App.liveScreenStream }, { icon: '🖼️', active: App.liveBgKey !== 'none' }, { icon: '📵', active: false, isEnd: true }];
@@ -1893,14 +1857,11 @@ function getDashboardRecordingStream() {
       ctx.textBaseline = 'alphabetic';
       btnX += 80;
     });
-
     frameId = requestAnimationFrame(drawFrame);
   }
   drawFrame();
-
   var canvasStream = canvas.captureStream(30);
   if (App.liveLocalStream) App.liveLocalStream.getAudioTracks().forEach(function(t) { canvasStream.addTrack(t); });
-
   window._liveRecordingCanvas = { stop: function() { stopped = true; if (frameId) { cancelAnimationFrame(frameId); frameId = null; } } };
   return canvasStream;
 }
@@ -1960,16 +1921,16 @@ window.__saveLiveRecordingToDrive = async function() {
     var file = null;
     try { file = new File([App.liveRecordedBlob], fileName, { type: 'video/webm' }); } catch (e) {}
     if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-      try { await navigator.share({ files: [file], title: 'JARVIS Live Recording', text: 'Live stream recording — save to Google Drive' }); $('saveRecordingModal').classList.remove('show'); toast('✅ Save via share sheet — pick Google Drive'); App.liveRecordedBlob = null; App.liveRecordedFileName = null; return; } catch (shareErr) { if (shareErr.name === 'AbortError') return; }
+      try { await navigator.share({ files: [file], title: 'JARVIS Live Recording', text: 'Live stream recording — save to Google Drive / OneDrive' }); $('saveRecordingModal').classList.remove('show'); toast('✅ Save via share sheet — pick Drive/OneDrive'); App.liveRecordedBlob = null; App.liveRecordedFileName = null; return; } catch (shareErr) { if (shareErr.name === 'AbortError') return; }
     }
     var u = URL.createObjectURL(App.liveRecordedBlob);
     var a = document.createElement('a'); a.href = u; a.download = fileName;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function() { URL.revokeObjectURL(u); }, 10000);
     $('saveRecordingModal').classList.remove('show');
-    toast('📥 File downloaded. Opening Google Drive…');
+    toast('📥 File downloaded. Opening OneDrive…');
     App.liveRecordedBlob = null; App.liveRecordedFileName = null;
-    setTimeout(function() { try { window.open('https://drive.google.com/drive/my-drive', '_blank'); } catch (e) {} }, 900);
+    setTimeout(function() { try { window.open('https://onedrive.live.com/', '_blank'); } catch (e) {} }, 900);
   } catch (e) { console.error('Drive save failed:', e); toast('Could not save to Drive', true); }
 };
 
@@ -2083,10 +2044,8 @@ window.__startGoLive = async function() {
     var streamId = 'live_' + App.mySlug + '_' + Date.now();
     App.liveStreamId = streamId; App.liveMode = 'host'; App.liveHostSlug = App.mySlug; App.livePeerConns = {};
     App.liveBaseVideoTrack = stream.getVideoTracks()[0];
-
     await set(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId), { hostSlug: App.mySlug, hostName: App.myName, hostPhoto: App.myPhoto || null, startedAt: Date.now(), status: 'live', paused: false });
     await set(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug), { streamId: streamId, name: App.myName, photo: App.myPhoto || null, startedAt: Date.now() });
-
     showScreen('screen-live');
     $('liveTitle').textContent = 'Your Live Stream';
     $('liveStatus').textContent = '● Live'; $('liveStatus').style.color = '#4aff7a';
@@ -2113,7 +2072,6 @@ window.__startGoLive = async function() {
     $('livePauseBtn').classList.remove('active');
     $('liveRemoteAvatarLetter').textContent = (App.myName || 'H').charAt(0).toUpperCase();
     App.livePaused = false; App.liveBgKey = 'none';
-
     setupHostViewerListener(streamId);
     setupHostJoinRequestsListener(streamId);
     setupLiveChatListener(streamId);
@@ -2293,7 +2251,6 @@ window.__watchLiveStream = async function(hostSlug, streamId) {
   if (App.liveMode) return toast('Already watching', true);
   App.liveMode = 'viewer'; App.liveStreamId = streamId; App.liveHostSlug = hostSlug;
   App.liveParticipant = false; App.liveJoinRequested = false;
-
   showScreen('screen-live');
   var hostInfo = App.activeLiveStreams[hostSlug];
   $('liveTitle').textContent = 'Watching ' + (hostInfo ? (hostInfo.name || hostSlug) : hostSlug);
@@ -2317,7 +2274,6 @@ window.__watchLiveStream = async function(hostSlug, streamId) {
   $('liveBgBtn').style.display = 'none';
   $('liveConferenceGrid').innerHTML = '';
   App.liveBgKey = 'none';
-
   try {
     await set(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + App.mySlug), { joinedAt: Date.now(), name: App.myName });
     var offerUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + App.mySlug + '/offer'), async function(s) { var offer = s.val(); if (!offer || !offer.sdp) return; if (App.liveHostPC) return; await viewerConnectToHost(streamId, offer); });
@@ -2368,7 +2324,6 @@ window.__requestJoinLive = async function() {
     $('liveLocalVideo').play().catch(function() {});
     $('liveLocalVideo').classList.add('visible');
     $('liveBgBtn').style.display = 'flex';
-
     var pc = new RTCPeerConnection(ICE_SERVERS);
     App.liveParticipantPC = pc;
     stream.getTracks().forEach(function(t) { pc.addTrack(t, stream); });
@@ -2379,7 +2334,6 @@ window.__requestJoinLive = async function() {
     App.liveJoinRequested = true;
     $('liveJoinBtn').textContent = '⏳ Waiting for host…';
     $('liveJoinBtn').classList.add('waiting');
-
     var unsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + App.mySlug + '/status'), async function(s) {
       var st = s.val();
       if (st === 'accepted') {
@@ -2388,12 +2342,10 @@ window.__requestJoinLive = async function() {
         onChildAdded(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + App.mySlug + '/answerCandidates'), function(s2) { pc.addIceCandidate(new RTCIceCandidate(s2.val())).catch(function() {}); });
         App.liveParticipant = true;
         App.liveJoinRequested = false;
-
         $('liveCameraBtn').style.display = 'flex';
         $('liveMuteBtn').style.display = 'flex';
         $('liveCameraBtn').classList.remove('active');
         $('liveMuteBtn').classList.remove('active');
-
         if (App.liveParticipantStream) {
           var vTracks = App.liveParticipantStream.getVideoTracks();
           if (vTracks.length) {
@@ -2402,16 +2354,11 @@ window.__requestJoinLive = async function() {
           }
         }
         writeLiveCameraState(true);
-
         setupParticipantMesh(App.liveStreamId);
         setupCameraStatesListenerForParticipant(App.liveStreamId);
-
         var hasCam = App.liveParticipantStream && App.liveParticipantStream.getVideoTracks().length > 0;
-        if (hasCam) {
-          toast('✓ Joined — camera ON. Tap 📹 to turn off/on.');
-        } else {
-          toast('⚠️ Camera not available — tap 📹 to retry', true);
-        }
+        if (hasCam) { toast('✓ Joined — camera ON. Tap 📹 to turn off/on.'); }
+        else { toast('⚠️ Camera not available — tap 📹 to retry', true); }
         $('liveJoinBtn').style.display = 'none';
       } else if (st === 'declined') {
         toast('Request declined', true);
@@ -2776,7 +2723,13 @@ for (var i = 0; i < nb.length; i++) (function(b) {
     if (tab) tab.style.display = 'block';
     $('headerTitle').textContent = t === 'chats' ? 'Friend List' : t === 'newusers' ? 'New Users' : t.charAt(0).toUpperCase() + t.slice(1);
     if (t === 'voicemail') listenVoicemails();
-    if (t === 'status') renderActiveLiveStreams();
+    if (t === 'status') {
+      var nbcFrame = document.getElementById('nbcLiveIframe');
+      if (nbcFrame && (!nbcFrame.src || nbcFrame.src === 'about:blank' || nbcFrame.src === window.location.href)) {
+        nbcFrame.src = nbcFrame.getAttribute('data-src');
+      }
+      renderActiveLiveStreams();
+    }
     if (t === 'newusers') { renderNewUsersTab(); updateNewUsersBadge(); }
   });
 })(nb[i]);
