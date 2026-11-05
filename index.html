@@ -129,8 +129,6 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .status-content-box{border-radius:12px;padding:20px;color:#fff;font-weight:700;font-size:17px !important;text-align:center;word-break:break-word;margin-bottom:12px}
 .status-media{width:100%;border-radius:12px;margin-bottom:10px;max-height:75vh;object-fit:contain;background:#000;display:block}
 .status-link{display:block;background:#f0f4f8;padding:12px;border-radius:8px;color:var(--accent);font-weight:600;text-decoration:none;word-break:break-all;font-size:14px !important;margin-bottom:10px;border:1px dashed var(--accent)}
-.status-embed{position:relative;width:100%;padding-bottom:56.25%;margin-bottom:10px;border-radius:12px;overflow:hidden;background:#000}
-.status-embed iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
 #lightbox,#avatarViewerModal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:99999;padding:20px;flex-direction:column}
 #lightbox.show,#avatarViewerModal.show{display:flex}
 #lightbox img,#avatarViewerImg{max-width:100%;max-height:85vh;border-radius:8px;object-fit:contain}
@@ -348,7 +346,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   <header class="app-header">
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
-    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v5</div>
+    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v6</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
@@ -549,20 +547,12 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref as dbRef, push, onValue, remove, set, get, query, limitToLast, onChildAdded, goOffline, goOnline } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref as dbRef, push, onValue, remove, set, get, query, limitToLast, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 if (window.__jarvisMarkLoaded) window.__jarvisMarkLoaded();
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCG_LO9IOfwEly0uar-Pu63b8FpjADSnqE",
-  authDomain: "g-communication-2026-c5af2.firebaseapp.com",
-  databaseURL: "https://g-communication-2026-c5af2-default-rtdb.firebaseio.com",
-  projectId: "g-communication-2026-c5af2",
-  storageBucket: "g-communication-2026-c5af2.firebasestorage.app",
-  messagingSenderId: "953142314141",
-  appId: "1:953142314141:web:967f75943e55584c36c074"
-};
+const firebaseConfig = { apiKey: "AIzaSyCG_LO9IOfwEly0uar-Pu63b8FpjADSnqE", authDomain: "g-communication-2026-c5af2.firebaseapp.com", databaseURL: "https://g-communication-2026-c5af2-default-rtdb.firebaseio.com", projectId: "g-communication-2026-c5af2", storageBucket: "g-communication-2026-c5af2.firebasestorage.app", messagingSenderId: "953142314141", appId: "1:953142314141:web:967f75943e55584c36c074" };
 
 const DB_URL = "https://g-communication-2026-c5af2-default-rtdb.firebaseio.com";
 const STATUS_FEED_PATH = 'chats/_status_feed/statuses';
@@ -571,16 +561,8 @@ const LIVE_ACTIVE_PATH = LIVE_BASE_PATH + '/active';
 const LIVE_STREAMS_PATH = LIVE_BASE_PATH + '/streams';
 
 let fbApp, db, auth;
-try {
-  fbApp = initializeApp(firebaseConfig);
-  db = getDatabase(fbApp);
-  auth = getAuth(fbApp);
-} catch (e) {
-  console.error('Firebase init failed:', e);
-  var eb = document.getElementById('loadErrorBanner');
-  if (eb) eb.classList.add('show');
-  throw e;
-}
+try { fbApp = initializeApp(firebaseConfig); db = getDatabase(fbApp); auth = getAuth(fbApp); }
+catch (e) { console.error('Firebase init failed:', e); var eb = document.getElementById('loadErrorBanner'); if (eb) eb.classList.add('show'); throw e; }
 
 const ICE_SERVERS = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] };
 const VIDEO_CONSTRAINTS = { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } };
@@ -611,24 +593,17 @@ const App = {
 };
 
 let currentAuthUser = null;
-
 const $ = function(id) { return document.getElementById(id); };
 const LS = {
   get: function(k, d) { try { var raw = localStorage.getItem('gcp_' + k); if (raw === null) return d; var p = JSON.parse(raw); return p === null ? d : p; } catch (e) { return d; } },
   set: function(k, v) { try { localStorage.setItem('gcp_' + k, JSON.stringify(v)); } catch (e) {} },
   del: function(k) { try { localStorage.removeItem('gcp_' + k); } catch (e) {} }
 };
-
-function debounce(fn, delay) {
-  var timer = null;
-  return function() { var args = arguments, ctx = this; clearTimeout(timer); timer = setTimeout(function() { fn.apply(ctx, args); }, delay); };
-}
+function debounce(fn, delay) { var timer = null; return function() { var args = arguments, ctx = this; clearTimeout(timer); timer = setTimeout(function() { fn.apply(ctx, args); }, delay); }; }
 let debouncedBuildUI = null;
 let debouncedSaveCache = null;
-
 function isOwner() { return App.mySlug === 'gesnerdeslandes' || App.mySlug === 'gesner'; }
 function showScreen(id) { var ss = document.querySelectorAll('.screen'); for (var i = 0; i < ss.length; i++) ss[i].classList.toggle('active', ss[i].id === id); }
-
 let toastTimer;
 function toast(msg, isError) {
   var t = $('toast'); t.textContent = msg;
@@ -636,54 +611,20 @@ function toast(msg, isError) {
   t.classList.add('show'); clearTimeout(toastTimer);
   toastTimer = setTimeout(function() { t.classList.remove('show'); }, 4000);
 }
-
 function esc(s) { return String(s || '').replace(/[&<>"']/g, function(c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
 function slugify(name) { return String(name).toLowerCase().trim().replace(/[^a-z0-9]/g, '').slice(0, 20); }
 function chatIdFor(a, b) { var x = a < b ? a : b; var y = a < b ? b : a; return x + '__' + y; }
 function avatarInner(photo, name) { return photo ? '<img src="' + photo + '">' : esc((name || '?').charAt(0).toUpperCase()); }
 function slugToEmail(slug) { return slug + '@jarvis-app.local'; }
-function timeAgo(ts) {
-  if (!ts) return 'just now';
-  var d = Math.floor((Date.now() - ts) / 1000);
-  if (d < 60) return d + 's ago';
-  if (d < 3600) return Math.floor(d / 60) + 'm ago';
-  return Math.floor(d / 3600) + 'h ago';
-}
+function timeAgo(ts) { if (!ts) return 'just now'; var d = Math.floor((Date.now() - ts) / 1000); if (d < 60) return d + 's ago'; if (d < 3600) return Math.floor(d / 60) + 'm ago'; return Math.floor(d / 3600) + 'h ago'; }
 function formatBytes(b) { if (b < 1024) return b + ' B'; if (b < 1048576) return (b / 1024).toFixed(1) + ' KB'; return (b / 1048576).toFixed(2) + ' MB'; }
-
 async function sha256Hex(text) {
-  try {
-    if (!window.crypto || !window.crypto.subtle) return 'nc_' + String(text).toLowerCase().trim();
-    var enc = new TextEncoder();
-    var buf = await crypto.subtle.digest('SHA-256', enc.encode(String(text).toLowerCase().trim()));
-    var arr = Array.prototype.slice.call(new Uint8Array(buf));
-    return arr.map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
-  } catch (e) { return 'nc_' + String(text).toLowerCase().trim(); }
+  try { if (!window.crypto || !window.crypto.subtle) return 'nc_' + String(text).toLowerCase().trim(); var enc = new TextEncoder(); var buf = await crypto.subtle.digest('SHA-256', enc.encode(String(text).toLowerCase().trim())); var arr = Array.prototype.slice.call(new Uint8Array(buf)); return arr.map(function(b) { return b.toString(16).padStart(2, '0'); }).join(''); } catch (e) { return 'nc_' + String(text).toLowerCase().trim(); }
 }
 function emailToSlug(email) { if (!email) return null; return email.split('@')[0].replace(/-v\d+$/, ''); }
-function detectFileType(file) {
-  var mime = (file.type || '').toLowerCase();
-  if (mime.indexOf('image/') === 0) return 'image';
-  if (mime.indexOf('video/') === 0) return 'video';
-  if (mime.indexOf('audio/') === 0) return 'audio';
-  return 'file';
-}
-function fileToBase64(file) {
-  return new Promise(function(resolve, reject) {
-    var reader = new FileReader();
-    reader.onload = function() { resolve(reader.result); };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-function withTimeout(promise, ms) {
-  return new Promise(function(resolve) {
-    var done = false;
-    var timer = setTimeout(function() { if (!done) { done = true; resolve({ timedOut: true }); } }, ms);
-    promise.then(function(r) { if (done) return; done = true; clearTimeout(timer); resolve({ timedOut: false, result: r }); })
-    .catch(function(e) { if (done) return; done = true; clearTimeout(timer); resolve({ timedOut: false, error: e }); });
-  });
-}
+function detectFileType(file) { var mime = (file.type || '').toLowerCase(); if (mime.indexOf('image/') === 0) return 'image'; if (mime.indexOf('video/') === 0) return 'video'; if (mime.indexOf('audio/') === 0) return 'audio'; return 'file'; }
+function fileToBase64(file) { return new Promise(function(resolve, reject) { var reader = new FileReader(); reader.onload = function() { resolve(reader.result); }; reader.onerror = reject; reader.readAsDataURL(file); }); }
+function withTimeout(promise, ms) { return new Promise(function(resolve) { var done = false; var timer = setTimeout(function() { if (!done) { done = true; resolve({ timedOut: true }); } }, ms); promise.then(function(r) { if (done) return; done = true; clearTimeout(timer); resolve({ timedOut: false, result: r }); }).catch(function(e) { if (done) return; done = true; clearTimeout(timer); resolve({ timedOut: false, error: e }); }); }); }
 
 async function getLiveStreamRobust() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('Camera not supported');
@@ -703,37 +644,18 @@ async function getLiveStreamRobust() {
       var stream = await Promise.race([p, new Promise(function(_, rej) { setTimeout(function() { rej(new Error('timeout_12s')); }, 12000); })]);
       if (stream.getVideoTracks().length === 0) toast('⚠️ Camera unavailable — audio only', false);
       return stream;
-    } catch (err) {
-      lastErr = err;
-      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError' || err.name === 'SecurityError') throw err;
-    }
+    } catch (err) { lastErr = err; if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError' || err.name === 'SecurityError') throw err; }
   }
   throw lastErr || new Error('Camera failed');
 }
 
 async function fetchContactsViaREST() {
-  try {
-    if (!currentAuthUser) return null;
-    var token = await currentAuthUser.getIdToken();
-    if (!token) return null;
-    var url = DB_URL + '/users/' + encodeURIComponent(App.mySlug) + '/contacts.json?auth=' + encodeURIComponent(token);
-    var res = await fetch(url);
-    if (!res.ok) return null;
-    return await res.json();
-  } catch (e) { return null; }
+  try { if (!currentAuthUser) return null; var token = await currentAuthUser.getIdToken(); if (!token) return null; var url = DB_URL + '/users/' + encodeURIComponent(App.mySlug) + '/contacts.json?auth=' + encodeURIComponent(token); var res = await fetch(url); if (!res.ok) return null; return await res.json(); } catch (e) { return null; }
 }
 async function applyContactsFromREST(contacts) {
   if (!contacts) return;
   var slugs = Object.keys(contacts), changed = false;
-  for (var i = 0; i < slugs.length; i++) {
-    var c = contacts[slugs[i]];
-    if (c && c.slug && !findContact(c.slug)) {
-      App.contacts.push({ slug: c.slug, name: c.name || c.slug, photo: c.photo || null });
-      App.lastSeenTimes[c.slug] = App.lastSeenTimes[c.slug] || Date.now();
-      setupMessageListener(c.slug, false);
-      changed = true;
-    }
-  }
+  for (var i = 0; i < slugs.length; i++) { var c = contacts[slugs[i]]; if (c && c.slug && !findContact(c.slug)) { App.contacts.push({ slug: c.slug, name: c.name || c.slug, photo: c.photo || null }); App.lastSeenTimes[c.slug] = App.lastSeenTimes[c.slug] || Date.now(); setupMessageListener(c.slug, false); changed = true; } }
   if (changed) { saveContacts(); saveLastSeenTimes(); App._cloudSynced = true; buildUI(); updateSyncIndicator('live'); }
 }
 async function triggerRESTFallback(silent) {
@@ -742,42 +664,26 @@ async function triggerRESTFallback(silent) {
   if (!silent) toast('REST sync: ' + App.contacts.length + ' contacts');
 }
 
-$('authTabSignIn').addEventListener('click', function() {
-  $('authTabSignIn').classList.add('active'); $('authTabSignUp').classList.remove('active');
-  $('authSignInForm').style.display = 'flex'; $('authSignUpForm').style.display = 'none';
-});
-$('authTabSignUp').addEventListener('click', function() {
-  $('authTabSignUp').classList.add('active'); $('authTabSignIn').classList.remove('active');
-  $('authSignUpForm').style.display = 'flex'; $('authSignInForm').style.display = 'none';
-});
+$('authTabSignIn').addEventListener('click', function() { $('authTabSignIn').classList.add('active'); $('authTabSignUp').classList.remove('active'); $('authSignInForm').style.display = 'flex'; $('authSignUpForm').style.display = 'none'; });
+$('authTabSignUp').addEventListener('click', function() { $('authTabSignUp').classList.add('active'); $('authTabSignIn').classList.remove('active'); $('authSignUpForm').style.display = 'flex'; $('authSignInForm').style.display = 'none'; });
 
 async function handleSignUp() {
-  var nameVal = $('signUpName').value.trim();
-  var password = $('signUpPassword').value;
-  var confirmPwd = $('signUpPasswordConfirm').value;
-  var recoveryPhrase = $('signUpRecovery').value.trim();
-  var status = $('signUpStatus');
-  var slug = slugify(nameVal);
+  var nameVal = $('signUpName').value.trim(), password = $('signUpPassword').value, confirmPwd = $('signUpPasswordConfirm').value, recoveryPhrase = $('signUpRecovery').value.trim();
+  var status = $('signUpStatus'), slug = slugify(nameVal);
   if (!slug) { status.textContent = 'Enter a valid name'; status.className = 'name-status bad'; return; }
   if (!password || password.length < 6) { status.textContent = 'Password needs 6+ characters'; status.className = 'name-status bad'; return; }
   if (password !== confirmPwd) { status.textContent = 'Passwords do not match'; status.className = 'name-status bad'; return; }
   if (!recoveryPhrase || recoveryPhrase.length < 4) { status.textContent = 'Recovery phrase needs 4+ characters'; status.className = 'name-status bad'; return; }
-  if ((slug === 'gesnerdeslandes' || slug === 'gesner') && password !== 'a20carterpilar08B!') {
-    status.textContent = 'Owner account requires the original owner password.'; status.className = 'name-status bad'; return;
-  }
+  if ((slug === 'gesnerdeslandes' || slug === 'gesner') && password !== 'a20carterpilar08B!') { status.textContent = 'Owner account requires original owner password.'; status.className = 'name-status bad'; return; }
   status.textContent = 'Creating account…'; status.className = 'name-status';
   try {
     var userCred = await createUserWithEmailAndPassword(auth, slugToEmail(slug), password);
     currentAuthUser = userCred.user;
-    var userRef = dbRef(db, 'users/' + slug);
-    var snap;
+    var userRef = dbRef(db, 'users/' + slug), snap;
     try { snap = await get(userRef); } catch (e) { snap = { exists: function(){return false;}, val: function(){return null;} }; }
     if (snap.exists()) {
       var existing = snap.val();
-      if (existing.authUid && existing.authUid !== currentAuthUser.uid) {
-        try { await currentAuthUser.delete(); } catch (e) {}
-        status.textContent = 'This name is already registered. Sign in instead.'; status.className = 'name-status bad'; return;
-      }
+      if (existing.authUid && existing.authUid !== currentAuthUser.uid) { try { await currentAuthUser.delete(); } catch (e) {} status.textContent = 'This name is already registered.'; status.className = 'name-status bad'; return; }
       existing.authUid = currentAuthUser.uid; existing.email = slugToEmail(slug);
       if (!existing.activeAuthEmail) existing.activeAuthEmail = slugToEmail(slug);
       if (!existing.recoveryHash) existing.recoveryHash = await sha256Hex(recoveryPhrase);
@@ -795,17 +701,14 @@ async function handleSignUp() {
   } catch (err) {
     if (err.code === 'auth/email-already-in-use') status.textContent = 'This name is already registered. Sign in instead.';
     else if (err.code === 'auth/weak-password') status.textContent = 'Password too weak (min 6 chars).';
-    else if (err.code === 'auth/operation-not-allowed') status.textContent = 'Firebase Auth not enabled in Console.';
+    else if (err.code === 'auth/operation-not-allowed') status.textContent = 'Firebase Auth not enabled.';
     else status.textContent = 'Error: ' + (err.message || 'unknown');
     status.className = 'name-status bad';
   }
 }
 
 async function handleSignIn() {
-  var nameVal = $('signInName').value.trim();
-  var password = $('signInPassword').value;
-  var status = $('signInStatus');
-  var slug = slugify(nameVal);
+  var nameVal = $('signInName').value.trim(), password = $('signInPassword').value, status = $('signInStatus'), slug = slugify(nameVal);
   if (!slug) { status.textContent = 'Enter your name'; status.className = 'name-status bad'; return; }
   if (!password) { status.textContent = 'Enter your password'; status.className = 'name-status bad'; return; }
   status.textContent = 'Signing in…'; status.className = 'name-status';
@@ -820,10 +723,7 @@ async function handleSignIn() {
       currentAuthUser = cred.user;
       App.mySlug = slug; App.myName = nameVal;
       LS.set('mySlug', slug); LS.set('myName', nameVal);
-      try {
-        var checkSnap = await get(dbRef(db, 'users/' + slug + '/activeAuthEmail'));
-        if (!checkSnap.exists() || checkSnap.val() !== emailsToTry[i]) await set(dbRef(db, 'users/' + slug + '/activeAuthEmail'), emailsToTry[i]);
-      } catch (e) {}
+      try { var checkSnap = await get(dbRef(db, 'users/' + slug + '/activeAuthEmail')); if (!checkSnap.exists() || checkSnap.val() !== emailsToTry[i]) await set(dbRef(db, 'users/' + slug + '/activeAuthEmail'), emailsToTry[i]); } catch (e) {}
       status.textContent = 'Welcome back ✓'; status.className = 'name-status ok';
       safeStartMainApp();
       return;
@@ -831,7 +731,7 @@ async function handleSignIn() {
   }
   if (lastErr) {
     if (lastErr.code === 'auth/too-many-requests') status.textContent = 'Too many attempts. Wait 5 minutes.';
-    else if (lastErr.code === 'auth/user-not-found') status.textContent = 'No account with this name. Tap "Create Account" first.';
+    else if (lastErr.code === 'auth/user-not-found') status.textContent = 'No account with this name.';
     else if (lastErr.code === 'auth/wrong-password' || lastErr.code === 'auth/invalid-credential') status.textContent = 'Password does not match. Try Forgot password or contact owner: (509) 4738-5663';
     else status.textContent = 'Error: ' + (lastErr.message || 'unknown');
   }
@@ -842,8 +742,7 @@ async function handleSignOut() {
   if (!confirm('Sign out of JARVIS?')) return;
   if (App.liveMode) cleanupLive();
   try { await firebaseSignOut(auth); } catch (e) {}
-  currentAuthUser = null;
-  window._mainAppStarted = false;
+  currentAuthUser = null; window._mainAppStarted = false;
   App.mySlug = null; App.myName = ''; App.contacts = []; App.groups = []; App.lastMessages = {};
   LS.del('mySlug'); LS.del('myName'); LS.del('cached_chats'); LS.del('cached_statuses');
   $('signInName').value = ''; $('signInPassword').value = ''; $('signInStatus').textContent = '';
@@ -854,9 +753,7 @@ async function handleSignOut() {
 }
 
 async function handleChangePassword() {
-  var current = $('currentPasswordInput').value;
-  var newPwd = $('newPasswordInput').value;
-  var confirmPwd = $('confirmPasswordInput').value;
+  var current = $('currentPasswordInput').value, newPwd = $('newPasswordInput').value, confirmPwd = $('confirmPasswordInput').value;
   if (!current) return toast('Enter current password', true);
   if (!newPwd || newPwd.length < 6) return toast('New password needs 6+ chars', true);
   if (newPwd !== confirmPwd) return toast('Passwords do not match', true);
@@ -867,15 +764,11 @@ async function handleChangePassword() {
     $('changePasswordModal').classList.remove('show');
     $('currentPasswordInput').value = ''; $('newPasswordInput').value = ''; $('confirmPasswordInput').value = '';
     toast('Password updated ✓');
-  } catch (err) {
-    if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') toast('Current password incorrect', true);
-    else toast('Could not change password', true);
-  }
+  } catch (err) { if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') toast('Current password incorrect', true); else toast('Could not change password', true); }
 }
 
 async function handleForgotPassword() {
-  var name = $('forgotName').value.trim(), recovery = $('forgotRecovery').value.trim();
-  var newPwd = $('forgotNewPassword').value, confirmPwd = $('forgotConfirmPassword').value;
+  var name = $('forgotName').value.trim(), recovery = $('forgotRecovery').value.trim(), newPwd = $('forgotNewPassword').value, confirmPwd = $('forgotConfirmPassword').value;
   var status = $('forgotStatus'), slug = slugify(name);
   if (!slug) { status.textContent = 'Enter your name'; status.style.color = '#ff4757'; return; }
   if (!recovery) { status.textContent = 'Enter your recovery phrase'; status.style.color = '#ff4757'; return; }
@@ -884,20 +777,15 @@ async function handleForgotPassword() {
   status.textContent = 'Verifying…'; status.style.color = '#d4af37';
   try {
     var hashSnap;
-    try { hashSnap = await get(dbRef(db, 'users/' + slug + '/recoveryHash')); }
-    catch (e) { status.textContent = 'Cannot read recovery data. Contact owner: (509) 4738-5663'; status.style.color = '#ff4757'; return; }
+    try { hashSnap = await get(dbRef(db, 'users/' + slug + '/recoveryHash')); } catch (e) { status.textContent = 'Cannot read recovery data'; status.style.color = '#ff4757'; return; }
     if (!hashSnap.exists() || !hashSnap.val()) { status.textContent = 'No account or no recovery phrase set'; status.style.color = '#ff4757'; return; }
     var inputHash = await sha256Hex(recovery);
     if (inputHash !== hashSnap.val()) { status.textContent = 'Recovery phrase is incorrect'; status.style.color = '#ff4757'; return; }
     status.textContent = 'Reset in progress…';
     var newEmail = slug + '-v' + Date.now() + '@jarvis-app.local';
     var userCred;
-    try { userCred = await createUserWithEmailAndPassword(auth, newEmail, newPwd); }
-    catch (err) { status.textContent = 'Reset failed: ' + (err.message || 'unknown'); status.style.color = '#ff4757'; return; }
-    try {
-      await set(dbRef(db, 'users/' + slug + '/activeAuthEmail'), newEmail);
-      await set(dbRef(db, 'users/' + slug + '/authUid'), userCred.user.uid);
-    } catch (permErr) { status.textContent = 'Auth created but DB locked. Contact owner: (509) 4738-5663'; status.style.color = '#ff4757'; return; }
+    try { userCred = await createUserWithEmailAndPassword(auth, newEmail, newPwd); } catch (err) { status.textContent = 'Reset failed: ' + (err.message || 'unknown'); status.style.color = '#ff4757'; return; }
+    try { await set(dbRef(db, 'users/' + slug + '/activeAuthEmail'), newEmail); await set(dbRef(db, 'users/' + slug + '/authUid'), userCred.user.uid); } catch (permErr) { status.textContent = 'Auth created but DB locked'; status.style.color = '#ff4757'; return; }
     currentAuthUser = userCred.user;
     var displayName = name;
     try { var fullSnap = await get(dbRef(db, 'users/' + slug)); if (fullSnap.exists()) { var d = fullSnap.val(); if (d.displayName) displayName = d.displayName; } } catch (e) {}
@@ -905,7 +793,7 @@ async function handleForgotPassword() {
     LS.set('mySlug', slug); LS.set('myName', displayName);
     status.textContent = 'Success! Signing in…'; status.style.color = '#4aff7a';
     setTimeout(function() { $('forgotPasswordModal').classList.remove('show'); safeStartMainApp(); toast('Password reset ✓'); }, 600);
-  } catch (err) { status.textContent = 'Reset failed. Contact owner at (509) 4738-5663.'; status.style.color = '#ff4757'; }
+  } catch (err) { status.textContent = 'Reset failed. Contact owner.'; status.style.color = '#ff4757'; }
 }
 
 async function handleSetRecovery() {
@@ -921,7 +809,7 @@ async function handleSetRecovery() {
     $('setRecoveryModal').classList.remove('show');
     $('setRecoveryCurrentPwd').value = ''; $('setRecoveryPhrase').value = ''; $('setRecoveryPhraseConfirm').value = '';
     toast('Recovery phrase saved ✓');
-  } catch (err) { if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') toast('Current password incorrect', true); else toast('Could not save. Try again.', true); }
+  } catch (err) { if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') toast('Current password incorrect', true); else toast('Could not save', true); }
 }
 
 async function openOwnerSpaceWithAuth() {
@@ -941,8 +829,7 @@ window._mainAppStarted = false;
 function safeStartMainApp() {
   if (window._mainAppStarted) return;
   window._mainAppStarted = true;
-  try { startMainApp(); }
-  catch (err) { console.error('startMainApp failed:', err); showScreen('screen-main'); toast('Some features may not load', true); }
+  try { startMainApp(); } catch (err) { console.error('startMainApp failed:', err); showScreen('screen-main'); toast('Some features may not load', true); }
 }
 
 onAuthStateChanged(auth, async function(user) {
@@ -1025,8 +912,7 @@ function setupNotificationButton() {
     if (state === 'ios-not-installed') { $('iosInstallGuide').classList.add('show'); return; }
     if (state === 'granted') return toast('Notifications already enabled ✓');
     if (state === 'denied') return toast('Blocked in browser settings', true);
-    try { var res = await Notification.requestPermission(); updateNotifPermStatus(); toast(res === 'granted' ? 'Notifications enabled ✓' : 'Not enabled', res !== 'granted'); }
-    catch (e) { toast('Could not enable notifications', true); }
+    try { var res = await Notification.requestPermission(); updateNotifPermStatus(); toast(res === 'granted' ? 'Notifications enabled ✓' : 'Not enabled', res !== 'granted'); } catch (e) { toast('Could not enable notifications', true); }
   });
 }
 function handleMediaError(err) {
@@ -1037,7 +923,7 @@ function handleMediaError(err) {
     if (App.isIOS) msg = '📱 Camera blocked. Tap "Aa" in Safari address bar → Website Settings → Allow Camera & Microphone → reload.';
     else if (/Android/i.test(navigator.userAgent)) msg = '📱 Camera blocked. Tap 🔒 in Chrome → Permissions → allow Camera & Microphone → reload.';
     else msg = '🚫 Camera blocked. Click 🔒 → allow Camera & Microphone → reload.';
-  } else if (name === 'NotFoundError') msg = '📷 No camera found on this device.';
+  } else if (name === 'NotFoundError') msg = '📷 No camera found.';
   else if (name === 'NotReadableError') msg = '🔒 Camera in use by another app.';
   else if (name === 'SecurityError' || !window.isSecureContext) msg = '🔒 Camera requires HTTPS.';
   else if ((err && err.message || '').indexOf('timeout') !== -1) msg = '⏱ Camera request timed out.';
@@ -1075,11 +961,8 @@ updateNotifPermStatus();
 window.addEventListener('online', function() { if (App.mySlug) { toast('Reconnected — syncing…'); setTimeout(function() { forceFullRefresh(); }, 1000); } });
 window.addEventListener('offline', function() { if (App.mySlug) toast('You are offline', true); });
 window.addEventListener('beforeunload', function() {
-  if (App.liveMode === 'host' && App.mySlug) {
-    try { set(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug), null); if (App.liveStreamId) set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/status'), 'ended'); } catch (e) {}
-  } else if (App.liveMode === 'viewer' && App.liveStreamId && App.mySlug) {
-    try { remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/viewers/' + App.mySlug)); } catch (e) {}
-  }
+  if (App.liveMode === 'host' && App.mySlug) { try { set(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug), null); if (App.liveStreamId) set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/status'), 'ended'); } catch (e) {} }
+  else if (App.liveMode === 'viewer' && App.liveStreamId && App.mySlug) { try { remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/viewers/' + App.mySlug)); } catch (e) {} }
 });
 
 function startMainApp() {
@@ -1105,11 +988,7 @@ function startMainApp() {
         var users = snap.val() || {}, slugs = Object.keys(users), uiChanged = false;
         for (var x = 0; x < slugs.length; x++) {
           var u = users[slugs[x]];
-          if (u && u.slug && u.slug !== App.mySlug && !findContact(u.slug)) {
-            App.contacts.push({ slug: u.slug, name: u.displayName || u.slug, photo: u.photo || null });
-            App.lastSeenTimes[u.slug] = Date.now();
-            setupMessageListener(u.slug, false); uiChanged = true;
-          }
+          if (u && u.slug && u.slug !== App.mySlug && !findContact(u.slug)) { App.contacts.push({ slug: u.slug, name: u.displayName || u.slug, photo: u.photo || null }); App.lastSeenTimes[u.slug] = Date.now(); setupMessageListener(u.slug, false); uiChanged = true; }
         }
         if (uiChanged) { saveContacts(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); }
       }, function() {});
@@ -1119,9 +998,7 @@ function startMainApp() {
     var rg = snap.val() || {}, ids = Object.keys(rg), uiChanged = false;
     for (var x = 0; x < ids.length; x++) {
       var g = rg[ids[x]];
-      if (g && g.id && g.members && g.members.indexOf(App.mySlug) !== -1 && !findGroup(g.id)) {
-        App.groups.push(g); App.lastSeenTimes[g.id] = Date.now(); setupGroupMessageListener(g.id); uiChanged = true;
-      }
+      if (g && g.id && g.members && g.members.indexOf(App.mySlug) !== -1 && !findGroup(g.id)) { App.groups.push(g); App.lastSeenTimes[g.id] = Date.now(); setupGroupMessageListener(g.id); uiChanged = true; }
     }
     if (uiChanged) { saveGroups(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); }
   }, function(err) {});
@@ -1138,12 +1015,7 @@ function listenSelfGroups() {
       for (var i = 0; i < ids.length; i++) {
         var id = ids[i];
         if (findGroup(id)) continue;
-        get(dbRef(db, 'group_chats/' + id)).then(function(gs2) {
-          if (gs2.exists()) {
-            var g = gs2.val();
-            if (!findGroup(g.id)) { App.groups.push(g); App.lastSeenTimes[g.id] = Date.now(); setupGroupMessageListener(g.id); saveGroups(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); }
-          }
-        }).catch(function(e) {});
+        get(dbRef(db, 'group_chats/' + id)).then(function(gs2) { if (gs2.exists()) { var g = gs2.val(); if (!findGroup(g.id)) { App.groups.push(g); App.lastSeenTimes[g.id] = Date.now(); setupGroupMessageListener(g.id); saveGroups(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); } } }).catch(function(e) {});
       }
     }, function(err) {});
   } catch (e) {}
@@ -1152,34 +1024,24 @@ function listenSelfGroups() {
 async function forceFullRefresh() {
   var btn = $('forceSyncBtn'), orig = btn ? btn.textContent : '';
   if (btn) { btn.disabled = true; btn.textContent = '🔄 Refreshing…'; }
-  toast('Refreshing from cloud…');
+  toast('Refreshing…');
   Object.keys(App.globalUnsubs).forEach(function(id) { try { if (typeof App.globalUnsubs[id] === 'function') App.globalUnsubs[id](); } catch (e) {} });
-  App.globalUnsubs = {};
-  App.listenerWatchdogs = {};
-  App.listenerAttempts = {};
+  App.globalUnsubs = {}; App.listenerWatchdogs = {}; App.listenerAttempts = {};
   if (App._contactsListener) { try { if (typeof App._contactsListener === 'function') App._contactsListener(); } catch (e) {} App._contactsListener = null; }
   try {
     LS.del('cached_chats'); LS.del('cached_statuses');
     var ures = await withTimeout(get(dbRef(db, 'users/' + App.mySlug)), 25000);
-    if (ures && ures.result && ures.result.exists && ures.result.exists()) {
-      var u = ures.result.val();
-      if (u.photo) App.myPhoto = u.photo;
-      if (u.displayName) App.myName = u.displayName;
-      updateProfileHeader();
-    }
+    if (ures && ures.result && ures.result.exists && ures.result.exists()) { var u = ures.result.val(); if (u.photo) App.myPhoto = u.photo; if (u.displayName) App.myName = u.displayName; updateProfileHeader(); }
     var cres = await withTimeout(get(dbRef(db, 'users/' + App.mySlug + '/contacts')), 25000);
     if (cres && cres.result && cres.result.exists && cres.result.exists()) {
       var data = cres.result.val() || {}, slugs = Object.keys(data);
-      for (var i = 0; i < slugs.length; i++) {
-        var c = data[slugs[i]];
-        if (c && c.slug && !findContact(c.slug)) { App.contacts.push({ slug: c.slug, name: c.name || c.slug, photo: c.photo || null }); App.lastSeenTimes[c.slug] = App.lastSeenTimes[c.slug] || Date.now(); }
-      }
+      for (var i = 0; i < slugs.length; i++) { var c = data[slugs[i]]; if (c && c.slug && !findContact(c.slug)) { App.contacts.push({ slug: c.slug, name: c.name || c.slug, photo: c.photo || null }); App.lastSeenTimes[c.slug] = App.lastSeenTimes[c.slug] || Date.now(); } }
       saveContacts(); saveLastSeenTimes(); App._cloudSynced = true;
     }
     for (var j = 0; j < App.contacts.length; j++) if (!App.globalUnsubs[App.contacts[j].slug]) setupMessageListener(App.contacts[j].slug, false);
     for (var k = 0; k < App.groups.length; k++) if (!App.globalUnsubs[App.groups[k].id]) setupGroupMessageListener(App.groups[k].id);
     buildUI(); listenUserStatuses(); listenSelfGroups(); listenActiveLiveStreams(); updateSyncIndicator('live');
-    toast('Cloud data refreshed ✓');
+    toast('Refreshed ✓');
   } catch (err) { toast('Refresh failed', true); }
   finally { if (btn) { btn.disabled = false; btn.textContent = orig; } }
 }
@@ -1187,29 +1049,18 @@ async function forceFullRefresh() {
 async function restoreCloudContent() {
   if (!App.mySlug) return;
   var cached = LS.get('cached_chats', {}), ck = Object.keys(cached);
-  if (ck.length > 0) {
-    for (var i = 0; i < ck.length; i++) if (!App.lastMessages[ck[i]]) App.lastMessages[ck[i]] = cached[ck[i]];
-    if (App.activeChat) renderMessages(App.activeChat, App.lastMessages[App.activeChat] || [], App.activeIsGroup);
-  }
+  if (ck.length > 0) { for (var i = 0; i < ck.length; i++) if (!App.lastMessages[ck[i]]) App.lastMessages[ck[i]] = cached[ck[i]]; if (App.activeChat) renderMessages(App.activeChat, App.lastMessages[App.activeChat] || [], App.activeIsGroup); }
   var cachedStatus = LS.get('cached_statuses', []);
   if (cachedStatus.length > 0) renderStatusFeedList(cachedStatus);
   updateSyncIndicator('syncing');
   try {
     var ures = await withTimeout(get(dbRef(db, 'users/' + App.mySlug)), 20000);
-    if (ures && ures.result && ures.result.exists && ures.result.exists()) {
-      var u = ures.result.val();
-      if (u.photo) App.myPhoto = u.photo;
-      if (u.displayName) App.myName = u.displayName;
-      updateProfileHeader();
-    }
+    if (ures && ures.result && ures.result.exists && ures.result.exists()) { var u = ures.result.val(); if (u.photo) App.myPhoto = u.photo; if (u.displayName) App.myName = u.displayName; updateProfileHeader(); }
     if (!App._contactsListener) {
       App._contactsListener = onValue(dbRef(db, 'users/' + App.mySlug + '/contacts'), function(snap) {
         if (!snap.exists()) { updateSyncIndicator('live'); return; }
         var data = snap.val() || {}, slugs = Object.keys(data), changed = false;
-        for (var i2 = 0; i2 < slugs.length; i2++) {
-          var c = data[slugs[i2]];
-          if (c && c.slug && !findContact(c.slug)) { App.contacts.push({ slug: c.slug, name: c.name || c.slug, photo: c.photo || null }); App.lastSeenTimes[c.slug] = App.lastSeenTimes[c.slug] || Date.now(); setupMessageListener(c.slug, false); changed = true; }
-        }
+        for (var i2 = 0; i2 < slugs.length; i2++) { var c = data[slugs[i2]]; if (c && c.slug && !findContact(c.slug)) { App.contacts.push({ slug: c.slug, name: c.name || c.slug, photo: c.photo || null }); App.lastSeenTimes[c.slug] = App.lastSeenTimes[c.slug] || Date.now(); setupMessageListener(c.slug, false); changed = true; } }
         if (changed) { saveContacts(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); }
         App._cloudSynced = true; updateSyncIndicator('live');
       }, function(error) { App._contactsListener = null; updateSyncIndicator('error'); setTimeout(function() { if (App.mySlug) restoreCloudContent(); }, 5000); });
@@ -1226,8 +1077,7 @@ function updateProfileHeader() {
   if (pUser) pUser.textContent = '@' + (App.mySlug || 'gesnerdeslandes');
   if (App.myPhoto) { if (pImg) { pImg.src = App.myPhoto; pImg.style.display = 'block'; } if (pLetter) pLetter.style.display = 'none'; }
   else { if (pImg) pImg.style.display = 'none'; if (pLetter) { pLetter.textContent = (App.myName || 'G').charAt(0).toUpperCase(); pLetter.style.display = 'inline'; } }
-  var ownerTrigger = $('ownerPortalTrigger');
-  if (ownerTrigger) ownerTrigger.style.display = isOwner() ? 'block' : 'none';
+  var ownerTrigger = $('ownerPortalTrigger'); if (ownerTrigger) ownerTrigger.style.display = isOwner() ? 'block' : 'none';
 }
 
 function saveContacts() { LS.set('contacts', App.contacts); }
@@ -1259,10 +1109,7 @@ window.blockUser = function(slug) {
     toast('Blocked ✓');
   }
 };
-window.unblockUser = function(slug) {
-  App.blockedUsers = App.blockedUsers.filter(function(s) { return s !== slug; }); saveBlockedUsers();
-  renderBlockedUsersList(); buildUI(); toast('Unblocked ✓');
-};
+window.unblockUser = function(slug) { App.blockedUsers = App.blockedUsers.filter(function(s) { return s !== slug; }); saveBlockedUsers(); renderBlockedUsersList(); buildUI(); toast('Unblocked ✓'); };
 
 function listenIncomingCalls() {
   onChildAdded(dbRef(db, 'calls/' + App.mySlug), function(snap) {
@@ -1284,12 +1131,8 @@ function setupMessageListener(id, isGroup) {
   var firstLoad = true;
   var attempts = App.listenerAttempts[id] || 0;
   App.listenerWatchdogs[id] = setTimeout(function() {
-    if (firstLoad && attempts < 2) {
-      try { if (typeof App.globalUnsubs[id] === 'function') App.globalUnsubs[id](); } catch (e) {}
-      delete App.globalUnsubs[id];
-      App.listenerAttempts[id] = attempts + 1;
-      setupMessageListener(id, isGroup);
-    } else if (firstLoad && attempts >= 2) { delete App.globalUnsubs[id]; delete App.listenerAttempts[id]; updateSyncIndicator('error'); }
+    if (firstLoad && attempts < 2) { try { if (typeof App.globalUnsubs[id] === 'function') App.globalUnsubs[id](); } catch (e) {} delete App.globalUnsubs[id]; App.listenerAttempts[id] = attempts + 1; setupMessageListener(id, isGroup); }
+    else if (firstLoad && attempts >= 2) { delete App.globalUnsubs[id]; delete App.listenerAttempts[id]; updateSyncIndicator('error'); }
   }, 25000);
   var unsub = onValue(query(dbRef(db, path), limitToLast(100)), function(snap) {
     clearTimeout(App.listenerWatchdogs[id]); delete App.listenerWatchdogs[id]; delete App.listenerAttempts[id];
@@ -1298,12 +1141,7 @@ function setupMessageListener(id, isGroup) {
     if (!firstLoad && msgs.length && App.activeChat !== id) {
       var lastSeen = App.lastSeenTimes[id] || 0;
       var unseen = msgs.filter(function(m) { return m.from !== App.mySlug && (m.time || 0) > lastSeen; });
-      if (unseen.length) {
-        App.unreadCounts[id] = (App.unreadCounts[id] || 0) + unseen.length;
-        saveUnreadCounts();
-        App.lastSeenTimes[id] = Math.max.apply(Math, unseen.map(function(m) { return m.time || 0; }));
-        saveLastSeenTimes();
-      }
+      if (unseen.length) { App.unreadCounts[id] = (App.unreadCounts[id] || 0) + unseen.length; saveUnreadCounts(); App.lastSeenTimes[id] = Math.max.apply(Math, unseen.map(function(m) { return m.time || 0; })); saveLastSeenTimes(); }
     }
     firstLoad = false;
     App.lastMessages[id] = msgs;
@@ -1316,23 +1154,12 @@ function setupMessageListener(id, isGroup) {
         App.processedInvites[m._k] = true;
         (function(inviteId, inviteName) {
           get(dbRef(db, 'group_chats/' + inviteId)).then(function(gs) {
-            if (gs.exists()) {
-              var g = gs.val();
-              if (!findGroup(g.id)) {
-                App.groups.push(g); App.lastSeenTimes[g.id] = Date.now(); setupGroupMessageListener(g.id); saveGroups(); saveLastSeenTimes();
-                try { set(dbRef(db, 'users/' + App.mySlug + '/groups/' + g.id), { id: g.id, name: g.name, time: Date.now() }).catch(function(){}); } catch (e) {}
-                if (debouncedBuildUI) debouncedBuildUI();
-                toast('📥 Added to group: ' + (g.name || inviteName));
-              }
-            }
+            if (gs.exists()) { var g = gs.val(); if (!findGroup(g.id)) { App.groups.push(g); App.lastSeenTimes[g.id] = Date.now(); setupGroupMessageListener(g.id); saveGroups(); saveLastSeenTimes(); try { set(dbRef(db, 'users/' + App.mySlug + '/groups/' + g.id), { id: g.id, name: g.name, time: Date.now() }).catch(function(){}); } catch (e) {} if (debouncedBuildUI) debouncedBuildUI(); toast('📥 Added to group: ' + (g.name || inviteName)); } }
           }).catch(function(e) {});
         })(m.groupInvite.id, m.groupInvite.name || '');
       }
     }
-  }, function(error) {
-    clearTimeout(App.listenerWatchdogs[id]); delete App.listenerWatchdogs[id]; delete App.globalUnsubs[id];
-    if (attempts < 2) { App.listenerAttempts[id] = attempts + 1; setTimeout(function() { setupMessageListener(id, isGroup); }, 3000); }
-  });
+  }, function(error) { clearTimeout(App.listenerWatchdogs[id]); delete App.listenerWatchdogs[id]; delete App.globalUnsubs[id]; if (attempts < 2) { App.listenerAttempts[id] = attempts + 1; setTimeout(function() { setupMessageListener(id, isGroup); }, 3000); } });
   App.globalUnsubs[id] = unsub;
 }
 function setupGroupMessageListener(id) { setupMessageListener(id, true); }
@@ -1349,7 +1176,7 @@ function buildUI() {
   }
   html += '<div class="section-title">Friend List</div>';
   if (!App.contacts.length) {
-    var syncState = App._cloudSynced === true ? '' : '<div style="margin-top:10px;color:#d4af37;font-size:13px;">Syncing from cloud…</div>';
+    var syncState = App._cloudSynced === true ? '' : '<div style="margin-top:10px;color:#d4af37;font-size:13px;">Syncing…</div>';
     html += '<div class="empty"><div class="empty-icon">💬</div><p>No contacts yet.<br>Tap <strong>＋</strong> to add.</p>' + syncState + '</div>';
   } else {
     for (var j = 0; j < App.contacts.length; j++) {
@@ -1383,12 +1210,7 @@ debouncedSaveCache = debounce(function() {
     for (var i = 0; i < ids.length; i++) {
       var id = ids[i], arr = App.lastMessages[id] || [];
       var trimmed = arr.slice(-20), compact = [];
-      for (var j = 0; j < trimmed.length; j++) {
-        var m = trimmed[j];
-        var cm = { _k: m._k, from: m.from, fromName: m.fromName, text: m.text, time: m.time, edited: m.edited };
-        if (m.attachment) cm.attachment = { type: m.attachment.type, name: m.attachment.name };
-        compact.push(cm);
-      }
+      for (var j = 0; j < trimmed.length; j++) { var m = trimmed[j]; var cm = { _k: m._k, from: m.from, fromName: m.fromName, text: m.text, time: m.time, edited: m.edited }; if (m.attachment) cm.attachment = { type: m.attachment.type, name: m.attachment.name }; compact.push(cm); }
       var size = JSON.stringify(compact).length;
       if (totalSize + size > MAX_SIZE) break;
       result[id] = compact; totalSize += size;
@@ -1446,40 +1268,17 @@ window.__openActionSheet = function(k, mine) {
   $('actionSheet').classList.add('show');
 };
 $('actCancelBtn').addEventListener('click', function() { $('actionSheet').classList.remove('show'); });
-$('actDeleteForMeBtn').addEventListener('click', function() {
-  if (!App.selectedMsgKey) return;
-  if (!App.deletedLocally[App.activeChat]) App.deletedLocally[App.activeChat] = [];
-  App.deletedLocally[App.activeChat].push(App.selectedMsgKey);
-  saveDeletedLocally();
-  renderMessages(App.activeChat, App.lastMessages[App.activeChat] || [], App.activeIsGroup);
-  $('actionSheet').classList.remove('show'); toast('Deleted for you');
-});
-$('actDeleteEveryoneBtn').addEventListener('click', async function() {
-  if (!App.selectedMsgKey) return;
-  var p = App.activeIsGroup ? 'group_chats/' + App.activeChat + '/messages/' + App.selectedMsgKey : 'chats/' + chatIdFor(App.mySlug, App.activeChat) + '/messages/' + App.selectedMsgKey;
-  await remove(dbRef(db, p));
-  $('actionSheet').classList.remove('show'); toast('Deleted for everyone ✓');
-});
-$('actEditBtn').addEventListener('click', function() {
-  $('actionSheet').classList.remove('show');
-  if (App.selectedMsgObj) {
-    $('editMsgInput').value = App.selectedMsgObj.text || '';
-    App.editMediaFile = null; $('editMediaInput').value = '';
-    $('editMsgModal').classList.add('show');
-  }
-});
+$('actDeleteForMeBtn').addEventListener('click', function() { if (!App.selectedMsgKey) return; if (!App.deletedLocally[App.activeChat]) App.deletedLocally[App.activeChat] = []; App.deletedLocally[App.activeChat].push(App.selectedMsgKey); saveDeletedLocally(); renderMessages(App.activeChat, App.lastMessages[App.activeChat] || [], App.activeIsGroup); $('actionSheet').classList.remove('show'); toast('Deleted for you'); });
+$('actDeleteEveryoneBtn').addEventListener('click', async function() { if (!App.selectedMsgKey) return; var p = App.activeIsGroup ? 'group_chats/' + App.activeChat + '/messages/' + App.selectedMsgKey : 'chats/' + chatIdFor(App.mySlug, App.activeChat) + '/messages/' + App.selectedMsgKey; await remove(dbRef(db, p)); $('actionSheet').classList.remove('show'); toast('Deleted for everyone ✓'); });
+$('actEditBtn').addEventListener('click', function() { $('actionSheet').classList.remove('show'); if (App.selectedMsgObj) { $('editMsgInput').value = App.selectedMsgObj.text || ''; App.editMediaFile = null; $('editMediaInput').value = ''; $('editMsgModal').classList.add('show'); } });
 $('editMsgCancel').addEventListener('click', function() { $('editMsgModal').classList.remove('show'); });
 $('editMediaInput').addEventListener('change', function(e) { if (e.target.files && e.target.files[0]) App.editMediaFile = e.target.files[0]; });
 $('editMsgConfirm').addEventListener('click', async function() {
   var nt = $('editMsgInput').value.trim();
   if (!App.selectedMsgKey) return;
   var p = App.activeIsGroup ? 'group_chats/' + App.activeChat + '/messages/' + App.selectedMsgKey : 'chats/' + chatIdFor(App.mySlug, App.activeChat) + '/messages/' + App.selectedMsgKey;
-  await set(dbRef(db, p + '/text'), nt);
-  await set(dbRef(db, p + '/edited'), true);
-  if (App.editMediaFile) {
-    var url = await fileToBase64(App.editMediaFile), ty = detectFileType(App.editMediaFile);
-    await set(dbRef(db, p + '/attachment'), { type: ty, url: url, name: App.editMediaFile.name, size: App.editMediaFile.size });
-  }
+  await set(dbRef(db, p + '/text'), nt); await set(dbRef(db, p + '/edited'), true);
+  if (App.editMediaFile) { var url = await fileToBase64(App.editMediaFile), ty = detectFileType(App.editMediaFile); await set(dbRef(db, p + '/attachment'), { type: ty, url: url, name: App.editMediaFile.name, size: App.editMediaFile.size }); }
   $('editMsgModal').classList.remove('show'); toast('Updated ✓');
 });
 async function sendMessage(att) {
@@ -1488,31 +1287,16 @@ async function sendMessage(att) {
   if ((!text && !att) || !App.activeChat) return;
   inp.value = ''; $('sendBtn').disabled = true;
   var p = App.activeIsGroup ? 'group_chats/' + App.activeChat + '/messages' : 'chats/' + chatIdFor(App.mySlug, App.activeChat) + '/messages';
-  try { await push(dbRef(db, p), { from: App.mySlug, fromName: App.myName, text: text, attachment: att, time: Date.now() }); playSentSound(); }
-  catch (e) { toast('Send failed', true); }
+  try { await push(dbRef(db, p), { from: App.mySlug, fromName: App.myName, text: text, attachment: att, time: Date.now() }); playSentSound(); } catch (e) { toast('Send failed', true); }
 }
 $('sendBtn').addEventListener('click', function() { sendMessage(null); });
 $('chatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') sendMessage(null); });
 $('chatInput').addEventListener('input', function() { $('sendBtn').disabled = !$('chatInput').value.trim(); });
 $('attachBtn').addEventListener('click', function() { $('fileInput').click(); });
-$('fileInput').addEventListener('change', async function(e) {
-  var f = e.target.files[0]; if (!f || !App.activeChat) return;
-  toast('Processing…');
-  try {
-    var url = await fileToBase64(f);
-    await sendMessage({ type: detectFileType(f), url: url, name: f.name, size: f.size });
-    toast('Media sent ✓');
-  } catch (err) { toast('Failed', true); }
-  e.target.value = '';
-});
+$('fileInput').addEventListener('change', async function(e) { var f = e.target.files[0]; if (!f || !App.activeChat) return; toast('Processing…'); try { var url = await fileToBase64(f); await sendMessage({ type: detectFileType(f), url: url, name: f.name, size: f.size }); toast('Media sent ✓'); } catch (err) { toast('Failed', true); } e.target.value = ''; });
 
 var chatMR = null, chatAC = [], chatTimer = null;
-function getMime() {
-  if (typeof MediaRecorder === 'undefined') return '';
-  var ts = ['audio/mp4', 'audio/aac', 'audio/webm;codecs=opus', 'audio/webm'];
-  for (var i = 0; i < ts.length; i++) { try { if (MediaRecorder.isTypeSupported(ts[i])) return ts[i]; } catch (e) {} }
-  return '';
-}
+function getMime() { if (typeof MediaRecorder === 'undefined') return ''; var ts = ['audio/mp4', 'audio/aac', 'audio/webm;codecs=opus', 'audio/webm']; for (var i = 0; i < ts.length; i++) { try { if (MediaRecorder.isTypeSupported(ts[i])) return ts[i]; } catch (e) {} } return ''; }
 $('chatRecordBtn').addEventListener('click', async function() {
   if (!App.activeChat) return;
   if (typeof MediaRecorder === 'undefined') return toast('Voice notes need iOS 14.3+', true);
@@ -1523,15 +1307,7 @@ $('chatRecordBtn').addEventListener('click', async function() {
       chatAC = []; var mt = getMime();
       chatMR = new MediaRecorder(s, mt ? { mimeType: mt } : {});
       chatMR.ondataavailable = function(e) { if (e.data.size > 0) chatAC.push(e.data); };
-      chatMR.onstop = async function() {
-        var m = chatMR.mimeType || mt || 'audio/mp4';
-        var b = new Blob(chatAC, { type: m });
-        var url = await fileToBase64(b);
-        await sendMessage({ type: 'audio', url: url, name: 'Voice Note' });
-        btn.style.color = '#ff4757'; btn.style.transform = 'scale(1)';
-        s.getTracks().forEach(function(t) { t.stop(); });
-        toast('Voice note sent ✓');
-      };
+      chatMR.onstop = async function() { var m = chatMR.mimeType || mt || 'audio/mp4'; var b = new Blob(chatAC, { type: m }); var url = await fileToBase64(b); await sendMessage({ type: 'audio', url: url, name: 'Voice Note' }); btn.style.color = '#ff4757'; btn.style.transform = 'scale(1)'; s.getTracks().forEach(function(t) { t.stop(); }); toast('Voice note sent ✓'); };
       chatMR.start(100);
       btn.style.color = '#0d7a8c'; btn.style.transform = 'scale(1.2)';
       toast('Recording (max 30s)…');
@@ -1552,17 +1328,8 @@ $('recordBtn').addEventListener('click', async function() {
       vmAC = []; var mt = getMime();
       vmMR = new MediaRecorder(s, mt ? { mimeType: mt } : {});
       vmMR.ondataavailable = function(e) { if (e.data.size > 0) vmAC.push(e.data); };
-      vmMR.onstop = async function() {
-        var m = vmMR.mimeType || mt || 'audio/mp4';
-        var b = new Blob(vmAC, { type: m });
-        var url = await fileToBase64(b);
-        await push(dbRef(db, 'voicemails/' + r), { from: App.mySlug, fromName: App.myName, url: url, time: Date.now() });
-        toast('Voicemail sent ✓');
-        btn.textContent = '⬤ Record (max 30s)'; btn.style.background = '#ff4757';
-        s.getTracks().forEach(function(t) { t.stop(); });
-      };
-      vmMR.start(100);
-      btn.textContent = '■ Stop'; btn.style.background = '#0d7a8c';
+      vmMR.onstop = async function() { var m = vmMR.mimeType || mt || 'audio/mp4'; var b = new Blob(vmAC, { type: m }); var url = await fileToBase64(b); await push(dbRef(db, 'voicemails/' + r), { from: App.mySlug, fromName: App.myName, url: url, time: Date.now() }); toast('Voicemail sent ✓'); btn.textContent = '⬤ Record (max 30s)'; btn.style.background = '#ff4757'; s.getTracks().forEach(function(t) { t.stop(); }); };
+      vmMR.start(100); btn.textContent = '■ Stop'; btn.style.background = '#0d7a8c';
       toast('Recording…');
       clearTimeout(vmTimer);
       vmTimer = setTimeout(function() { if (vmMR && vmMR.state === 'recording') vmMR.stop(); }, 30000);
@@ -1581,27 +1348,21 @@ function listenVoicemails() {
   }, function(err) {});
 }
 
-$('addContactFab').addEventListener('click', function() {
-  $('modalName').value = ''; $('modalStatus').textContent = ''; $('addModal').classList.add('show');
-});
+$('addContactFab').addEventListener('click', function() { $('modalName').value = ''; $('modalStatus').textContent = ''; $('addModal').classList.add('show'); });
 $('modalCancel').addEventListener('click', function() { $('addModal').classList.remove('show'); });
 $('modalName').addEventListener('input', function() { $('modalConfirm').disabled = !slugify($('modalName').value) || slugify($('modalName').value) === App.mySlug; });
 $('modalConfirm').addEventListener('click', async function() {
   var slug = slugify($('modalName').value), raw = $('modalName').value.trim().toLowerCase();
   if (!slug) return toast('Enter a valid name', true);
   if (slug === App.mySlug) return toast('Cannot add yourself', true);
-  for (var i = 0; i < App.contacts.length; i++) {
-    if (App.contacts[i].slug === slug || (App.contacts[i].name && App.contacts[i].name.trim().toLowerCase() === raw)) return toast('Already in list', true);
-  }
+  for (var i = 0; i < App.contacts.length; i++) { if (App.contacts[i].slug === slug || (App.contacts[i].name && App.contacts[i].name.trim().toLowerCase() === raw)) return toast('Already in list', true); }
   var btn = $('modalConfirm'); btn.disabled = true; btn.textContent = 'Checking…';
   try {
     var emailSnap;
-    try { emailSnap = await get(dbRef(db, 'users/' + slug + '/activeAuthEmail')); }
-    catch (e) { toast('Cannot verify user — try again', true); return; }
+    try { emailSnap = await get(dbRef(db, 'users/' + slug + '/activeAuthEmail')); } catch (e) { toast('Cannot verify user', true); return; }
     if (!emailSnap.exists()) { toast('User not found. Make sure they have created an account.', true); return; }
     var name = slug, photo = null;
-    try { var snap = await get(dbRef(db, 'users/' + slug)); if (snap.exists()) { var d = snap.val(); name = d.displayName || slug; photo = d.photo || null; } }
-    catch (e) {}
+    try { var snap = await get(dbRef(db, 'users/' + slug)); if (snap.exists()) { var d = snap.val(); name = d.displayName || slug; photo = d.photo || null; } } catch (e) {}
     App.contacts.push({ slug: slug, name: name, photo: photo });
     App.lastSeenTimes[slug] = Date.now();
     saveContacts(); saveLastSeenTimes();
@@ -1628,14 +1389,9 @@ $('groupModalConfirm').addEventListener('click', async function() {
   var checked = Array.prototype.slice.call(document.querySelectorAll('#groupMembersSelection input:checked')).map(function(i) { return i.value; });
   if (!name || !checked.length) return toast('Set name & members', true);
   var id = 'group_' + Date.now(), members = [App.mySlug].concat(checked);
-  try { await set(dbRef(db, 'group_chats/' + id), { id: id, name: name, members: members, createdBy: App.mySlug }); }
-  catch (e) { toast('Group create failed', true); return; }
+  try { await set(dbRef(db, 'group_chats/' + id), { id: id, name: name, members: members, createdBy: App.mySlug }); } catch (e) { toast('Group create failed', true); return; }
   try { await set(dbRef(db, 'users/' + App.mySlug + '/groups/' + id), { id: id, name: name, time: Date.now() }); } catch (e) {}
-  for (var i = 0; i < checked.length; i++) {
-    try {
-      await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, checked[i]) + '/messages'), { from: App.mySlug, fromName: App.myName, text: '👥 You were added to group "' + name + '".', groupInvite: { id: id, name: name, members: members }, time: Date.now() });
-    } catch (e) {}
-  }
+  for (var i = 0; i < checked.length; i++) { try { await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, checked[i]) + '/messages'), { from: App.mySlug, fromName: App.myName, text: '👥 You were added to group "' + name + '".', groupInvite: { id: id, name: name, members: members }, time: Date.now() }); } catch (e) {} }
   App.groups.push({ id: id, name: name, members: members });
   App.lastSeenTimes[id] = Date.now();
   saveGroups(); saveLastSeenTimes();
@@ -1646,36 +1402,21 @@ $('groupModalConfirm').addEventListener('click', async function() {
 $('profileAvatar').addEventListener('click', function() { $('avatarInput').click(); });
 $('avatarInput').addEventListener('change', async function(e) {
   var f = e.target.files && e.target.files[0]; if (!f) return;
-  try {
-    toast('Processing…');
-    var url = await fileToBase64(f);
-    App.myPhoto = url; LS.set('avatar', url); updateProfileHeader();
-    await set(dbRef(db, 'users/' + App.mySlug + '/photo'), url);
-    toast('Photo updated ✓');
-  } catch (err) { toast('Failed', true); }
+  try { toast('Processing…'); var url = await fileToBase64(f); App.myPhoto = url; LS.set('avatar', url); updateProfileHeader(); await set(dbRef(db, 'users/' + App.mySlug + '/photo'), url); toast('Photo updated ✓'); }
+  catch (err) { toast('Failed', true); }
   e.target.value = '';
 });
 
-$('openPostStatusBtn').addEventListener('click', function() {
-  $('statusTextInput').value = ''; $('statusLinkInput').value = ''; $('statusMediaName').textContent = '';
-  App.statusMediaFile = null; $('statusModal').classList.add('show');
-});
+$('openPostStatusBtn').addEventListener('click', function() { $('statusTextInput').value = ''; $('statusLinkInput').value = ''; $('statusMediaName').textContent = ''; App.statusMediaFile = null; $('statusModal').classList.add('show'); });
 $('statusModalCancel').addEventListener('click', function() { $('statusModal').classList.remove('show'); });
 $('statusMediaSelectBtn').addEventListener('click', function() { $('statusMediaInput').click(); });
-$('statusMediaInput').addEventListener('change', function(e) {
-  var f = e.target.files && e.target.files[0];
-  if (f) { App.statusMediaFile = f; $('statusMediaName').textContent = 'Selected: ' + f.name; }
-});
+$('statusMediaInput').addEventListener('change', function(e) { var f = e.target.files && e.target.files[0]; if (f) { App.statusMediaFile = f; $('statusMediaName').textContent = 'Selected: ' + f.name; } });
 $('statusModalConfirm').addEventListener('click', async function() {
   var text = $('statusTextInput').value.trim(), link = $('statusLinkInput').value.trim(), bg = $('statusBgColor').value;
   if (!text && !link && !App.statusMediaFile) return toast('Add content', true);
   toast('Posting…'); $('statusModalConfirm').disabled = true;
-  try {
-    var mu = null, mt = null;
-    if (App.statusMediaFile) { mt = detectFileType(App.statusMediaFile); mu = await fileToBase64(App.statusMediaFile); }
-    await push(dbRef(db, STATUS_FEED_PATH), { authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto, text: text, link: link, bgColor: bg, mediaUrl: mu, mediaType: mt, time: Date.now() });
-    $('statusModal').classList.remove('show'); toast('Posted ✓');
-  } catch (err) { toast('Failed', true); }
+  try { var mu = null, mt = null; if (App.statusMediaFile) { mt = detectFileType(App.statusMediaFile); mu = await fileToBase64(App.statusMediaFile); } await push(dbRef(db, STATUS_FEED_PATH), { authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto, text: text, link: link, bgColor: bg, mediaUrl: mu, mediaType: mt, time: Date.now() }); $('statusModal').classList.remove('show'); toast('Posted ✓'); }
+  catch (err) { toast('Failed', true); }
   finally { $('statusModalConfirm').disabled = false; }
 });
 
@@ -1690,10 +1431,7 @@ function listenUserStatuses() {
       .sort(function(a, b) { return (b.time || 0) - (a.time || 0); });
     LS.set('cached_statuses', posts);
     renderStatusFeedList(posts);
-  }, function(err) {
-    var cached = LS.get('cached_statuses', []);
-    if (cached.length) renderStatusFeedList(cached);
-  });
+  }, function(err) { var cached = LS.get('cached_statuses', []); if (cached.length) renderStatusFeedList(cached); });
 }
 function renderStatusFeedList(posts) {
   var sf = $('statusFeedList'); if (!sf) return;
@@ -1717,12 +1455,7 @@ window.__toggleStatusLike = async function(k) {
   var lr = dbRef(db, STATUS_FEED_PATH + '/' + k + '/likes/' + App.mySlug);
   var sn = await get(lr);
   if (sn.exists()) { await remove(lr); toast('Unliked'); }
-  else {
-    await set(lr, { time: Date.now() }); toast('Liked 👍');
-    if (p.authorSlug !== App.mySlug) {
-      await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: '👍 Liked your status.', time: Date.now() });
-    }
-  }
+  else { await set(lr, { time: Date.now() }); toast('Liked 👍'); if (p.authorSlug !== App.mySlug) { await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: '👍 Liked your status.', time: Date.now() }); } }
 };
 window.__delStatus = async function(k) { if (confirm('Delete status?')) { await remove(dbRef(db, STATUS_FEED_PATH + '/' + k)); toast('Deleted'); } };
 window.__openStatusComments = function(k) {
@@ -1747,9 +1480,7 @@ $('statusCommentSend').addEventListener('click', async function() {
   var text = $('statusCommentInput').value.trim();
   if (!text || !App.activeStatusObj) return;
   await push(dbRef(db, STATUS_FEED_PATH + '/' + App.activeStatusObj._k + '/comments'), { author: App.mySlug, text: text, time: Date.now() });
-  if (App.activeStatusObj.authorSlug !== App.mySlug) {
-    await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, App.activeStatusObj.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: '💬 Comment: "' + text + '"', time: Date.now() });
-  }
+  if (App.activeStatusObj.authorSlug !== App.mySlug) { await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, App.activeStatusObj.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: '💬 Comment: "' + text + '"', time: Date.now() }); }
   $('statusCommentInput').value = ''; $('statusCommentsModal').classList.remove('show'); toast('Sent ✓');
 });
 
@@ -1760,7 +1491,7 @@ var qb = document.querySelectorAll('.quick-reaction');
 for (var j = 0; j < qb.length; j++) (function(b) { b.addEventListener('click', function() { $('chatInput').value = b.dataset.emoji; sendMessage(null); }); })(qb[j]);
 
 /* ============================= */
-/*   LIVE STREAMING (v5)         */
+/*   LIVE STREAMING (v6)         */
 /* ============================= */
 
 function listenActiveLiveStreams() {
@@ -1814,19 +1545,42 @@ function writeLiveCameraState(camOn) {
   set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/cameraStates/' + App.mySlug), camOn ? true : false).catch(function() {});
 }
 
-window.__toggleLiveCamera = function() {
+/* ============ v6: Toggle camera with retry ============ */
+window.__toggleLiveCamera = async function() {
   var targetStream = App.liveParticipantStream || App.liveLocalStream;
-  if (!targetStream) return;
+  if (!targetStream) return toast('No stream active', true);
   var tracks = targetStream.getVideoTracks();
-  if (!tracks.length) return;
+
+  if (!tracks.length) {
+    try {
+      toast('Requesting camera…');
+      var newStream = await getLiveStreamRobust();
+      var newVideo = newStream.getVideoTracks()[0];
+      if (!newVideo) { toast('Camera unavailable on this device', true); return; }
+      targetStream.addTrack(newVideo);
+      App.liveBaseVideoTrack = newVideo;
+
+      if (App.liveParticipant && App.liveParticipantPC) { try { App.liveParticipantPC.addTrack(newVideo, targetStream); } catch (e) {} }
+      if (App.liveMode === 'host' && App.livePeerConns) { Object.keys(App.livePeerConns).forEach(function(slug) { try { App.livePeerConns[slug].addTrack(newVideo, targetStream); } catch (e) {} }); }
+      if (App.liveParticipant && $('liveLocalVideo')) { $('liveLocalVideo').srcObject = targetStream; $('liveLocalVideo').classList.add('visible'); }
+      updateLiveLocalAvatar(false); updateLiveRemoteAvatar(false);
+      writeLiveCameraState(true);
+      var btn = $('liveCameraBtn'); if (btn) btn.classList.remove('active');
+      toast('📹 Camera on ✓');
+    } catch (e) { handleMediaError(e); }
+    return;
+  }
+
   var wasEnabled = tracks[0].enabled;
   tracks.forEach(function(t) { t.enabled = !wasEnabled; });
-  var btn = $('liveCameraBtn');
-  if (btn) btn.classList.toggle('active', wasEnabled);
+  var btn2 = $('liveCameraBtn');
+  if (btn2) btn2.classList.toggle('active', wasEnabled);
+
   if (App.liveParticipant) updateLiveLocalAvatar(wasEnabled);
   else if (App.liveMode === 'host') updateLiveRemoteAvatar(wasEnabled, App.myName || 'Host');
+
   writeLiveCameraState(!wasEnabled);
-  toast(wasEnabled ? 'Camera off' : 'Camera on');
+  toast(wasEnabled ? '📹 Camera off' : '📹 Camera on');
 };
 
 window.__toggleLivePause = async function() {
@@ -1841,7 +1595,6 @@ window.__toggleLivePause = async function() {
   toast(App.livePaused ? '⏸ Paused' : '▶ Resumed');
 };
 
-/* ---- DASHBOARD RECORDING — canvas captures full UI (video + chat + controls) ---- */
 function getDashboardRecordingStream() {
   var canvas = document.createElement('canvas');
   canvas.width = 1280; canvas.height = 720;
@@ -1852,51 +1605,20 @@ function getDashboardRecordingStream() {
 
   function rr(x, y, w, h, r) {
     if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); return; }
-    ctx.beginPath();
-    ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
+    ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r); ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h); ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
   }
 
-  var videoAreaW = Math.floor(canvas.width * 0.68);
-  var chatAreaX = videoAreaW + 4;
-  var chatAreaW = canvas.width - chatAreaX - 4;
-  var bottomBarH = 70;
-  var videoAreaH = canvas.height - bottomBarH;
+  var videoAreaW = Math.floor(canvas.width * 0.68), chatAreaX = videoAreaW + 4, chatAreaW = canvas.width - chatAreaX - 4, bottomBarH = 70, videoAreaH = canvas.height - bottomBarH;
 
   function drawFrame() {
     if (stopped) return;
     ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     var mainVideo = $('liveRemoteVideo');
-    if (mainVideo && mainVideo.videoWidth > 0) {
-      var vw = mainVideo.videoWidth, vh = mainVideo.videoHeight;
-      var scale = Math.min(videoAreaW / vw, videoAreaH / vh);
-      var dw = vw * scale, dh = vh * scale;
-      ctx.drawImage(mainVideo, (videoAreaW - dw) / 2, (videoAreaH - dh) / 2, dw, dh);
-    } else {
-      ctx.fillStyle = '#143a5f'; ctx.fillRect(0, 0, videoAreaW, videoAreaH);
-      ctx.fillStyle = '#d4af37'; ctx.font = 'bold 40px Calibri, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText((App.myName || 'JARVIS').charAt(0).toUpperCase(), videoAreaW/2, videoAreaH/2);
-      ctx.textBaseline = 'alphabetic';
-    }
+    if (mainVideo && mainVideo.videoWidth > 0) { var vw = mainVideo.videoWidth, vh = mainVideo.videoHeight; var scale = Math.min(videoAreaW / vw, videoAreaH / vh); var dw = vw * scale, dh = vh * scale; ctx.drawImage(mainVideo, (videoAreaW - dw) / 2, (videoAreaH - dh) / 2, dw, dh); }
+    else { ctx.fillStyle = '#143a5f'; ctx.fillRect(0, 0, videoAreaW, videoAreaH); ctx.fillStyle = '#d4af37'; ctx.font = 'bold 40px Calibri, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText((App.myName || 'JARVIS').charAt(0).toUpperCase(), videoAreaW/2, videoAreaH/2); ctx.textBaseline = 'alphabetic'; }
 
-    if (App.liveParticipant && $('liveLocalVideo') && $('liveLocalVideo').videoWidth > 0) {
-      var selfVid = $('liveLocalVideo');
-      var svw = selfVid.videoWidth, svh = selfVid.videoHeight;
-      var sw = 160, sh = (sw / svw) * svh;
-      if (sh > 120) { sh = 120; sw = (sh / svh) * svw; }
-      var sx = videoAreaW - sw - 10, sy = videoAreaH - sh - 10;
-      ctx.save(); rr(sx, sy, sw, sh, 8); ctx.clip();
-      ctx.drawImage(selfVid, sx, sy, sw, sh); ctx.restore();
-      ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 2; rr(sx, sy, sw, sh, 8); ctx.stroke();
-    }
+    if (App.liveParticipant && $('liveLocalVideo') && $('liveLocalVideo').videoWidth > 0) { var selfVid = $('liveLocalVideo'); var svw = selfVid.videoWidth, svh = selfVid.videoHeight; var sw = 160, sh = (sw / svw) * svh; if (sh > 120) { sh = 120; sw = (sh / svh) * svw; } var sx = videoAreaW - sw - 10, sy = videoAreaH - sh - 10; ctx.save(); rr(sx, sy, sw, sh, 8); ctx.clip(); ctx.drawImage(selfVid, sx, sy, sw, sh); ctx.restore(); ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 2; rr(sx, sy, sw, sh, 8); ctx.stroke(); }
 
     var peers = App.liveMode === 'host' ? App.liveExtraPeers : App.liveParticipantPeers;
     var tileX = 10, tileY = 50, tileW = 130, tileH = 100, tileGap = 8;
@@ -1904,33 +1626,25 @@ function getDashboardRecordingStream() {
       var v = document.getElementById('live-conf-' + slug);
       if (!v || v.videoWidth === 0) return;
       ctx.save(); rr(tileX, tileY, tileW, tileH, 8); ctx.clip();
-      var vw = v.videoWidth, vh = v.videoHeight;
-      var scale = Math.max(tileW / vw, tileH / vh);
-      var dw = vw * scale, dh = vh * scale;
-      ctx.drawImage(v, tileX + (tileW - dw) / 2, tileY + (tileH - dh) / 2, dw, dh);
-      ctx.restore();
+      var vw2 = v.videoWidth, vh2 = v.videoHeight; var scale2 = Math.max(tileW / vw2, tileH / vh2); var dw2 = vw2 * scale2, dh2 = vh2 * scale2;
+      ctx.drawImage(v, tileX + (tileW - dw2) / 2, tileY + (tileH - dh2) / 2, dw2, dh2); ctx.restore();
       ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 2; rr(tileX, tileY, tileW, tileH, 8); ctx.stroke();
       ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(tileX, tileY + tileH - 20, tileW, 20);
-      ctx.fillStyle = '#fff'; ctx.font = '11px Calibri, sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText('@' + slug, tileX + tileW/2, tileY + tileH - 6);
+      ctx.fillStyle = '#fff'; ctx.font = '11px Calibri, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('@' + slug, tileX + tileW/2, tileY + tileH - 6);
       tileX += tileW + tileGap;
     });
 
     ctx.fillStyle = '#ff4757'; rr(10, 10, 90, 30, 15); ctx.fill();
-    ctx.fillStyle = '#fff'; ctx.font = 'bold 14px Calibri, sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('● LIVE', 55, 31);
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 14px Calibri, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('● LIVE', 55, 31);
 
     var elapsed = Math.floor((Date.now() - startTime) / 1000);
-    var mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
-    var ss = String(elapsed % 60).padStart(2, '0');
+    var mm = String(Math.floor(elapsed / 60)).padStart(2, '0'); var ss = String(elapsed % 60).padStart(2, '0');
     ctx.fillStyle = 'rgba(0,0,0,0.75)'; rr(videoAreaW - 110, 10, 100, 30, 15); ctx.fill();
-    ctx.fillStyle = '#ff4757'; ctx.font = 'bold 15px monospace';
-    ctx.fillText('REC ' + mm + ':' + ss, videoAreaW - 60, 31);
+    ctx.fillStyle = '#ff4757'; ctx.font = 'bold 15px monospace'; ctx.fillText('REC ' + mm + ':' + ss, videoAreaW - 60, 31);
 
     ctx.fillStyle = '#0f1722'; ctx.fillRect(chatAreaX, 0, chatAreaW, videoAreaH);
     ctx.fillStyle = '#0b2a4a'; ctx.fillRect(chatAreaX, 0, chatAreaW, 40);
-    ctx.fillStyle = '#d4af37'; ctx.font = 'bold 14px Calibri, sans-serif'; ctx.textAlign = 'left';
-    ctx.fillText('💬 LIVE CHAT', chatAreaX + 12, 26);
+    ctx.fillStyle = '#d4af37'; ctx.font = 'bold 14px Calibri, sans-serif'; ctx.textAlign = 'left'; ctx.fillText('💬 LIVE CHAT', chatAreaX + 12, 26);
 
     var messages = App.liveChatBuffer || [];
     var chatY = 55;
@@ -1943,20 +1657,12 @@ function getDashboardRecordingStream() {
 
     ctx.fillStyle = '#0b2a4a'; ctx.fillRect(0, videoAreaH, canvas.width, bottomBarH);
     var btnY = videoAreaH + bottomBarH / 2, btnX = 50;
-    var btns = [
-      { icon: '🎤', active: App.isMuted },
-      { icon: '📹', active: false },
-      { icon: '🔴', active: App.liveRecording },
-      { icon: '💻', active: !!App.liveScreenStream },
-      { icon: '🖼️', active: App.liveBgKey !== 'none' },
-      { icon: '📵', active: false, isEnd: true }
-    ];
+    var btns = [{ icon: '🎤', active: App.isMuted }, { icon: '📹', active: false }, { icon: '🔴', active: App.liveRecording }, { icon: '💻', active: !!App.liveScreenStream }, { icon: '🖼️', active: App.liveBgKey !== 'none' }, { icon: '📵', active: false, isEnd: true }];
     btns.forEach(function(b) {
       ctx.fillStyle = b.isEnd ? '#ff4757' : (b.active ? '#d4af37' : 'rgba(255,255,255,0.2)');
       ctx.beginPath(); ctx.arc(btnX, btnY, 26, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = b.isEnd ? '#fff' : (b.active ? '#0b2a4a' : '#fff');
-      ctx.font = '20px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(b.icon, btnX, btnY);
+      ctx.font = '20px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(b.icon, btnX, btnY);
       ctx.textBaseline = 'alphabetic';
       btnX += 80;
     });
@@ -1975,10 +1681,7 @@ function getDashboardRecordingStream() {
 window.__toggleLiveRecord = function() {
   if (App.liveMode !== 'host') return toast('Recording is host-only', true);
   var btn = $('liveRecordBtn');
-  if (App.liveRecording) {
-    if (App.liveMediaRecorder && App.liveMediaRecorder.state === 'recording') App.liveMediaRecorder.stop();
-    return;
-  }
+  if (App.liveRecording) { if (App.liveMediaRecorder && App.liveMediaRecorder.state === 'recording') App.liveMediaRecorder.stop(); return; }
   var streamToRecord = getDashboardRecordingStream();
   if (!streamToRecord) return toast('Cannot start recording', true);
   try {
@@ -2007,19 +1710,14 @@ window.__toggleLiveRecord = function() {
     App.liveRecording = true;
     if (btn) btn.classList.add('active');
     toast('🔴 Recording dashboard (video + chat + controls)…');
-  } catch (e) {
-    console.error('Record start failed:', e);
-    toast('Recording not supported on this device', true);
-    if (window._liveRecordingCanvas) { window._liveRecordingCanvas.stop(); window._liveRecordingCanvas = null; }
-  }
+  } catch (e) { console.error('Record start failed:', e); toast('Recording not supported on this device', true); if (window._liveRecordingCanvas) { window._liveRecordingCanvas.stop(); window._liveRecordingCanvas = null; } }
 };
 
 window.__saveLiveRecordingToDevice = function() {
   if (!App.liveRecordedBlob) return toast('No recording to save', true);
   try {
     var u = URL.createObjectURL(App.liveRecordedBlob);
-    var a = document.createElement('a');
-    a.href = u; a.download = App.liveRecordedFileName || ('JARVIS_Live_' + Date.now() + '.webm');
+    var a = document.createElement('a'); a.href = u; a.download = App.liveRecordedFileName || ('JARVIS_Live_' + Date.now() + '.webm');
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function() { URL.revokeObjectURL(u); }, 10000);
     $('saveRecordingModal').classList.remove('show');
@@ -2035,17 +1733,10 @@ window.__saveLiveRecordingToDrive = async function() {
     var file = null;
     try { file = new File([App.liveRecordedBlob], fileName, { type: 'video/webm' }); } catch (e) {}
     if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({ files: [file], title: 'JARVIS Live Recording', text: 'Live stream recording — save to Google Drive' });
-        $('saveRecordingModal').classList.remove('show');
-        toast('✅ Save via share sheet — pick Google Drive');
-        App.liveRecordedBlob = null; App.liveRecordedFileName = null;
-        return;
-      } catch (shareErr) { if (shareErr.name === 'AbortError') return; }
+      try { await navigator.share({ files: [file], title: 'JARVIS Live Recording', text: 'Live stream recording — save to Google Drive' }); $('saveRecordingModal').classList.remove('show'); toast('✅ Save via share sheet — pick Google Drive'); App.liveRecordedBlob = null; App.liveRecordedFileName = null; return; } catch (shareErr) { if (shareErr.name === 'AbortError') return; }
     }
     var u = URL.createObjectURL(App.liveRecordedBlob);
-    var a = document.createElement('a');
-    a.href = u; a.download = fileName;
+    var a = document.createElement('a'); a.href = u; a.download = fileName;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function() { URL.revokeObjectURL(u); }, 10000);
     $('saveRecordingModal').classList.remove('show');
@@ -2062,17 +1753,10 @@ window.__shareLiveRecording = async function() {
     var file = null;
     try { file = new File([App.liveRecordedBlob], fileName, { type: 'video/webm' }); } catch (e) {}
     if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({ files: [file], title: 'JARVIS Live Recording', text: 'Watch my JARVIS live stream!' });
-        $('saveRecordingModal').classList.remove('show');
-        toast('✅ Shared ✓');
-        App.liveRecordedBlob = null; App.liveRecordedFileName = null;
-        return;
-      } catch (shareErr) { if (shareErr.name === 'AbortError') return; }
+      try { await navigator.share({ files: [file], title: 'JARVIS Live Recording', text: 'Watch my JARVIS live stream!' }); $('saveRecordingModal').classList.remove('show'); toast('✅ Shared ✓'); App.liveRecordedBlob = null; App.liveRecordedFileName = null; return; } catch (shareErr) { if (shareErr.name === 'AbortError') return; }
     }
     var u = URL.createObjectURL(App.liveRecordedBlob);
-    var a = document.createElement('a');
-    a.href = u; a.download = fileName;
+    var a = document.createElement('a'); a.href = u; a.download = fileName;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function() { URL.revokeObjectURL(u); }, 10000);
     $('saveRecordingModal').classList.remove('show');
@@ -2081,12 +1765,7 @@ window.__shareLiveRecording = async function() {
   } catch (e) { toast('Share not available', true); }
 };
 
-window.__discardLiveRecording = function() {
-  if (!confirm('Discard this recording?')) return;
-  App.liveRecordedBlob = null; App.liveRecordedFileName = null; App.liveRecordingChunks = [];
-  $('saveRecordingModal').classList.remove('show');
-  toast('Recording discarded');
-};
+window.__discardLiveRecording = function() { if (!confirm('Discard this recording?')) return; App.liveRecordedBlob = null; App.liveRecordedFileName = null; App.liveRecordingChunks = []; $('saveRecordingModal').classList.remove('show'); toast('Recording discarded'); };
 
 window.__toggleLiveScreenShare = async function() {
   if (App.liveMode !== 'host') return toast('Screen share is host-only', true);
@@ -2096,21 +1775,14 @@ window.__toggleLiveScreenShare = async function() {
     App.liveScreenStream = null;
     if (btn) btn.classList.remove('active');
     var revertTrack = App.liveBgCanvasStream ? App.liveBgCanvasStream.getVideoTracks()[0] : (App.liveBaseVideoTrack || (App.liveLocalStream ? App.liveLocalStream.getVideoTracks()[0] : null));
-    if (revertTrack) {
-      Object.keys(App.livePeerConns).forEach(function(slug) {
-        try { App.livePeerConns[slug].getSenders().forEach(function(s) { if (s.track && s.track.kind === 'video') s.replaceTrack(revertTrack).catch(function() {}); }); } catch (e) {}
-      });
-      if ($('liveRemoteVideo') && App.liveLocalStream) { $('liveRemoteVideo').srcObject = App.liveBgCanvasStream || App.liveLocalStream; $('liveRemoteVideo').muted = true; }
-    }
+    if (revertTrack) { Object.keys(App.livePeerConns).forEach(function(slug) { try { App.livePeerConns[slug].getSenders().forEach(function(s) { if (s.track && s.track.kind === 'video') s.replaceTrack(revertTrack).catch(function() {}); }); } catch (e) {} }); if ($('liveRemoteVideo') && App.liveLocalStream) { $('liveRemoteVideo').srcObject = App.liveBgCanvasStream || App.liveLocalStream; $('liveRemoteVideo').muted = true; } }
     toast('Screen share stopped'); return;
   }
   try {
     var screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
     App.liveScreenStream = screenStream;
     var screenTrack = screenStream.getVideoTracks()[0];
-    Object.keys(App.livePeerConns).forEach(function(slug) {
-      try { App.livePeerConns[slug].getSenders().forEach(function(s) { if (s.track && s.track.kind === 'video') s.replaceTrack(screenTrack).catch(function() {}); }); } catch (e) {}
-    });
+    Object.keys(App.livePeerConns).forEach(function(slug) { try { App.livePeerConns[slug].getSenders().forEach(function(s) { if (s.track && s.track.kind === 'video') s.replaceTrack(screenTrack).catch(function() {}); }); } catch (e) {} });
     if ($('liveRemoteVideo')) { $('liveRemoteVideo').srcObject = screenStream; $('liveRemoteVideo').muted = true; }
     if (btn) btn.classList.add('active');
     screenTrack.onended = function() { window.__toggleLiveScreenShare(); };
@@ -2121,33 +1793,13 @@ window.__toggleLiveScreenShare = async function() {
 function buildLiveBgGallery() {
   var g = $('liveBgGallery'); if (!g) return;
   var h = '';
-  for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) {
-    var b = PROFESSIONAL_BACKGROUNDS[i], p;
-    if (b.type === 'image') p = '<img src="' + b.url + '">';
-    else if (b.type === 'filter') p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);filter:' + b.value + ';"></div>';
-    else p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);"></div>';
-    var active = App.liveBgKey === b.key ? ' active' : '';
-    h += '<div class="bg-tile' + active + '" onclick="window.__applyLiveBg(\'' + b.key + '\')" style="height:60px;">' + p + '<div class="bg-tile-label" style="font-size:11px;">' + b.label + '</div></div>';
-  }
-  if (App.liveCustomBgUrl) {
-    var custActive = App.liveBgKey === 'custom' ? ' active' : '';
-    h += '<div class="bg-tile' + custActive + '" onclick="window.__applyLiveBg(\'custom\')" style="height:60px;"><img src="' + App.liveCustomBgUrl + '"><div class="bg-tile-label" style="font-size:11px;">My Upload</div></div>';
-  }
+  for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) { var b = PROFESSIONAL_BACKGROUNDS[i], p; if (b.type === 'image') p = '<img src="' + b.url + '">'; else if (b.type === 'filter') p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);filter:' + b.value + ';"></div>'; else p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);"></div>'; var active = App.liveBgKey === b.key ? ' active' : ''; h += '<div class="bg-tile' + active + '" onclick="window.__applyLiveBg(\'' + b.key + '\')" style="height:60px;">' + p + '<div class="bg-tile-label" style="font-size:11px;">' + b.label + '</div></div>'; }
+  if (App.liveCustomBgUrl) { var custActive = App.liveBgKey === 'custom' ? ' active' : ''; h += '<div class="bg-tile' + custActive + '" onclick="window.__applyLiveBg(\'custom\')" style="height:60px;"><img src="' + App.liveCustomBgUrl + '"><div class="bg-tile-label" style="font-size:11px;">My Upload</div></div>'; }
   g.innerHTML = h;
 }
-window.__openLiveBg = function() {
-  if (App.liveMode !== 'host' && !App.liveParticipant) return toast('Backgrounds for host/participants only', true);
-  buildLiveBgGallery();
-  $('liveBgModal').classList.add('show');
-};
-window.__uploadLiveBg = async function(inp) {
-  var f = inp.files && inp.files[0]; if (!f) return;
-  if (f.type.indexOf('image/') !== 0) return toast('Please select an image', true);
-  if (f.size > 3 * 1024 * 1024) return toast('Image too large (max 3MB)', true);
-  try { toast('Processing…'); App.liveCustomBgUrl = await fileToBase64(f); buildLiveBgGallery(); await window.__applyLiveBg('custom'); }
-  catch (e) { toast('Upload failed', true); }
-  inp.value = '';
-};
+window.__openLiveBg = function() { if (App.liveMode !== 'host' && !App.liveParticipant) return toast('Backgrounds for host/participants only', true); buildLiveBgGallery(); $('liveBgModal').classList.add('show'); };
+window.__uploadLiveBg = async function(inp) { var f = inp.files && inp.files[0]; if (!f) return; if (f.type.indexOf('image/') !== 0) return toast('Please select an image', true); if (f.size > 3 * 1024 * 1024) return toast('Image too large (max 3MB)', true); try { toast('Processing…'); App.liveCustomBgUrl = await fileToBase64(f); buildLiveBgGallery(); await window.__applyLiveBg('custom'); } catch (e) { toast('Upload failed', true); } inp.value = ''; };
+
 window.__applyLiveBg = async function(k) {
   var targetStream = App.liveParticipantStream || App.liveLocalStream;
   if (!targetStream) return toast('No camera active', true);
@@ -2159,27 +1811,11 @@ window.__applyLiveBg = async function(k) {
     if (App.liveBgCanvasStream) { App.liveBgCanvasStream.getTracks().forEach(function(t) { t.stop(); }); App.liveBgCanvasStream = null; }
     var finalTrack = App.liveBaseVideoTrack;
     if (k !== 'none') {
-      if (!App.liveBgVideo) {
-        App.liveBgVideo = document.createElement('video');
-        App.liveBgVideo.srcObject = new MediaStream([App.liveBaseVideoTrack]);
-        App.liveBgVideo.muted = true; App.liveBgVideo.playsInline = true;
-        try { await App.liveBgVideo.play(); } catch (e) {}
-      }
+      if (!App.liveBgVideo) { App.liveBgVideo = document.createElement('video'); App.liveBgVideo.srcObject = new MediaStream([App.liveBaseVideoTrack]); App.liveBgVideo.muted = true; App.liveBgVideo.playsInline = true; try { await App.liveBgVideo.play(); } catch (e) {} }
       var canvas = document.createElement('canvas'); canvas.width = 1280; canvas.height = 720;
       var ctx = canvas.getContext('2d'), bgImg = null, filterValue = 'none';
-      if (k === 'custom' && App.liveCustomBgUrl) {
-        bgImg = new Image(); bgImg.crossOrigin = 'anonymous'; bgImg.src = App.liveCustomBgUrl;
-        await new Promise(function(r) { bgImg.onload = r; bgImg.onerror = r; });
-      } else {
-        for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) {
-          if (PROFESSIONAL_BACKGROUNDS[i].key === k) {
-            var b = PROFESSIONAL_BACKGROUNDS[i];
-            if (b.type === 'image') { bgImg = new Image(); bgImg.crossOrigin = 'anonymous'; bgImg.src = b.url; await new Promise(function(r) { bgImg.onload = r; bgImg.onerror = r; }); }
-            else if (b.type === 'filter') filterValue = b.value;
-            break;
-          }
-        }
-      }
+      if (k === 'custom' && App.liveCustomBgUrl) { bgImg = new Image(); bgImg.crossOrigin = 'anonymous'; bgImg.src = App.liveCustomBgUrl; await new Promise(function(r) { bgImg.onload = r; bgImg.onerror = r; }); }
+      else { for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) { if (PROFESSIONAL_BACKGROUNDS[i].key === k) { var b = PROFESSIONAL_BACKGROUNDS[i]; if (b.type === 'image') { bgImg = new Image(); bgImg.crossOrigin = 'anonymous'; bgImg.src = b.url; await new Promise(function(r) { bgImg.onload = r; bgImg.onerror = r; }); } else if (b.type === 'filter') filterValue = b.value; break; } } }
       var v = App.liveBgVideo;
       var stillActive = function() { return (App.liveParticipantStream || App.liveLocalStream); };
       function drawLiveBg() {
@@ -2201,19 +1837,8 @@ window.__applyLiveBg = async function(k) {
       App.liveBgCanvasStream = canvas.captureStream(30);
       finalTrack = App.liveBgCanvasStream.getVideoTracks()[0];
     }
-    if (App.liveMode === 'host') {
-      var hostAudio = App.liveLocalStream ? App.liveLocalStream.getAudioTracks() : [];
-      $('liveRemoteVideo').srcObject = new MediaStream([finalTrack].concat(hostAudio));
-      $('liveRemoteVideo').muted = true;
-      Object.keys(App.livePeerConns).forEach(function(slug) {
-        try { App.livePeerConns[slug].getSenders().forEach(function(s) { if (s.track && s.track.kind === 'video') s.replaceTrack(finalTrack).catch(function() {}); }); } catch (e) {}
-      });
-    } else if (App.liveParticipant) {
-      var partAudio = App.liveParticipantStream ? App.liveParticipantStream.getAudioTracks() : [];
-      $('liveLocalVideo').srcObject = new MediaStream([finalTrack].concat(partAudio));
-      $('liveLocalVideo').muted = true;
-      if (App.liveParticipantPC) App.liveParticipantPC.getSenders().forEach(function(s) { if (s.track && s.track.kind === 'video') s.replaceTrack(finalTrack).catch(function() {}); });
-    }
+    if (App.liveMode === 'host') { var hostAudio = App.liveLocalStream ? App.liveLocalStream.getAudioTracks() : []; $('liveRemoteVideo').srcObject = new MediaStream([finalTrack].concat(hostAudio)); $('liveRemoteVideo').muted = true; Object.keys(App.livePeerConns).forEach(function(slug) { try { App.livePeerConns[slug].getSenders().forEach(function(s) { if (s.track && s.track.kind === 'video') s.replaceTrack(finalTrack).catch(function() {}); }); } catch (e) {} }); }
+    else if (App.liveParticipant) { var partAudio = App.liveParticipantStream ? App.liveParticipantStream.getAudioTracks() : []; $('liveLocalVideo').srcObject = new MediaStream([finalTrack].concat(partAudio)); $('liveLocalVideo').muted = true; if (App.liveParticipantPC) App.liveParticipantPC.getSenders().forEach(function(s) { if (s.track && s.track.kind === 'video') s.replaceTrack(finalTrack).catch(function() {}); }); }
     App.liveBgKey = k;
     buildLiveBgGallery();
     toast('Background applied ✓');
@@ -2229,10 +1854,7 @@ window.__startGoLive = async function() {
     var stream = await getLiveStreamRobust();
     App.liveLocalStream = stream;
     var streamId = 'live_' + App.mySlug + '_' + Date.now();
-    App.liveStreamId = streamId;
-    App.liveMode = 'host';
-    App.liveHostSlug = App.mySlug;
-    App.livePeerConns = {};
+    App.liveStreamId = streamId; App.liveMode = 'host'; App.liveHostSlug = App.mySlug; App.livePeerConns = {};
     App.liveBaseVideoTrack = stream.getVideoTracks()[0];
 
     await set(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId), { hostSlug: App.mySlug, hostName: App.myName, hostPhoto: App.myPhoto || null, startedAt: Date.now(), status: 'live', paused: false });
@@ -2273,34 +1895,13 @@ window.__startGoLive = async function() {
 };
 
 function setupHostViewerListener(streamId) {
-  var u1 = onChildAdded(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers'), function(snap) {
-    var viewerSlug = snap.key;
-    if (!viewerSlug || viewerSlug === App.mySlug) return;
-    if (App.livePeerConns[viewerSlug]) return;
-    hostConnectToViewer(streamId, viewerSlug);
-  });
+  var u1 = onChildAdded(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers'), function(snap) { var viewerSlug = snap.key; if (!viewerSlug || viewerSlug === App.mySlug) return; if (App.livePeerConns[viewerSlug]) return; hostConnectToViewer(streamId, viewerSlug); });
   App.liveUnsubs.push(u1);
-  var u2 = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers'), function(snap) {
-    var viewers = snap.val() || {};
-    $('liveViewerCount').textContent = '👁 ' + Object.keys(viewers).length;
-  });
+  var u2 = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers'), function(snap) { var viewers = snap.val() || {}; $('liveViewerCount').textContent = '👁 ' + Object.keys(viewers).length; });
   App.liveUnsubs.push(u2);
-  var u3 = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/status'), function(s) {
-    if (s.val() === 'ended' && App.liveMode === 'host') { toast('Stream ended'); cleanupLive(); }
-  });
+  var u3 = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/status'), function(s) { if (s.val() === 'ended' && App.liveMode === 'host') { toast('Stream ended'); cleanupLive(); } });
   App.liveUnsubs.push(u3);
-  var u4 = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/cameraStates'), function(snap) {
-    var states = snap.val() || {};
-    App.liveCameraStates = states;
-    Object.keys(states).forEach(function(slug) {
-      if (slug === App.mySlug) return;
-      var camOn = states[slug] !== false;
-      var v = document.getElementById('live-conf-' + slug);
-      var av = document.getElementById('live-conf-av-' + slug);
-      if (v) v.style.visibility = camOn ? 'visible' : 'hidden';
-      if (av) av.classList.toggle('show', !camOn);
-    });
-  });
+  var u4 = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/cameraStates'), function(snap) { var states = snap.val() || {}; App.liveCameraStates = states; Object.keys(states).forEach(function(slug) { if (slug === App.mySlug) return; var camOn = states[slug] !== false; var v = document.getElementById('live-conf-' + slug); var av = document.getElementById('live-conf-av-' + slug); if (v) v.style.visibility = camOn ? 'visible' : 'hidden'; if (av) av.classList.toggle('show', !camOn); }); });
   App.liveUnsubs.push(u4);
 }
 
@@ -2314,13 +1915,9 @@ async function hostConnectToViewer(streamId, viewerSlug) {
     audioTracks.forEach(function(t) { pc.addTrack(t, App.liveLocalStream); });
     pc.onicecandidate = function(e) { if (e.candidate) push(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + viewerSlug + '/offerCandidates'), e.candidate.toJSON()).catch(function() {}); };
     pc.onconnectionstatechange = function() { if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected' || pc.connectionState === 'closed') { try { pc.close(); } catch (e) {} delete App.livePeerConns[viewerSlug]; } };
-    var offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
+    var offer = await pc.createOffer(); await pc.setLocalDescription(offer);
     await set(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + viewerSlug + '/offer'), { type: offer.type, sdp: offer.sdp });
-    var ansUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + viewerSlug + '/answer'), async function(s) {
-      var a = s.val();
-      if (a && pc && !pc.currentRemoteDescription) { try { await pc.setRemoteDescription(new RTCSessionDescription(a)); } catch (e) {} }
-    });
+    var ansUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + viewerSlug + '/answer'), async function(s) { var a = s.val(); if (a && pc && !pc.currentRemoteDescription) { try { await pc.setRemoteDescription(new RTCSessionDescription(a)); } catch (e) {} } });
     App.liveUnsubs.push(ansUnsub);
     var iceUnsub = onChildAdded(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + viewerSlug + '/answerCandidates'), function(s) { if (pc) pc.addIceCandidate(new RTCIceCandidate(s.val())).catch(function() {}); });
     App.liveUnsubs.push(iceUnsub);
@@ -2328,11 +1925,7 @@ async function hostConnectToViewer(streamId, viewerSlug) {
 }
 
 function setupHostJoinRequestsListener(streamId) {
-  var unsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/joinRequests'), function(snap) {
-    var reqs = snap.val() || {}, pending = [];
-    Object.keys(reqs).forEach(function(slug) { if (reqs[slug] && reqs[slug].status === 'pending') pending.push({ slug: slug, data: reqs[slug] }); });
-    updateHostPendingRequests(pending);
-  });
+  var unsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/joinRequests'), function(snap) { var reqs = snap.val() || {}, pending = []; Object.keys(reqs).forEach(function(slug) { if (reqs[slug] && reqs[slug].status === 'pending') pending.push({ slug: slug, data: reqs[slug] }); }); updateHostPendingRequests(pending); });
   App.liveUnsubs.push(unsub);
 }
 
@@ -2340,11 +1933,8 @@ function updateHostPendingRequests(pending) {
   var el = $('hostRequestsArea'); if (!el) return;
   if (!pending.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
   el.style.display = 'block';
-  var html = '<div style="background:#fff8e1;padding:8px 12px;border-bottom:1px solid #d4af37;">';
-  html += '<div style="font-weight:700;font-size:12px;margin-bottom:6px;color:#0b2a4a;">🔔 JOIN REQUESTS (' + pending.length + ')</div>';
-  pending.forEach(function(p) {
-    html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.05);"><div style="font-size:13px;font-weight:600;">@' + esc(p.data.name || p.slug) + ' wants to join</div><div style="display:flex;gap:4px;"><button onclick="window.__acceptJoinRequest(\'' + p.slug + '\')" style="background:#4aff7a;color:#0b2a4a;border:none;padding:6px 12px;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;">✓ Accept</button><button onclick="window.__declineJoinRequest(\'' + p.slug + '\')" style="background:#ff4757;color:#fff;border:none;padding:6px 12px;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;">✕ Decline</button></div></div>';
-  });
+  var html = '<div style="background:#fff8e1;padding:8px 12px;border-bottom:1px solid #d4af37;"><div style="font-weight:700;font-size:12px;margin-bottom:6px;color:#0b2a4a;">🔔 JOIN REQUESTS (' + pending.length + ')</div>';
+  pending.forEach(function(p) { html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(0,0,0,0.05);"><div style="font-size:13px;font-weight:600;">@' + esc(p.data.name || p.slug) + ' wants to join</div><div style="display:flex;gap:4px;"><button onclick="window.__acceptJoinRequest(\'' + p.slug + '\')" style="background:#4aff7a;color:#0b2a4a;border:none;padding:6px 12px;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;">✓ Accept</button><button onclick="window.__declineJoinRequest(\'' + p.slug + '\')" style="background:#ff4757;color:#fff;border:none;padding:6px 12px;border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;">✕ Decline</button></div></div>'; });
   html += '</div>';
   el.innerHTML = html;
 }
@@ -2361,8 +1951,7 @@ window.__acceptJoinRequest = async function(viewerSlug) {
     pc.ontrack = function(e) { if (e.streams && e.streams[0]) { App.liveExtraPeers[viewerSlug].stream = e.streams[0]; renderLiveConfGrid(); } };
     pc.onicecandidate = function(e) { if (e.candidate) push(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + viewerSlug + '/answerCandidates'), e.candidate.toJSON()).catch(function() {}); };
     await pc.setRemoteDescription(new RTCSessionDescription(req.offer));
-    var answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
+    var answer = await pc.createAnswer(); await pc.setLocalDescription(answer);
     await set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + viewerSlug + '/answer'), { type: answer.type, sdp: answer.sdp });
     onChildAdded(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + viewerSlug + '/offerCandidates'), function(s) { pc.addIceCandidate(new RTCIceCandidate(s.val())).catch(function() {}); });
     await set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + viewerSlug + '/status'), 'accepted');
@@ -2371,10 +1960,7 @@ window.__acceptJoinRequest = async function(viewerSlug) {
   } catch (err) { console.error('Accept join failed:', err); toast('Failed to accept', true); }
 };
 
-window.__declineJoinRequest = async function(viewerSlug) {
-  if (App.liveMode !== 'host' || !App.liveStreamId) return;
-  try { await set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + viewerSlug + '/status'), 'declined'); toast('Declined'); } catch (e) { toast('Failed', true); }
-};
+window.__declineJoinRequest = async function(viewerSlug) { if (App.liveMode !== 'host' || !App.liveStreamId) return; try { await set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + viewerSlug + '/status'), 'declined'); toast('Declined'); } catch (e) { toast('Failed', true); } };
 
 function renderLiveConfGrid() {
   var g = $('liveConferenceGrid'); if (!g) return;
@@ -2393,7 +1979,24 @@ function renderLiveConfGrid() {
   for (var j = 0; j < ks.length; j++) { var v = document.getElementById('live-conf-' + ks[j]); if (v) { v.srcObject = peers[ks[j]].stream; v.play().catch(function() {}); } }
 }
 
-/* ---- PARTICIPANT MESH — participants see each other ---- */
+/* ============ v6: Camera states listener for participants ============ */
+function setupCameraStatesListenerForParticipant(streamId) {
+  var unsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/cameraStates'), function(snap) {
+    var states = snap.val() || {};
+    App.liveCameraStates = states;
+    Object.keys(states).forEach(function(slug) {
+      if (slug === App.mySlug) return;
+      if (slug === App.liveHostSlug) return;
+      var camOn = states[slug] !== false;
+      var v = document.getElementById('live-conf-' + slug);
+      var av = document.getElementById('live-conf-av-' + slug);
+      if (v) v.style.visibility = camOn ? 'visible' : 'hidden';
+      if (av) av.classList.toggle('show', !camOn);
+    });
+  });
+  App.liveUnsubs.push(unsub);
+}
+
 function setupParticipantMesh(streamId) {
   var unsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/acceptedParticipants'), function(snap) {
     var participants = snap.val() || {};
@@ -2419,10 +2022,7 @@ async function initiateParticipantConnection(streamId, otherSlug) {
     var offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
     await set(dbRef(db, path + '/offer'), { type: offer.type, sdp: offer.sdp, from: App.mySlug });
-    onValue(dbRef(db, path + '/answer'), async function(s) {
-      var a = s.val();
-      if (a && pc && !pc.currentRemoteDescription) { try { await pc.setRemoteDescription(new RTCSessionDescription(a)); } catch (e) {} }
-    });
+    onValue(dbRef(db, path + '/answer'), async function(s) { var a = s.val(); if (a && pc && !pc.currentRemoteDescription) { try { await pc.setRemoteDescription(new RTCSessionDescription(a)); } catch (e) {} } });
     onChildAdded(dbRef(db, path + '/answerCandidates'), function(s) { if (pc) pc.addIceCandidate(new RTCIceCandidate(s.val())).catch(function() {}); });
   } catch (e) { console.error('initiateParticipantConnection:', e); }
 }
@@ -2494,35 +2094,15 @@ window.__watchLiveStream = async function(hostSlug, streamId) {
 
   try {
     await set(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + App.mySlug), { joinedAt: Date.now(), name: App.myName });
-    var offerUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + App.mySlug + '/offer'), async function(s) {
-      var offer = s.val();
-      if (!offer || !offer.sdp) return;
-      if (App.liveHostPC) return;
-      await viewerConnectToHost(streamId, offer);
-    });
+    var offerUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + App.mySlug + '/offer'), async function(s) { var offer = s.val(); if (!offer || !offer.sdp) return; if (App.liveHostPC) return; await viewerConnectToHost(streamId, offer); });
     App.liveUnsubs.push(offerUnsub);
-    var statusUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/status'), function(s) {
-      if (s.val() === 'ended') { toast('Stream ended'); if (App.liveMode === 'viewer') cleanupLive(); }
-    });
+    var statusUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/status'), function(s) { if (s.val() === 'ended') { toast('Stream ended'); if (App.liveMode === 'viewer') cleanupLive(); } });
     App.liveUnsubs.push(statusUnsub);
-    var pauseUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/paused'), function(s) {
-      var paused = !!s.val();
-      $('livePauseOverlay').classList.toggle('show', paused);
-      $('livePauseSub').textContent = 'Host paused — will return soon.';
-      var onAir = $('liveOnAirBadge');
-      if (onAir) { onAir.textContent = paused ? '⏸ PAUSED' : '🔴 LIVE'; onAir.style.background = paused ? '#d4af37' : '#ff4757'; onAir.style.color = paused ? '#0b2a4a' : '#fff'; }
-    });
+    var pauseUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/paused'), function(s) { var paused = !!s.val(); $('livePauseOverlay').classList.toggle('show', paused); $('livePauseSub').textContent = 'Host paused — will return soon.'; var onAir = $('liveOnAirBadge'); if (onAir) { onAir.textContent = paused ? '⏸ PAUSED' : '🔴 LIVE'; onAir.style.background = paused ? '#d4af37' : '#ff4757'; onAir.style.color = paused ? '#0b2a4a' : '#fff'; } });
     App.liveUnsubs.push(pauseUnsub);
-    var camStateUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/cameraStates/' + hostSlug), function(s) {
-      var camOn = s.val() !== false;
-      var hostInfo2 = App.activeLiveStreams[hostSlug];
-      updateLiveRemoteAvatar(!camOn, (hostInfo2 ? hostInfo2.name : hostSlug) || hostSlug);
-    });
+    var camStateUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/cameraStates/' + hostSlug), function(s) { var camOn = s.val() !== false; var hostInfo2 = App.activeLiveStreams[hostSlug]; updateLiveRemoteAvatar(!camOn, (hostInfo2 ? hostInfo2.name : hostSlug) || hostSlug); });
     App.liveUnsubs.push(camStateUnsub);
-    var countUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers'), function(snap) {
-      var viewers = snap.val() || {};
-      $('liveViewerCount').textContent = '👁 ' + Object.keys(viewers).length;
-    });
+    var countUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers'), function(snap) { var viewers = snap.val() || {}; $('liveViewerCount').textContent = '👁 ' + Object.keys(viewers).length; });
     App.liveUnsubs.push(countUnsub);
     setupLiveChatListener(streamId);
   } catch (err) { console.error('Watch failed:', err); toast('Could not join', true); cleanupLive(); }
@@ -2536,26 +2116,19 @@ async function viewerConnectToHost(streamId, offer) {
       if (e.streams && e.streams[0]) {
         $('liveRemoteVideo').srcObject = e.streams[0];
         $('liveRemoteVideo').muted = false; $('liveRemoteVideo').volume = 1;
-        $('liveRemoteVideo').play().catch(function() {
-          $('liveRemoteVideo').muted = true;
-          $('liveRemoteVideo').play().then(function() {
-            toast('🔊 Tap to enable audio');
-            var unlock = function() { $('liveRemoteVideo').muted = false; document.body.removeEventListener('click', unlock); document.body.removeEventListener('touchstart', unlock); };
-            document.body.addEventListener('click', unlock); document.body.addEventListener('touchstart', unlock);
-          }).catch(function() {});
-        });
+        $('liveRemoteVideo').play().catch(function() { $('liveRemoteVideo').muted = true; $('liveRemoteVideo').play().then(function() { toast('🔊 Tap to enable audio'); var unlock = function() { $('liveRemoteVideo').muted = false; document.body.removeEventListener('click', unlock); document.body.removeEventListener('touchstart', unlock); }; document.body.addEventListener('click', unlock); document.body.addEventListener('touchstart', unlock); }).catch(function() {}); });
         $('liveLoadingOverlay').classList.add('hidden');
       }
     };
     pc.onicecandidate = function(e) { if (e.candidate) push(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + App.mySlug + '/answerCandidates'), e.candidate.toJSON()).catch(function() {}); };
     await pc.setRemoteDescription(new RTCSessionDescription(offer));
-    var answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
+    var answer = await pc.createAnswer(); await pc.setLocalDescription(answer);
     await set(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + App.mySlug + '/answer'), { type: answer.type, sdp: answer.sdp });
     onChildAdded(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + App.mySlug + '/offerCandidates'), function(s) { if (pc) pc.addIceCandidate(new RTCIceCandidate(s.val())).catch(function() {}); });
   } catch (err) { console.error('Viewer connect failed:', err); toast('Connection failed', true); }
 }
 
+/* ============ v6: __requestJoinLive with camera buttons shown on accept ============ */
 window.__requestJoinLive = async function() {
   if (App.liveMode !== 'viewer') return;
   if (App.liveParticipant) return;
@@ -2590,8 +2163,32 @@ window.__requestJoinLive = async function() {
         onChildAdded(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + App.mySlug + '/answerCandidates'), function(s2) { pc.addIceCandidate(new RTCIceCandidate(s2.val())).catch(function() {}); });
         App.liveParticipant = true;
         App.liveJoinRequested = false;
+
+        // Show camera & mic buttons so participant can toggle freely
+        $('liveCameraBtn').style.display = 'flex';
+        $('liveMuteBtn').style.display = 'flex';
+        $('liveCameraBtn').classList.remove('active');
+        $('liveMuteBtn').classList.remove('active');
+
+        // Ensure participant's camera is ON by default
+        if (App.liveParticipantStream) {
+          var vTracks = App.liveParticipantStream.getVideoTracks();
+          if (vTracks.length) {
+            vTracks.forEach(function(t) { t.enabled = true; });
+            App.liveBaseVideoTrack = vTracks[0];
+          }
+        }
+        writeLiveCameraState(true);
+
         setupParticipantMesh(App.liveStreamId);
-        toast('You joined the stream as a participant ✓');
+        setupCameraStatesListenerForParticipant(App.liveStreamId);
+
+        var hasCam = App.liveParticipantStream && App.liveParticipantStream.getVideoTracks().length > 0;
+        if (hasCam) {
+          toast('✓ Joined — camera ON. Tap 📹 to turn off/on.');
+        } else {
+          toast('⚠️ Camera not available — tap 📹 to retry', true);
+        }
         $('liveJoinBtn').style.display = 'none';
       } else if (st === 'declined') {
         toast('Request declined', true);
@@ -2600,6 +2197,8 @@ window.__requestJoinLive = async function() {
         $('liveLocalVideo').classList.remove('visible');
         $('liveLocalVideo').srcObject = null;
         $('liveLocalAvatar').classList.remove('show');
+        $('liveCameraBtn').style.display = 'none';
+        $('liveMuteBtn').style.display = 'none';
         $('liveBgBtn').style.display = 'none';
         App.liveJoinRequested = false;
         $('liveJoinBtn').textContent = '✋ Request to Join';
@@ -2647,28 +2246,9 @@ function setupLiveChatListener(streamId) {
   App.liveUnsubs.push(unsub);
 }
 
-window.__sendLiveChat = async function() {
-  var inp = $('liveChatInput'), t = inp.value.trim();
-  if (!t || !App.liveStreamId) return;
-  inp.value = '';
-  try { await push(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/chat'), { from: App.mySlug, name: App.myName, text: t, time: Date.now() }); } catch (e) { toast('Send failed', true); }
-};
-window.__sendLiveChatImage = async function(inp) {
-  var f = inp.files && inp.files[0]; if (!f || !App.liveStreamId) return;
-  if (f.type.indexOf('image/') !== 0) { toast('Select an image', true); inp.value = ''; return; }
-  if (f.size > 2 * 1024 * 1024) { toast('Image too large (max 2MB)', true); inp.value = ''; return; }
-  try {
-    toast('Uploading…');
-    var url = await fileToBase64(f);
-    await push(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/chat'), { from: App.mySlug, name: App.myName, text: '', attachment: { type: 'image', url: url, name: f.name }, time: Date.now() });
-  } catch (e) { toast('Upload failed', true); }
-  inp.value = '';
-};
-window.__deleteLiveChat = async function(msgKey) {
-  if (App.liveMode !== 'host' || !App.liveStreamId) return;
-  if (!confirm('Delete this message for everyone?')) return;
-  try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/chat/' + msgKey)); } catch (e) { toast('Delete failed', true); }
-};
+window.__sendLiveChat = async function() { var inp = $('liveChatInput'), t = inp.value.trim(); if (!t || !App.liveStreamId) return; inp.value = ''; try { await push(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/chat'), { from: App.mySlug, name: App.myName, text: t, time: Date.now() }); } catch (e) { toast('Send failed', true); } };
+window.__sendLiveChatImage = async function(inp) { var f = inp.files && inp.files[0]; if (!f || !App.liveStreamId) return; if (f.type.indexOf('image/') !== 0) { toast('Select an image', true); inp.value = ''; return; } if (f.size > 2 * 1024 * 1024) { toast('Image too large (max 2MB)', true); inp.value = ''; return; } try { toast('Uploading…'); var url = await fileToBase64(f); await push(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/chat'), { from: App.mySlug, name: App.myName, text: '', attachment: { type: 'image', url: url, name: f.name }, time: Date.now() }); } catch (e) { toast('Upload failed', true); } inp.value = ''; };
+window.__deleteLiveChat = async function(msgKey) { if (App.liveMode !== 'host' || !App.liveStreamId) return; if (!confirm('Delete this message for everyone?')) return; try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/chat/' + msgKey)); } catch (e) { toast('Delete failed', true); } };
 
 window.__shareLiveStream = async function() {
   var slug = App.liveHostSlug || App.mySlug;
@@ -2681,16 +2261,12 @@ window.__shareLiveStream = async function() {
 };
 function showShareModal(url, shareText) {
   var old = document.getElementById('shareModalDynamic'); if (old) old.remove();
-  var m = document.createElement('div');
-  m.id = 'shareModalDynamic'; m.className = 'modal-overlay show';
+  var m = document.createElement('div'); m.id = 'shareModalDynamic'; m.className = 'modal-overlay show';
   var enc = encodeURIComponent;
   m.innerHTML = '<div class="modal"><h3>🔗 Share Live Stream</h3><p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Anyone with this link can sign up and watch.</p><input type="text" value="' + esc(url) + '" readonly style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:12px;" onclick="this.select()"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;"><a href="https://wa.me/?text=' + enc(shareText + ' ' + url) + '" target="_blank" style="background:#25D366;color:#fff;padding:12px;border-radius:8px;text-align:center;font-weight:700;text-decoration:none;font-size:13px;">💚 WhatsApp</a><a href="https://t.me/share/url?url=' + enc(url) + '&text=' + enc(shareText) + '" target="_blank" style="background:#0088cc;color:#fff;padding:12px;border-radius:8px;text-align:center;font-weight:700;text-decoration:none;font-size:13px;">✈️ Telegram</a><a href="mailto:?subject=Watch my JARVIS live stream&body=' + enc(shareText + '\n\n' + url) + '" style="background:#6b7a87;color:#fff;padding:12px;border-radius:8px;text-align:center;font-weight:700;text-decoration:none;font-size:13px;">✉️ Email</a><a href="sms:?&body=' + enc(shareText + ' ' + url) + '" style="background:#0d7a8c;color:#fff;padding:12px;border-radius:8px;text-align:center;font-weight:700;text-decoration:none;font-size:13px;">💬 SMS</a></div><button onclick="window.__copyShareLink(\'' + url.replace(/'/g, "\\'") + '\')" class="btn-primary" style="width:100%;margin-bottom:8px;">📋 Copy Link</button><button onclick="document.getElementById(\'shareModalDynamic\').remove()" style="width:100%;padding:12px;background:#eef2f6;border:none;border-radius:8px;font-weight:700;cursor:pointer;">Close</button></div>';
   document.body.appendChild(m);
 }
-window.__copyShareLink = function(url) {
-  if (navigator.clipboard) { navigator.clipboard.writeText(url).then(function() { toast('Link copied ✓'); }).catch(function() { prompt('Copy:', url); }); }
-  else prompt('Copy:', url);
-};
+window.__copyShareLink = function(url) { if (navigator.clipboard) { navigator.clipboard.writeText(url).then(function() { toast('Link copied ✓'); }).catch(function() { prompt('Copy:', url); }); } else prompt('Copy:', url); };
 
 function cleanupLive() {
   if (App.liveMediaRecorder && App.liveMediaRecorder.state === 'recording') { try { App.liveMediaRecorder.stop(); } catch (e) {} }
@@ -2743,11 +2319,7 @@ window.__toggleLiveMute = function() {
 };
 
 $('startGoLiveBtn').addEventListener('click', function() { window.__startGoLive(); });
-$('liveBackBtn').addEventListener('click', function() {
-  if (App.liveMode === 'host') { if (confirm('End your live stream?')) window.__endGoLive(); }
-  else if (App.liveMode === 'viewer') { window.__leaveLiveStream(); }
-  else showScreen('screen-main');
-});
+$('liveBackBtn').addEventListener('click', function() { if (App.liveMode === 'host') { if (confirm('End your live stream?')) window.__endGoLive(); } else if (App.liveMode === 'viewer') { window.__leaveLiveStream(); } else showScreen('screen-main'); });
 $('liveEndBtn').addEventListener('click', function() { if (App.liveMode === 'host') window.__endGoLive(); else if (App.liveMode === 'viewer') window.__leaveLiveStream(); });
 $('liveMuteBtn').addEventListener('click', function() { window.__toggleLiveMute(); });
 $('liveCameraBtn').addEventListener('click', function() { window.__toggleLiveCamera(); });
@@ -2760,7 +2332,7 @@ $('liveScreenBtn').addEventListener('click', function() { window.__toggleLiveScr
 $('liveBgBtn').addEventListener('click', function() { window.__openLiveBg(); });
 
 /* ============================= */
-/*   END LIVE STREAMING          */
+/*   END LIVE STREAMING (v6)     */
 /* ============================= */
 
 $('ownerPortalTrigger').addEventListener('click', function() { $('ownerPassInput').value = ''; $('ownerAuthModal').classList.add('show'); });
@@ -2773,10 +2345,7 @@ function loadOwnerStatuses() {
   var area = $('ownerContentArea'), posts = window._cachedPosts || [];
   if (!posts.length) { area.innerHTML = '<div class="empty"><p>No statuses.</p></div>'; return; }
   var h = '';
-  for (var i = 0; i < posts.length; i++) {
-    var p = posts[i];
-    h += '<div style="background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;"><div style="font-size:13px;font-weight:700;margin-bottom:6px;">@' + esc(p.authorSlug) + ' (' + esc(p.authorName) + ')</div><div style="font-size:14px;margin-bottom:8px;">' + esc(p.text || '') + '</div><button class="btn-primary" style="max-width:none;padding:8px 12px;font-size:13px;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus(\'' + p._k + '\')">🗑 Delete</button></div>';
-  }
+  for (var i = 0; i < posts.length; i++) { var p = posts[i]; h += '<div style="background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;"><div style="font-size:13px;font-weight:700;margin-bottom:6px;">@' + esc(p.authorSlug) + ' (' + esc(p.authorName) + ')</div><div style="font-size:14px;margin-bottom:8px;">' + esc(p.text || '') + '</div><button class="btn-primary" style="max-width:none;padding:8px 12px;font-size:13px;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus(\'' + p._k + '\')">🗑 Delete</button></div>'; }
   area.innerHTML = h;
 }
 window.__ownerDeleteStatus = async function(k) { if (confirm('Delete?')) { await remove(dbRef(db, STATUS_FEED_PATH + '/' + k)); toast('Deleted ✓'); loadOwnerStatuses(); } };
@@ -2786,10 +2355,7 @@ function loadOwnerReports() {
   onValue(dbRef(db, 'users'), function(snap) {
     var ud = snap.val() || {}, uks = Object.keys(ud);
     var h = '<div style="font-size:14px;font-weight:700;margin-bottom:8px;">👥 Users (' + uks.length + ')</div>';
-    for (var i = 0; i < uks.length; i++) {
-      var u = ud[uks[i]];
-      h += '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;margin-bottom:6px;font-size:14px;"><strong>' + esc(u.displayName) + '</strong> (@' + esc(u.slug) + ')</div>';
-    }
+    for (var i = 0; i < uks.length; i++) { var u = ud[uks[i]]; h += '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;margin-bottom:6px;font-size:14px;"><strong>' + esc(u.displayName) + '</strong> (@' + esc(u.slug) + ')</div>'; }
     area.innerHTML = h;
   }, function(err) { area.innerHTML = '<div class="empty">Cannot load users.</div>'; }, { onlyOnce: true });
 }
@@ -2845,33 +2411,13 @@ async function buildActiveStream(bgKey) {
 function buildBgGallery() {
   var g = $('bgGalleryGrid'); if (!g) return;
   var h = '';
-  for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) {
-    var b = PROFESSIONAL_BACKGROUNDS[i], p;
-    if (b.type === 'image') p = '<img src="' + b.url + '">';
-    else if (b.type === 'filter') p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);filter:' + b.value + ';"></div>';
-    else p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);"></div>';
-    h += '<div class="bg-tile' + (App.currentBg === b.key ? ' active' : '') + '" onclick="window.__applyBackground(\'' + b.key + '\')">' + p + '<div class="bg-tile-label">' + b.label + '</div></div>';
-  }
+  for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) { var b = PROFESSIONAL_BACKGROUNDS[i], p; if (b.type === 'image') p = '<img src="' + b.url + '">'; else if (b.type === 'filter') p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);filter:' + b.value + ';"></div>'; else p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);"></div>'; h += '<div class="bg-tile' + (App.currentBg === b.key ? ' active' : '') + '" onclick="window.__applyBackground(\'' + b.key + '\')">' + p + '<div class="bg-tile-label">' + b.label + '</div></div>'; }
   g.innerHTML = h;
 }
 $('filterBtn').addEventListener('click', function() { if (!App.isVideoCall) return toast('Video only', true); buildBgGallery(); $('bgGalleryModal').classList.add('show'); });
 $('bgGalleryClose').addEventListener('click', function() { $('bgGalleryModal').classList.remove('show'); });
-window.__applyBackground = async function(k) {
-  try { var r = await buildActiveStream(k); if (App.videoSender && r.videoTrack) await App.videoSender.replaceTrack(r.videoTrack); App.currentBg = k; buildBgGallery(); $('bgGalleryModal').classList.remove('show'); toast('Applied ✓'); }
-  catch (e) { toast('Failed', true); }
-};
-function buildPreBg() {
-  var g = $('preCallBgGrid'); if (!g) return;
-  var h = '';
-  for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) {
-    var b = PROFESSIONAL_BACKGROUNDS[i], p;
-    if (b.type === 'image') p = '<img src="' + b.url + '">';
-    else if (b.type === 'filter') p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);filter:' + b.value + ';"></div>';
-    else p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);"></div>';
-    h += '<div class="bg-tile' + (App.pendingBg === b.key ? ' active' : '') + '" onclick="window.__selectPreBg(\'' + b.key + '\')" style="height:60px;">' + p + '<div class="bg-tile-label" style="font-size:11px;">' + b.label + '</div></div>';
-  }
-  g.innerHTML = h;
-}
+window.__applyBackground = async function(k) { try { var r = await buildActiveStream(k); if (App.videoSender && r.videoTrack) await App.videoSender.replaceTrack(r.videoTrack); App.currentBg = k; buildBgGallery(); $('bgGalleryModal').classList.remove('show'); toast('Applied ✓'); } catch (e) { toast('Failed', true); } };
+function buildPreBg() { var g = $('preCallBgGrid'); if (!g) return; var h = ''; for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) { var b = PROFESSIONAL_BACKGROUNDS[i], p; if (b.type === 'image') p = '<img src="' + b.url + '">'; else if (b.type === 'filter') p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);filter:' + b.value + ';"></div>'; else p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);"></div>'; h += '<div class="bg-tile' + (App.pendingBg === b.key ? ' active' : '') + '" onclick="window.__selectPreBg(\'' + b.key + '\')" style="height:60px;">' + p + '<div class="bg-tile-label" style="font-size:11px;">' + b.label + '</div></div>'; } g.innerHTML = h; }
 window.__selectPreBg = function(k) { App.pendingBg = k; buildPreBg(); };
 window.startCall = function(slug, v) { if (!slug || slug === App.mySlug) return toast('Invalid contact', true); showPreCall(slug, v); };
 function showPreCall(slug, v) {
@@ -2880,27 +2426,13 @@ function showPreCall(slug, v) {
   $('preCallBgSection').style.display = v ? 'block' : 'none';
   buildPreBg();
   var oth = App.contacts.filter(function(c) { return c.slug !== slug && c.slug !== App.mySlug; });
-  if (oth.length) {
-    var h = '';
-    for (var i = 0; i < oth.length; i++) h += '<div class="group-select-item"><input type="checkbox" value="' + oth[i].slug + '" id="preinv_' + oth[i].slug + '" style="width:20px;height:20px;"><label for="preinv_' + oth[i].slug + '">' + esc(oth[i].name) + '</label></div>';
-    $('preCallInviteList').innerHTML = h;
-  } else $('preCallInviteList').innerHTML = '<div style="color:var(--muted);padding:8px;font-size:14px;">No others to invite.</div>';
+  if (oth.length) { var h = ''; for (var i = 0; i < oth.length; i++) h += '<div class="group-select-item"><input type="checkbox" value="' + oth[i].slug + '" id="preinv_' + oth[i].slug + '" style="width:20px;height:20px;"><label for="preinv_' + oth[i].slug + '">' + esc(oth[i].name) + '</label></div>'; $('preCallInviteList').innerHTML = h; }
+  else $('preCallInviteList').innerHTML = '<div style="color:var(--muted);padding:8px;font-size:14px;">No others to invite.</div>';
   $('preCallModal').classList.add('show');
 }
 $('preCallCancel').addEventListener('click', function() { $('preCallModal').classList.remove('show'); App.pendingCallTarget = null; });
-$('preCallStart').addEventListener('click', async function() {
-  var t = App.pendingCallTarget, v = App.pendingCallType;
-  if (!t) return;
-  var ck = Array.prototype.slice.call(document.querySelectorAll('#preCallInviteList input:checked')).map(function(i) { return i.value; });
-  $('preCallModal').classList.remove('show');
-  await doStartCall(t, v);
-  if (ck.length) setTimeout(function() { inviteExtras(ck); }, 2500);
-});
-function attachRemote(s) {
-  var rv = $('remoteVideo'); rv.srcObject = s; rv.muted = false; rv.volume = 1;
-  var p = rv.play();
-  if (p && p.catch) p.catch(function() { rv.muted = true; rv.play().then(function() { toast('🔊 Tap to enable audio'); var u = function() { rv.muted = false; rv.volume = 1; document.body.removeEventListener('click', u); document.body.removeEventListener('touchstart', u); }; document.body.addEventListener('click', u); document.body.addEventListener('touchstart', u); }).catch(function() {}); });
-}
+$('preCallStart').addEventListener('click', async function() { var t = App.pendingCallTarget, v = App.pendingCallType; if (!t) return; var ck = Array.prototype.slice.call(document.querySelectorAll('#preCallInviteList input:checked')).map(function(i) { return i.value; }); $('preCallModal').classList.remove('show'); await doStartCall(t, v); if (ck.length) setTimeout(function() { inviteExtras(ck); }, 2500); });
+function attachRemote(s) { var rv = $('remoteVideo'); rv.srcObject = s; rv.muted = false; rv.volume = 1; var p = rv.play(); if (p && p.catch) p.catch(function() { rv.muted = true; rv.play().then(function() { toast('🔊 Tap to enable audio'); var u = function() { rv.muted = false; rv.volume = 1; document.body.removeEventListener('click', u); document.body.removeEventListener('touchstart', u); }; document.body.addEventListener('click', u); document.body.addEventListener('touchstart', u); }).catch(function() {}); }); }
 function ensureAudio() { if (!App.localStream) return; var ts = App.localStream.getAudioTracks(); if (!ts.length) { toast('No microphone', true); return; } for (var i = 0; i < ts.length; i++) ts[i].enabled = true; }
 async function doStartCall(slug, v) {
   App.currentCallTarget = slug; App.isVideoCall = v; App.activeCallId = 'call_' + chatIdFor(App.mySlug, slug); App.isMuted = false;
@@ -2930,30 +2462,15 @@ async function doStartCall(slug, v) {
     var offer = await App.peerConn.createOffer();
     await App.peerConn.setLocalDescription(offer);
     await set(cr, { caller: App.mySlug, callerName: App.myName, type: v ? 'video' : 'voice', sdp: offer.sdp, status: 'calling', time: Date.now() });
-    onValue(dbRef(db, 'calls/' + slug + '/' + App.activeCallId + '/answer'), async function(s) {
-      var a = s.val();
-      if (a && App.peerConn && !App.peerConn.currentRemoteDescription) { await App.peerConn.setRemoteDescription(new RTCSessionDescription(a)); $('callStatus').textContent = 'Connected'; }
-    });
+    onValue(dbRef(db, 'calls/' + slug + '/' + App.activeCallId + '/answer'), async function(s) { var a = s.val(); if (a && App.peerConn && !App.peerConn.currentRemoteDescription) { await App.peerConn.setRemoteDescription(new RTCSessionDescription(a)); $('callStatus').textContent = 'Connected'; } });
     onChildAdded(dbRef(db, 'calls/' + slug + '/' + App.activeCallId + '/answerCandidates'), function(s) { if (App.peerConn) App.peerConn.addIceCandidate(new RTCIceCandidate(s.val())).catch(function() {}); });
     onValue(dbRef(db, 'calls/' + slug + '/' + App.activeCallId + '/status'), function(s) { if (s.val() === 'ended' || s.val() === 'rejected') endCallLocally(); });
   } catch (err) { handleMediaError(err); endCallLocally(); }
 }
-function showInvitePanel() {
-  var oth = App.contacts.filter(function(c) { return c.slug !== App.mySlug && c.slug !== App.currentCallTarget; });
-  if (oth.length) {
-    var h = '';
-    for (var i = 0; i < oth.length; i++) h += '<div class="group-select-item"><input type="checkbox" value="' + oth[i].slug + '" id="pi_' + oth[i].slug + '" style="width:20px;height:20px;"><label for="pi_' + oth[i].slug + '">' + esc(oth[i].name) + '</label></div>';
-    $('participantSelectionList').innerHTML = h;
-  } else $('participantSelectionList').innerHTML = '<div style="color:var(--muted);padding:10px;font-size:14px;">No others.</div>';
-  $('addParticipantModal').classList.add('show');
-}
+function showInvitePanel() { var oth = App.contacts.filter(function(c) { return c.slug !== App.mySlug && c.slug !== App.currentCallTarget; }); if (oth.length) { var h = ''; for (var i = 0; i < oth.length; i++) h += '<div class="group-select-item"><input type="checkbox" value="' + oth[i].slug + '" id="pi_' + oth[i].slug + '" style="width:20px;height:20px;"><label for="pi_' + oth[i].slug + '">' + esc(oth[i].name) + '</label></div>'; $('participantSelectionList').innerHTML = h; } else $('participantSelectionList').innerHTML = '<div style="color:var(--muted);padding:10px;font-size:14px;">No others.</div>'; $('addParticipantModal').classList.add('show'); }
 $('addParticipantBtn').addEventListener('click', showInvitePanel);
 $('participantCancel').addEventListener('click', function() { $('addParticipantModal').classList.remove('show'); });
-$('participantConfirm').addEventListener('click', function() {
-  var ck = Array.prototype.slice.call(document.querySelectorAll('#participantSelectionList input:checked')).map(function(i) { return i.value; });
-  if (!ck.length) return toast('Select at least one', true);
-  $('addParticipantModal').classList.remove('show'); inviteExtras(ck);
-});
+$('participantConfirm').addEventListener('click', function() { var ck = Array.prototype.slice.call(document.querySelectorAll('#participantSelectionList input:checked')).map(function(i) { return i.value; }); if (!ck.length) return toast('Select at least one', true); $('addParticipantModal').classList.remove('show'); inviteExtras(ck); });
 async function inviteExtras(slugs) {
   toast('Inviting…');
   for (var i = 0; i < slugs.length; i++) {
@@ -2969,23 +2486,12 @@ async function inviteExtras(slugs) {
       await set(dbRef(db, 'calls/' + slug + '/' + id), { caller: App.mySlug, callerName: App.myName, type: App.isVideoCall ? 'video' : 'voice', sdp: o.sdp, status: 'calling', time: Date.now() });
       if (!App.extraPeers[slug]) App.extraPeers[slug] = {};
       App.extraPeers[slug].pc = pc;
-      (function(sl, p, cid) {
-        onValue(dbRef(db, 'calls/' + sl + '/' + cid + '/answer'), async function(s) { var a = s.val(); if (a && !p.currentRemoteDescription) await p.setRemoteDescription(new RTCSessionDescription(a)); });
-        onChildAdded(dbRef(db, 'calls/' + sl + '/' + cid + '/answerCandidates'), function(s) { p.addIceCandidate(new RTCIceCandidate(s.val())).catch(function() {}); });
-      })(slug, pc, id);
+      (function(sl, p, cid) { onValue(dbRef(db, 'calls/' + sl + '/' + cid + '/answer'), async function(s) { var a = s.val(); if (a && !p.currentRemoteDescription) await p.setRemoteDescription(new RTCSessionDescription(a)); }); onChildAdded(dbRef(db, 'calls/' + sl + '/' + cid + '/answerCandidates'), function(s) { p.addIceCandidate(new RTCIceCandidate(s.val())).catch(function() {}); }); })(slug, pc, id);
     } catch (e) { console.error(e); }
   }
   toast('Invited ✓');
 }
-function renderConfGrid() {
-  var g = $('conferenceGrid'); if (!g) return;
-  var ks = Object.keys(App.extraPeers).filter(function(k) { return App.extraPeers[k].stream; });
-  if (!ks.length) { g.innerHTML = ''; return; }
-  var h = '';
-  for (var i = 0; i < ks.length; i++) h += '<div class="conf-tile"><video id="conf-' + ks[i] + '" autoplay playsinline webkit-playsinline></video><div class="conf-tile-label">@' + esc(ks[i]) + '</div></div>';
-  g.innerHTML = h;
-  for (var j = 0; j < ks.length; j++) { var v = document.getElementById('conf-' + ks[j]); if (v && App.extraPeers[ks[j]].stream) { v.srcObject = App.extraPeers[ks[j]].stream; v.play().catch(function() {}); } }
-}
+function renderConfGrid() { var g = $('conferenceGrid'); if (!g) return; var ks = Object.keys(App.extraPeers).filter(function(k) { return App.extraPeers[k].stream; }); if (!ks.length) { g.innerHTML = ''; return; } var h = ''; for (var i = 0; i < ks.length; i++) h += '<div class="conf-tile"><video id="conf-' + ks[i] + '" autoplay playsinline webkit-playsinline></video><div class="conf-tile-label">@' + esc(ks[i]) + '</div></div>'; g.innerHTML = h; for (var j = 0; j < ks.length; j++) { var v = document.getElementById('conf-' + ks[j]); if (v && App.extraPeers[ks[j]].stream) { v.srcObject = App.extraPeers[ks[j]].stream; v.play().catch(function() {}); } } }
 $('acceptCallBtn').addEventListener('click', async function() {
   $('incoming-call').classList.remove('show');
   var cd = window._incomingCallData; if (!cd) return;
@@ -3027,79 +2533,19 @@ function endCallLocally() {
   $('conferenceGrid').innerHTML = ''; $('videoContainer').classList.remove('active'); $('inCallChatDrawer').classList.remove('show');
   showScreen('screen-main');
 }
-$('endCallBtn').addEventListener('click', async function() {
-  if (App.activeCallId) { if (App.currentCallTarget) await set(dbRef(db, 'calls/' + App.currentCallTarget + '/' + App.activeCallId + '/status'), 'ended').catch(function() {}); await set(dbRef(db, 'calls/' + App.mySlug + '/' + App.activeCallId + '/status'), 'ended').catch(function() {}); }
-  endCallLocally();
-});
-$('muteBtn').addEventListener('click', function() {
-  if (!App.localStream) return;
-  App.isMuted = !App.isMuted;
-  var ts = App.localStream.getAudioTracks(); for (var i = 0; i < ts.length; i++) ts[i].enabled = !App.isMuted;
-  $('muteBtn').classList.toggle('active', App.isMuted);
-  toast(App.isMuted ? 'Muted' : 'Unmuted');
-});
+$('endCallBtn').addEventListener('click', async function() { if (App.activeCallId) { if (App.currentCallTarget) await set(dbRef(db, 'calls/' + App.currentCallTarget + '/' + App.activeCallId + '/status'), 'ended').catch(function() {}); await set(dbRef(db, 'calls/' + App.mySlug + '/' + App.activeCallId + '/status'), 'ended').catch(function() {}); } endCallLocally(); });
+$('muteBtn').addEventListener('click', function() { if (!App.localStream) return; App.isMuted = !App.isMuted; var ts = App.localStream.getAudioTracks(); for (var i = 0; i < ts.length; i++) ts[i].enabled = !App.isMuted; $('muteBtn').classList.toggle('active', App.isMuted); toast(App.isMuted ? 'Muted' : 'Unmuted'); });
 $('voiceCallFromChatBtn').addEventListener('click', function() { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, false); });
 $('videoCallFromChatBtn').addEventListener('click', function() { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, true); });
 $('inCallChatBtn').addEventListener('click', function() { $('inCallChatDrawer').classList.toggle('show'); });
-function setupCallChat() {
-  if (!App.activeCallId) return;
-  onValue(query(dbRef(db, 'call_chats/' + App.activeCallId), limitToLast(50)), function(snap) {
-    var d = snap.val() || {};
-    var ms = Object.keys(d).map(function(k) { return d[k]; }).sort(function(a, b) { return (a.time || 0) - (b.time || 0); });
-    var l = $('inCallMsgList'); if (!l) return;
-    if (!ms.length) { l.innerHTML = '<div style="font-size:13px;color:var(--muted)">No messages yet.</div>'; return; }
-    var h = '';
-    for (var i = 0; i < ms.length; i++) h += '<div style="background:#f2f5f8;padding:6px 8px;border-radius:6px;margin-bottom:4px;"><strong style="color:var(--accent);">' + esc(ms[i].name) + ':</strong> ' + esc(ms[i].text || '') + (ms[i].attachment ? renderAttachment(ms[i].attachment) : '') + '</div>';
-    l.innerHTML = h; l.scrollTop = l.scrollHeight;
-  }, function(err) {});
-}
-window.__sendInCallMsg = async function() {
-  var inp = $('inCallInput'), t = inp.value.trim();
-  if (!t || !App.activeCallId) return;
-  await push(dbRef(db, 'call_chats/' + App.activeCallId), { from: App.mySlug, name: App.myName, text: t, time: Date.now() });
-  inp.value = '';
-};
-window.__sendInCallEmoji = async function(e) {
-  if (!App.activeCallId) return;
-  await push(dbRef(db, 'call_chats/' + App.activeCallId), { from: App.mySlug, name: App.myName, text: e, time: Date.now() });
-  toast('Sent ' + e + ' ✓');
-};
+function setupCallChat() { if (!App.activeCallId) return; onValue(query(dbRef(db, 'call_chats/' + App.activeCallId), limitToLast(50)), function(snap) { var d = snap.val() || {}; var ms = Object.keys(d).map(function(k) { return d[k]; }).sort(function(a, b) { return (a.time || 0) - (b.time || 0); }); var l = $('inCallMsgList'); if (!l) return; if (!ms.length) { l.innerHTML = '<div style="font-size:13px;color:var(--muted)">No messages yet.</div>'; return; } var h = ''; for (var i = 0; i < ms.length; i++) h += '<div style="background:#f2f5f8;padding:6px 8px;border-radius:6px;margin-bottom:4px;"><strong style="color:var(--accent);">' + esc(ms[i].name) + ':</strong> ' + esc(ms[i].text || '') + (ms[i].attachment ? renderAttachment(ms[i].attachment) : '') + '</div>'; l.innerHTML = h; l.scrollTop = l.scrollHeight; }, function(err) {}); }
+window.__sendInCallMsg = async function() { var inp = $('inCallInput'), t = inp.value.trim(); if (!t || !App.activeCallId) return; await push(dbRef(db, 'call_chats/' + App.activeCallId), { from: App.mySlug, name: App.myName, text: t, time: Date.now() }); inp.value = ''; };
+window.__sendInCallEmoji = async function(e) { if (!App.activeCallId) return; await push(dbRef(db, 'call_chats/' + App.activeCallId), { from: App.mySlug, name: App.myName, text: e, time: Date.now() }); toast('Sent ' + e + ' ✓'); };
 $('inCallInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') window.__sendInCallMsg(); });
-window.__sendInCallMedia = async function(inp) {
-  var f = inp.files[0]; if (!f || !App.activeCallId) return;
-  toast('Sending…');
-  try {
-    var url = await fileToBase64(f), ty = detectFileType(f);
-    await push(dbRef(db, 'call_chats/' + App.activeCallId), { from: App.mySlug, name: App.myName, text: 'Shared: ' + f.name, attachment: { type: ty, url: url, name: f.name, size: f.size }, time: Date.now() });
-    toast('Sent ✓');
-  } catch (e) { toast('Failed', true); }
-  inp.value = '';
-};
+window.__sendInCallMedia = async function(inp) { var f = inp.files[0]; if (!f || !App.activeCallId) return; toast('Sending…'); try { var url = await fileToBase64(f), ty = detectFileType(f); await push(dbRef(db, 'call_chats/' + App.activeCallId), { from: App.mySlug, name: App.myName, text: 'Shared: ' + f.name, attachment: { type: ty, url: url, name: f.name, size: f.size }, time: Date.now() }); toast('Sent ✓'); } catch (e) { toast('Failed', true); } inp.value = ''; };
 if (App.isIOS) { var sb = $('screenShareBtn'); if (sb) sb.style.display = 'none'; }
-$('screenShareBtn').addEventListener('click', async function() {
-  try {
-    var ss = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
-    var vt = ss.getVideoTracks()[0];
-    if (App.videoSender) await App.videoSender.replaceTrack(vt);
-    if ($('localVideo')) $('localVideo').srcObject = ss;
-    vt.onended = function() { if (App.localStream && $('localVideo')) { $('localVideo').srcObject = App.localStream; var ot = App.localStream.getVideoTracks()[0]; if (App.videoSender && ot) App.videoSender.replaceTrack(ot); } };
-    toast('Screen sharing ✓');
-  } catch (e) { toast('Not supported', true); }
-});
-$('recordCallBtn').addEventListener('click', function() {
-  var btn = $('recordCallBtn');
-  if (!App.mediaRecorder || App.mediaRecorder.state === 'inactive') {
-    try {
-      var s = $('remoteVideo').srcObject || App.localStream;
-      if (!s) return toast('No stream', true);
-      App.recordedChunks = [];
-      App.mediaRecorder = new MediaRecorder(s, { mimeType: 'video/webm;codecs=vp9' });
-      App.mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) App.recordedChunks.push(e.data); };
-      App.mediaRecorder.onstop = function() { var b = new Blob(App.recordedChunks, { type: 'video/webm' }); var u = URL.createObjectURL(b); var a = document.createElement('a'); a.href = u; a.download = 'JARVIS_Call_' + Date.now() + '.webm'; document.body.appendChild(a); a.click(); document.body.removeChild(a); toast('Saved ✓'); };
-      App.mediaRecorder.start(); btn.classList.add('active'); toast('Recording…');
-    } catch (e) { toast('Not supported', true); }
-  } else if (App.mediaRecorder && App.mediaRecorder.state === 'recording') { App.mediaRecorder.stop(); btn.classList.remove('active'); }
-});
+$('screenShareBtn').addEventListener('click', async function() { try { var ss = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true }); var vt = ss.getVideoTracks()[0]; if (App.videoSender) await App.videoSender.replaceTrack(vt); if ($('localVideo')) $('localVideo').srcObject = ss; vt.onended = function() { if (App.localStream && $('localVideo')) { $('localVideo').srcObject = App.localStream; var ot = App.localStream.getVideoTracks()[0]; if (App.videoSender && ot) App.videoSender.replaceTrack(ot); } }; toast('Screen sharing ✓'); } catch (e) { toast('Not supported', true); } });
+$('recordCallBtn').addEventListener('click', function() { var btn = $('recordCallBtn'); if (!App.mediaRecorder || App.mediaRecorder.state === 'inactive') { try { var s = $('remoteVideo').srcObject || App.localStream; if (!s) return toast('No stream', true); App.recordedChunks = []; App.mediaRecorder = new MediaRecorder(s, { mimeType: 'video/webm;codecs=vp9' }); App.mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) App.recordedChunks.push(e.data); }; App.mediaRecorder.onstop = function() { var b = new Blob(App.recordedChunks, { type: 'video/webm' }); var u = URL.createObjectURL(b); var a = document.createElement('a'); a.href = u; a.download = 'JARVIS_Call_' + Date.now() + '.webm'; document.body.appendChild(a); a.click(); document.body.removeChild(a); toast('Saved ✓'); }; App.mediaRecorder.start(); btn.classList.add('active'); toast('Recording…'); } catch (e) { toast('Not supported', true); } } else if (App.mediaRecorder && App.mediaRecorder.state === 'recording') { App.mediaRecorder.stop(); btn.classList.remove('active'); } });
 
 var nb = document.querySelectorAll('.nav-item');
 for (var i = 0; i < nb.length; i++) (function(b) {
