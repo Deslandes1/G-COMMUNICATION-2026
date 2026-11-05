@@ -65,9 +65,10 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .tab-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:80px;position:relative;z-index:1}
 .tab-content::-webkit-scrollbar{display:none}
 .bottom-nav{position:absolute;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid rgba(11,42,74,.08);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:10;box-shadow:0 -4px 20px rgba(11,42,74,.06)}
-.nav-item{flex:1;padding:10px 2px 12px;text-align:center;font-size:11px !important;color:var(--muted);cursor:pointer;font-weight:700;border:none;background:none;position:relative;line-height:1.2}
-.nav-item .icon{display:block;font-size:22px;margin-bottom:2px;line-height:1}
+.nav-item{flex:1;padding:8px 1px 10px;text-align:center;font-size:10px !important;color:var(--muted);cursor:pointer;font-weight:700;border:none;background:none;position:relative;line-height:1.2}
+.nav-item .icon{display:block;font-size:20px;margin-bottom:2px;line-height:1}
 .nav-item.active{color:var(--navy)}
+.nav-item .req-badge{position:absolute;top:2px;right:6px;background:#ff4757;color:#fff;font-size:9px;font-weight:800;padding:1px 5px;border-radius:9px;min-width:14px;text-align:center;box-shadow:0 2px 4px rgba(255,71,87,.5)}
 .section-title{font-size:13px !important;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:16px 20px 8px}
 .list-item{background:#fff;padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;border-bottom:1px solid var(--border)}
 .list-item:active{background:#f8f9fa}
@@ -251,6 +252,11 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .save-rec-btn.drive { background: linear-gradient(135deg,#25D366,#1da851); color: #fff; }
 .save-rec-btn.share { background: linear-gradient(135deg,#6b7a87,#4a5560); color: #fff; }
 .save-rec-btn.discard { background: #fff0f0; color: #ff4757; }
+.req-item{background:#fff8e1 !important;border-left:4px solid #d4af37 !important}
+.req-btn-accept{background:#4aff7a;color:#0b2a4a;border:none;padding:8px 12px;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer}
+.req-btn-reject{background:#ff4757;color:#fff;border:none;padding:8px 12px;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer}
+.req-btn-add{background:linear-gradient(135deg,#0d7a8c,#0a6474);color:#fff;border:none;padding:8px 14px;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer}
+.req-btn-sent{background:#e1e7ed;color:#6b7a87;border:none;padding:8px 12px;border-radius:14px;font-size:12px;font-weight:600;cursor:pointer}
 @media (max-width: 540px) {
   .live-chat-side{width:45%;min-width:150px;max-width:230px}
   .live-chat-msg{font-size:12px;padding:5px 6px}
@@ -267,7 +273,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   body{padding:16px;background:#e4e9ef}
   #app{max-width:1100px;border-radius:20px}
   .msg{max-width:68%}
-  #tabChats,#tabCalls,#tabVoicemail,#tabStatus,#tabProfile{max-width:720px;margin:0 auto;width:100%}
+  #tabChats,#tabCalls,#tabVoicemail,#tabStatus,#tabProfile,#tabNewusers{max-width:720px;margin:0 auto;width:100%}
 }
 </style>
 </head>
@@ -346,10 +352,16 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   <header class="app-header">
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
-    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v6</div>
+    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v7</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
+  <div id="tabNewusers" class="tab-content" style="display:none;">
+    <div class="section-title" id="incomingReqHeader" style="display:none;color:#d4af37;">📩 Friend Requests</div>
+    <div id="incomingRequestsList"></div>
+    <div class="section-title">✨ New Jarvis Users</div>
+    <div id="newUsersList"></div>
+  </div>
   <div id="tabStatus" class="tab-content" style="display:none;">
     <div class="section-title" id="liveNowHeader" style="display:none;color:#ff4757;">🔴 Live Now</div>
     <div id="liveStreamsList" class="status-feed"></div>
@@ -394,6 +406,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   </div>
   <nav class="bottom-nav">
     <button class="nav-item active" data-tab="chats"><span class="icon">💬</span>Friends</button>
+    <button class="nav-item" data-tab="newusers"><span class="icon">✨</span>New Users</button>
     <button class="nav-item" data-tab="status"><span class="icon">⭕</span>Status</button>
     <button class="nav-item" data-tab="calls"><span class="icon">📞</span>Calls</button>
     <button class="nav-item" data-tab="voicemail"><span class="icon">🎙</span>Voicemail</button>
@@ -522,7 +535,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <button class="call-btn accept" id="acceptCallBtn">📞</button>
   </div>
 </div>
-<div class="modal-overlay" id="addModal"><div class="modal"><h3>Add Contact</h3><input id="modalName" type="text" placeholder="Username" maxlength="20" autocapitalize="none"><div id="modalStatus" style="font-size:14px;margin-bottom:10px"></div><div class="modal-actions"><button class="cancel" id="modalCancel">Cancel</button><button class="confirm" id="modalConfirm" disabled>Add</button></div></div></div>
+<div class="modal-overlay" id="addModal"><div class="modal"><h3>Send Friend Request</h3><input id="modalName" type="text" placeholder="Username" maxlength="20" autocapitalize="none"><div id="modalStatus" style="font-size:14px;margin-bottom:10px"></div><div class="modal-actions"><button class="cancel" id="modalCancel">Cancel</button><button class="confirm" id="modalConfirm" disabled>Send Request</button></div></div></div>
 <div class="modal-overlay" id="groupModal"><div class="modal"><h3>Create Group</h3><input id="groupNameInput" type="text" placeholder="Group Name" maxlength="30"><div style="font-size:14px;color:var(--muted);margin-bottom:6px">Select Members:</div><div class="group-select-list" id="groupMembersSelection"></div><div class="modal-actions"><button class="cancel" id="groupModalCancel">Cancel</button><button class="confirm" id="groupModalConfirm">Create</button></div></div></div>
 <div class="modal-overlay" id="statusModal"><div class="modal"><h3>Post Status</h3><textarea id="statusTextInput" rows="2" placeholder="Write status..."></textarea><input id="statusLinkInput" type="text" placeholder="Video link to embed" style="margin-top:8px;"><div style="margin-bottom:10px"><label style="font-size:14px;display:block;margin-bottom:4px">Background:</label><input type="color" id="statusBgColor" value="#0d7a8c" style="width:100%;height:40px;border-radius:6px;cursor:pointer;"></div><div style="margin-bottom:10px"><button class="btn-primary" id="statusMediaSelectBtn" style="width:100%;max-width:none;padding:12px;background:#143a5f;color:#fff;">📹 Select Photo/Video</button><div id="statusMediaName" style="font-size:13px;color:var(--accent);margin-top:4px;"></div></div><div class="modal-actions"><button class="cancel" id="statusModalCancel">Cancel</button><button class="confirm" id="statusModalConfirm">Post</button></div></div></div>
 <div class="modal-overlay" id="editMsgModal"><div class="modal"><h3>Edit Message</h3><input id="editMsgInput" type="text" placeholder="Edit text..."><div style="margin-bottom:12px"><label style="font-size:14px;display:block;margin-bottom:4px">Replace Media (optional):</label><input type="file" id="editMediaInput" accept="image/*,video/*,audio/*"></div><div class="modal-actions"><button class="cancel" id="editMsgCancel">Cancel</button><button class="confirm" id="editMsgConfirm">Save</button></div></div></div>
@@ -559,6 +572,8 @@ const STATUS_FEED_PATH = 'chats/_status_feed/statuses';
 const LIVE_BASE_PATH = 'chats/_live_streams';
 const LIVE_ACTIVE_PATH = LIVE_BASE_PATH + '/active';
 const LIVE_STREAMS_PATH = LIVE_BASE_PATH + '/streams';
+const OWNER_SLUG = 'gesnerdeslandes';
+const OWNER_NAME = 'Gesner Deslandes';
 
 let fbApp, db, auth;
 try { fbApp = initializeApp(firebaseConfig); db = getDatabase(fbApp); auth = getAuth(fbApp); }
@@ -589,7 +604,10 @@ const App = {
   liveRecording: false, liveRecordingChunks: [], liveMediaRecorder: null,
   liveScreenStream: null, liveBaseVideoTrack: null, liveBgCanvasStream: null,
   liveBgVideo: null, liveBgAnimFrame: null, liveCameraStates: {},
-  liveRecordedBlob: null, liveRecordedFileName: null, liveChatBuffer: []
+  liveRecordedBlob: null, liveRecordedFileName: null, liveChatBuffer: [],
+  /* NEW: friend requests + public users */
+  incomingRequests: {}, sentRequests: {}, publicUsers: {},
+  _friendReqListener: null, _sentReqListener: null, _publicUsersListener: null
 };
 
 let currentAuthUser = null;
@@ -602,7 +620,7 @@ const LS = {
 function debounce(fn, delay) { var timer = null; return function() { var args = arguments, ctx = this; clearTimeout(timer); timer = setTimeout(function() { fn.apply(ctx, args); }, delay); }; }
 let debouncedBuildUI = null;
 let debouncedSaveCache = null;
-function isOwner() { return App.mySlug === 'gesnerdeslandes' || App.mySlug === 'gesner'; }
+function isOwner() { return App.mySlug === OWNER_SLUG || App.mySlug === 'gesner'; }
 function showScreen(id) { var ss = document.querySelectorAll('.screen'); for (var i = 0; i < ss.length; i++) ss[i].classList.toggle('active', ss[i].id === id); }
 let toastTimer;
 function toast(msg, isError) {
@@ -616,7 +634,7 @@ function slugify(name) { return String(name).toLowerCase().trim().replace(/[^a-z
 function chatIdFor(a, b) { var x = a < b ? a : b; var y = a < b ? b : a; return x + '__' + y; }
 function avatarInner(photo, name) { return photo ? '<img src="' + photo + '">' : esc((name || '?').charAt(0).toUpperCase()); }
 function slugToEmail(slug) { return slug + '@jarvis-app.local'; }
-function timeAgo(ts) { if (!ts) return 'just now'; var d = Math.floor((Date.now() - ts) / 1000); if (d < 60) return d + 's ago'; if (d < 3600) return Math.floor(d / 60) + 'm ago'; return Math.floor(d / 3600) + 'h ago'; }
+function timeAgo(ts) { if (!ts) return 'just now'; var d = Math.floor((Date.now() - ts) / 1000); if (d < 60) return d + 's ago'; if (d < 3600) return Math.floor(d / 60) + 'm ago'; if (d < 86400) return Math.floor(d / 3600) + 'h ago'; return Math.floor(d / 86400) + 'd ago'; }
 function formatBytes(b) { if (b < 1024) return b + ' B'; if (b < 1048576) return (b / 1024).toFixed(1) + ' KB'; return (b / 1048576).toFixed(2) + ' MB'; }
 async function sha256Hex(text) {
   try { if (!window.crypto || !window.crypto.subtle) return 'nc_' + String(text).toLowerCase().trim(); var enc = new TextEncoder(); var buf = await crypto.subtle.digest('SHA-256', enc.encode(String(text).toLowerCase().trim())); var arr = Array.prototype.slice.call(new Uint8Array(buf)); return arr.map(function(b) { return b.toString(16).padStart(2, '0'); }).join(''); } catch (e) { return 'nc_' + String(text).toLowerCase().trim(); }
@@ -667,6 +685,202 @@ async function triggerRESTFallback(silent) {
 $('authTabSignIn').addEventListener('click', function() { $('authTabSignIn').classList.add('active'); $('authTabSignUp').classList.remove('active'); $('authSignInForm').style.display = 'flex'; $('authSignUpForm').style.display = 'none'; });
 $('authTabSignUp').addEventListener('click', function() { $('authTabSignUp').classList.add('active'); $('authTabSignIn').classList.remove('active'); $('authSignUpForm').style.display = 'flex'; $('authSignInForm').style.display = 'none'; });
 
+/* ============ NEW: bootstrap owner friendship + public user sync ============ */
+async function ensureBootstrap() {
+  if (!App.mySlug) return;
+  // Write to public_users (discovery list)
+  try {
+    var pubSnap = await get(dbRef(db, 'public_users/' + App.mySlug));
+    if (!pubSnap.exists()) {
+      var created = Date.now();
+      try { var us = await get(dbRef(db, 'users/' + App.mySlug)); if (us.exists()) { var ud = us.val(); if (ud.createdAt) created = ud.createdAt; } } catch (e) {}
+      await set(dbRef(db, 'public_users/' + App.mySlug), {
+        slug: App.mySlug, name: App.myName, photo: App.myPhoto || null, created: created
+      });
+    } else {
+      // keep fresh name/photo
+      try {
+        var cur = pubSnap.val();
+        var upd = {};
+        if (cur.name !== App.myName) upd.name = App.myName;
+        if (cur.photo !== (App.myPhoto || null)) upd.photo = App.myPhoto || null;
+        if (Object.keys(upd).length) await set(dbRef(db, 'public_users/' + App.mySlug + '/' + Object.keys(upd)[0]), upd[Object.keys(upd)[0]]);
+      } catch (e) {}
+    }
+  } catch (e) {}
+  // Ensure owner is in my contacts (auto friend)
+  if (!isOwner()) {
+    try {
+      var ownerSnap = await get(dbRef(db, 'users/' + App.mySlug + '/contacts/' + OWNER_SLUG));
+      if (!ownerSnap.exists()) {
+        await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + OWNER_SLUG), {
+          slug: OWNER_SLUG, name: OWNER_NAME, time: Date.now(), autoFriend: true
+        });
+      }
+    } catch (e) {}
+  }
+}
+
+/* ============ NEW: friend requests + public users listeners ============ */
+function listenFriendRequests() {
+  if (!App.mySlug) return;
+  if (App._friendReqListener) { try { if (typeof App._friendReqListener === 'function') App._friendReqListener(); } catch (e) {} App._friendReqListener = null; }
+  if (App._sentReqListener) { try { if (typeof App._sentReqListener === 'function') App._sentReqListener(); } catch (e) {} App._sentReqListener = null; }
+  try {
+    App._friendReqListener = onValue(dbRef(db, 'users/' + App.mySlug + '/friendRequests'), function(snap) {
+      App.incomingRequests = snap.val() || {};
+      renderNewUsersTab();
+      updateNewUsersBadge();
+    }, function(err) {});
+  } catch (e) {}
+  try {
+    App._sentReqListener = onValue(dbRef(db, 'users/' + App.mySlug + '/friendRequestsSent'), function(snap) {
+      App.sentRequests = snap.val() || {};
+      renderNewUsersTab();
+    }, function(err) {});
+  } catch (e) {}
+}
+
+function listenPublicUsers() {
+  if (App._publicUsersListener) { try { if (typeof App._publicUsersListener === 'function') App._publicUsersListener(); } catch (e) {} App._publicUsersListener = null; }
+  try {
+    App._publicUsersListener = onValue(dbRef(db, 'public_users'), function(snap) {
+      App.publicUsers = snap.val() || {};
+      renderNewUsersTab();
+      updateNewUsersBadge();
+    }, function(err) {});
+  } catch (e) {}
+}
+
+function updateNewUsersBadge() {
+  var btn = document.querySelector('.nav-item[data-tab="newusers"]');
+  if (!btn) return;
+  var existing = btn.querySelector('.req-badge');
+  if (existing) existing.remove();
+  var count = Object.keys(App.incomingRequests).length;
+  if (count > 0) {
+    var badge = document.createElement('span');
+    badge.className = 'req-badge';
+    badge.textContent = count > 9 ? '9+' : count;
+    btn.appendChild(badge);
+  }
+}
+
+function renderNewUsersTab() {
+  var incomingList = $('incomingRequestsList');
+  var newUsersList = $('newUsersList');
+  var incomingHeader = $('incomingReqHeader');
+  if (!incomingList || !newUsersList) return;
+
+  // Incoming requests
+  var incKeys = Object.keys(App.incomingRequests);
+  if (incKeys.length) {
+    if (incomingHeader) incomingHeader.style.display = 'block';
+    var h = '';
+    incKeys.forEach(function(fromSlug) {
+      var r = App.incomingRequests[fromSlug];
+      if (!r) return;
+      h += '<div class="list-item req-item">' +
+        '<div class="avatar" onclick="window.__viewAvatar(\'' + (r.photo || '') + '\',\'' + esc(r.fromName || fromSlug) + '\')">' + avatarInner(r.photo, r.fromName) + '</div>' +
+        '<div class="list-item-body"><div class="list-item-title">' + esc(r.fromName || fromSlug) + '</div><div class="list-item-sub">@' + esc(fromSlug) + ' · wants to be friends</div></div>' +
+        '<div style="display:flex;gap:6px;flex-shrink:0;">' +
+          '<button class="req-btn-accept" onclick="window.__acceptFriendRequest(\'' + esc(fromSlug) + '\')">✓ Accept</button>' +
+          '<button class="req-btn-reject" onclick="window.__rejectFriendRequest(\'' + esc(fromSlug) + '\')">✕</button>' +
+        '</div>' +
+        '</div>';
+    });
+    incomingList.innerHTML = h;
+  } else {
+    if (incomingHeader) incomingHeader.style.display = 'none';
+    incomingList.innerHTML = '';
+  }
+
+  // New users (excluding friends, blocked, self, and those with incoming request)
+  var users = App.publicUsers || {};
+  var keys = Object.keys(users).filter(function(slug) {
+    if (slug === App.mySlug) return false;
+    if (App.blockedUsers.indexOf(slug) !== -1) return false;
+    if (findContact(slug)) return false;
+    if (App.incomingRequests[slug] !== undefined) return false;
+    return true;
+  });
+  keys.sort(function(a, b) { return ((users[b] && users[b].created) || 0) - ((users[a] && users[a].created) || 0); });
+
+  if (!keys.length) {
+    newUsersList.innerHTML = '<div class="empty"><div class="empty-icon">✨</div><p>No new users to discover right now.<br>Check back later!</p></div>';
+    return;
+  }
+  var h2 = '';
+  keys.forEach(function(slug) {
+    var u = users[slug] || {};
+    var isOutgoing = App.sentRequests[slug] !== undefined;
+    var actionHtml;
+    if (isOutgoing) {
+      actionHtml = '<button class="req-btn-sent" onclick="window.__cancelFriendRequest(\'' + esc(slug) + '\')">Request Sent · Cancel</button>';
+    } else {
+      actionHtml = '<button class="req-btn-add" onclick="window.__sendFriendRequest(\'' + esc(slug) + '\')">+ Add Friend</button>';
+    }
+    var timeLabel = u.created ? timeAgo(u.created) : '';
+    h2 += '<div class="list-item">' +
+      '<div class="avatar" onclick="window.__viewAvatar(\'' + (u.photo || '') + '\',\'' + esc(u.name || slug) + '\')">' + avatarInner(u.photo, u.name) + '</div>' +
+      '<div class="list-item-body"><div class="list-item-title">' + esc(u.name || slug) + '</div><div class="list-item-sub">@' + esc(slug) + (timeLabel ? ' · ' + timeLabel : '') + '</div></div>' +
+      '<div style="flex-shrink:0;">' + actionHtml + '</div>' +
+      '</div>';
+  });
+  newUsersList.innerHTML = h2;
+}
+
+/* ============ NEW: send / accept / reject / cancel friend request ============ */
+window.__sendFriendRequest = async function(targetSlug) {
+  if (!targetSlug || targetSlug === App.mySlug) return;
+  if (findContact(targetSlug)) return toast('Already friends', true);
+  if (App.sentRequests[targetSlug]) return toast('Request already sent', true);
+  if (App.incomingRequests[targetSlug]) return toast('They already sent you a request — check top of list', true);
+  try {
+    await set(dbRef(db, 'users/' + targetSlug + '/friendRequests/' + App.mySlug), {
+      from: App.mySlug, fromName: App.myName, photo: App.myPhoto || null, time: Date.now()
+    });
+    await set(dbRef(db, 'users/' + App.mySlug + '/friendRequestsSent/' + targetSlug), {
+      to: targetSlug, time: Date.now()
+    });
+    toast('Friend request sent to @' + targetSlug + ' ✓');
+  } catch (e) { console.error(e); toast('Failed to send request', true); }
+};
+
+window.__acceptFriendRequest = async function(fromSlug) {
+  var req = App.incomingRequests[fromSlug];
+  if (!req) return toast('Request not found', true);
+  try {
+    // Add each other as friends
+    await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + fromSlug), {
+      slug: fromSlug, name: req.fromName || fromSlug, photo: req.photo || null, time: Date.now()
+    });
+    await set(dbRef(db, 'users/' + fromSlug + '/contacts/' + App.mySlug), {
+      slug: App.mySlug, name: App.myName, photo: App.myPhoto || null, time: Date.now()
+    });
+    // Remove pending request from both sides
+    await remove(dbRef(db, 'users/' + App.mySlug + '/friendRequests/' + fromSlug));
+    await remove(dbRef(db, 'users/' + fromSlug + '/friendRequestsSent/' + App.mySlug));
+    toast('✓ Now friends with @' + fromSlug);
+  } catch (e) { console.error(e); toast('Failed to accept request', true); }
+};
+
+window.__rejectFriendRequest = async function(fromSlug) {
+  try {
+    await remove(dbRef(db, 'users/' + App.mySlug + '/friendRequests/' + fromSlug));
+    await remove(dbRef(db, 'users/' + fromSlug + '/friendRequestsSent/' + App.mySlug));
+    toast('Request rejected');
+  } catch (e) { toast('Failed to reject request', true); }
+};
+
+window.__cancelFriendRequest = async function(toSlug) {
+  try {
+    await remove(dbRef(db, 'users/' + toSlug + '/friendRequests/' + App.mySlug));
+    await remove(dbRef(db, 'users/' + App.mySlug + '/friendRequestsSent/' + toSlug));
+    toast('Request cancelled');
+  } catch (e) { toast('Failed to cancel', true); }
+};
+
 async function handleSignUp() {
   var nameVal = $('signUpName').value.trim(), password = $('signUpPassword').value, confirmPwd = $('signUpPasswordConfirm').value, recoveryPhrase = $('signUpRecovery').value.trim();
   var status = $('signUpStatus'), slug = slugify(nameVal);
@@ -693,7 +907,17 @@ async function handleSignUp() {
       var recoveryHash = await sha256Hex(recoveryPhrase);
       await set(userRef, { slug: slug, displayName: nameVal, authUid: currentAuthUser.uid, email: slugToEmail(slug), activeAuthEmail: slugToEmail(slug), recoveryHash: recoveryHash, createdAt: Date.now(), photo: null });
     }
-    if (!isOwner()) { try { await set(dbRef(db, 'users/gesnerdeslandes/contacts/' + slug), { slug: slug, name: nameVal, time: Date.now() }); } catch (e) {} }
+    // NEW: Add to public_users so everyone can discover this new user
+    try {
+      await set(dbRef(db, 'public_users/' + slug), { slug: slug, name: nameVal, photo: null, created: Date.now() });
+    } catch (e) {}
+    // NEW: Add owner to new user's friend list (auto) + owner gets new user
+    if (!isOwner()) {
+      try {
+        await set(dbRef(db, 'users/' + slug + '/contacts/' + OWNER_SLUG), { slug: OWNER_SLUG, name: OWNER_NAME, time: Date.now(), autoFriend: true });
+      } catch (e) {}
+      try { await set(dbRef(db, 'users/gesnerdeslandes/contacts/' + slug), { slug: slug, name: nameVal, time: Date.now() }); } catch (e) {}
+    }
     App.mySlug = slug; App.myName = nameVal;
     LS.set('mySlug', slug); LS.set('myName', nameVal);
     status.textContent = 'Account created ✓'; status.className = 'name-status ok';
@@ -744,6 +968,7 @@ async function handleSignOut() {
   try { await firebaseSignOut(auth); } catch (e) {}
   currentAuthUser = null; window._mainAppStarted = false;
   App.mySlug = null; App.myName = ''; App.contacts = []; App.groups = []; App.lastMessages = {};
+  App.incomingRequests = {}; App.sentRequests = {}; App.publicUsers = {};
   LS.del('mySlug'); LS.del('myName'); LS.del('cached_chats'); LS.del('cached_statuses');
   $('signInName').value = ''; $('signInPassword').value = ''; $('signInStatus').textContent = '';
   $('authTabSignIn').classList.add('active'); $('authTabSignUp').classList.remove('active');
@@ -881,6 +1106,7 @@ function playSentSound() {
 function updateAppBadge() {
   var total = 0, keys = Object.keys(App.unreadCounts);
   for (var i = 0; i < keys.length; i++) total += (App.unreadCounts[keys[i]] || 0);
+  total += Object.keys(App.incomingRequests).length;
   if ('setAppBadge' in navigator) { if (total > 0) navigator.setAppBadge(total).catch(function() {}); else navigator.clearAppBadge().catch(function() {}); }
 }
 function updateSyncIndicator(state) {
@@ -975,6 +1201,11 @@ function startMainApp() {
   listenIncomingCalls();
   listenSelfGroups();
   listenActiveLiveStreams();
+  /* NEW: friend requests + public users */
+  listenFriendRequests();
+  listenPublicUsers();
+  ensureBootstrap();
+  updateNewUsersBadge();
   var changed = false;
   for (var i = 0; i < App.contacts.length; i++) { if (!(App.contacts[i].slug in App.lastSeenTimes)) { App.lastSeenTimes[App.contacts[i].slug] = Date.now(); changed = true; } }
   for (var j = 0; j < App.groups.length; j++) { if (!(App.groups[j].id in App.lastSeenTimes)) { App.lastSeenTimes[App.groups[j].id] = Date.now(); changed = true; } }
@@ -1040,7 +1271,9 @@ async function forceFullRefresh() {
     }
     for (var j = 0; j < App.contacts.length; j++) if (!App.globalUnsubs[App.contacts[j].slug]) setupMessageListener(App.contacts[j].slug, false);
     for (var k = 0; k < App.groups.length; k++) if (!App.globalUnsubs[App.groups[k].id]) setupGroupMessageListener(App.groups[k].id);
-    buildUI(); listenUserStatuses(); listenSelfGroups(); listenActiveLiveStreams(); updateSyncIndicator('live');
+    buildUI(); listenUserStatuses(); listenSelfGroups(); listenActiveLiveStreams();
+    listenFriendRequests(); listenPublicUsers(); ensureBootstrap(); updateNewUsersBadge();
+    updateSyncIndicator('live');
     toast('Refreshed ✓');
   } catch (err) { toast('Refresh failed', true); }
   finally { if (btn) { btn.disabled = false; btn.textContent = orig; } }
@@ -1177,7 +1410,7 @@ function buildUI() {
   html += '<div class="section-title">Friend List</div>';
   if (!App.contacts.length) {
     var syncState = App._cloudSynced === true ? '' : '<div style="margin-top:10px;color:#d4af37;font-size:13px;">Syncing…</div>';
-    html += '<div class="empty"><div class="empty-icon">💬</div><p>No contacts yet.<br>Tap <strong>＋</strong> to add.</p>' + syncState + '</div>';
+    html += '<div class="empty"><div class="empty-icon">💬</div><p>No contacts yet.<br>Tap <strong>＋</strong> to send a request.</p>' + syncState + '</div>';
   } else {
     for (var j = 0; j < App.contacts.length; j++) {
       var c = App.contacts[j], uc = App.unreadCounts[c.slug] || 0;
@@ -1351,27 +1584,22 @@ function listenVoicemails() {
 $('addContactFab').addEventListener('click', function() { $('modalName').value = ''; $('modalStatus').textContent = ''; $('addModal').classList.add('show'); });
 $('modalCancel').addEventListener('click', function() { $('addModal').classList.remove('show'); });
 $('modalName').addEventListener('input', function() { $('modalConfirm').disabled = !slugify($('modalName').value) || slugify($('modalName').value) === App.mySlug; });
+/* UPDATED: Send friend request instead of direct add */
 $('modalConfirm').addEventListener('click', async function() {
-  var slug = slugify($('modalName').value), raw = $('modalName').value.trim().toLowerCase();
+  var slug = slugify($('modalName').value);
   if (!slug) return toast('Enter a valid name', true);
   if (slug === App.mySlug) return toast('Cannot add yourself', true);
-  for (var i = 0; i < App.contacts.length; i++) { if (App.contacts[i].slug === slug || (App.contacts[i].name && App.contacts[i].name.trim().toLowerCase() === raw)) return toast('Already in list', true); }
-  var btn = $('modalConfirm'); btn.disabled = true; btn.textContent = 'Checking…';
+  if (findContact(slug)) return toast('Already friends', true);
+  if (App.sentRequests[slug]) return toast('Request already sent', true);
+  if (App.incomingRequests[slug]) return toast('They already sent you a request — check New Users tab', false);
+  var btn = $('modalConfirm'); btn.disabled = true; btn.textContent = 'Sending…';
   try {
     var emailSnap;
     try { emailSnap = await get(dbRef(db, 'users/' + slug + '/activeAuthEmail')); } catch (e) { toast('Cannot verify user', true); return; }
     if (!emailSnap.exists()) { toast('User not found. Make sure they have created an account.', true); return; }
-    var name = slug, photo = null;
-    try { var snap = await get(dbRef(db, 'users/' + slug)); if (snap.exists()) { var d = snap.val(); name = d.displayName || slug; photo = d.photo || null; } } catch (e) {}
-    App.contacts.push({ slug: slug, name: name, photo: photo });
-    App.lastSeenTimes[slug] = Date.now();
-    saveContacts(); saveLastSeenTimes();
-    try { await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + slug), { slug: slug, name: name, time: Date.now() }); } catch (e) {}
-    setupMessageListener(slug, false);
-    buildUI();
+    await window.__sendFriendRequest(slug);
     $('addModal').classList.remove('show');
-    toast('Added @' + slug + ' ✓');
-  } finally { btn.disabled = false; btn.textContent = 'Add'; }
+  } finally { btn.disabled = false; btn.textContent = 'Send Request'; }
 });
 
 $('addGroupFab').addEventListener('click', function() {
@@ -1402,7 +1630,7 @@ $('groupModalConfirm').addEventListener('click', async function() {
 $('profileAvatar').addEventListener('click', function() { $('avatarInput').click(); });
 $('avatarInput').addEventListener('change', async function(e) {
   var f = e.target.files && e.target.files[0]; if (!f) return;
-  try { toast('Processing…'); var url = await fileToBase64(f); App.myPhoto = url; LS.set('avatar', url); updateProfileHeader(); await set(dbRef(db, 'users/' + App.mySlug + '/photo'), url); toast('Photo updated ✓'); }
+  try { toast('Processing…'); var url = await fileToBase64(f); App.myPhoto = url; LS.set('avatar', url); updateProfileHeader(); await set(dbRef(db, 'users/' + App.mySlug + '/photo'), url); try { await set(dbRef(db, 'public_users/' + App.mySlug + '/photo'), url); } catch (e) {} toast('Photo updated ✓'); }
   catch (err) { toast('Failed', true); }
   e.target.value = '';
 });
@@ -1545,7 +1773,6 @@ function writeLiveCameraState(camOn) {
   set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/cameraStates/' + App.mySlug), camOn ? true : false).catch(function() {});
 }
 
-/* ============ v6: Toggle camera with retry ============ */
 window.__toggleLiveCamera = async function() {
   var targetStream = App.liveParticipantStream || App.liveLocalStream;
   if (!targetStream) return toast('No stream active', true);
@@ -1979,7 +2206,6 @@ function renderLiveConfGrid() {
   for (var j = 0; j < ks.length; j++) { var v = document.getElementById('live-conf-' + ks[j]); if (v) { v.srcObject = peers[ks[j]].stream; v.play().catch(function() {}); } }
 }
 
-/* ============ v6: Camera states listener for participants ============ */
 function setupCameraStatesListenerForParticipant(streamId) {
   var unsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/cameraStates'), function(snap) {
     var states = snap.val() || {};
@@ -2128,7 +2354,6 @@ async function viewerConnectToHost(streamId, offer) {
   } catch (err) { console.error('Viewer connect failed:', err); toast('Connection failed', true); }
 }
 
-/* ============ v6: __requestJoinLive with camera buttons shown on accept ============ */
 window.__requestJoinLive = async function() {
   if (App.liveMode !== 'viewer') return;
   if (App.liveParticipant) return;
@@ -2164,13 +2389,11 @@ window.__requestJoinLive = async function() {
         App.liveParticipant = true;
         App.liveJoinRequested = false;
 
-        // Show camera & mic buttons so participant can toggle freely
         $('liveCameraBtn').style.display = 'flex';
         $('liveMuteBtn').style.display = 'flex';
         $('liveCameraBtn').classList.remove('active');
         $('liveMuteBtn').classList.remove('active');
 
-        // Ensure participant's camera is ON by default
         if (App.liveParticipantStream) {
           var vTracks = App.liveParticipantStream.getVideoTracks();
           if (vTracks.length) {
@@ -2331,10 +2554,6 @@ $('liveRecordBtn').addEventListener('click', function() { window.__toggleLiveRec
 $('liveScreenBtn').addEventListener('click', function() { window.__toggleLiveScreenShare(); });
 $('liveBgBtn').addEventListener('click', function() { window.__openLiveBg(); });
 
-/* ============================= */
-/*   END LIVE STREAMING (v6)     */
-/* ============================= */
-
 $('ownerPortalTrigger').addEventListener('click', function() { $('ownerPassInput').value = ''; $('ownerAuthModal').classList.add('show'); });
 $('ownerAuthCancel').addEventListener('click', function() { $('ownerAuthModal').classList.remove('show'); });
 function openOwnerSpace() { loadOwnerStatuses(); $('ownerSpaceModal').classList.add('show'); }
@@ -2360,7 +2579,6 @@ function loadOwnerReports() {
   }, function(err) { area.innerHTML = '<div class="empty">Cannot load users.</div>'; }, { onlyOnce: true });
 }
 
-/* ==================== PROFESSIONAL BACKGROUNDS ==================== */
 var PROFESSIONAL_BACKGROUNDS = [
   { key: 'none', label: 'Normal', type: 'filter', value: 'none' },
   { key: 'blur', label: 'Blurred', type: 'filter', value: 'blur(8px)' },
@@ -2556,9 +2774,10 @@ for (var i = 0; i < nb.length; i++) (function(b) {
     for (var k = 0; k < tabs.length; k++) tabs[k].style.display = 'none';
     var tab = $('tab' + t.charAt(0).toUpperCase() + t.slice(1));
     if (tab) tab.style.display = 'block';
-    $('headerTitle').textContent = t === 'chats' ? 'Friend List' : t.charAt(0).toUpperCase() + t.slice(1);
+    $('headerTitle').textContent = t === 'chats' ? 'Friend List' : t === 'newusers' ? 'New Users' : t.charAt(0).toUpperCase() + t.slice(1);
     if (t === 'voicemail') listenVoicemails();
     if (t === 'status') renderActiveLiveStreams();
+    if (t === 'newusers') { renderNewUsersTab(); updateNewUsersBadge(); }
   });
 })(nb[i]);
 
