@@ -87,6 +87,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .fab-container{position:absolute;bottom:84px;right:20px;display:flex;flex-direction:column;gap:12px;z-index:9}
 .fab{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c,#0a6474);color:#fff;border:none;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(13,122,140,.4)}
 .fab.gold{background:linear-gradient(135deg,#f0d369,#d4af37);color:var(--navy)}
+.fab.live{background:linear-gradient(135deg,#ff4757,#cc2334);color:#fff}
 .chat-header{background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:8px;min-height:64px;border-bottom:2px solid var(--gold);flex-shrink:0;z-index:5}
 .chat-header .back-btn{background:none;border:none;color:#fff;font-size:26px;cursor:pointer;padding:0 4px}
 .chat-header .chat-avatar{width:46px;height:46px;border-radius:50%;background:#d4af37;color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0;overflow:hidden;cursor:pointer}
@@ -183,6 +184,30 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .bg-tile-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);color:#fff;font-size:12px;padding:3px;text-align:center;font-weight:600}
 .toast{position:fixed;bottom:calc(90px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:14px 24px;border-radius:10px;font-size:14px !important;font-weight:600;border:2px solid var(--gold);opacity:0;pointer-events:none;transition:all .3s;z-index:10000;max-width:90%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#screen-live{background:#000}
+#screen-live .live-header{background:linear-gradient(135deg,#ff4757,#cc2334);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px;min-height:60px;flex-shrink:0;z-index:5}
+#screen-live .live-header .back-btn{background:none;border:none;color:#fff;font-size:26px;cursor:pointer;padding:0 4px}
+#screen-live .live-header .live-title{flex:1;min-width:0}
+#screen-live .live-header .live-title h3{font-size:16px !important;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#screen-live .live-header .live-title small{font-size:12px !important;display:block;opacity:.9}
+#screen-live .live-header .live-badge{background:rgba(0,0,0,.35);padding:4px 12px;border-radius:12px;font-size:13px;font-weight:700;flex-shrink:0}
+#screen-live .live-video-wrap{flex:1;position:relative;background:#000;overflow:hidden;min-height:0}
+#screen-live video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none}
+#screen-live video.visible{display:block}
+#liveLoadingOverlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;background:rgba(0,0,0,.75);z-index:3}
+#liveLoadingOverlay.hidden{display:none}
+#liveLoadingOverlay .spinner{width:50px;height:50px;border:4px solid rgba(255,255,255,.2);border-top-color:#ff4757;border-radius:50%;animation:jarvisSpin 1s linear infinite}
+#screen-live .live-controls{background:#0b2a4a;padding:12px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;flex-shrink:0;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+#screen-live .live-controls .call-btn{background:rgba(255,255,255,.15);color:#fff;width:50px;height:50px;font-size:22px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#screen-live .live-controls .call-btn.active{background:var(--gold);color:var(--navy)}
+#screen-live .live-controls .call-btn.end{background:#ff4757;color:#fff}
+#liveChatDrawer{position:absolute;bottom:80px;left:14px;right:14px;background:#fff;color:var(--text);border-radius:16px;padding:14px;z-index:10;display:none;flex-direction:column;max-height:55vh;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+#liveChatDrawer.show{display:flex}
+#liveChatMessages{max-height:220px;overflow-y:auto;margin-bottom:8px;border:1px solid var(--border);border-radius:8px;padding:8px;font-size:13px;display:flex;flex-direction:column;gap:4px}
+.live-badge-top{position:absolute;top:calc(12px + env(safe-area-inset-top));left:12px;background:#ff4757;color:#fff;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:800;z-index:4;box-shadow:0 4px 12px rgba(255,71,87,.5);animation:pulseRed 1.5s ease-in-out infinite}
+@keyframes pulseRed{0%,100%{box-shadow:0 4px 12px rgba(255,71,87,.5)}50%{box-shadow:0 4px 20px rgba(255,71,87,.9)}}
+.live-now-card{border:2px solid #ff4757 !important;background:linear-gradient(135deg,#fff5f5,#ffe5e5) !important;animation:pulseBorder 2s ease-in-out infinite}
+@keyframes pulseBorder{0%,100%{border-color:#ff4757}50%{border-color:#ff8b8b}}
 @media (min-width: 640px) {
   body { padding: 16px; background: #e4e9ef; }
   #app { max-width: 900px; border-radius: 20px; }
@@ -299,8 +324,11 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   </header>
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
   <div id="tabStatus" class="tab-content" style="display:none;">
-    <div class="status-card">
-      <button class="btn-primary" id="openPostStatusBtn" style="width:100%">+ Post Public Status Video / Photo</button>
+    <div class="section-title" id="liveNowHeader" style="display:none;color:#ff4757;">🔴 Live Now</div>
+    <div id="liveStreamsList" class="status-feed"></div>
+    <div class="status-card" style="margin:0 12px;">
+      <button class="btn-primary" id="startGoLiveBtn" style="width:100%;background:linear-gradient(135deg,#ff4757,#cc2334);color:#fff;">🔴 Go Live Stream</button>
+      <button class="btn-primary" id="openPostStatusBtn" style="width:100%;margin-top:10px;">+ Post Public Status Video / Photo</button>
     </div>
     <div class="section-title">Public Friend Updates & Media Feed (24h)</div>
     <div id="statusFeedList" class="status-feed"></div>
@@ -385,6 +413,42 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <button class="attach-btn" id="chatRecordBtn" title="Record Voice Note Audio" style="font-size:22px;color:#ff4757;">🎙️</button>
     <input id="chatInput" type="text" placeholder="Message…" autocomplete="off">
     <button class="send-btn" id="sendBtn" disabled>➤</button>
+  </div>
+</section>
+<section id="screen-live" class="screen">
+  <header class="live-header">
+    <button class="back-btn" id="liveBackBtn">‹</button>
+    <div class="live-title">
+      <h3 id="liveTitle">Live Stream</h3>
+      <small id="liveStatus">● Live</small>
+    </div>
+    <div class="live-badge" id="liveViewerCount">👁 0</div>
+  </header>
+  <div class="live-video-wrap">
+    <div class="live-badge-top" id="liveOnAirBadge">🔴 LIVE</div>
+    <video id="liveRemoteVideo" autoplay playsinline webkit-playsinline></video>
+    <video id="liveLocalVideo" autoplay playsinline muted webkit-playsinline></video>
+    <div id="liveLoadingOverlay">
+      <div class="spinner"></div>
+      <div style="margin-top:16px;font-size:14px;">Connecting to live stream…</div>
+    </div>
+  </div>
+  <div class="live-controls">
+    <button class="call-btn" id="liveChatBtn" title="Live Chat">💬</button>
+    <button class="call-btn" id="liveMuteBtn" title="Mute Microphone">🎤</button>
+    <button class="call-btn" id="liveCameraBtn" title="Toggle Camera">📹</button>
+    <button class="call-btn end" id="liveEndBtn" title="End Stream">📵</button>
+  </div>
+  <div id="liveChatDrawer">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="font-weight:700;font-size:14px;">💬 Live Chat</div>
+      <button onclick="document.getElementById('liveChatDrawer').classList.remove('show')" style="border:none;background:none;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div id="liveChatMessages"></div>
+    <div style="display:flex;gap:6px;">
+      <input id="liveChatInput" type="text" placeholder="Say something..." style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);font-size:14px;font-family:Calibri,sans-serif;">
+      <button onclick="window.__sendLiveChat()" style="background:var(--accent);color:#fff;border:none;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer;">Send</button>
+    </div>
   </div>
 </section>
 <div id="emojiPalette">
@@ -677,6 +741,9 @@ const firebaseConfig = {
 
 const DB_URL = "https://g-communication-2026-c5af2-default-rtdb.firebaseio.com";
 const STATUS_FEED_PATH = 'chats/_status_feed/statuses';
+const LIVE_BASE_PATH = 'chats/_live_streams';
+const LIVE_ACTIVE_PATH = LIVE_BASE_PATH + '/active';
+const LIVE_STREAMS_PATH = LIVE_BASE_PATH + '/streams';
 
 let fbApp, db, auth;
 try {
@@ -713,9 +780,19 @@ const App = {
   _cloudSynced: false,
   _contactsListener: null,
   _groupsListener: null,
+  _activeStreamsListener: null,
   listenerWatchdogs: {},
   listenerAttempts: {},
-  processedInvites: {}
+  processedInvites: {},
+  // Live stream state
+  liveMode: null,         // 'host' | 'viewer' | null
+  liveStreamId: null,
+  liveHostSlug: null,
+  liveLocalStream: null,
+  livePeerConns: {},      // host: { viewerSlug: RTCPeerConnection }
+  liveHostPC: null,       // viewer: RTCPeerConnection to host
+  liveUnsubs: [],
+  activeLiveStreams: {}
 };
 
 let currentAuthUser = null;
@@ -754,6 +831,13 @@ function slugify(name) { return String(name).toLowerCase().trim().replace(/[^a-z
 function chatIdFor(a, b) { var x = a < b ? a : b; var y = a < b ? b : a; return x + '__' + y; }
 function avatarInner(photo, name) { return photo ? '<img src="' + photo + '">' : esc((name || '?').charAt(0).toUpperCase()); }
 function slugToEmail(slug) { return slug + '@jarvis-app.local'; }
+function timeAgo(ts) {
+  if (!ts) return 'just now';
+  var d = Math.floor((Date.now() - ts) / 1000);
+  if (d < 60) return d + 's ago';
+  if (d < 3600) return Math.floor(d / 60) + 'm ago';
+  return Math.floor(d / 3600) + 'h ago';
+}
 
 async function sha256Hex(text) {
   try {
@@ -943,7 +1027,7 @@ async function handleSignIn() {
   try {
     var snap = await get(dbRef(db, 'users/' + slug + '/activeAuthEmail'));
     if (snap.exists() && snap.val()) emailsToTry.push(snap.val());
-  } catch (e) { /* signed out — read of activeAuthEmail is world-readable per rules */ }
+  } catch (e) {}
   var defaultEmail = slug + '@jarvis-app.local';
   if (emailsToTry.indexOf(defaultEmail) === -1) emailsToTry.push(defaultEmail);
 
@@ -959,7 +1043,7 @@ async function handleSignIn() {
         if (!checkSnap.exists() || checkSnap.val() !== emailsToTry[i]) {
           await set(dbRef(db, 'users/' + slug + '/activeAuthEmail'), emailsToTry[i]);
         }
-      } catch (e) { /* not critical */ }
+      } catch (e) {}
       status.textContent = 'Welcome back ✓'; status.className = 'name-status ok';
       safeStartMainApp();
       return;
@@ -980,6 +1064,7 @@ async function handleSignIn() {
 
 async function handleSignOut() {
   if (!confirm('Sign out of JARVIS?')) return;
+  if (App.liveMode) cleanupLive();
   try { await firebaseSignOut(auth); } catch (e) {}
   currentAuthUser = null;
   window._mainAppStarted = false;
@@ -1339,6 +1424,16 @@ window.addEventListener('online', function() {
 window.addEventListener('offline', function() {
   if (App.mySlug) toast('You are offline', true);
 });
+window.addEventListener('beforeunload', function() {
+  if (App.liveMode === 'host' && App.mySlug) {
+    try {
+      set(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug), null);
+      if (App.liveStreamId) set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/status'), 'ended');
+    } catch (e) {}
+  } else if (App.liveMode === 'viewer' && App.liveStreamId && App.mySlug) {
+    try { remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/viewers/' + App.mySlug)); } catch (e) {}
+  }
+});
 window.__hardRefresh = function() { toast('Reloading…'); setTimeout(function() { location.reload(); }, 400); };
 window.__restForceNow = function() { toast('Force sync via REST…'); triggerRESTFallback(false); };
 
@@ -1351,6 +1446,7 @@ function startMainApp() {
   listenUserStatuses();
   listenIncomingCalls();
   listenSelfGroups();
+  listenActiveLiveStreams();
   var changed = false;
   for (var i = 0; i < App.contacts.length; i++) { if (!(App.contacts[i].slug in App.lastSeenTimes)) { App.lastSeenTimes[App.contacts[i].slug] = Date.now(); changed = true; } }
   for (var j = 0; j < App.groups.length; j++) { if (!(App.groups[j].id in App.lastSeenTimes)) { App.lastSeenTimes[App.groups[j].id] = Date.now(); changed = true; } }
@@ -1465,7 +1561,7 @@ async function forceFullRefresh() {
     }
     for (var j = 0; j < App.contacts.length; j++) if (!App.globalUnsubs[App.contacts[j].slug]) setupMessageListener(App.contacts[j].slug, false);
     for (var k = 0; k < App.groups.length; k++) if (!App.globalUnsubs[App.groups[k].id]) setupGroupMessageListener(App.groups[k].id);
-    buildUI(); listenUserStatuses(); listenSelfGroups(); updateSyncIndicator('live');
+    buildUI(); listenUserStatuses(); listenSelfGroups(); listenActiveLiveStreams(); updateSyncIndicator('live');
     toast('Cloud data refreshed ✓');
     if (App.contacts.length === 0) triggerRESTFallback(true);
   } catch (err) { console.error('Refresh:', err); toast('Refresh failed', true); }
@@ -1673,7 +1769,9 @@ function buildUI() {
   } else {
     for (var j = 0; j < App.contacts.length; j++) {
       var c = App.contacts[j], uc = App.unreadCounts[c.slug] || 0;
-      html += '<div class="list-item" onclick="window.__openChat(\'' + c.slug + '\', false)"><div class="avatar" onclick="event.stopPropagation(); window.__viewAvatar(\'' + (c.photo || '') + '\',\'' + esc(c.name) + '\')">' + avatarInner(c.photo, c.name) + '</div><div class="list-item-body"><div class="list-item-header"><div class="list-item-title">' + esc(c.name) + '</div>' + (uc > 0 ? '<div class="badge-unread">' + uc + '</div>' : '') + '</div><div class="list-item-sub">@' + c.slug + '</div></div><div class="list-item-action">›</div></div>';
+      var isLive = App.activeLiveStreams[c.slug] && App.activeLiveStreams[c.slug].streamId;
+      var liveBadge = isLive ? ' <span style="color:#ff4757;font-weight:700;font-size:12px;">● LIVE</span>' : '';
+      html += '<div class="list-item" onclick="window.__openChat(\'' + c.slug + '\', false)"><div class="avatar" onclick="event.stopPropagation(); window.__viewAvatar(\'' + (c.photo || '') + '\',\'' + esc(c.name) + '\')">' + avatarInner(c.photo, c.name) + '</div><div class="list-item-body"><div class="list-item-header"><div class="list-item-title">' + esc(c.name) + liveBadge + '</div>' + (uc > 0 ? '<div class="badge-unread">' + uc + '</div>' : '') + '</div><div class="list-item-sub">@' + c.slug + '</div></div><div class="list-item-action">›</div></div>';
     }
   }
   if (cl) cl.innerHTML = html;
@@ -2162,6 +2260,421 @@ for (var i = 0; i < eb.length; i++) (function(b) { b.addEventListener('click', f
 var qb = document.querySelectorAll('.quick-reaction');
 for (var j = 0; j < qb.length; j++) (function(b) { b.addEventListener('click', function() { $('chatInput').value = b.dataset.emoji; sendMessage(null); }); })(qb[j]);
 
+/* ============================= */
+/*   LIVE STREAMING (GO LIVE)    */
+/* ============================= */
+
+function listenActiveLiveStreams() {
+  if (App._activeStreamsListener) {
+    try { if (typeof App._activeStreamsListener === 'function') App._activeStreamsListener(); } catch (e) {}
+    App._activeStreamsListener = null;
+  }
+  try {
+    App._activeStreamsListener = onValue(dbRef(db, LIVE_ACTIVE_PATH), function(snap) {
+      App.activeLiveStreams = snap.val() || {};
+      renderActiveLiveStreams();
+      if (debouncedBuildUI) debouncedBuildUI();
+    }, function(err) { console.warn('Active live streams listener error:', err); });
+  } catch (e) { console.warn('listenActiveLiveStreams:', e); }
+}
+
+function renderActiveLiveStreams() {
+  var list = $('liveStreamsList'), header = $('liveNowHeader');
+  if (!list) return;
+  var now = Date.now();
+  var myContacts = App.contacts.map(function(c) { return c.slug; });
+  var slugs = Object.keys(App.activeLiveStreams).filter(function(slug) {
+    var s = App.activeLiveStreams[slug];
+    if (!s || !s.streamId || !s.startedAt) return false;
+    if ((now - s.startedAt) >= 4 * 60 * 60 * 1000) return false; // stale
+    return isOwner() || slug === App.mySlug || myContacts.indexOf(slug) !== -1;
+  });
+  if (!slugs.length) {
+    if (header) header.style.display = 'none';
+    list.innerHTML = '';
+    return;
+  }
+  if (header) header.style.display = 'block';
+  var html = '';
+  for (var i = 0; i < slugs.length; i++) {
+    var slug = slugs[i], s = App.activeLiveStreams[slug];
+    var isMine = slug === App.mySlug;
+    html += '<div class="status-card live-now-card"><div class="status-card-header"><div class="avatar" style="width:44px;height:44px;font-size:18px;border:2px solid #ff4757;" onclick="window.__viewAvatar(\'' + (s.photo || '') + '\',\'' + esc(s.name || slug) + '\')">' + avatarInner(s.photo, s.name) + '</div><div style="flex:1"><div style="font-weight:700;font-size:15px;">' + esc(s.name || slug) + ' <span style="color:#ff4757;font-weight:800;">● LIVE</span></div><small style="color:var(--muted);font-size:12px;">Started ' + timeAgo(s.startedAt) + '</small></div>' + (isMine
+      ? '<button style="background:#ff4757;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;" onclick="window.__returnToLiveHost()">Back</button>'
+      : '<button style="background:#ff4757;color:#fff;border:none;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;" onclick="window.__watchLiveStream(\'' + slug + '\',\'' + s.streamId + '\')">▶ Watch</button>') + '</div></div>';
+  }
+  list.innerHTML = html;
+}
+
+window.__returnToLiveHost = function() {
+  if (App.liveMode === 'host') { showScreen('screen-live'); }
+  else toast('Not currently streaming', true);
+};
+
+window.__startGoLive = async function() {
+  if (App.liveMode) return toast('You are already ' + (App.liveMode === 'host' ? 'live' : 'watching a stream'), true);
+  if (App.liveLocalStream) return;
+  try {
+    toast('Starting live stream…');
+    var stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: VIDEO_CONSTRAINTS });
+    App.liveLocalStream = stream;
+    var streamId = 'live_' + App.mySlug + '_' + Date.now();
+    App.liveStreamId = streamId;
+    App.liveMode = 'host';
+    App.liveHostSlug = App.mySlug;
+    App.livePeerConns = {};
+
+    await set(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId), {
+      hostSlug: App.mySlug,
+      hostName: App.myName,
+      hostPhoto: App.myPhoto || null,
+      startedAt: Date.now(),
+      status: 'live'
+    });
+
+    await set(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug), {
+      streamId: streamId,
+      name: App.myName,
+      photo: App.myPhoto || null,
+      startedAt: Date.now()
+    });
+
+    showScreen('screen-live');
+    $('liveTitle').textContent = 'Your Live Stream';
+    $('liveStatus').textContent = '● Live';
+    $('liveStatus').style.color = '#4aff7a';
+    $('liveOnAirBadge').textContent = '🔴 LIVE';
+    $('liveOnAirBadge').style.display = 'block';
+    $('liveRemoteVideo').classList.remove('visible');
+    $('liveRemoteVideo').srcObject = null;
+    $('liveLocalVideo').classList.add('visible');
+    $('liveLocalVideo').srcObject = stream;
+    $('liveLocalVideo').muted = true;
+    $('liveLoadingOverlay').classList.add('hidden');
+    $('liveViewerCount').textContent = '👁 0';
+    $('liveCameraBtn').style.display = 'flex';
+    $('liveMuteBtn').style.display = 'flex';
+
+    setupHostViewerListener(streamId);
+    setupLiveChatListener(streamId);
+    toast('You are LIVE 🔴');
+  } catch (err) {
+    handleMediaError(err);
+    cleanupLive();
+  }
+};
+
+function setupHostViewerListener(streamId) {
+  // New viewer joins → create PC + offer
+  var u1 = onChildAdded(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers'), function(snap) {
+    var viewerSlug = snap.key;
+    if (!viewerSlug || viewerSlug === App.mySlug) return;
+    if (App.livePeerConns[viewerSlug]) return;
+    hostConnectToViewer(streamId, viewerSlug);
+  });
+  App.liveUnsubs.push(u1);
+
+  // Live viewer count
+  var u2 = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers'), function(snap) {
+    var viewers = snap.val() || {};
+    var count = Object.keys(viewers).length;
+    $('liveViewerCount').textContent = '👁 ' + count;
+  });
+  App.liveUnsubs.push(u2);
+
+  // Detect when stream is set to ended externally
+  var u3 = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/status'), function(s) {
+    if (s.val() === 'ended' && App.liveMode === 'host') {
+      toast('Stream ended');
+      cleanupLive();
+    }
+  });
+  App.liveUnsubs.push(u3);
+}
+
+async function hostConnectToViewer(streamId, viewerSlug) {
+  try {
+    var pc = new RTCPeerConnection(ICE_SERVERS);
+    App.livePeerConns[viewerSlug] = pc;
+
+    App.liveLocalStream.getTracks().forEach(function(t) {
+      pc.addTrack(t, App.liveLocalStream);
+    });
+
+    pc.onicecandidate = function(e) {
+      if (e.candidate) {
+        push(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + viewerSlug + '/offerCandidates'), e.candidate.toJSON()).catch(function() {});
+      }
+    };
+
+    pc.onconnectionstatechange = function() {
+      if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected' || pc.connectionState === 'closed') {
+        try { pc.close(); } catch (e) {}
+        delete App.livePeerConns[viewerSlug];
+      }
+    };
+
+    var offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    await set(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + viewerSlug + '/offer'), {
+      type: offer.type, sdp: offer.sdp
+    });
+
+    var ansUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + viewerSlug + '/answer'), async function(s) {
+      var a = s.val();
+      if (a && pc && !pc.currentRemoteDescription) {
+        try { await pc.setRemoteDescription(new RTCSessionDescription(a)); } catch (e) { console.warn('setRemote(answer):', e); }
+      }
+    });
+    App.liveUnsubs.push(ansUnsub);
+
+    var iceUnsub = onChildAdded(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + viewerSlug + '/answerCandidates'), function(s) {
+      var c = s.val();
+      if (c && pc) pc.addIceCandidate(new RTCIceCandidate(c)).catch(function() {});
+    });
+    App.liveUnsubs.push(iceUnsub);
+  } catch (err) {
+    console.error('Host viewer connect failed:', err);
+  }
+}
+
+window.__endGoLive = async function() {
+  if (App.liveMode !== 'host') return;
+  if (App.liveStreamId) {
+    try {
+      await set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/status'), 'ended');
+    } catch (e) {}
+    try { await remove(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug)); } catch (e) {}
+  }
+  cleanupLive();
+  toast('Stream ended');
+};
+
+window.__watchLiveStream = async function(hostSlug, streamId) {
+  if (App.liveMode) return toast('Already watching a stream', true);
+  App.liveMode = 'viewer';
+  App.liveStreamId = streamId;
+  App.liveHostSlug = hostSlug;
+
+  showScreen('screen-live');
+  $('liveTitle').textContent = 'Watching ' + (App.activeLiveStreams[hostSlug] ? (App.activeLiveStreams[hostSlug].name || hostSlug) : hostSlug);
+  $('liveStatus').textContent = '● Live';
+  $('liveStatus').style.color = '#ff4757';
+  $('liveOnAirBadge').textContent = '🔴 LIVE';
+  $('liveOnAirBadge').style.display = 'block';
+  $('liveLocalVideo').classList.remove('visible');
+  $('liveLocalVideo').srcObject = null;
+  $('liveRemoteVideo').classList.add('visible');
+  $('liveRemoteVideo').srcObject = null;
+  $('liveLoadingOverlay').classList.remove('hidden');
+  $('liveViewerCount').textContent = '👁 …';
+  $('liveCameraBtn').style.display = 'none';
+  $('liveMuteBtn').style.display = 'none';
+
+  try {
+    await set(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + App.mySlug), {
+      joinedAt: Date.now(),
+      name: App.myName
+    });
+
+    var offerUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + App.mySlug + '/offer'), async function(s) {
+      var offer = s.val();
+      if (!offer || !offer.sdp) return;
+      if (App.liveHostPC) return;
+      await viewerConnectToHost(streamId, offer);
+    });
+    App.liveUnsubs.push(offerUnsub);
+
+    var statusUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/status'), function(s) {
+      if (s.val() === 'ended') {
+        toast('Stream ended');
+        if (App.liveMode === 'viewer') cleanupLive();
+      }
+    });
+    App.liveUnsubs.push(statusUnsub);
+
+    var countUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers'), function(snap) {
+      var viewers = snap.val() || {};
+      $('liveViewerCount').textContent = '👁 ' + Object.keys(viewers).length;
+    });
+    App.liveUnsubs.push(countUnsub);
+
+    setupLiveChatListener(streamId);
+  } catch (err) {
+    console.error('Watch failed:', err);
+    toast('Could not join stream', true);
+    cleanupLive();
+  }
+};
+
+async function viewerConnectToHost(streamId, offer) {
+  try {
+    var pc = new RTCPeerConnection(ICE_SERVERS);
+    App.liveHostPC = pc;
+
+    pc.ontrack = function(e) {
+      if (e.streams && e.streams[0]) {
+        $('liveRemoteVideo').srcObject = e.streams[0];
+        $('liveRemoteVideo').muted = false;
+        $('liveRemoteVideo').volume = 1;
+        $('liveRemoteVideo').play().catch(function() {
+          // Autoplay blocked: start muted then unmute on tap
+          $('liveRemoteVideo').muted = true;
+          $('liveRemoteVideo').play().then(function() {
+            toast('🔊 Tap to enable audio');
+            var unlock = function() {
+              $('liveRemoteVideo').muted = false;
+              document.body.removeEventListener('click', unlock);
+              document.body.removeEventListener('touchstart', unlock);
+            };
+            document.body.addEventListener('click', unlock);
+            document.body.addEventListener('touchstart', unlock);
+          }).catch(function() {});
+        });
+        $('liveLoadingOverlay').classList.add('hidden');
+      }
+    };
+
+    pc.onicecandidate = function(e) {
+      if (e.candidate) {
+        push(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + App.mySlug + '/answerCandidates'), e.candidate.toJSON()).catch(function() {});
+      }
+    };
+
+    await pc.setRemoteDescription(new RTCSessionDescription(offer));
+    var answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+
+    await set(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + App.mySlug + '/answer'), {
+      type: answer.type, sdp: answer.sdp
+    });
+
+    var iceUnsub = onChildAdded(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + App.mySlug + '/offerCandidates'), function(s) {
+      var c = s.val();
+      if (c && pc) pc.addIceCandidate(new RTCIceCandidate(c)).catch(function() {});
+    });
+    App.liveUnsubs.push(iceUnsub);
+  } catch (err) {
+    console.error('Viewer connect failed:', err);
+    toast('Connection failed', true);
+  }
+}
+
+window.__leaveLiveStream = async function() {
+  if (App.liveMode !== 'viewer') return;
+  if (App.liveStreamId && App.mySlug) {
+    try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/viewers/' + App.mySlug)); } catch (e) {}
+  }
+  cleanupLive();
+};
+
+function setupLiveChatListener(streamId) {
+  var unsub = onValue(query(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/chat'), limitToLast(60)), function(snap) {
+    var data = snap.val() || {};
+    var msgs = Object.keys(data).map(function(k) { var v = data[k]; v._k = k; return v; })
+      .sort(function(a, b) { return (a.time || 0) - (b.time || 0); });
+    var el = $('liveChatMessages');
+    if (!el) return;
+    if (!msgs.length) { el.innerHTML = '<div style="color:var(--muted);font-size:12px;text-align:center;padding:8px;">No messages yet — say hi 👋</div>'; return; }
+    var html = '';
+    for (var i = 0; i < msgs.length; i++) {
+      var m = msgs[i];
+      var isMine = m.from === App.mySlug;
+      html += '<div style="padding:4px 0;' + (isMine ? 'text-align:right;' : '') + '"><strong style="color:var(--accent);font-size:11px;">' + esc(m.name || m.from) + ':</strong> <span style="font-size:13px;">' + esc(m.text) + '</span></div>';
+    }
+    el.innerHTML = html;
+    el.scrollTop = el.scrollHeight;
+  });
+  App.liveUnsubs.push(unsub);
+}
+
+window.__sendLiveChat = async function() {
+  var inp = $('liveChatInput'), t = inp.value.trim();
+  if (!t || !App.liveStreamId) return;
+  inp.value = '';
+  try {
+    await push(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/chat'), {
+      from: App.mySlug, name: App.myName, text: t, time: Date.now()
+    });
+  } catch (e) { toast('Send failed', true); }
+};
+
+function cleanupLive() {
+  if (App.liveLocalStream) {
+    App.liveLocalStream.getTracks().forEach(function(t) { t.stop(); });
+    App.liveLocalStream = null;
+  }
+  Object.keys(App.livePeerConns).forEach(function(k) {
+    try { App.livePeerConns[k].close(); } catch (e) {}
+  });
+  App.livePeerConns = {};
+  if (App.liveHostPC) {
+    try { App.liveHostPC.close(); } catch (e) {}
+    App.liveHostPC = null;
+  }
+  App.liveUnsubs.forEach(function(u) { try { if (typeof u === 'function') u(); } catch (e) {} });
+  App.liveUnsubs = [];
+  App.liveMode = null;
+  App.liveStreamId = null;
+  App.liveHostSlug = null;
+
+  var lv = $('liveLocalVideo'); if (lv) lv.srcObject = null;
+  var rv = $('liveRemoteVideo'); if (rv) rv.srcObject = null;
+  var cm = $('liveChatMessages'); if (cm) cm.innerHTML = '';
+  var ci = $('liveChatInput'); if (ci) ci.value = '';
+  var cd = $('liveChatDrawer'); if (cd) cd.classList.remove('show');
+  var lo = $('liveLoadingOverlay'); if (lo) lo.classList.remove('hidden');
+  showScreen('screen-main');
+}
+
+window.__toggleLiveMute = function() {
+  if (!App.liveLocalStream) return;
+  var tracks = App.liveLocalStream.getAudioTracks();
+  if (!tracks.length) return;
+  var wasEnabled = tracks[0].enabled;
+  tracks.forEach(function(t) { t.enabled = !wasEnabled; });
+  $('liveMuteBtn').classList.toggle('active', wasEnabled);
+  toast(wasEnabled ? 'Muted' : 'Unmuted');
+};
+
+window.__toggleLiveCamera = function() {
+  if (!App.liveLocalStream) return;
+  var tracks = App.liveLocalStream.getVideoTracks();
+  if (!tracks.length) return;
+  var wasEnabled = tracks[0].enabled;
+  tracks.forEach(function(t) { t.enabled = !wasEnabled; });
+  $('liveCameraBtn').classList.toggle('active', wasEnabled);
+  toast(wasEnabled ? 'Camera off' : 'Camera on');
+};
+
+// --- Live stream event bindings ---
+$('startGoLiveBtn').addEventListener('click', function() { window.__startGoLive(); });
+$('liveBackBtn').addEventListener('click', function() {
+  if (App.liveMode === 'host') {
+    if (confirm('End your live stream?')) window.__endGoLive();
+  } else if (App.liveMode === 'viewer') {
+    window.__leaveLiveStream();
+  } else {
+    showScreen('screen-main');
+  }
+});
+$('liveEndBtn').addEventListener('click', function() {
+  if (App.liveMode === 'host') window.__endGoLive();
+  else if (App.liveMode === 'viewer') window.__leaveLiveStream();
+});
+$('liveChatBtn').addEventListener('click', function() {
+  var d = $('liveChatDrawer');
+  if (!d) return;
+  d.classList.toggle('show');
+});
+$('liveMuteBtn').addEventListener('click', function() { window.__toggleLiveMute(); });
+$('liveCameraBtn').addEventListener('click', function() { window.__toggleLiveCamera(); });
+$('liveChatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') window.__sendLiveChat(); });
+
+/* ============================= */
+/*      END LIVE STREAMING       */
+/* ============================= */
+
 $('ownerPortalTrigger').addEventListener('click', function() { $('ownerPassInput').value = ''; $('ownerAuthModal').classList.add('show'); });
 $('ownerAuthCancel').addEventListener('click', function() { $('ownerAuthModal').classList.remove('show'); });
 function openOwnerSpace() { loadOwnerStatuses(); $('ownerSpaceModal').classList.add('show'); }
@@ -2546,6 +3059,7 @@ for (var i = 0; i < nb.length; i++) (function(b) {
     if (tab) tab.style.display = 'block';
     $('headerTitle').textContent = t === 'chats' ? 'Friend List' : t.charAt(0).toUpperCase() + t.slice(1);
     if (t === 'voicemail') listenVoicemails();
+    if (t === 'status') renderActiveLiveStreams();
   });
 })(nb[i]);
 
@@ -2554,6 +3068,7 @@ window.__lb = function(u) { $('lightboxImg').src = u; $('lightboxDownload').href
 $('lightboxClose').addEventListener('click', function() { $('lightbox').classList.remove('show'); });
 $('clearBtn').addEventListener('click', function() {
   if (confirm('Clear local data? You will need to sign in again.')) {
+    if (App.liveMode) cleanupLive();
     LS.del('mySlug'); LS.del('contacts'); LS.del('groups'); LS.del('unreadCounts');
     LS.del('blockedUsers'); LS.del('cached_chats'); LS.del('cached_statuses'); LS.del('lastSeenTimes');
     location.reload();
