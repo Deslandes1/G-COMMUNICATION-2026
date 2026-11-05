@@ -711,8 +711,10 @@ const App = {
   isStandalone: window.__jarvisIsStandalone === true,
   _cloudSynced: false,
   _contactsListener: null,
+  _groupsListener: null,
   listenerWatchdogs: {},
-  listenerAttempts: {}
+  listenerAttempts: {},
+  processedInvites: {}
 };
 
 let currentAuthUser = null;
@@ -802,17 +804,7 @@ async function fetchContactsViaREST() {
     return await res.json();
   } catch (e) { return null; }
 }
-async function fetchStatusesViaREST() {
-  try {
-    if (!currentAuthUser) return null;
-    var token = await currentAuthUser.getIdToken();
-    if (!token) return null;
-    var url = DB_URL + '/user_statuses.json?auth=' + encodeURIComponent(token);
-    var res = await fetch(url);
-    if (!res.ok) return null;
-    return await res.json();
-  } catch (e) { return null; }
-}
+
 async function applyContactsFromREST(contacts) {
   if (!contacts) return;
   var slugs = Object.keys(contacts), changed = false;
@@ -832,31 +824,14 @@ async function applyContactsFromREST(contacts) {
     toast('Contacts loaded via REST ✓');
   }
 }
-async function applyStatusesFromREST(statuses) {
-  if (!statuses) return;
-  var friendSlugs = App.contacts.map(function(c) { return c.slug; });
-  var now = Date.now();
-  var posts = Object.keys(statuses).map(function(k) { var v = statuses[k]; v._k = k; return v; })
-    .filter(function(p) { return (now - (p.time || 0)) <= 24 * 60 * 60 * 1000; })
-    .filter(function(p) { return isOwner() || p.authorSlug === App.mySlug || friendSlugs.indexOf(p.authorSlug) !== -1; })
-    .sort(function(a, b) { return (b.time || 0) - (a.time || 0); });
-  if (posts.length || (window._cachedPosts || []).length === 0) {
-    LS.set('cached_statuses', posts);
-    renderStatusFeedList(posts);
-    toast('Statuses loaded via REST ✓');
-  }
-}
+
 async function triggerRESTFallback(silent) {
   if (!currentAuthUser) return;
   if (App.contacts.length === 0) {
     var contacts = await fetchContactsViaREST();
     if (contacts) await applyContactsFromREST(contacts);
   }
-  if ((window._cachedPosts || []).length === 0) {
-    var statuses = await fetchStatusesViaREST();
-    if (statuses) await applyStatusesFromREST(statuses);
-  }
-  if (!silent) toast('REST sync: ' + App.contacts.length + ' contacts, ' + (window._cachedPosts || []).length + ' statuses');
+  if (!silent) toast('REST sync: ' + App.contacts.length + ' contacts');
 }
 
 $('authTabSignIn').addEventListener('click', function() {
@@ -889,7 +864,8 @@ async function handleSignUp() {
     var userCred = await createUserWithEmailAndPassword(auth, slugToEmail(slug), password);
     currentAuthUser = userCred.user;
     var userRef = dbRef(db, 'users/' + slug);
-    var snap = await get(userRef);
+    var snap;
+    try { snap = await get(userRef); } catch (e) { snap = { exists: function(){return false;}, val: function(){return null;} }; }
     if (snap.exists()) {
       var existing = snap.val();
       if (existing.authUid && existing.authUid !== currentAuthUser.uid) {
@@ -908,6 +884,7 @@ async function handleSignUp() {
       var recoveryHash = await sha256Hex(recoveryPhrase);
       await set(userRef, { slug: slug, displayName: nameVal, authUid: currentAuthUser.uid, email: slugToEmail(slug), activeAuthEmail: slugToEmail(slug), recoveryHash: recoveryHash, createdAt: Date.now(), photo: null });
     }
+    // Try to notify owner (may fail silently for non-owner — expected by rules)
     if (!isOwner()) {
       try { await set(dbRef(db, 'users/gesnerdeslandes/contacts/' + slug), { slug: slug, name: nameVal, time: Date.now() }); } catch (e) {}
     }
@@ -936,12 +913,11 @@ async function handleSignIn() {
   if (!password) { status.textContent = 'Enter your password'; status.className = 'name-status bad'; return; }
   status.textContent = 'Signing in…'; status.className = 'name-status';
 
-  // Build list of emails to try — activeAuthEmail first (if readable), then default
   var emailsToTry = [];
   try {
     var snap = await get(dbRef(db, 'users/' + slug + '/activeAuthEmail'));
     if (snap.exists() && snap.val()) emailsToTry.push(snap.val());
-  } catch (e) { /* signed out — read denied — expected */ }
+  } catch (e) { /* signed out — read of activeAuthEmail is world-readable per rules */ }
   var defaultEmail = slug + '@jarvis-app.local';
   if (emailsToTry.indexOf(defaultEmail) === -1) emailsToTry.push(defaultEmail);
 
@@ -952,7 +928,6 @@ async function handleSignIn() {
       currentAuthUser = cred.user;
       App.mySlug = slug; App.myName = nameVal;
       LS.set('mySlug', slug); LS.set('myName', nameVal);
-      // Repair activeAuthEmail to match the email we successfully used
       try {
         var checkSnap = await get(dbRef(db, 'users/' + slug + '/activeAuthEmail'));
         if (!checkSnap.exists() || checkSnap.val() !== emailsToTry[i]) {
@@ -970,7 +945,7 @@ async function handleSignIn() {
   if (lastErr) {
     if (lastErr.code === 'auth/too-many-requests') status.textContent = 'Too many attempts. Wait 5 minutes and try again.';
     else if (lastErr.code === 'auth/user-not-found') status.textContent = 'No account with this name. Tap "Create Account" first.';
-    else if (lastErr.code === 'auth/wrong-password' || lastErr.code === 'auth/invalid-credential') status.textContent = 'Password does not match. If you reset your password before, contact owner: (509) 4738-5663';
+    else if (lastErr.code === 'auth/wrong-password' || lastErr.code === 'auth/invalid-credential') status.textContent = 'Password does not match. Try Forgot password or contact owner: (509) 4738-5663';
     else if (lastErr.code === 'auth/operation-not-allowed') status.textContent = 'Firebase Auth not enabled in Console.';
     else status.textContent = 'Error: ' + (lastErr.message || 'unknown');
   }
@@ -1014,6 +989,7 @@ async function handleChangePassword() {
   }
 }
 
+/* ⭐ FIXED FORGOT PASSWORD — reads only recoveryHash (world-readable), then writes activeAuthEmail first */
 async function handleForgotPassword() {
   var name = $('forgotName').value.trim();
   var recovery = $('forgotRecovery').value.trim();
@@ -1026,38 +1002,69 @@ async function handleForgotPassword() {
   if (!newPwd || newPwd.length < 6) { status.textContent = 'New password needs 6+ chars'; status.style.color = '#ff4757'; return; }
   if (newPwd !== confirmPwd) { status.textContent = 'Passwords do not match'; status.style.color = '#ff4757'; return; }
   status.textContent = 'Verifying…'; status.style.color = '#d4af37';
+
   try {
-    var snap = await get(dbRef(db, 'users/' + slug));
-    if (!snap.exists()) { status.textContent = 'No account with this name'; status.style.color = '#ff4757'; return; }
-    var userData = snap.val();
-    if (!userData.recoveryHash) { status.textContent = 'No recovery phrase set. Contact owner to reset.'; status.style.color = '#ff4757'; return; }
+    // Read only recoveryHash — this field is world-readable in the rules
+    var hashSnap;
+    try {
+      hashSnap = await get(dbRef(db, 'users/' + slug + '/recoveryHash'));
+    } catch (e) {
+      status.textContent = 'Cannot read recovery data. Contact owner: (509) 4738-5663';
+      status.style.color = '#ff4757';
+      return;
+    }
+    if (!hashSnap.exists() || !hashSnap.val()) {
+      status.textContent = 'No account with this name, or no recovery phrase set';
+      status.style.color = '#ff4757';
+      return;
+    }
     var inputHash = await sha256Hex(recovery);
-    if (inputHash !== userData.recoveryHash) { status.textContent = 'Recovery phrase is incorrect'; status.style.color = '#ff4757'; return; }
+    if (inputHash !== hashSnap.val()) {
+      status.textContent = 'Recovery phrase is incorrect';
+      status.style.color = '#ff4757';
+      return;
+    }
     status.textContent = 'Reset in progress…';
     var newEmail = slug + '-v' + Date.now() + '@jarvis-app.local';
     var userCred;
-    try { userCred = await createUserWithEmailAndPassword(auth, newEmail, newPwd); }
-    catch (err) { status.textContent = 'Reset failed. Contact owner at (509) 4738-5663.'; status.style.color = '#ff4757'; return; }
+    try {
+      userCred = await createUserWithEmailAndPassword(auth, newEmail, newPwd);
+    } catch (err) {
+      status.textContent = 'Reset failed: ' + (err.message || 'unknown');
+      status.style.color = '#ff4757';
+      return;
+    }
+    // Authenticated as new user — write activeAuthEmail FIRST so subsequent DB reads/writes are permitted
     try {
       await set(dbRef(db, 'users/' + slug + '/activeAuthEmail'), newEmail);
       await set(dbRef(db, 'users/' + slug + '/authUid'), userCred.user.uid);
     } catch (permErr) {
-      status.textContent = 'Auth created but DB locked. Contact owner at (509) 4738-5663.';
+      console.error('Permission error updating activeAuthEmail:', permErr);
+      status.textContent = 'Auth created but DB locked. Contact owner: (509) 4738-5663';
       status.style.color = '#ff4757';
       return;
     }
     currentAuthUser = userCred.user;
-    App.mySlug = slug; App.myName = userData.displayName || name;
-    LS.set('mySlug', slug); LS.set('myName', App.myName);
+    // Now read full profile (allowed because activeAuthEmail matches auth email)
+    var displayName = name;
+    try {
+      var fullSnap = await get(dbRef(db, 'users/' + slug));
+      if (fullSnap.exists()) {
+        var d = fullSnap.val();
+        if (d.displayName) displayName = d.displayName;
+      }
+    } catch (e) { console.warn('Cannot read full profile after reset:', e); }
+    App.mySlug = slug; App.myName = displayName;
+    LS.set('mySlug', slug); LS.set('myName', displayName);
     status.textContent = 'Success! Signing in…'; status.style.color = '#4aff7a';
-    setTimeout(function() { $('forgotPasswordModal').classList.remove('show'); safeStartMainApp(); toast('Password reset ✓'); }, 600);
+    setTimeout(function() {
+      $('forgotPasswordModal').classList.remove('show');
+      safeStartMainApp();
+      toast('Password reset ✓');
+    }, 600);
   } catch (err) {
     console.error('Forgot:', err);
-    if (err.code === 'PERMISSION_DENIED' || (err.message && err.message.indexOf('permission') !== -1)) {
-      status.textContent = 'Recovery needs owner help — call (509) 4738-5663';
-    } else {
-      status.textContent = 'Reset failed. Contact owner at (509) 4738-5663.';
-    }
+    status.textContent = 'Reset failed. Contact owner at (509) 4738-5663.';
     status.style.color = '#ff4757';
   }
 }
@@ -1294,7 +1301,7 @@ document.addEventListener('visibilitychange', function() {
     setTimeout(function() {
       try { goOnline(db); } catch (e) {}
       setTimeout(function() {
-        if (App.mySlug && (App.contacts.length === 0 || (window._cachedPosts || []).length === 0)) {
+        if (App.mySlug && App.contacts.length === 0) {
           triggerRESTFallback(true);
         }
       }, 1500);
@@ -1321,6 +1328,7 @@ function startMainApp() {
   buildUI();
   listenUserStatuses();
   listenIncomingCalls();
+  listenSelfGroups();
   var changed = false;
   for (var i = 0; i < App.contacts.length; i++) { if (!(App.contacts[i].slug in App.lastSeenTimes)) { App.lastSeenTimes[App.contacts[i].slug] = Date.now(); changed = true; } }
   for (var j = 0; j < App.groups.length; j++) { if (!(App.groups[j].id in App.lastSeenTimes)) { App.lastSeenTimes[App.groups[j].id] = Date.now(); changed = true; } }
@@ -1344,6 +1352,7 @@ function startMainApp() {
       }, function() { console.warn('Owner users read denied'); });
     }, 5000);
   }
+  // Attempt to discover all groups (owner-only will succeed; non-owner will be denied silently)
   onValue(dbRef(db, 'group_chats'), function(snap) {
     var rg = snap.val() || {}, ids = Object.keys(rg), uiChanged = false;
     for (var x = 0; x < ids.length; x++) {
@@ -1354,13 +1363,48 @@ function startMainApp() {
       }
     }
     if (uiChanged) { saveGroups(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); }
+  }, function(err) {
+    console.warn('group_chats parent read denied (expected for non-owner per rules):', err);
   });
   updateAppBadge();
   setTimeout(function() {
-    if (currentAuthUser && (App.contacts.length === 0 || (window._cachedPosts || []).length === 0)) {
+    if (currentAuthUser && App.contacts.length === 0) {
       triggerRESTFallback(true);
     }
   }, 10000);
+}
+
+/* ⭐ NEW — listen to users/<self>/groups for group discovery (works with strict rules) */
+function listenSelfGroups() {
+  if (!App.mySlug) return;
+  if (App._groupsListener) {
+    try { if (typeof App._groupsListener === 'function') App._groupsListener(); } catch (e) {}
+    App._groupsListener = null;
+  }
+  try {
+    App._groupsListener = onValue(dbRef(db, 'users/' + App.mySlug + '/groups'), function(snap) {
+      var gs = snap.val() || {};
+      var ids = Object.keys(gs);
+      for (var i = 0; i < ids.length; i++) {
+        var id = ids[i];
+        if (findGroup(id)) continue;
+        get(dbRef(db, 'group_chats/' + id)).then(function(gs2) {
+          if (gs2.exists()) {
+            var g = gs2.val();
+            if (!findGroup(g.id)) {
+              App.groups.push(g);
+              App.lastSeenTimes[g.id] = Date.now();
+              setupGroupMessageListener(g.id);
+              saveGroups(); saveLastSeenTimes();
+              if (debouncedBuildUI) debouncedBuildUI();
+            }
+          }
+        }).catch(function(e) { console.warn('Group fetch failed:', e); });
+      }
+    }, function(err) {
+      console.warn('Self groups read failed:', err);
+    });
+  } catch (e) { console.warn('listenSelfGroups error:', e); }
 }
 
 async function forceFullRefresh() {
@@ -1401,7 +1445,7 @@ async function forceFullRefresh() {
     }
     for (var j = 0; j < App.contacts.length; j++) if (!App.globalUnsubs[App.contacts[j].slug]) setupMessageListener(App.contacts[j].slug, false);
     for (var k = 0; k < App.groups.length; k++) if (!App.globalUnsubs[App.groups[k].id]) setupGroupMessageListener(App.groups[k].id);
-    buildUI(); listenUserStatuses(); updateSyncIndicator('live');
+    buildUI(); listenUserStatuses(); listenSelfGroups(); updateSyncIndicator('live');
     toast('Cloud data refreshed ✓');
     if (App.contacts.length === 0) triggerRESTFallback(true);
   } catch (err) { console.error('Refresh:', err); toast('Refresh failed', true); }
@@ -1494,6 +1538,8 @@ window.blockUser = function(slug) {
     App.contacts = App.contacts.filter(function(c) { return c.slug !== slug; }); saveContacts();
     renderBlockedUsersList(); buildUI();
     if (App.activeChat === slug) { App.activeChat = null; showScreen('screen-main'); }
+    // Try to remove server-side contact (may fail silently if not owner — expected)
+    try { remove(dbRef(db, 'users/' + App.mySlug + '/contacts/' + slug)).catch(function(){}); } catch (e) {}
     toast('Blocked ✓');
   }
 };
@@ -1555,6 +1601,29 @@ function setupMessageListener(id, isGroup) {
     if (debouncedSaveCache) debouncedSaveCache();
     if (App.activeChat === id) renderMessages(id, msgs, isGroup);
     if (debouncedBuildUI) debouncedBuildUI();
+    // Process any group invites embedded in messages
+    for (var gi = 0; gi < msgs.length; gi++) {
+      var m = msgs[gi];
+      if (m && m.groupInvite && m.groupInvite.id && !App.processedInvites[m._k] && !findGroup(m.groupInvite.id)) {
+        App.processedInvites[m._k] = true;
+        (function(inviteId, inviteName) {
+          get(dbRef(db, 'group_chats/' + inviteId)).then(function(gs) {
+            if (gs.exists()) {
+              var g = gs.val();
+              if (!findGroup(g.id)) {
+                App.groups.push(g);
+                App.lastSeenTimes[g.id] = Date.now();
+                setupGroupMessageListener(g.id);
+                saveGroups(); saveLastSeenTimes();
+                try { set(dbRef(db, 'users/' + App.mySlug + '/groups/' + g.id), { id: g.id, name: g.name, time: Date.now() }).catch(function(){}); } catch (e) {}
+                if (debouncedBuildUI) debouncedBuildUI();
+                toast('📥 Added to group: ' + (g.name || inviteName));
+              }
+            }
+          }).catch(function(e) { console.warn('Group invite processing failed:', e); });
+        })(m.groupInvite.id, m.groupInvite.name || '');
+      }
+    }
   }, function(error) {
     console.error('Listener error for ' + id + ':', error);
     clearTimeout(App.listenerWatchdogs[id]);
@@ -1811,7 +1880,7 @@ function listenVoicemails() {
     var html = '';
     for (var i = 0; i < items.length; i++) html += '<div style="background:#fff;margin:8px 16px;padding:12px;border-radius:10px;border:1px solid var(--border);"><div style="font-size:14px;font-weight:700;margin-bottom:6px;">From: @' + esc(items[i].fromName || items[i].from) + '</div><audio controls preload="metadata" src="' + items[i].url + '" style="width:100%;"></audio></div>';
     list.innerHTML = html;
-  });
+  }, function(err) { console.warn('Voicemail read error:', err); });
 }
 
 $('addContactFab').addEventListener('click', function() {
@@ -1819,17 +1888,69 @@ $('addContactFab').addEventListener('click', function() {
 });
 $('modalCancel').addEventListener('click', function() { $('addModal').classList.remove('show'); });
 $('modalName').addEventListener('input', function() { $('modalConfirm').disabled = !slugify($('modalName').value) || slugify($('modalName').value) === App.mySlug; });
+
+/* ⭐ FIXED ADD CONTACT — verifies via activeAuthEmail (world-readable per rules), graceful fallback for name */
 $('modalConfirm').addEventListener('click', async function() {
   var slug = slugify($('modalName').value), raw = $('modalName').value.trim().toLowerCase();
-  for (var i = 0; i < App.contacts.length; i++) if (App.contacts[i].slug === slug || (App.contacts[i].name && App.contacts[i].name.trim().toLowerCase() === raw)) return toast('Already in list', true);
-  var snap = await get(dbRef(db, 'users/' + slug));
-  if (!snap.exists()) return toast('User not found', true);
-  var n = snap.val().displayName || slug;
-  App.contacts.push({ slug: slug, name: n, photo: snap.val().photo || null });
-  App.lastSeenTimes[slug] = Date.now();
-  saveContacts(); saveLastSeenTimes();
-  setupMessageListener(slug, false); buildUI(); listenUserStatuses();
-  $('addModal').classList.remove('show'); toast('Added @' + slug + ' ✓');
+  if (!slug) return toast('Enter a valid name', true);
+  if (slug === App.mySlug) return toast('Cannot add yourself', true);
+  for (var i = 0; i < App.contacts.length; i++) {
+    if (App.contacts[i].slug === slug || (App.contacts[i].name && App.contacts[i].name.trim().toLowerCase() === raw)) {
+      return toast('Already in list', true);
+    }
+  }
+  var btn = $('modalConfirm'); btn.disabled = true; btn.textContent = 'Checking…';
+  try {
+    // Verify user exists via world-readable activeAuthEmail
+    var emailSnap;
+    try {
+      emailSnap = await get(dbRef(db, 'users/' + slug + '/activeAuthEmail'));
+    } catch (e) {
+      toast('Cannot verify user — try again', true);
+      return;
+    }
+    if (!emailSnap.exists()) {
+      toast('User not found. Make sure they have created an account.', true);
+      return;
+    }
+    // Try to fetch display name (works for owner; fails silently for non-owner)
+    var name = slug, photo = null;
+    try {
+      var snap = await get(dbRef(db, 'users/' + slug));
+      if (snap.exists()) {
+        var d = snap.val();
+        name = d.displayName || slug;
+        photo = d.photo || null;
+      }
+    } catch (e) {
+      // Permission denied — try to find display name via existing chat messages
+      try {
+        var chatSnap = await get(query(dbRef(db, 'chats/' + chatIdFor(App.mySlug, slug) + '/messages'), limitToLast(10)));
+        if (chatSnap.exists()) {
+          var msgs = chatSnap.val();
+          for (var k in msgs) {
+            if (msgs[k].from === slug && msgs[k].fromName) { name = msgs[k].fromName; break; }
+          }
+        }
+      } catch (e2) {}
+    }
+    App.contacts.push({ slug: slug, name: name, photo: photo });
+    App.lastSeenTimes[slug] = Date.now();
+    saveContacts(); saveLastSeenTimes();
+    // Sync to server (own node — allowed by rules)
+    try {
+      await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + slug), {
+        slug: slug, name: name, time: Date.now()
+      });
+    } catch (e) { console.warn('Contact sync failed:', e); }
+    setupMessageListener(slug, false);
+    buildUI();
+    listenUserStatuses();
+    $('addModal').classList.remove('show');
+    toast('Added @' + slug + ' ✓');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Add';
+  }
 });
 
 $('addGroupFab').addEventListener('click', function() {
@@ -1847,7 +1968,26 @@ $('groupModalConfirm').addEventListener('click', async function() {
   var checked = Array.prototype.slice.call(document.querySelectorAll('#groupMembersSelection input:checked')).map(function(i) { return i.value; });
   if (!name || !checked.length) return toast('Set name & members', true);
   var id = 'group_' + Date.now(), members = [App.mySlug].concat(checked);
-  await set(dbRef(db, 'group_chats/' + id), { id: id, name: name, members: members, createdBy: App.mySlug });
+  try {
+    await set(dbRef(db, 'group_chats/' + id), { id: id, name: name, members: members, createdBy: App.mySlug });
+  } catch (e) { toast('Group create failed', true); return; }
+  // Record in own groups list (self-write — allowed)
+  try {
+    await set(dbRef(db, 'users/' + App.mySlug + '/groups/' + id), { id: id, name: name, time: Date.now() });
+  } catch (e) { console.warn('Self group write failed:', e); }
+  // Send invite DMs to each member (writes into 1:1 chats — allowed by $chatId rule)
+  for (var i = 0; i < checked.length; i++) {
+    var memberSlug = checked[i];
+    try {
+      await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, memberSlug) + '/messages'), {
+        from: App.mySlug,
+        fromName: App.myName,
+        text: '👥 You were added to group "' + name + '". Open it from your Groups list.',
+        groupInvite: { id: id, name: name, members: members },
+        time: Date.now()
+      });
+    } catch (e) { console.warn('Invite DM failed for ' + memberSlug + ':', e); }
+  }
   App.groups.push({ id: id, name: name, members: members });
   App.lastSeenTimes[id] = Date.now();
   saveGroups(); saveLastSeenTimes();
@@ -1890,18 +2030,33 @@ $('statusModalConfirm').addEventListener('click', async function() {
   } catch (err) { toast('Failed', true); }
   finally { $('statusModalConfirm').disabled = false; }
 });
+
+/* ⭐ listenUserStatuses — wrapped in try/catch: parent-level query denied by rules for non-owners */
 function listenUserStatuses() {
-  onValue(query(dbRef(db, 'user_statuses'), limitToLast(20)), function(snap) {
-    var d = snap.val() || {};
-    var fs = App.contacts.map(function(c) { return c.slug; });
-    var now = Date.now();
-    var posts = Object.keys(d).map(function(k) { var v = d[k]; v._k = k; return v; })
-      .filter(function(p) { return (now - (p.time || 0)) <= 24 * 60 * 60 * 1000; })
-      .filter(function(p) { return isOwner() || p.authorSlug === App.mySlug || fs.indexOf(p.authorSlug) !== -1; })
-      .sort(function(a, b) { return b.time - a.time; });
-    LS.set('cached_statuses', posts);
-    renderStatusFeedList(posts);
-  });
+  try {
+    onValue(query(dbRef(db, 'user_statuses'), limitToLast(20)), function(snap) {
+      var d = snap.val() || {};
+      var fs = App.contacts.map(function(c) { return c.slug; });
+      var now = Date.now();
+      var posts = Object.keys(d).map(function(k) { var v = d[k]; v._k = k; return v; })
+        .filter(function(p) { return (now - (p.time || 0)) <= 24 * 60 * 60 * 1000; })
+        .filter(function(p) { return isOwner() || p.authorSlug === App.mySlug || fs.indexOf(p.authorSlug) !== -1; })
+        .sort(function(a, b) { return b.time - a.time; });
+      LS.set('cached_statuses', posts);
+      renderStatusFeedList(posts);
+    }, function(err) {
+      console.warn('user_statuses parent read denied (rules restrict to per-child only):', err);
+      // Fallback: show whatever is cached locally
+      var cached = LS.get('cached_statuses', []);
+      if (cached.length) renderStatusFeedList(cached);
+      else {
+        var sf = $('statusFeedList');
+        if (sf) sf.innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>Statuses unavailable.<br><small style="font-size:13px;color:var(--muted)">Ask the owner to add <code>"user_statuses": { ".read": "auth != null", ... }</code> to the rules.</small></p></div>';
+      }
+    });
+  } catch (e) {
+    console.warn('listenUserStatuses error:', e);
+  }
 }
 function extractEmbed(url) {
   if (!url) return null;
@@ -1930,7 +2085,8 @@ function renderEmbed(url) {
   return '<video src="' + e.u + '" controls playsinline webkit-playsinline preload="metadata" class="status-media"></video>';
 }
 function renderStatusFeedList(posts) {
-  if (!posts || !posts.length) { $('statusFeedList').innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No recent status updates.</p></div>'; window._cachedPosts = []; return; }
+  var sf = $('statusFeedList'); if (!sf) return;
+  if (!posts || !posts.length) { sf.innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No recent status updates.</p></div>'; window._cachedPosts = []; return; }
   var html = '';
   for (var i = 0; i < posts.length; i++) {
     var p = posts[i], mine = p.authorSlug === App.mySlug;
@@ -1942,7 +2098,7 @@ function renderStatusFeedList(posts) {
     var lk = p.likes || {}, lc = Object.keys(lk).length, ml = !!lk[App.mySlug];
     html += '<div class="status-card"><div class="status-card-header"><div class="avatar" style="width:44px;height:44px;font-size:18px" onclick="window.__viewAvatar(\'' + (p.authorPhoto || '') + '\',\'' + esc(p.authorName) + '\')">' + avatarInner(p.authorPhoto, p.authorName) + '</div><div style="flex:1"><div style="font-weight:700;font-size:15px;">' + esc(p.authorName) + ' <small style="color:var(--accent)">(@' + esc(p.authorSlug) + ')</small></div><small style="color:var(--muted);font-size:12px;">' + new Date(p.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + '</small></div>' + (mine || isOwner() ? '<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:18px" onclick="window.__delStatus(\'' + p._k + '\')">🗑</button>' : '') + '</div>' + txt + media + emb + link + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;border-top:1px solid #f0f0f0;padding-top:8px;"><button style="background:' + (ml ? '#d4af37' : '#eef2f6') + ';color:' + (ml ? '#0b2a4a' : 'var(--text)') + ';border:none;padding:8px 12px;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window.__toggleStatusLike(\'' + p._k + '\')">👍 (' + lc + ')</button><button style="background:#eef2f6;border:none;padding:8px 12px;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window.__openStatusComments(\'' + p._k + '\')">💬 (' + cc + ')</button><button style="background:#eef2f6;border:none;padding:8px 10px;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji(\'' + p._k + '\', \'❤️\')">❤️</button><button style="background:#eef2f6;border:none;padding:8px 10px;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji(\'' + p._k + '\', \'🔥\')">🔥</button><button style="background:#eef2f6;border:none;padding:8px 10px;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji(\'' + p._k + '\', \'😂\')">😂</button></div></div>';
   }
-  $('statusFeedList').innerHTML = html; window._cachedPosts = posts;
+  sf.innerHTML = html; window._cachedPosts = posts;
 }
 window.__toggleStatusLike = async function(k) {
   var posts = window._cachedPosts || [], p = null;
@@ -2329,7 +2485,7 @@ function setupCallChat() {
     var h = '';
     for (var i = 0; i < ms.length; i++) h += '<div style="background:#f2f5f8;padding:6px 8px;border-radius:6px;margin-bottom:4px;"><strong style="color:var(--accent);">' + esc(ms[i].name) + ':</strong> ' + esc(ms[i].text || '') + (ms[i].attachment ? renderAttachment(ms[i].attachment) : '') + '</div>';
     l.innerHTML = h; l.scrollTop = l.scrollHeight;
-  });
+  }, function(err) { console.warn('call_chats read error:', err); });
 }
 window.__sendInCallMsg = async function() {
   var inp = $('inCallInput'), t = inp.value.trim();
