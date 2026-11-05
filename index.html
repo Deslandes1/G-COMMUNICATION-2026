@@ -353,7 +353,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   <header class="app-header">
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
-    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v8</div>
+    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v9</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
@@ -371,7 +371,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
         <span style="font-size:11px;opacity:.85;font-weight:600;">24/7 STREAM</span>
       </div>
       <div style="position:relative;padding-bottom:56.25%;height:0;background:#000;">
-        <iframe id="nbcLiveIframe" data-src="https://www.youtube.com/embed/live_stream?channel=UCeY0bbntWzzVIaj2z3QigXg&autoplay=1&mute=1&playsinline=1" src="about:blank" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        <iframe id="nbcLiveIframe" data-src="https://www.youtube.com/embed/0uwAtfBIVx0?autoplay=1&mute=1&playsinline=1&rel=0&loop=1&playlist=0uwAtfBIVx0" src="about:blank" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
       </div>
     </div>
     <div style="margin:8px 12px 12px;padding:10px 14px;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;border-radius:10px;text-align:center;font-size:13px;line-height:1.5;">
@@ -658,6 +658,12 @@ function emailToSlug(email) { if (!email) return null; return email.split('@')[0
 function detectFileType(file) { var mime = (file.type || '').toLowerCase(); if (mime.indexOf('image/') === 0) return 'image'; if (mime.indexOf('video/') === 0) return 'video'; if (mime.indexOf('audio/') === 0) return 'audio'; return 'file'; }
 function fileToBase64(file) { return new Promise(function(resolve, reject) { var reader = new FileReader(); reader.onload = function() { resolve(reader.result); }; reader.onerror = reject; reader.readAsDataURL(file); }); }
 function withTimeout(promise, ms) { return new Promise(function(resolve) { var done = false; var timer = setTimeout(function() { if (!done) { done = true; resolve({ timedOut: true }); } }, ms); promise.then(function(r) { if (done) return; done = true; clearTimeout(timer); resolve({ timedOut: false, result: r }); }).catch(function(e) { if (done) return; done = true; clearTimeout(timer); resolve({ timedOut: false, error: e }); }); }); }
+function getYouTubeId(url) {
+  if (!url) return null;
+  var u = String(url).trim();
+  var m = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|live\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
 
 async function getLiveStreamRobust() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('Camera not supported');
@@ -1648,7 +1654,15 @@ function renderStatusFeedList(posts) {
   for (var i = 0; i < posts.length; i++) {
     var p = posts[i], mine = p.authorSlug === App.mySlug;
     var media = p.mediaUrl ? (p.mediaType === 'image' ? '<img src="' + p.mediaUrl + '" class="status-media" onclick="window.__viewAvatar(\'' + p.mediaUrl + '\',\'' + esc(p.authorName) + '\')">' : '<video src="' + p.mediaUrl + '" controls playsinline webkit-playsinline class="status-media"></video>') : '';
-    var link = p.link ? '<a href="' + p.link + '" target="_blank" class="status-link">🔗 ' + esc(p.link) + '</a>' : '';
+    var link = '';
+    if (p.link) {
+      var _ytId = getYouTubeId(p.link);
+      if (_ytId) {
+        link = '<div style="position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:12px;overflow:hidden;margin-bottom:10px;"><iframe src="https://www.youtube.com/embed/' + _ytId + '?playsinline=1&rel=0" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
+      } else {
+        link = '<a href="' + esc(p.link) + '" target="_blank" class="status-link">🔗 ' + esc(p.link) + '</a>';
+      }
+    }
     var txt = p.text ? '<div class="status-content-box" style="background:' + (p.bgColor || '#0d7a8c') + '">' + esc(p.text) + '</div>' : '';
     var cm = p.comments || {}, cc = Object.keys(cm).length;
     var lk = p.likes || {}, lc = Object.keys(lk).length, ml = !!lk[App.mySlug];
