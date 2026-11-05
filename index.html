@@ -9,6 +9,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="format-detection" content="telephone=no">
 <title>JARVIS</title>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://www.gstatic.com">
+<link rel="preconnect" href="https://g-communication-2026-c5af2-default-rtdb.firebaseio.com" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNjYiIGZpbGw9IiNkNGFlMzciLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5MiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzBiMmE0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RzwvdGV4dD48L3N2Zz4=">
 <style>
 :root{--navy:#0b2a4a;--navy-light:#143a5f;--accent:#0d7a8c;--gold:#d4af37;--green:#4aff7a;--red:#ff4757;--bg:#f2f5f8;--card:#fff;--text:#1e2a33;--muted:#6b7a87;--border:#e1e7ed}
@@ -18,15 +24,17 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 #app{height:100%;width:100%;display:flex;flex-direction:column;max-width:100%;margin:0 auto;background:var(--bg);position:relative;box-shadow:0 0 40px rgba(0,0,0,.15);overflow:hidden}
 .screen{flex:1;display:none;flex-direction:column;overflow:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);position:relative}
 .screen.active{display:flex}
-#loadingOverlay{position:fixed;inset:0;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 50%,#0d7a8c 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999999;text-align:center;padding:30px 24px;transition:opacity .35s}
-#loadingOverlay.hidden{opacity:0;pointer-events:none}
+#loadingOverlay{position:fixed;inset:0;background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 50%,#0d7a8c 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999999;text-align:center;padding:30px 24px;transition:opacity .3s}
+#loadingOverlay.hidden{opacity:0;pointer-events:none;display:none}
 #loadingSpinner{width:60px;height:60px;border:5px solid rgba(255,255,255,.2);border-top-color:var(--gold);border-radius:50%;animation:jarvisSpin 1s linear infinite;margin-bottom:22px}
 @keyframes jarvisSpin{to{transform:rotate(360deg)}}
 #loadingText{font-size:22px !important;font-weight:800;letter-spacing:2px;margin-bottom:10px}
 #loadingSub{font-size:15px !important;opacity:.85;max-width:340px;line-height:1.5}
-.loading-retry-btn{margin-top:22px;padding:14px 28px;background:linear-gradient(135deg,#f0d369,#d4af37);color:#0b2a4a;border:none;border-radius:10px;font-weight:800;cursor:pointer;font-size:17px;box-shadow:0 6px 20px rgba(212,175,55,.4)}
-.loading-error-icon{font-size:56px;margin-bottom:14px}
-#compatBanner{position:fixed;top:0;left:0;right:0;background:#d4af37;color:#0b2a4a;padding:14px 16px;font-size:14px;text-align:center;z-index:999998;display:none;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.loading-retry-btn{margin-top:22px;padding:14px 28px;background:linear-gradient(135deg,#f0d369,#d4af37);color:#0b2a4a;border:none;border-radius:10px;font-weight:800;cursor:pointer;font-size:17px}
+#loadErrorBanner{position:fixed;top:calc(8px + env(safe-area-inset-top));left:8px;right:8px;background:#ff4757;color:#fff;padding:12px 14px;border-radius:10px;z-index:999998;display:none;font-size:13px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.3);font-weight:600;line-height:1.4}
+#loadErrorBanner.show{display:block}
+#loadErrorBanner button{background:#fff;color:#ff4757;border:none;padding:6px 12px;border-radius:6px;margin-top:8px;font-weight:700;font-size:12px;cursor:pointer}
+#compatBanner{position:fixed;top:0;left:0;right:0;background:#d4af37;color:#0b2a4a;padding:14px 16px;font-size:14px;text-align:center;z-index:999998;display:none;font-weight:600}
 #compatBanner.show{display:block}
 #compatBanner button{background:#0b2a4a;color:#fff;border:none;padding:6px 14px;border-radius:6px;margin-left:10px;font-weight:700;font-size:13px;cursor:pointer}
 .install-banner{background:linear-gradient(90deg,#0b2a4a 0%,#143a5f 40%,#0d7a8c 100%);color:#fff;padding:12px 16px;display:none;align-items:center;gap:10px;font-size:15px !important;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.1);position:relative;z-index:20}
@@ -189,6 +197,10 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   <div id="loadingText">Loading JARVIS…</div>
   <div id="loadingSub">Starting up…</div>
 </div>
+<div id="loadErrorBanner">
+  ⚠️ App didn't finish loading.<br>Check connection and reload.
+  <br><button onclick="location.reload()">Retry</button>
+</div>
 <div id="compatBanner">
   ⚠️ <span id="compatText">Older browser detected</span>
   <button onclick="document.getElementById('compatBanner').classList.remove('show')">Dismiss</button>
@@ -200,47 +212,66 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 </noscript>
 <script>
 (function() {
+  window.__jarvisModuleLoaded = false;
   window.__jarvisAppStarted = false;
+  window.__jarvisMarkLoaded = function() { window.__jarvisModuleLoaded = true; };
   window.__jarvisMarkStarted = function() { window.__jarvisAppStarted = true; };
+  
   var ua = navigator.userAgent;
   var iOSMatch = ua.match(/OS (\d+)_(\d+)/);
   var iOSMajor = iOSMatch ? parseInt(iOSMatch[1], 10) : 0;
   window.__jarvisIOSMajor = iOSMajor;
   window.__jarvisIsIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
   window.__jarvisIsStandalone = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
-  var hasOptChaining = true;
-  try { new Function('var a = {}; return a?.x;'); } catch (e) { hasOptChaining = false; }
-  if (window.__jarvisIsIOS && !hasOptChaining) {
-    var banner = document.getElementById('compatBanner');
-    if (banner) {
-      document.getElementById('compatText').textContent = 'iOS is older. Update to iOS 13.4+ in Settings → General → Software Update.';
-      banner.classList.add('show');
-    }
-  }
+  
   var debugOn = /[?&]debug=1/.test(window.location.search);
   if (debugOn) {
     var panel = document.createElement('div');
     panel.style.cssText = 'position:fixed;bottom:0;left:0;right:0;max-height:40vh;background:rgba(0,0,0,.92);color:#4aff7a;font-family:monospace;font-size:11px;padding:8px;overflow-y:auto;z-index:999999;white-space:pre-wrap;border-top:2px solid #d4af37;';
     document.body.appendChild(panel);
-    var log = function(msg) { panel.textContent += '[' + new Date().toLocaleTimeString() + '] ' + msg + '\n'; panel.scrollTop = panel.scrollHeight; };
-    log('JARVIS debug ON — iOS=' + iOSMajor + ' | Safari=' + window.__jarvisIsIOS);
+    window.__jarvisDebugLog = function(msg) {
+      panel.textContent += '[' + new Date().toLocaleTimeString() + '] ' + msg + '\n';
+      panel.scrollTop = panel.scrollHeight;
+    };
+    window.__jarvisDebugLog('JARVIS debug ON — iOS=' + iOSMajor);
     var origErr = console.error, origWarn = console.warn, origLog = console.log;
-    console.error = function() { log('ERR: ' + Array.prototype.join.call(arguments, ' ')); origErr.apply(console, arguments); };
-    console.warn = function() { log('WRN: ' + Array.prototype.join.call(arguments, ' ')); origWarn.apply(console, arguments); };
-    console.log = function() { log('LOG: ' + Array.prototype.join.call(arguments, ' ')); origLog.apply(console, arguments); };
-    window.addEventListener('error', function(e) { log('ERR: ' + (e.message || e.error)); });
-    window.addEventListener('unhandledrejection', function(e) { log('REJ: ' + e.reason); });
+    console.error = function() { window.__jarvisDebugLog('ERR: ' + Array.prototype.join.call(arguments, ' ')); origErr.apply(console, arguments); };
+    console.warn = function() { window.__jarvisDebugLog('WRN: ' + Array.prototype.join.call(arguments, ' ')); origWarn.apply(console, arguments); };
+    console.log = function() { window.__jarvisDebugLog('LOG: ' + Array.prototype.join.call(arguments, ' ')); origLog.apply(console, arguments); };
+    window.addEventListener('error', function(e) { window.__jarvisDebugLog('ERR: ' + (e.message || e.error)); });
+    window.addEventListener('unhandledrejection', function(e) { window.__jarvisDebugLog('REJ: ' + e.reason); });
   }
+  
+  // ⭐ CRITICAL: Hide loading overlay IMMEDIATELY — do not wait for Firebase
+  function hideLoadingNow() {
+    var lo = document.getElementById('loadingOverlay');
+    if (lo) {
+      lo.classList.add('hidden');
+      setTimeout(function() { lo.style.display = 'none'; }, 350);
+    }
+    var ob = document.getElementById('screen-onboard');
+    if (ob) ob.classList.add('active');
+    if (window.__jarvisDebugLog) window.__jarvisDebugLog('Loading overlay hidden, onboarding shown');
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', hideLoadingNow);
+  } else {
+    setTimeout(hideLoadingNow, 0);
+  }
+  
+  // Safety net — if DOMContentLoaded is weirdly delayed, hide after 500ms anyway
+  setTimeout(hideLoadingNow, 500);
+  
+  // Error banner if module never loads
   setTimeout(function() {
-    if (!window.__jarvisAppStarted) {
-      var lo = document.getElementById('loadingOverlay');
-      if (!lo) return;
-      var hint = window.__jarvisIsIOS
-        ? 'On iPhone: 1) Update iOS to 13.4+ 2) Open in Safari 3) If in Instagram/Facebook, tap "Open in Safari"'
-        : 'Check your internet connection and reload.';
-      lo.innerHTML = '<div class="loading-error-icon">⚠️</div><div id="loadingText">Could Not Start</div><div id="loadingSub">' + hint + '</div><button class="loading-retry-btn" onclick="location.reload()">Retry</button>';
+    if (!window.__jarvisModuleLoaded) {
+      if (window.__jarvisDebugLog) window.__jarvisDebugLog('Module not loaded after 15s — showing error banner');
+      var eb = document.getElementById('loadErrorBanner');
+      if (eb) eb.classList.add('show');
     }
   }, 15000);
+  
   window.addEventListener('error', function(e) { console.error('[JARVIS]', e.message || e.error); });
   window.addEventListener('unhandledrejection', function(e) { console.error('[JARVIS Rejection]', e.reason); });
 })();
@@ -326,7 +357,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       <button class="btn-primary" id="changePasswordBtn" style="background:#0d7a8c;color:#fff;width:100%;margin-bottom:10px;">🔑 Change Password</button>
       <button class="btn-primary" id="setRecoveryBtn" style="background:#143a5f;color:#fff;width:100%;margin-bottom:10px;">🛡️ Set / Update Recovery Phrase</button>
       <button class="btn-primary" id="forceSyncBtn" style="background:#0d7a8c;color:#fff;width:100%;margin-bottom:10px;">🔄 Force Refresh & Restore Cloud Data</button>
-      <button class="btn-primary" id="restForceBtn" style="background:#143a5f;color:#fff;width:100%;margin-bottom:10px;">📡 Force Sync via REST (iPhone fix)</button>
+      <button class="btn-primary" id="restForceBtn" style="background:#143a5f;color:#fff;width:100%;margin-bottom:10px;">📡 Force Sync via REST</button>
       <button class="btn-primary" id="signOutBtn" style="background:#6b7a87;color:#fff;width:100%;margin-bottom:10px;">🚪 Sign Out</button>
       <button class="btn-primary" id="clearBtn" style="background:#ff4757;color:#fff;width:100%">Clear Local Data</button>
     </div>
@@ -645,35 +676,38 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 <input type="file" id="statusMediaInput" accept="image/*,video/*" style="display:none;">
 </div>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js?v=20261104";
-import { getDatabase, forceLongPolling, ref as dbRef, push, onValue, remove, set, get, query, limitToLast, onChildAdded, goOffline, goOnline } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js?v=20261104";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js?v=20261104";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref as dbRef, push, onValue, remove, set, get, query, limitToLast, onChildAdded, goOffline, goOnline } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-if (window.__jarvisMarkStarted) window.__jarvisMarkStarted();
+if (window.__jarvisMarkLoaded) window.__jarvisMarkLoaded();
+if (window.__jarvisDebugLog) window.__jarvisDebugLog('Module started');
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBfqTPdNq31MegFF_vh08D2K_6-2GMeIrY",
-  authDomain: "jarvis-tracker-a8136.firebaseapp.com",
-  databaseURL: "https://jarvis-tracker-a8136-default-rtdb.firebaseio.com",
-  projectId: "jarvis-tracker-a8136",
-  storageBucket: "jarvis-tracker-a8136.firebasestorage.app",
-  messagingSenderId: "994161558903",
-  appId: "1:994161558903:web:c978951c451a305b6d0d72"
+  apiKey: "AIzaSyCG_LO9IOfwEly0uar-Pu63b8FpjADSnqE",
+  authDomain: "g-communication-2026-c5af2.firebaseapp.com",
+  databaseURL: "https://g-communication-2026-c5af2-default-rtdb.firebaseio.com",
+  projectId: "g-communication-2026-c5af2",
+  storageBucket: "g-communication-2026-c5af2.firebasestorage.app",
+  messagingSenderId: "953142314141",
+  appId: "1:953142314141:web:967f75943e55584c36c074"
 };
 
-const fbApp = initializeApp(firebaseConfig);
+const DB_URL = "https://g-communication-2026-c5af2-default-rtdb.firebaseio.com";
 
-if (window.__jarvisIsIOS) {
-  try {
-    forceLongPolling();
-    console.log('iOS: forceLongPolling() called BEFORE getDatabase');
-  } catch (e) {
-    console.warn('forceLongPolling error:', e);
-  }
+let fbApp, db, auth;
+try {
+  fbApp = initializeApp(firebaseConfig);
+  db = getDatabase(fbApp);
+  auth = getAuth(fbApp);
+  if (window.__jarvisDebugLog) window.__jarvisDebugLog('Firebase initialized');
+} catch (e) {
+  console.error('Firebase init failed:', e);
+  if (window.__jarvisDebugLog) window.__jarvisDebugLog('Firebase init FAILED: ' + e.message);
+  var eb = document.getElementById('loadErrorBanner');
+  if (eb) eb.classList.add('show');
+  throw e;
 }
-
-const db = getDatabase(fbApp);
-const auth = getAuth(fbApp);
 
 const ICE_SERVERS = { iceServers: [
   { urls: "stun:stun.l.google.com:19302" },
@@ -681,7 +715,6 @@ const ICE_SERVERS = { iceServers: [
   { urls: "stun:stun.cloudflare.com:3478" }
 ]};
 const VIDEO_CONSTRAINTS = { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } };
-const DB_URL = "https://jarvis-tracker-a8136-default-rtdb.firebaseio.com";
 
 const App = {
   mySlug: null, myName: '', myPhoto: null,
@@ -724,7 +757,6 @@ let debouncedSaveCache = null;
 
 function isOwner() { return App.mySlug === 'gesnerdeslandes' || App.mySlug === 'gesner'; }
 function showScreen(id) { var ss = document.querySelectorAll('.screen'); for (var i = 0; i < ss.length; i++) ss[i].classList.toggle('active', ss[i].id === id); }
-function hideLoading() { var lo = $('loadingOverlay'); if (lo) { lo.classList.add('hidden'); setTimeout(function() { lo.style.display = 'none'; }, 400); } }
 
 let toastTimer;
 function toast(msg, isError) {
@@ -788,40 +820,15 @@ function withTimeout(promise, ms) {
   });
 }
 
-window._mainAppStarted = false;
-window._mainAppInProgress = false;
-
-function safeStartMainApp() {
-  if (window._mainAppStarted || window._mainAppInProgress) return;
-  window._mainAppInProgress = true;
-  try {
-    hideLoading();
-    startMainApp();
-    window._mainAppStarted = true;
-  } catch (err) {
-    console.error('startMainApp failed:', err);
-    hideLoading();
-    showScreen('screen-main');
-    toast('Some features may not load — check connection', true);
-    window._mainAppStarted = true;
-  } finally {
-    window._mainAppInProgress = false;
-  }
-}
-
-/* ===== REST API FALLBACK ===== */
 async function fetchContactsViaREST() {
   try {
     if (!currentAuthUser) return null;
     var token = await currentAuthUser.getIdToken();
     if (!token) return null;
     var url = DB_URL + '/users/' + encodeURIComponent(App.mySlug) + '/contacts.json?auth=' + encodeURIComponent(token);
-    console.log('REST: fetching contacts');
     var res = await fetch(url);
     if (!res.ok) { console.error('REST contacts HTTP ' + res.status); return null; }
-    var data = await res.json();
-    console.log('REST: got contacts', data ? Object.keys(data).length : 0);
-    return data;
+    return await res.json();
   } catch (e) { console.error('REST contacts error:', e); return null; }
 }
 
@@ -831,19 +838,15 @@ async function fetchStatusesViaREST() {
     var token = await currentAuthUser.getIdToken();
     if (!token) return null;
     var url = DB_URL + '/user_statuses.json?auth=' + encodeURIComponent(token);
-    console.log('REST: fetching statuses');
     var res = await fetch(url);
     if (!res.ok) { console.error('REST statuses HTTP ' + res.status); return null; }
-    var data = await res.json();
-    console.log('REST: got statuses', data ? Object.keys(data).length : 0);
-    return data;
+    return await res.json();
   } catch (e) { console.error('REST statuses error:', e); return null; }
 }
 
 async function applyContactsFromREST(contacts) {
   if (!contacts) return;
-  var slugs = Object.keys(contacts);
-  var changed = false;
+  var slugs = Object.keys(contacts), changed = false;
   for (var i = 0; i < slugs.length; i++) {
     var c = contacts[slugs[i]];
     if (c && c.slug && !findContact(c.slug)) {
@@ -878,8 +881,7 @@ async function applyStatusesFromREST(statuses) {
 }
 
 async function triggerRESTFallback(silent) {
-  if (!currentAuthUser) { console.warn('REST fallback: no auth'); return; }
-  console.log('REST fallback triggered — contacts:', App.contacts.length);
+  if (!currentAuthUser) return;
   if (App.contacts.length === 0) {
     var contacts = await fetchContactsViaREST();
     if (contacts) await applyContactsFromREST(contacts);
@@ -889,9 +891,7 @@ async function triggerRESTFallback(silent) {
     var statuses = await fetchStatusesViaREST();
     if (statuses) await applyStatusesFromREST(statuses);
   }
-  if (!silent) {
-    toast('REST sync: ' + App.contacts.length + ' contacts, ' + (window._cachedPosts || []).length + ' statuses');
-  }
+  if (!silent) toast('REST sync: ' + App.contacts.length + ' contacts, ' + (window._cachedPosts || []).length + ' statuses');
 }
 
 $('authTabSignIn').addEventListener('click', function() {
@@ -954,7 +954,7 @@ async function handleSignUp() {
     console.error('Signup:', err);
     if (err.code === 'auth/email-already-in-use') status.textContent = 'This name is already registered. Sign in instead.';
     else if (err.code === 'auth/weak-password') status.textContent = 'Password too weak (min 6 chars).';
-    else if (err.code === 'auth/operation-not-allowed') status.textContent = 'Firebase Auth not enabled.';
+    else if (err.code === 'auth/operation-not-allowed') status.textContent = 'Firebase Auth not enabled in Console.';
     else status.textContent = 'Error: ' + (err.message || 'unknown');
     status.className = 'name-status bad';
   }
@@ -991,7 +991,6 @@ async function handleSignOut() {
   try { await firebaseSignOut(auth); } catch (e) {}
   currentAuthUser = null;
   window._mainAppStarted = false;
-  window._mainAppInProgress = false;
   App.mySlug = null; App.myName = ''; App.contacts = []; App.groups = []; App.lastMessages = {};
   LS.del('mySlug'); LS.del('myName'); LS.del('cached_chats'); LS.del('cached_statuses');
   $('signInName').value = ''; $('signInPassword').value = ''; $('signInStatus').textContent = '';
@@ -1100,16 +1099,31 @@ async function openOwnerSpaceWithAuth() {
   }
 }
 
+window._mainAppStarted = false;
+function safeStartMainApp() {
+  if (window._mainAppStarted) return;
+  window._mainAppStarted = true;
+  if (window.__jarvisMarkStarted) window.__jarvisMarkStarted();
+  if (window.__jarvisDebugLog) window.__jarvisDebugLog('safeStartMainApp — transitioning to main');
+  try {
+    startMainApp();
+  } catch (err) {
+    console.error('startMainApp failed:', err);
+    showScreen('screen-main');
+    toast('Some features may not load', true);
+  }
+}
+
 onAuthStateChanged(auth, async function(user) {
+  if (window.__jarvisDebugLog) window.__jarvisDebugLog('onAuthStateChanged: ' + (user ? 'user' : 'no user'));
   if (user) {
     currentAuthUser = user;
     var email = user.email || '';
     var slug = emailToSlug(email);
-    if (!slug) { return; }
+    if (!slug) return;
     App.mySlug = slug;
     App.myName = slug;
     LS.set('mySlug', slug); LS.set('myName', slug);
-    
     try {
       var snapResult = await withTimeout(get(dbRef(db, 'users/' + slug)), 5000);
       if (snapResult && snapResult.result && snapResult.result.exists && snapResult.result.exists()) {
@@ -1121,10 +1135,10 @@ onAuthStateChanged(auth, async function(user) {
     } catch (err) {
       console.warn('Profile load error:', err);
     }
-    
     safeStartMainApp();
   } else {
     currentAuthUser = null;
+    // Stay on onboarding — do nothing (bootstrap already showed it)
   }
 });
 
@@ -1250,57 +1264,33 @@ function handleMediaError(err) {
   toast(msg, true);
 }
 
-window.addEventListener('load', function() {
-  App.contacts = LS.get('contacts', []);
-  App.groups = LS.get('groups', []);
-  App.deletedLocally = LS.get('deletedLocally', {});
-  App.unreadCounts = LS.get('unreadCounts', {});
-  App.lastSeenTimes = LS.get('lastSeenTimes', {});
-  App.blockedUsers = LS.get('blockedUsers', []);
-  App.lastMessages = LS.get('cached_chats', {});
-  $('signInBtn').addEventListener('click', handleSignIn);
-  $('signUpBtn').addEventListener('click', handleSignUp);
-  $('signInPassword').addEventListener('keydown', function(e) { if (e.key === 'Enter') handleSignIn(); });
-  $('signUpPasswordConfirm').addEventListener('keydown', function(e) { if (e.key === 'Enter') handleSignUp(); });
-  $('changePasswordBtn').addEventListener('click', function() { $('changePasswordModal').classList.add('show'); });
-  $('signOutBtn').addEventListener('click', handleSignOut);
-  $('changePasswordCancel').addEventListener('click', function() { $('changePasswordModal').classList.remove('show'); });
-  $('changePasswordConfirm').addEventListener('click', handleChangePassword);
-  $('ownerAuthConfirm').addEventListener('click', openOwnerSpaceWithAuth);
-  $('forceSyncBtn').addEventListener('click', forceFullRefresh);
-  $('restForceBtn').addEventListener('click', function() { toast('REST sync…'); triggerRESTFallback(false); });
-  $('forgotPasswordLink').addEventListener('click', function() {
-    $('forgotName').value = $('signInName').value.trim();
-    $('forgotRecovery').value = ''; $('forgotNewPassword').value = ''; $('forgotConfirmPassword').value = '';
-    $('forgotStatus').textContent = '';
-    $('forgotPasswordModal').classList.add('show');
-  });
-  $('forgotCancel').addEventListener('click', function() { $('forgotPasswordModal').classList.remove('show'); });
-  $('forgotConfirm').addEventListener('click', handleForgotPassword);
-  $('setRecoveryBtn').addEventListener('click', function() {
-    $('setRecoveryCurrentPwd').value = ''; $('setRecoveryPhrase').value = ''; $('setRecoveryPhraseConfirm').value = '';
-    $('setRecoveryModal').classList.add('show');
-  });
-  $('setRecoveryCancel').addEventListener('click', function() { $('setRecoveryModal').classList.remove('show'); });
-  $('setRecoveryConfirm').addEventListener('click', handleSetRecovery);
-  setupNotificationButton();
-  updateNotifPermStatus();
-  
-  // CRITICAL: Show onboarding immediately — do not wait for auth
-  hideLoading();
-  showScreen('screen-onboard');
-  
-  // Safety net — if still stuck on loading after 6s, force onboarding
-  setTimeout(function() {
-    if (!window._mainAppStarted) {
-      var lo = $('loadingOverlay');
-      if (lo && !lo.classList.contains('hidden')) {
-        hideLoading();
-        showScreen('screen-onboard');
-      }
-    }
-  }, 6000);
+$('signInBtn').addEventListener('click', handleSignIn);
+$('signUpBtn').addEventListener('click', handleSignUp);
+$('signInPassword').addEventListener('keydown', function(e) { if (e.key === 'Enter') handleSignIn(); });
+$('signUpPasswordConfirm').addEventListener('keydown', function(e) { if (e.key === 'Enter') handleSignUp(); });
+$('changePasswordBtn').addEventListener('click', function() { $('changePasswordModal').classList.add('show'); });
+$('signOutBtn').addEventListener('click', handleSignOut);
+$('changePasswordCancel').addEventListener('click', function() { $('changePasswordModal').classList.remove('show'); });
+$('changePasswordConfirm').addEventListener('click', handleChangePassword);
+$('ownerAuthConfirm').addEventListener('click', openOwnerSpaceWithAuth);
+$('forceSyncBtn').addEventListener('click', forceFullRefresh);
+$('restForceBtn').addEventListener('click', function() { toast('REST sync…'); triggerRESTFallback(false); });
+$('forgotPasswordLink').addEventListener('click', function() {
+  $('forgotName').value = $('signInName').value.trim();
+  $('forgotRecovery').value = ''; $('forgotNewPassword').value = ''; $('forgotConfirmPassword').value = '';
+  $('forgotStatus').textContent = '';
+  $('forgotPasswordModal').classList.add('show');
 });
+$('forgotCancel').addEventListener('click', function() { $('forgotPasswordModal').classList.remove('show'); });
+$('forgotConfirm').addEventListener('click', handleForgotPassword);
+$('setRecoveryBtn').addEventListener('click', function() {
+  $('setRecoveryCurrentPwd').value = ''; $('setRecoveryPhrase').value = ''; $('setRecoveryPhraseConfirm').value = '';
+  $('setRecoveryModal').classList.add('show');
+});
+$('setRecoveryCancel').addEventListener('click', function() { $('setRecoveryModal').classList.remove('show'); });
+$('setRecoveryConfirm').addEventListener('click', handleSetRecovery);
+setupNotificationButton();
+updateNotifPermStatus();
 
 document.addEventListener('visibilitychange', function() {
   if (document.visibilityState === 'visible' && App.mySlug) {
@@ -1350,18 +1340,20 @@ function startMainApp() {
   for (var l = 0; l < App.groups.length; l++) setupGroupMessageListener(App.groups[l].id);
   restoreCloudContent();
   if (isOwner()) {
-    onValue(dbRef(db, 'users'), function(snap) {
-      var users = snap.val() || {}, slugs = Object.keys(users), uiChanged = false;
-      for (var x = 0; x < slugs.length; x++) {
-        var u = users[slugs[x]];
-        if (u && u.slug && u.slug !== App.mySlug && !findContact(u.slug)) {
-          App.contacts.push({ slug: u.slug, name: u.displayName || u.slug, photo: u.photo || null });
-          App.lastSeenTimes[u.slug] = Date.now();
-          setupMessageListener(u.slug, false); uiChanged = true;
+    setTimeout(function() {
+      onValue(dbRef(db, 'users'), function(snap) {
+        var users = snap.val() || {}, slugs = Object.keys(users), uiChanged = false;
+        for (var x = 0; x < slugs.length; x++) {
+          var u = users[slugs[x]];
+          if (u && u.slug && u.slug !== App.mySlug && !findContact(u.slug)) {
+            App.contacts.push({ slug: u.slug, name: u.displayName || u.slug, photo: u.photo || null });
+            App.lastSeenTimes[u.slug] = Date.now();
+            setupMessageListener(u.slug, false); uiChanged = true;
+          }
         }
-      }
-      if (uiChanged) { saveContacts(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); }
-    });
+        if (uiChanged) { saveContacts(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); }
+      });
+    }, 5000);
   }
   onValue(dbRef(db, 'group_chats'), function(snap) {
     var rg = snap.val() || {}, ids = Object.keys(rg), uiChanged = false;
@@ -1375,15 +1367,12 @@ function startMainApp() {
     if (uiChanged) { saveGroups(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); }
   });
   updateAppBadge();
-  hideLoading();
   
-  setTimeout(async function() {
-    if (!currentAuthUser) return;
-    if (App.contacts.length === 0 || (window._cachedPosts || []).length === 0) {
-      console.log('REST fallback after 12s');
+  setTimeout(function() {
+    if (currentAuthUser && (App.contacts.length === 0 || (window._cachedPosts || []).length === 0)) {
       triggerRESTFallback(true);
     }
-  }, 12000);
+  }, 10000);
 }
 
 async function forceFullRefresh() {
@@ -1545,7 +1534,6 @@ function setupMessageListener(id, isGroup) {
   if (App.globalUnsubs[id]) return;
   var firstLoad = true;
   var attempts = App.listenerAttempts[id] || 0;
-
   App.listenerWatchdogs[id] = setTimeout(function() {
     if (firstLoad && attempts < 2) {
       try { if (typeof App.globalUnsubs[id] === 'function') App.globalUnsubs[id](); } catch (e) {}
@@ -1558,7 +1546,6 @@ function setupMessageListener(id, isGroup) {
       updateSyncIndicator('error');
     }
   }, 25000);
-
   var unsub = onValue(query(dbRef(db, path), limitToLast(100)), function(snap) {
     clearTimeout(App.listenerWatchdogs[id]);
     delete App.listenerWatchdogs[id];
@@ -1590,7 +1577,6 @@ function setupMessageListener(id, isGroup) {
       setTimeout(function() { setupMessageListener(id, isGroup); }, 3000);
     }
   });
-
   App.globalUnsubs[id] = unsub;
 }
 function setupGroupMessageListener(id) { setupMessageListener(id, true); }
@@ -1639,10 +1625,8 @@ debouncedSaveCache = debounce(function() {
     var MAX_SIZE = 1500000;
     var ids = Object.keys(App.lastMessages);
     for (var i = 0; i < ids.length; i++) {
-      var id = ids[i];
-      var arr = App.lastMessages[id] || [];
-      var trimmed = arr.slice(-20);
-      var compact = [];
+      var id = ids[i], arr = App.lastMessages[id] || [];
+      var trimmed = arr.slice(-20), compact = [];
       for (var j = 0; j < trimmed.length; j++) {
         var m = trimmed[j];
         var cm = { _k: m._k, from: m.from, fromName: m.fromName, text: m.text, time: m.time, edited: m.edited };
@@ -1743,7 +1727,6 @@ $('editMsgConfirm').addEventListener('click', async function() {
   }
   $('editMsgModal').classList.remove('show'); toast('Updated ✓');
 });
-
 async function sendMessage(att) {
   var inp = $('chatInput'), text = inp.value.trim();
   if (!att) att = null;
@@ -1920,7 +1903,7 @@ $('statusModalConfirm').addEventListener('click', async function() {
   finally { $('statusModalConfirm').disabled = false; }
 });
 function listenUserStatuses() {
-  onValue(query(dbRef(db, 'user_statuses'), limitToLast(50)), function(snap) {
+  onValue(query(dbRef(db, 'user_statuses'), limitToLast(20)), function(snap) {
     var d = snap.val() || {};
     var fs = App.contacts.map(function(c) { return c.slug; });
     var now = Date.now();
@@ -2428,6 +2411,8 @@ $('clearBtn').addEventListener('click', function() {
     location.reload();
   }
 });
+
+if (window.__jarvisDebugLog) window.__jarvisDebugLog('All listeners wired — ready');
 </script>
 </body>
 </html>
