@@ -17,7 +17,7 @@
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjM2IiBmaWxsPSIjMGIyYTRhIi8+PGNpcmNsZSBjeD0iOTYiIGN5PSI5NiIgcj0iNjYiIGZpbGw9IiNkNGFlMzciLz48dGV4dCB4PSI5NiIgeT0iMTMwIiBmb250LWZhbWlseT0iQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5MiIgZm9udC13ZWlnaHQ9IjgwMCIgZmlsbD0iIzBiMmE0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RzwvdGV4dD48L3N2Zz4=">
 <style>
-:root{--navy:#0b2a4a;--navy-light:#143a5f;--accent:#0d7a8c;--gold:#d4af37;--green:#4aff7a;--red:#ff4757;--bg:#f2f5f8;--card:#fff;--text:#1e2a33;--muted:#6b7a87;--border:#e1e7ed}
+:root{--navy:#0b2a4a;--accent:#0d7a8c;--gold:#d4af37;--green:#4aff7a;--red:#ff4757;--bg:#f2f5f8;--text:#1e2a33;--muted:#6b7a87;--border:#e1e7ed}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hidden;font-family:Calibri,"Segoe UI",Roboto,Arial,sans-serif;font-size:19px !important;line-height:1.55;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 @supports(height:100dvh){html,body{height:100dvh}}
@@ -48,15 +48,15 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 #screen-onboard h1{font-size:30px !important;letter-spacing:3px;margin-bottom:6px;font-weight:800}
 #screen-onboard > p{font-size:15px !important;opacity:.9;line-height:1.5;max-width:340px;margin-bottom:20px}
 .auth-tabs{display:flex;gap:8px;width:100%;max-width:340px;margin-bottom:16px}
-.auth-tabs button{flex:1;padding:13px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;border-radius:10px;font-size:15px !important;font-weight:700;cursor:pointer;font-family:Calibri,sans-serif;-webkit-appearance:none;appearance:none}
+.auth-tabs button{flex:1;padding:13px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;border-radius:10px;font-size:15px !important;font-weight:700;cursor:pointer;font-family:Calibri,sans-serif}
 .auth-tabs button.active{background:var(--gold);color:var(--navy);border-color:var(--gold)}
 .auth-form{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center}
-.auth-form input{width:100%;padding:15px 18px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.14);border-radius:10px;font-size:16px !important;color:#fff;outline:none;margin-bottom:10px;text-align:center;-webkit-appearance:none;appearance:none;font-family:Calibri,sans-serif}
+.auth-form input{width:100%;padding:15px 18px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.14);border-radius:10px;font-size:16px !important;color:#fff;outline:none;margin-bottom:10px;text-align:center;font-family:Calibri,sans-serif}
 .auth-form input::placeholder{color:rgba(255,255,255,.55)}
 .auth-form .name-status{font-size:13px !important;color:rgba(255,255,255,.8);margin-bottom:12px;min-height:18px;text-align:center;padding:0 8px}
 .auth-form .name-status.ok{color:#4aff7a;font-weight:600}
 .auth-form .name-status.bad{color:#ff8b8b;font-weight:600}
-.btn-primary{width:100%;max-width:340px;padding:15px;border:none;border-radius:10px;background:linear-gradient(135deg,#f0d369 0%,#d4af37 50%,#b8912a 100%);color:var(--navy);font-size:16px !important;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(212,175,55,.4);-webkit-appearance:none;appearance:none;font-family:Calibri,sans-serif}
+.btn-primary{width:100%;max-width:340px;padding:15px;border:none;border-radius:10px;background:linear-gradient(135deg,#f0d369 0%,#d4af37 50%,#b8912a 100%);color:var(--navy);font-size:16px !important;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(212,175,55,.4);font-family:Calibri,sans-serif}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
 #screen-main{background:#f4efe6;position:relative;overflow:hidden}
 .app-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;min-height:64px;border-bottom:2px solid var(--gold);flex-shrink:0;z-index:5}
@@ -66,7 +66,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .tab-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:80px;position:relative;z-index:1}
 .tab-content::-webkit-scrollbar{display:none}
 .bottom-nav{position:absolute;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid rgba(11,42,74,.08);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:10;box-shadow:0 -4px 20px rgba(11,42,74,.06)}
-.nav-item{flex:1;padding:10px 2px 12px;text-align:center;font-size:11px !important;color:var(--muted);cursor:pointer;font-weight:700;border:none;background:none;position:relative;line-height:1.2;-webkit-appearance:none;appearance:none}
+.nav-item{flex:1;padding:10px 2px 12px;text-align:center;font-size:11px !important;color:var(--muted);cursor:pointer;font-weight:700;border:none;background:none;position:relative;line-height:1.2}
 .nav-item .icon{display:block;font-size:22px;margin-bottom:2px;line-height:1}
 .nav-item.active{color:var(--navy)}
 .section-title{font-size:13px !important;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);padding:16px 20px 8px}
@@ -108,11 +108,11 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .msg .attach-video{max-width:100%;width:100%;display:block;border-radius:12px;background:#000}
 .msg .attach-audio{width:100%;max-width:280px;margin-top:2px}
 .msg .attach-file{display:flex;align-items:center;gap:10px;padding:12px;background:#f2f7fb;border-radius:10px;text-decoration:none;color:var(--text);font-size:15px !important}
-.quick-reactions{display:flex;gap:6px;padding:8px 12px;background:#fff;border-top:1px solid var(--border);flex-shrink:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.quick-reactions{display:flex;gap:6px;padding:8px 12px;background:#fff;border-top:1px solid var(--border);flex-shrink:0;overflow-x:auto}
 .quick-reactions::-webkit-scrollbar{display:none}
 .quick-reaction{font-size:26px;width:44px;height:44px;background:#f7f9fb;border:1px solid var(--border);border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .chat-input-bar{background:rgba(255,255,255,.98);border-top:1px solid var(--border);padding:10px 12px;display:flex;gap:6px;align-items:center;flex-shrink:0;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
-.chat-input-bar input[type="text"]{flex:1;padding:14px 18px;border:1px solid var(--border);border-radius:24px;font-size:15px !important;outline:none;background:#f7f9fb;min-width:0;-webkit-appearance:none;appearance:none}
+.chat-input-bar input[type="text"]{flex:1;padding:14px 18px;border:1px solid var(--border);border-radius:24px;font-size:15px !important;outline:none;background:#f7f9fb;min-width:0}
 .emoji-btn,.attach-btn{background:transparent;border:none;font-size:24px;color:var(--accent);width:40px;height:40px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .chat-input-bar .send-btn{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#0d7a8c,#0a6474);color:#fff;border:none;font-size:20px;cursor:pointer;flex-shrink:0}
 .chat-input-bar .send-btn:disabled{opacity:.4}
@@ -169,7 +169,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .modal-overlay.show{display:flex}
 .modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:440px;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .modal h3{font-size:18px !important;margin-bottom:10px}
-.modal input[type="text"],.modal textarea,.modal input[type="password"]{width:100%;padding:14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px !important;margin-bottom:12px;outline:none;-webkit-appearance:none;appearance:none;font-family:Calibri,sans-serif}
+.modal input[type="text"],.modal textarea,.modal input[type="password"]{width:100%;padding:14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px !important;margin-bottom:12px;outline:none;font-family:Calibri,sans-serif}
 .modal-actions{display:flex;gap:10px;margin-top:10px}
 .modal-actions button{flex:1;padding:14px;border-radius:10px;font-size:15px !important;font-weight:700;cursor:pointer;border:none;font-family:Calibri,sans-serif}
 .modal-actions .cancel{background:#eef2f6;color:var(--text)}
@@ -216,14 +216,12 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   window.__jarvisAppStarted = false;
   window.__jarvisMarkLoaded = function() { window.__jarvisModuleLoaded = true; };
   window.__jarvisMarkStarted = function() { window.__jarvisAppStarted = true; };
-  
   var ua = navigator.userAgent;
   var iOSMatch = ua.match(/OS (\d+)_(\d+)/);
   var iOSMajor = iOSMatch ? parseInt(iOSMatch[1], 10) : 0;
   window.__jarvisIOSMajor = iOSMajor;
   window.__jarvisIsIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
   window.__jarvisIsStandalone = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
-  
   var debugOn = /[?&]debug=1/.test(window.location.search);
   if (debugOn) {
     var panel = document.createElement('div');
@@ -241,37 +239,22 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     window.addEventListener('error', function(e) { window.__jarvisDebugLog('ERR: ' + (e.message || e.error)); });
     window.addEventListener('unhandledrejection', function(e) { window.__jarvisDebugLog('REJ: ' + e.reason); });
   }
-  
-  // ⭐ CRITICAL: Hide loading overlay IMMEDIATELY — do not wait for Firebase
   function hideLoadingNow() {
     var lo = document.getElementById('loadingOverlay');
-    if (lo) {
-      lo.classList.add('hidden');
-      setTimeout(function() { lo.style.display = 'none'; }, 350);
-    }
+    if (lo) { lo.classList.add('hidden'); setTimeout(function() { lo.style.display = 'none'; }, 350); }
     var ob = document.getElementById('screen-onboard');
     if (ob) ob.classList.add('active');
-    if (window.__jarvisDebugLog) window.__jarvisDebugLog('Loading overlay hidden, onboarding shown');
   }
-  
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', hideLoadingNow);
-  } else {
-    setTimeout(hideLoadingNow, 0);
-  }
-  
-  // Safety net — if DOMContentLoaded is weirdly delayed, hide after 500ms anyway
+  } else { setTimeout(hideLoadingNow, 0); }
   setTimeout(hideLoadingNow, 500);
-  
-  // Error banner if module never loads
   setTimeout(function() {
     if (!window.__jarvisModuleLoaded) {
-      if (window.__jarvisDebugLog) window.__jarvisDebugLog('Module not loaded after 15s — showing error banner');
       var eb = document.getElementById('loadErrorBanner');
       if (eb) eb.classList.add('show');
     }
   }, 15000);
-  
   window.addEventListener('error', function(e) { console.error('[JARVIS]', e.message || e.error); });
   window.addEventListener('unhandledrejection', function(e) { console.error('[JARVIS Rejection]', e.reason); });
 })();
@@ -681,7 +664,6 @@ import { getDatabase, ref as dbRef, push, onValue, remove, set, get, query, limi
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 if (window.__jarvisMarkLoaded) window.__jarvisMarkLoaded();
-if (window.__jarvisDebugLog) window.__jarvisDebugLog('Module started');
 
 const firebaseConfig = {
   apiKey: "AIzaSyCG_LO9IOfwEly0uar-Pu63b8FpjADSnqE",
@@ -700,10 +682,8 @@ try {
   fbApp = initializeApp(firebaseConfig);
   db = getDatabase(fbApp);
   auth = getAuth(fbApp);
-  if (window.__jarvisDebugLog) window.__jarvisDebugLog('Firebase initialized');
 } catch (e) {
   console.error('Firebase init failed:', e);
-  if (window.__jarvisDebugLog) window.__jarvisDebugLog('Firebase init FAILED: ' + e.message);
   var eb = document.getElementById('loadErrorBanner');
   if (eb) eb.classList.add('show');
   throw e;
@@ -779,9 +759,7 @@ async function sha256Hex(text) {
     var buf = await crypto.subtle.digest('SHA-256', enc.encode(String(text).toLowerCase().trim()));
     var arr = Array.prototype.slice.call(new Uint8Array(buf));
     return arr.map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
-  } catch (e) {
-    return 'nc_' + String(text).toLowerCase().trim();
-  }
+  } catch (e) { return 'nc_' + String(text).toLowerCase().trim(); }
 }
 function emailToSlug(email) {
   if (!email) return null;
@@ -827,11 +805,10 @@ async function fetchContactsViaREST() {
     if (!token) return null;
     var url = DB_URL + '/users/' + encodeURIComponent(App.mySlug) + '/contacts.json?auth=' + encodeURIComponent(token);
     var res = await fetch(url);
-    if (!res.ok) { console.error('REST contacts HTTP ' + res.status); return null; }
+    if (!res.ok) return null;
     return await res.json();
-  } catch (e) { console.error('REST contacts error:', e); return null; }
+  } catch (e) { return null; }
 }
-
 async function fetchStatusesViaREST() {
   try {
     if (!currentAuthUser) return null;
@@ -839,11 +816,10 @@ async function fetchStatusesViaREST() {
     if (!token) return null;
     var url = DB_URL + '/user_statuses.json?auth=' + encodeURIComponent(token);
     var res = await fetch(url);
-    if (!res.ok) { console.error('REST statuses HTTP ' + res.status); return null; }
+    if (!res.ok) return null;
     return await res.json();
-  } catch (e) { console.error('REST statuses error:', e); return null; }
+  } catch (e) { return null; }
 }
-
 async function applyContactsFromREST(contacts) {
   if (!contacts) return;
   var slugs = Object.keys(contacts), changed = false;
@@ -859,12 +835,10 @@ async function applyContactsFromREST(contacts) {
   if (changed) {
     saveContacts(); saveLastSeenTimes();
     App._cloudSynced = true;
-    buildUI();
-    updateSyncIndicator('live');
+    buildUI(); updateSyncIndicator('live');
     toast('Contacts loaded via REST ✓');
   }
 }
-
 async function applyStatusesFromREST(statuses) {
   if (!statuses) return;
   var friendSlugs = App.contacts.map(function(c) { return c.slug; });
@@ -879,15 +853,13 @@ async function applyStatusesFromREST(statuses) {
     toast('Statuses loaded via REST ✓');
   }
 }
-
 async function triggerRESTFallback(silent) {
   if (!currentAuthUser) return;
   if (App.contacts.length === 0) {
     var contacts = await fetchContactsViaREST();
     if (contacts) await applyContactsFromREST(contacts);
   }
-  var cachedPosts = window._cachedPosts || [];
-  if (cachedPosts.length === 0) {
+  if ((window._cachedPosts || []).length === 0) {
     var statuses = await fetchStatusesViaREST();
     if (statuses) await applyStatusesFromREST(statuses);
   }
@@ -955,6 +927,7 @@ async function handleSignUp() {
     if (err.code === 'auth/email-already-in-use') status.textContent = 'This name is already registered. Sign in instead.';
     else if (err.code === 'auth/weak-password') status.textContent = 'Password too weak (min 6 chars).';
     else if (err.code === 'auth/operation-not-allowed') status.textContent = 'Firebase Auth not enabled in Console.';
+    else if (err.code === 'PERMISSION_DENIED' || (err.message && err.message.indexOf('permission') !== -1)) status.textContent = 'Permission denied — contact owner.';
     else status.textContent = 'Error: ' + (err.message || 'unknown');
     status.className = 'name-status bad';
   }
@@ -1039,16 +1012,22 @@ async function handleForgotPassword() {
     var snap = await get(dbRef(db, 'users/' + slug));
     if (!snap.exists()) { status.textContent = 'No account with this name'; status.style.color = '#ff4757'; return; }
     var userData = snap.val();
-    if (!userData.recoveryHash) { status.textContent = 'No recovery phrase set. Sign in and add one from Profile.'; status.style.color = '#ff4757'; return; }
+    if (!userData.recoveryHash) { status.textContent = 'No recovery phrase set. Contact owner to reset.'; status.style.color = '#ff4757'; return; }
     var inputHash = await sha256Hex(recovery);
     if (inputHash !== userData.recoveryHash) { status.textContent = 'Recovery phrase is incorrect'; status.style.color = '#ff4757'; return; }
     status.textContent = 'Reset in progress…';
     var newEmail = slug + '-v' + Date.now() + '@jarvis-app.local';
     var userCred;
     try { userCred = await createUserWithEmailAndPassword(auth, newEmail, newPwd); }
-    catch (err) { console.error('Recovery auth:', err); status.textContent = 'Reset failed. Try again.'; status.style.color = '#ff4757'; return; }
-    await set(dbRef(db, 'users/' + slug + '/activeAuthEmail'), newEmail);
-    await set(dbRef(db, 'users/' + slug + '/authUid'), userCred.user.uid);
+    catch (err) { status.textContent = 'Reset failed. Contact owner at (509) 4738-5663.'; status.style.color = '#ff4757'; return; }
+    try {
+      await set(dbRef(db, 'users/' + slug + '/activeAuthEmail'), newEmail);
+      await set(dbRef(db, 'users/' + slug + '/authUid'), userCred.user.uid);
+    } catch (permErr) {
+      status.textContent = 'Auth created but DB locked. Contact owner at (509) 4738-5663.';
+      status.style.color = '#ff4757';
+      return;
+    }
     currentAuthUser = userCred.user;
     App.mySlug = slug; App.myName = userData.displayName || name;
     LS.set('mySlug', slug); LS.set('myName', App.myName);
@@ -1056,7 +1035,12 @@ async function handleForgotPassword() {
     setTimeout(function() { $('forgotPasswordModal').classList.remove('show'); safeStartMainApp(); toast('Password reset ✓'); }, 600);
   } catch (err) {
     console.error('Forgot:', err);
-    status.textContent = 'Reset failed. Try again.'; status.style.color = '#ff4757';
+    if (err.code === 'PERMISSION_DENIED' || (err.message && err.message.indexOf('permission') !== -1)) {
+      status.textContent = 'Recovery needs owner help — call (509) 4738-5663';
+    } else {
+      status.textContent = 'Reset failed. Contact owner at (509) 4738-5663.';
+    }
+    status.style.color = '#ff4757';
   }
 }
 
@@ -1104,10 +1088,8 @@ function safeStartMainApp() {
   if (window._mainAppStarted) return;
   window._mainAppStarted = true;
   if (window.__jarvisMarkStarted) window.__jarvisMarkStarted();
-  if (window.__jarvisDebugLog) window.__jarvisDebugLog('safeStartMainApp — transitioning to main');
-  try {
-    startMainApp();
-  } catch (err) {
+  try { startMainApp(); }
+  catch (err) {
     console.error('startMainApp failed:', err);
     showScreen('screen-main');
     toast('Some features may not load', true);
@@ -1115,7 +1097,6 @@ function safeStartMainApp() {
 }
 
 onAuthStateChanged(auth, async function(user) {
-  if (window.__jarvisDebugLog) window.__jarvisDebugLog('onAuthStateChanged: ' + (user ? 'user' : 'no user'));
   if (user) {
     currentAuthUser = user;
     var email = user.email || '';
@@ -1132,13 +1113,10 @@ onAuthStateChanged(auth, async function(user) {
         if (d.photo) App.myPhoto = d.photo;
         LS.set('myName', App.myName);
       }
-    } catch (err) {
-      console.warn('Profile load error:', err);
-    }
+    } catch (err) { console.warn('Profile load:', err); }
     safeStartMainApp();
   } else {
     currentAuthUser = null;
-    // Stay on onboarding — do nothing (bootstrap already showed it)
   }
 });
 
@@ -1314,15 +1292,8 @@ window.addEventListener('online', function() {
 window.addEventListener('offline', function() {
   if (App.mySlug) toast('You are offline', true);
 });
-
-window.__hardRefresh = function() {
-  toast('Reloading…');
-  setTimeout(function() { location.reload(); }, 400);
-};
-window.__restForceNow = function() {
-  toast('Force sync via REST…');
-  triggerRESTFallback(false);
-};
+window.__hardRefresh = function() { toast('Reloading…'); setTimeout(function() { location.reload(); }, 400); };
+window.__restForceNow = function() { toast('Force sync via REST…'); triggerRESTFallback(false); };
 
 function startMainApp() {
   showScreen('screen-main');
@@ -1352,6 +1323,8 @@ function startMainApp() {
           }
         }
         if (uiChanged) { saveContacts(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); }
+      }, function() {
+        console.warn('Owner users read denied — check Firebase rules');
       });
     }, 5000);
   }
@@ -1367,7 +1340,6 @@ function startMainApp() {
     if (uiChanged) { saveGroups(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); }
   });
   updateAppBadge();
-  
   setTimeout(function() {
     if (currentAuthUser && (App.contacts.length === 0 || (window._cachedPosts || []).length === 0)) {
       triggerRESTFallback(true);
@@ -2038,6 +2010,7 @@ window.__ownerDeleteStatus = async function(k) { if (confirm('Delete status?')) 
 window.__ownerReportStatus = async function(k, u) { var r = prompt('Reason:', 'Violation'); if (!r) return; await push(dbRef(db, 'owner_reports'), { type: 'Violation', targetUser: u, reason: r, time: Date.now(), reporter: App.mySlug }); toast('Reported ✓'); };
 function loadOwnerReports() {
   var area = $('ownerContentArea');
+  area.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:14px;">Loading users and chats…</div>';
   onValue(dbRef(db, 'users'), function(snap) {
     var ud = snap.val() || {}, uks = Object.keys(ud);
     var h = '<div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:8px;">👥 Users (' + uks.length + ')</div>';
@@ -2063,6 +2036,9 @@ function loadOwnerReports() {
       }
       area.innerHTML = h;
     }, { onlyOnce: true });
+  }, function(err) {
+    console.warn('Owner users read denied:', err);
+    area.innerHTML = '<div class="empty"><p style="color:#d4af37;">Cannot load users.</p><p style="font-size:13px;">Ask owner to add <code style="background:#fff3cd;padding:2px 6px;border-radius:4px;">.read on "users"</code> in Firebase Rules.</p></div>';
   }, { onlyOnce: true });
 }
 window.__ownerDirectDM = function(slug, name) {
@@ -2411,8 +2387,6 @@ $('clearBtn').addEventListener('click', function() {
     location.reload();
   }
 });
-
-if (window.__jarvisDebugLog) window.__jarvisDebugLog('All listeners wired — ready');
 </script>
 </body>
 </html>
