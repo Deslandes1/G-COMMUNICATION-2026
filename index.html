@@ -187,7 +187,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 <div id="loadingOverlay">
   <div id="loadingSpinner"></div>
   <div id="loadingText">Loading JARVIS…</div>
-  <div id="loadingSub">Checking your account…</div>
+  <div id="loadingSub">Starting up…</div>
 </div>
 <div id="compatBanner">
   ⚠️ <span id="compatText">Older browser detected</span>
@@ -663,11 +663,10 @@ const firebaseConfig = {
 
 const fbApp = initializeApp(firebaseConfig);
 
-// CRITICAL: forceLongPolling must run BEFORE getDatabase() — the transport is chosen at initialization
 if (window.__jarvisIsIOS) {
   try {
     forceLongPolling();
-    console.log('iOS: forceLongPolling() called BEFORE getDatabase — correct order');
+    console.log('iOS: forceLongPolling() called BEFORE getDatabase');
   } catch (e) {
     console.warn('forceLongPolling error:', e);
   }
@@ -789,27 +788,41 @@ function withTimeout(promise, ms) {
   });
 }
 
-/* ===== REST API FALLBACK — bypasses WebSocket entirely ===== */
+window._mainAppStarted = false;
+window._mainAppInProgress = false;
+
+function safeStartMainApp() {
+  if (window._mainAppStarted || window._mainAppInProgress) return;
+  window._mainAppInProgress = true;
+  try {
+    hideLoading();
+    startMainApp();
+    window._mainAppStarted = true;
+  } catch (err) {
+    console.error('startMainApp failed:', err);
+    hideLoading();
+    showScreen('screen-main');
+    toast('Some features may not load — check connection', true);
+    window._mainAppStarted = true;
+  } finally {
+    window._mainAppInProgress = false;
+  }
+}
+
+/* ===== REST API FALLBACK ===== */
 async function fetchContactsViaREST() {
   try {
-    if (!currentAuthUser) { console.warn('REST: no auth user'); return null; }
+    if (!currentAuthUser) return null;
     var token = await currentAuthUser.getIdToken();
-    if (!token) { console.warn('REST: no auth token'); return null; }
+    if (!token) return null;
     var url = DB_URL + '/users/' + encodeURIComponent(App.mySlug) + '/contacts.json?auth=' + encodeURIComponent(token);
     console.log('REST: fetching contacts');
     var res = await fetch(url);
-    if (!res.ok) {
-      var errText = await res.text();
-      console.error('REST contacts HTTP ' + res.status + ':', errText);
-      return null;
-    }
+    if (!res.ok) { console.error('REST contacts HTTP ' + res.status); return null; }
     var data = await res.json();
     console.log('REST: got contacts', data ? Object.keys(data).length : 0);
     return data;
-  } catch (e) {
-    console.error('REST contacts error:', e);
-    return null;
-  }
+  } catch (e) { console.error('REST contacts error:', e); return null; }
 }
 
 async function fetchStatusesViaREST() {
@@ -824,10 +837,7 @@ async function fetchStatusesViaREST() {
     var data = await res.json();
     console.log('REST: got statuses', data ? Object.keys(data).length : 0);
     return data;
-  } catch (e) {
-    console.error('REST statuses error:', e);
-    return null;
-  }
+  } catch (e) { console.error('REST statuses error:', e); return null; }
 }
 
 async function applyContactsFromREST(contacts) {
@@ -844,8 +854,7 @@ async function applyContactsFromREST(contacts) {
     }
   }
   if (changed) {
-    saveContacts();
-    saveLastSeenTimes();
+    saveContacts(); saveLastSeenTimes();
     App._cloudSynced = true;
     buildUI();
     updateSyncIndicator('live');
@@ -857,15 +866,10 @@ async function applyStatusesFromREST(statuses) {
   if (!statuses) return;
   var friendSlugs = App.contacts.map(function(c) { return c.slug; });
   var now = Date.now();
-  var posts = Object.keys(statuses).map(function(k) {
-    var v = statuses[k];
-    v._k = k;
-    return v;
-  })
-  .filter(function(p) { return (now - (p.time || 0)) <= 24 * 60 * 60 * 1000; })
-  .filter(function(p) { return isOwner() || p.authorSlug === App.mySlug || friendSlugs.indexOf(p.authorSlug) !== -1; })
-  .sort(function(a, b) { return (b.time || 0) - (a.time || 0); });
-  
+  var posts = Object.keys(statuses).map(function(k) { var v = statuses[k]; v._k = k; return v; })
+    .filter(function(p) { return (now - (p.time || 0)) <= 24 * 60 * 60 * 1000; })
+    .filter(function(p) { return isOwner() || p.authorSlug === App.mySlug || friendSlugs.indexOf(p.authorSlug) !== -1; })
+    .sort(function(a, b) { return (b.time || 0) - (a.time || 0); });
   if (posts.length || (window._cachedPosts || []).length === 0) {
     LS.set('cached_statuses', posts);
     renderStatusFeedList(posts);
@@ -876,34 +880,17 @@ async function applyStatusesFromREST(statuses) {
 async function triggerRESTFallback(silent) {
   if (!currentAuthUser) { console.warn('REST fallback: no auth'); return; }
   console.log('REST fallback triggered — contacts:', App.contacts.length);
-  
   if (App.contacts.length === 0) {
     var contacts = await fetchContactsViaREST();
     if (contacts) await applyContactsFromREST(contacts);
   }
-  
   var cachedPosts = window._cachedPosts || [];
   if (cachedPosts.length === 0) {
     var statuses = await fetchStatusesViaREST();
     if (statuses) await applyStatusesFromREST(statuses);
   }
-  
   if (!silent) {
-    var cnt = App.contacts.length;
-    var scnt = (window._cachedPosts || []).length;
-    toast('REST sync: ' + cnt + ' contacts, ' + scnt + ' statuses');
-  }
-}
-
-async function verifyAuthToken() {
-  try {
-    if (!currentAuthUser) { console.error('AUTH: no current user'); return false; }
-    var token = await currentAuthUser.getIdToken();
-    console.log('AUTH: token ' + (token ? 'valid (' + token.length + ' chars)' : 'MISSING'));
-    return !!token;
-  } catch (e) {
-    console.error('AUTH token error:', e);
-    return false;
+    toast('REST sync: ' + App.contacts.length + ' contacts, ' + (window._cachedPosts || []).length + ' statuses');
   }
 }
 
@@ -942,7 +929,7 @@ async function handleSignUp() {
       var existing = snap.val();
       if (existing.authUid && existing.authUid !== currentAuthUser.uid) {
         try { await currentAuthUser.delete(); } catch (e) {}
-        status.textContent = 'This name is already registered by another user. Sign in instead.';
+        status.textContent = 'This name is already registered. Sign in instead.';
         status.className = 'name-status bad';
         return;
       }
@@ -962,7 +949,7 @@ async function handleSignUp() {
     App.mySlug = slug; App.myName = nameVal;
     LS.set('mySlug', slug); LS.set('myName', nameVal);
     status.textContent = 'Account created ✓'; status.className = 'name-status ok';
-    startMainApp();
+    safeStartMainApp();
   } catch (err) {
     console.error('Signup:', err);
     if (err.code === 'auth/email-already-in-use') status.textContent = 'This name is already registered. Sign in instead.';
@@ -988,7 +975,7 @@ async function handleSignIn() {
     App.mySlug = slug; App.myName = nameVal;
     LS.set('mySlug', slug); LS.set('myName', nameVal);
     status.textContent = 'Welcome back ✓'; status.className = 'name-status ok';
-    startMainApp();
+    safeStartMainApp();
   } catch (err) {
     console.error('Signin:', err);
     if (err.code === 'auth/user-not-found') status.textContent = 'No account with this name. Create one first.';
@@ -1003,6 +990,8 @@ async function handleSignOut() {
   if (!confirm('Sign out of JARVIS?')) return;
   try { await firebaseSignOut(auth); } catch (e) {}
   currentAuthUser = null;
+  window._mainAppStarted = false;
+  window._mainAppInProgress = false;
   App.mySlug = null; App.myName = ''; App.contacts = []; App.groups = []; App.lastMessages = {};
   LS.del('mySlug'); LS.del('myName'); LS.del('cached_chats'); LS.del('cached_statuses');
   $('signInName').value = ''; $('signInPassword').value = ''; $('signInStatus').textContent = '';
@@ -1065,7 +1054,7 @@ async function handleForgotPassword() {
     App.mySlug = slug; App.myName = userData.displayName || name;
     LS.set('mySlug', slug); LS.set('myName', App.myName);
     status.textContent = 'Success! Signing in…'; status.style.color = '#4aff7a';
-    setTimeout(function() { $('forgotPasswordModal').classList.remove('show'); startMainApp(); toast('Password reset ✓'); }, 600);
+    setTimeout(function() { $('forgotPasswordModal').classList.remove('show'); safeStartMainApp(); toast('Password reset ✓'); }, 600);
   } catch (err) {
     console.error('Forgot:', err);
     status.textContent = 'Reset failed. Try again.'; status.style.color = '#ff4757';
@@ -1116,26 +1105,26 @@ onAuthStateChanged(auth, async function(user) {
     currentAuthUser = user;
     var email = user.email || '';
     var slug = emailToSlug(email);
-    if (!slug) { hideLoading(); showScreen('screen-onboard'); return; }
+    if (!slug) { return; }
     App.mySlug = slug;
+    App.myName = slug;
+    LS.set('mySlug', slug); LS.set('myName', slug);
+    
     try {
-      var snap = await get(dbRef(db, 'users/' + slug));
-      if (snap.exists()) {
-        var d = snap.val();
-        App.myName = d.displayName || slug;
-        App.myPhoto = d.photo || null;
-      } else { App.myName = slug; }
-      LS.set('mySlug', slug); LS.set('myName', App.myName);
-      startMainApp();
+      var snapResult = await withTimeout(get(dbRef(db, 'users/' + slug)), 5000);
+      if (snapResult && snapResult.result && snapResult.result.exists && snapResult.result.exists()) {
+        var d = snapResult.result.val();
+        if (d.displayName) App.myName = d.displayName;
+        if (d.photo) App.myPhoto = d.photo;
+        LS.set('myName', App.myName);
+      }
     } catch (err) {
-      console.warn('Session restore:', err);
-      App.myName = slug;
-      startMainApp();
+      console.warn('Profile load error:', err);
     }
+    
+    safeStartMainApp();
   } else {
     currentAuthUser = null;
-    hideLoading();
-    showScreen('screen-onboard');
   }
 });
 
@@ -1296,11 +1285,25 @@ window.addEventListener('load', function() {
   $('setRecoveryConfirm').addEventListener('click', handleSetRecovery);
   setupNotificationButton();
   updateNotifPermStatus();
+  
+  // CRITICAL: Show onboarding immediately — do not wait for auth
+  hideLoading();
+  showScreen('screen-onboard');
+  
+  // Safety net — if still stuck on loading after 6s, force onboarding
+  setTimeout(function() {
+    if (!window._mainAppStarted) {
+      var lo = $('loadingOverlay');
+      if (lo && !lo.classList.contains('hidden')) {
+        hideLoading();
+        showScreen('screen-onboard');
+      }
+    }
+  }, 6000);
 });
 
 document.addEventListener('visibilitychange', function() {
   if (document.visibilityState === 'visible' && App.mySlug) {
-    console.log('Foreground — checking sync');
     try { goOffline(db); } catch (e) {}
     setTimeout(function() {
       try { goOnline(db); } catch (e) {}
@@ -1325,6 +1328,10 @@ window.addEventListener('offline', function() {
 window.__hardRefresh = function() {
   toast('Reloading…');
   setTimeout(function() { location.reload(); }, 400);
+};
+window.__restForceNow = function() {
+  toast('Force sync via REST…');
+  triggerRESTFallback(false);
 };
 
 function startMainApp() {
@@ -1370,16 +1377,10 @@ function startMainApp() {
   updateAppBadge();
   hideLoading();
   
-  // ⭐ REST fallback after 12s — iPhone safety net
   setTimeout(async function() {
     if (!currentAuthUser) return;
-    var authOk = await verifyAuthToken();
-    if (!authOk) {
-      console.error('Auth token missing — REST fallback will also fail');
-      return;
-    }
     if (App.contacts.length === 0 || (window._cachedPosts || []).length === 0) {
-      console.log('REST fallback after 12s — realtime listeners did not deliver');
+      console.log('REST fallback after 12s');
       triggerRESTFallback(true);
     }
   }, 12000);
@@ -1425,8 +1426,6 @@ async function forceFullRefresh() {
     for (var k = 0; k < App.groups.length; k++) if (!App.globalUnsubs[App.groups[k].id]) setupGroupMessageListener(App.groups[k].id);
     buildUI(); listenUserStatuses(); updateSyncIndicator('live');
     toast('Cloud data refreshed ✓');
-    
-    // Also try REST as backup
     if (App.contacts.length === 0) triggerRESTFallback(true);
   } catch (err) { console.error('Refresh:', err); toast('Refresh failed', true); }
   finally { if (btn) { btn.disabled = false; btn.textContent = orig; } }
@@ -1549,7 +1548,6 @@ function setupMessageListener(id, isGroup) {
 
   App.listenerWatchdogs[id] = setTimeout(function() {
     if (firstLoad && attempts < 2) {
-      console.warn('Listener timeout for ' + id + ' — retrying');
       try { if (typeof App.globalUnsubs[id] === 'function') App.globalUnsubs[id](); } catch (e) {}
       delete App.globalUnsubs[id];
       App.listenerAttempts[id] = attempts + 1;
@@ -1657,15 +1655,8 @@ debouncedSaveCache = debounce(function() {
       totalSize += size;
     }
     localStorage.setItem('gcp_cached_chats', JSON.stringify(result));
-  } catch (e) {
-    try { localStorage.removeItem('gcp_cached_chats'); } catch (e2) {}
-  }
+  } catch (e) { try { localStorage.removeItem('gcp_cached_chats'); } catch (e2) {} }
 }, 800);
-
-window.__restForceNow = function() {
-  toast('Force sync via REST…');
-  triggerRESTFallback(false);
-};
 
 window.__openChat = function(id, isGroup) {
   if (!isGroup && !isOwner() && id !== App.mySlug && !findContact(id)) return toast('Add this user to DM them', true);
