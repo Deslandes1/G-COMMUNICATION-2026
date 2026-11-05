@@ -326,6 +326,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       <button class="btn-primary" id="changePasswordBtn" style="background:#0d7a8c;color:#fff;width:100%;margin-bottom:10px;">🔑 Change Password</button>
       <button class="btn-primary" id="setRecoveryBtn" style="background:#143a5f;color:#fff;width:100%;margin-bottom:10px;">🛡️ Set / Update Recovery Phrase</button>
       <button class="btn-primary" id="forceSyncBtn" style="background:#0d7a8c;color:#fff;width:100%;margin-bottom:10px;">🔄 Force Refresh & Restore Cloud Data</button>
+      <button class="btn-primary" id="restForceBtn" style="background:#143a5f;color:#fff;width:100%;margin-bottom:10px;">📡 Force Sync via REST (iPhone fix)</button>
       <button class="btn-primary" id="signOutBtn" style="background:#6b7a87;color:#fff;width:100%;margin-bottom:10px;">🚪 Sign Out</button>
       <button class="btn-primary" id="clearBtn" style="background:#ff4757;color:#fff;width:100%">Clear Local Data</button>
     </div>
@@ -644,9 +645,9 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 <input type="file" id="statusMediaInput" accept="image/*,video/*" style="display:none;">
 </div>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref as dbRef, push, onValue, remove, set, get, query, limitToLast, onChildAdded, goOffline, goOnline } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js?v=20261104";
+import { getDatabase, forceLongPolling, ref as dbRef, push, onValue, remove, set, get, query, limitToLast, onChildAdded, goOffline, goOnline } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js?v=20261104";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js?v=20261104";
 
 if (window.__jarvisMarkStarted) window.__jarvisMarkStarted();
 
@@ -661,19 +662,19 @@ const firebaseConfig = {
 };
 
 const fbApp = initializeApp(firebaseConfig);
-const db = getDatabase(fbApp);
-const auth = getAuth(fbApp);
 
+// CRITICAL: forceLongPolling must run BEFORE getDatabase() — the transport is chosen at initialization
 if (window.__jarvisIsIOS) {
   try {
-    var repo = db._repoInternal || db.repo_ || db._repo;
-    if (repo) {
-      repo.forceLongPolling = true;
-      if (repo.persistentConnection_) repo.persistentConnection_.forceLongPolling = true;
-    }
-    console.log('iOS: long-polling forced');
-  } catch (e) { console.warn('Could not force long-polling:', e); }
+    forceLongPolling();
+    console.log('iOS: forceLongPolling() called BEFORE getDatabase — correct order');
+  } catch (e) {
+    console.warn('forceLongPolling error:', e);
+  }
 }
+
+const db = getDatabase(fbApp);
+const auth = getAuth(fbApp);
 
 const ICE_SERVERS = { iceServers: [
   { urls: "stun:stun.l.google.com:19302" },
@@ -681,6 +682,7 @@ const ICE_SERVERS = { iceServers: [
   { urls: "stun:stun.cloudflare.com:3478" }
 ]};
 const VIDEO_CONSTRAINTS = { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } };
+const DB_URL = "https://jarvis-tracker-a8136-default-rtdb.firebaseio.com";
 
 const App = {
   mySlug: null, myName: '', myPhoto: null,
@@ -785,6 +787,124 @@ function withTimeout(promise, ms) {
     promise.then(function(r) { if (done) return; done = true; clearTimeout(timer); resolve({ timedOut: false, result: r }); })
     .catch(function(e) { if (done) return; done = true; clearTimeout(timer); resolve({ timedOut: false, error: e }); });
   });
+}
+
+/* ===== REST API FALLBACK — bypasses WebSocket entirely ===== */
+async function fetchContactsViaREST() {
+  try {
+    if (!currentAuthUser) { console.warn('REST: no auth user'); return null; }
+    var token = await currentAuthUser.getIdToken();
+    if (!token) { console.warn('REST: no auth token'); return null; }
+    var url = DB_URL + '/users/' + encodeURIComponent(App.mySlug) + '/contacts.json?auth=' + encodeURIComponent(token);
+    console.log('REST: fetching contacts');
+    var res = await fetch(url);
+    if (!res.ok) {
+      var errText = await res.text();
+      console.error('REST contacts HTTP ' + res.status + ':', errText);
+      return null;
+    }
+    var data = await res.json();
+    console.log('REST: got contacts', data ? Object.keys(data).length : 0);
+    return data;
+  } catch (e) {
+    console.error('REST contacts error:', e);
+    return null;
+  }
+}
+
+async function fetchStatusesViaREST() {
+  try {
+    if (!currentAuthUser) return null;
+    var token = await currentAuthUser.getIdToken();
+    if (!token) return null;
+    var url = DB_URL + '/user_statuses.json?auth=' + encodeURIComponent(token);
+    console.log('REST: fetching statuses');
+    var res = await fetch(url);
+    if (!res.ok) { console.error('REST statuses HTTP ' + res.status); return null; }
+    var data = await res.json();
+    console.log('REST: got statuses', data ? Object.keys(data).length : 0);
+    return data;
+  } catch (e) {
+    console.error('REST statuses error:', e);
+    return null;
+  }
+}
+
+async function applyContactsFromREST(contacts) {
+  if (!contacts) return;
+  var slugs = Object.keys(contacts);
+  var changed = false;
+  for (var i = 0; i < slugs.length; i++) {
+    var c = contacts[slugs[i]];
+    if (c && c.slug && !findContact(c.slug)) {
+      App.contacts.push({ slug: c.slug, name: c.name || c.slug, photo: c.photo || null });
+      App.lastSeenTimes[c.slug] = App.lastSeenTimes[c.slug] || Date.now();
+      setupMessageListener(c.slug, false);
+      changed = true;
+    }
+  }
+  if (changed) {
+    saveContacts();
+    saveLastSeenTimes();
+    App._cloudSynced = true;
+    buildUI();
+    updateSyncIndicator('live');
+    toast('Contacts loaded via REST ✓');
+  }
+}
+
+async function applyStatusesFromREST(statuses) {
+  if (!statuses) return;
+  var friendSlugs = App.contacts.map(function(c) { return c.slug; });
+  var now = Date.now();
+  var posts = Object.keys(statuses).map(function(k) {
+    var v = statuses[k];
+    v._k = k;
+    return v;
+  })
+  .filter(function(p) { return (now - (p.time || 0)) <= 24 * 60 * 60 * 1000; })
+  .filter(function(p) { return isOwner() || p.authorSlug === App.mySlug || friendSlugs.indexOf(p.authorSlug) !== -1; })
+  .sort(function(a, b) { return (b.time || 0) - (a.time || 0); });
+  
+  if (posts.length || (window._cachedPosts || []).length === 0) {
+    LS.set('cached_statuses', posts);
+    renderStatusFeedList(posts);
+    toast('Statuses loaded via REST ✓');
+  }
+}
+
+async function triggerRESTFallback(silent) {
+  if (!currentAuthUser) { console.warn('REST fallback: no auth'); return; }
+  console.log('REST fallback triggered — contacts:', App.contacts.length);
+  
+  if (App.contacts.length === 0) {
+    var contacts = await fetchContactsViaREST();
+    if (contacts) await applyContactsFromREST(contacts);
+  }
+  
+  var cachedPosts = window._cachedPosts || [];
+  if (cachedPosts.length === 0) {
+    var statuses = await fetchStatusesViaREST();
+    if (statuses) await applyStatusesFromREST(statuses);
+  }
+  
+  if (!silent) {
+    var cnt = App.contacts.length;
+    var scnt = (window._cachedPosts || []).length;
+    toast('REST sync: ' + cnt + ' contacts, ' + scnt + ' statuses');
+  }
+}
+
+async function verifyAuthToken() {
+  try {
+    if (!currentAuthUser) { console.error('AUTH: no current user'); return false; }
+    var token = await currentAuthUser.getIdToken();
+    console.log('AUTH: token ' + (token ? 'valid (' + token.length + ' chars)' : 'MISSING'));
+    return !!token;
+  } catch (e) {
+    console.error('AUTH token error:', e);
+    return false;
+  }
 }
 
 $('authTabSignIn').addEventListener('click', function() {
@@ -1159,6 +1279,7 @@ window.addEventListener('load', function() {
   $('changePasswordConfirm').addEventListener('click', handleChangePassword);
   $('ownerAuthConfirm').addEventListener('click', openOwnerSpaceWithAuth);
   $('forceSyncBtn').addEventListener('click', forceFullRefresh);
+  $('restForceBtn').addEventListener('click', function() { toast('REST sync…'); triggerRESTFallback(false); });
   $('forgotPasswordLink').addEventListener('click', function() {
     $('forgotName').value = $('signInName').value.trim();
     $('forgotRecovery').value = ''; $('forgotNewPassword').value = ''; $('forgotConfirmPassword').value = '';
@@ -1178,14 +1299,16 @@ window.addEventListener('load', function() {
 });
 
 document.addEventListener('visibilitychange', function() {
-  if (document.visibilityState === 'visible' && App.isIOS && App.mySlug) {
-    console.log('iOS foreground — reconnecting');
+  if (document.visibilityState === 'visible' && App.mySlug) {
+    console.log('Foreground — checking sync');
     try { goOffline(db); } catch (e) {}
     setTimeout(function() {
       try { goOnline(db); } catch (e) {}
       setTimeout(function() {
-        if (App.mySlug && (!App._contactsListener || App.contacts.length === 0)) restoreCloudContent();
-      }, 1200);
+        if (App.mySlug && (App.contacts.length === 0 || (window._cachedPosts || []).length === 0)) {
+          triggerRESTFallback(true);
+        }
+      }, 1500);
     }, 500);
   }
 });
@@ -1246,13 +1369,26 @@ function startMainApp() {
   });
   updateAppBadge();
   hideLoading();
+  
+  // ⭐ REST fallback after 12s — iPhone safety net
+  setTimeout(async function() {
+    if (!currentAuthUser) return;
+    var authOk = await verifyAuthToken();
+    if (!authOk) {
+      console.error('Auth token missing — REST fallback will also fail');
+      return;
+    }
+    if (App.contacts.length === 0 || (window._cachedPosts || []).length === 0) {
+      console.log('REST fallback after 12s — realtime listeners did not deliver');
+      triggerRESTFallback(true);
+    }
+  }, 12000);
 }
 
 async function forceFullRefresh() {
   var btn = $('forceSyncBtn'), orig = btn ? btn.textContent : '';
   if (btn) { btn.disabled = true; btn.textContent = '🔄 Refreshing…'; }
   toast('Refreshing from cloud…');
-  // Unsubscribe all existing listeners so they re-establish fresh
   Object.keys(App.globalUnsubs).forEach(function(id) {
     try { if (typeof App.globalUnsubs[id] === 'function') App.globalUnsubs[id](); } catch (e) {}
   });
@@ -1289,6 +1425,9 @@ async function forceFullRefresh() {
     for (var k = 0; k < App.groups.length; k++) if (!App.globalUnsubs[App.groups[k].id]) setupGroupMessageListener(App.groups[k].id);
     buildUI(); listenUserStatuses(); updateSyncIndicator('live');
     toast('Cloud data refreshed ✓');
+    
+    // Also try REST as backup
+    if (App.contacts.length === 0) triggerRESTFallback(true);
   } catch (err) { console.error('Refresh:', err); toast('Refresh failed', true); }
   finally { if (btn) { btn.disabled = false; btn.textContent = orig; } }
 }
@@ -1311,7 +1450,6 @@ async function restoreCloudContent() {
       if (u.displayName) App.myName = u.displayName;
       updateProfileHeader();
     }
-    // Use onValue for contacts — auto-retries if connection drops
     if (!App._contactsListener) {
       App._contactsListener = onValue(dbRef(db, 'users/' + App.mySlug + '/contacts'), function(snap) {
         if (!snap.exists()) { updateSyncIndicator('live'); return; }
@@ -1411,13 +1549,12 @@ function setupMessageListener(id, isGroup) {
 
   App.listenerWatchdogs[id] = setTimeout(function() {
     if (firstLoad && attempts < 2) {
-      console.warn('Listener timeout for ' + id + ' — retrying (' + (attempts + 1) + ')');
+      console.warn('Listener timeout for ' + id + ' — retrying');
       try { if (typeof App.globalUnsubs[id] === 'function') App.globalUnsubs[id](); } catch (e) {}
       delete App.globalUnsubs[id];
       App.listenerAttempts[id] = attempts + 1;
       setupMessageListener(id, isGroup);
     } else if (firstLoad && attempts >= 2) {
-      console.warn('Listener giving up for ' + id);
       delete App.globalUnsubs[id];
       delete App.listenerAttempts[id];
       updateSyncIndicator('error');
@@ -1442,7 +1579,6 @@ function setupMessageListener(id, isGroup) {
     }
     firstLoad = false;
     App.lastMessages[id] = msgs;
-    updateSyncIndicator('live');
     if (debouncedSaveCache) debouncedSaveCache();
     if (App.activeChat === id) renderMessages(id, msgs, isGroup);
     if (debouncedBuildUI) debouncedBuildUI();
@@ -1474,7 +1610,7 @@ function buildUI() {
   html += '<div class="section-title">Friend List</div>';
   if (!App.contacts.length) {
     var syncState = App._cloudSynced === true ? '' : '<div style="margin-top:10px;color:#d4af37;font-size:13px;">Syncing from cloud…</div>';
-    html += '<div class="empty"><div class="empty-icon">💬</div><p>No contacts yet.<br>Tap <strong>＋</strong> to add.</p>' + syncState + '<button onclick="window.__hardRefresh()" style="margin-top:16px;padding:12px 22px;background:#0d7a8c;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">🔄 Reload from cloud</button></div>';
+    html += '<div class="empty"><div class="empty-icon">💬</div><p>No contacts yet.<br>Tap <strong>＋</strong> to add.</p>' + syncState + '<button onclick="window.__restForceNow()" style="margin-top:16px;padding:12px 22px;background:#0d7a8c;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">📡 Force Sync Now</button><button onclick="window.__hardRefresh()" style="margin-top:8px;padding:12px 22px;background:#6b7a87;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">🔄 Reload</button></div>';
   } else {
     for (var j = 0; j < App.contacts.length; j++) {
       var c = App.contacts[j], uc = App.unreadCounts[c.slug] || 0;
@@ -1522,10 +1658,14 @@ debouncedSaveCache = debounce(function() {
     }
     localStorage.setItem('gcp_cached_chats', JSON.stringify(result));
   } catch (e) {
-    console.warn('Cache write failed (likely quota):', e);
     try { localStorage.removeItem('gcp_cached_chats'); } catch (e2) {}
   }
 }, 800);
+
+window.__restForceNow = function() {
+  toast('Force sync via REST…');
+  triggerRESTFallback(false);
+};
 
 window.__openChat = function(id, isGroup) {
   if (!isGroup && !isOwner() && id !== App.mySlug && !findContact(id)) return toast('Add this user to DM them', true);
