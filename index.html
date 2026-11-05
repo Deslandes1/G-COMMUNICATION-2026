@@ -676,6 +676,7 @@ const firebaseConfig = {
 };
 
 const DB_URL = "https://g-communication-2026-c5af2-default-rtdb.firebaseio.com";
+const STATUS_FEED_PATH = 'chats/_status_feed/statuses';
 
 let fbApp, db, auth;
 try {
@@ -804,7 +805,17 @@ async function fetchContactsViaREST() {
     return await res.json();
   } catch (e) { return null; }
 }
-
+async function fetchStatusesViaREST() {
+  try {
+    if (!currentAuthUser) return null;
+    var token = await currentAuthUser.getIdToken();
+    if (!token) return null;
+    var url = DB_URL + '/chats/_status_feed/statuses.json?auth=' + encodeURIComponent(token);
+    var res = await fetch(url);
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (e) { return null; }
+}
 async function applyContactsFromREST(contacts) {
   if (!contacts) return;
   var slugs = Object.keys(contacts), changed = false;
@@ -824,14 +835,31 @@ async function applyContactsFromREST(contacts) {
     toast('Contacts loaded via REST ✓');
   }
 }
-
+async function applyStatusesFromREST(statuses) {
+  if (!statuses) return;
+  var friendSlugs = App.contacts.map(function(c) { return c.slug; });
+  var now = Date.now();
+  var posts = Object.keys(statuses).map(function(k) { var v = statuses[k]; v._k = k; return v; })
+    .filter(function(p) { return (now - (p.time || 0)) <= 24 * 60 * 60 * 1000; })
+    .filter(function(p) { return isOwner() || p.authorSlug === App.mySlug || friendSlugs.indexOf(p.authorSlug) !== -1; })
+    .sort(function(a, b) { return (b.time || 0) - (a.time || 0); });
+  if (posts.length || (window._cachedPosts || []).length === 0) {
+    LS.set('cached_statuses', posts);
+    renderStatusFeedList(posts);
+    toast('Statuses loaded via REST ✓');
+  }
+}
 async function triggerRESTFallback(silent) {
   if (!currentAuthUser) return;
   if (App.contacts.length === 0) {
     var contacts = await fetchContactsViaREST();
     if (contacts) await applyContactsFromREST(contacts);
   }
-  if (!silent) toast('REST sync: ' + App.contacts.length + ' contacts');
+  if ((window._cachedPosts || []).length === 0) {
+    var statuses = await fetchStatusesViaREST();
+    if (statuses) await applyStatusesFromREST(statuses);
+  }
+  if (!silent) toast('REST sync: ' + App.contacts.length + ' contacts, ' + (window._cachedPosts || []).length + ' statuses');
 }
 
 $('authTabSignIn').addEventListener('click', function() {
@@ -884,7 +912,6 @@ async function handleSignUp() {
       var recoveryHash = await sha256Hex(recoveryPhrase);
       await set(userRef, { slug: slug, displayName: nameVal, authUid: currentAuthUser.uid, email: slugToEmail(slug), activeAuthEmail: slugToEmail(slug), recoveryHash: recoveryHash, createdAt: Date.now(), photo: null });
     }
-    // Try to notify owner (may fail silently for non-owner — expected by rules)
     if (!isOwner()) {
       try { await set(dbRef(db, 'users/gesnerdeslandes/contacts/' + slug), { slug: slug, name: nameVal, time: Date.now() }); } catch (e) {}
     }
@@ -903,7 +930,6 @@ async function handleSignUp() {
   }
 }
 
-/* ⭐ FIXED SIGN-IN — tries multiple emails to handle password-reset accounts */
 async function handleSignIn() {
   var nameVal = $('signInName').value.trim();
   var password = $('signInPassword').value;
@@ -989,7 +1015,6 @@ async function handleChangePassword() {
   }
 }
 
-/* ⭐ FIXED FORGOT PASSWORD — reads only recoveryHash (world-readable), then writes activeAuthEmail first */
 async function handleForgotPassword() {
   var name = $('forgotName').value.trim();
   var recovery = $('forgotRecovery').value.trim();
@@ -1004,7 +1029,6 @@ async function handleForgotPassword() {
   status.textContent = 'Verifying…'; status.style.color = '#d4af37';
 
   try {
-    // Read only recoveryHash — this field is world-readable in the rules
     var hashSnap;
     try {
       hashSnap = await get(dbRef(db, 'users/' + slug + '/recoveryHash'));
@@ -1034,7 +1058,6 @@ async function handleForgotPassword() {
       status.style.color = '#ff4757';
       return;
     }
-    // Authenticated as new user — write activeAuthEmail FIRST so subsequent DB reads/writes are permitted
     try {
       await set(dbRef(db, 'users/' + slug + '/activeAuthEmail'), newEmail);
       await set(dbRef(db, 'users/' + slug + '/authUid'), userCred.user.uid);
@@ -1045,7 +1068,6 @@ async function handleForgotPassword() {
       return;
     }
     currentAuthUser = userCred.user;
-    // Now read full profile (allowed because activeAuthEmail matches auth email)
     var displayName = name;
     try {
       var fullSnap = await get(dbRef(db, 'users/' + slug));
@@ -1352,7 +1374,6 @@ function startMainApp() {
       }, function() { console.warn('Owner users read denied'); });
     }, 5000);
   }
-  // Attempt to discover all groups (owner-only will succeed; non-owner will be denied silently)
   onValue(dbRef(db, 'group_chats'), function(snap) {
     var rg = snap.val() || {}, ids = Object.keys(rg), uiChanged = false;
     for (var x = 0; x < ids.length; x++) {
@@ -1364,7 +1385,7 @@ function startMainApp() {
     }
     if (uiChanged) { saveGroups(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); }
   }, function(err) {
-    console.warn('group_chats parent read denied (expected for non-owner per rules):', err);
+    console.warn('group_chats parent read denied:', err);
   });
   updateAppBadge();
   setTimeout(function() {
@@ -1374,7 +1395,6 @@ function startMainApp() {
   }, 10000);
 }
 
-/* ⭐ NEW — listen to users/<self>/groups for group discovery (works with strict rules) */
 function listenSelfGroups() {
   if (!App.mySlug) return;
   if (App._groupsListener) {
@@ -1538,7 +1558,6 @@ window.blockUser = function(slug) {
     App.contacts = App.contacts.filter(function(c) { return c.slug !== slug; }); saveContacts();
     renderBlockedUsersList(); buildUI();
     if (App.activeChat === slug) { App.activeChat = null; showScreen('screen-main'); }
-    // Try to remove server-side contact (may fail silently if not owner — expected)
     try { remove(dbRef(db, 'users/' + App.mySlug + '/contacts/' + slug)).catch(function(){}); } catch (e) {}
     toast('Blocked ✓');
   }
@@ -1601,7 +1620,6 @@ function setupMessageListener(id, isGroup) {
     if (debouncedSaveCache) debouncedSaveCache();
     if (App.activeChat === id) renderMessages(id, msgs, isGroup);
     if (debouncedBuildUI) debouncedBuildUI();
-    // Process any group invites embedded in messages
     for (var gi = 0; gi < msgs.length; gi++) {
       var m = msgs[gi];
       if (m && m.groupInvite && m.groupInvite.id && !App.processedInvites[m._k] && !findGroup(m.groupInvite.id)) {
@@ -1888,8 +1906,6 @@ $('addContactFab').addEventListener('click', function() {
 });
 $('modalCancel').addEventListener('click', function() { $('addModal').classList.remove('show'); });
 $('modalName').addEventListener('input', function() { $('modalConfirm').disabled = !slugify($('modalName').value) || slugify($('modalName').value) === App.mySlug; });
-
-/* ⭐ FIXED ADD CONTACT — verifies via activeAuthEmail (world-readable per rules), graceful fallback for name */
 $('modalConfirm').addEventListener('click', async function() {
   var slug = slugify($('modalName').value), raw = $('modalName').value.trim().toLowerCase();
   if (!slug) return toast('Enter a valid name', true);
@@ -1901,7 +1917,6 @@ $('modalConfirm').addEventListener('click', async function() {
   }
   var btn = $('modalConfirm'); btn.disabled = true; btn.textContent = 'Checking…';
   try {
-    // Verify user exists via world-readable activeAuthEmail
     var emailSnap;
     try {
       emailSnap = await get(dbRef(db, 'users/' + slug + '/activeAuthEmail'));
@@ -1913,7 +1928,6 @@ $('modalConfirm').addEventListener('click', async function() {
       toast('User not found. Make sure they have created an account.', true);
       return;
     }
-    // Try to fetch display name (works for owner; fails silently for non-owner)
     var name = slug, photo = null;
     try {
       var snap = await get(dbRef(db, 'users/' + slug));
@@ -1923,7 +1937,6 @@ $('modalConfirm').addEventListener('click', async function() {
         photo = d.photo || null;
       }
     } catch (e) {
-      // Permission denied — try to find display name via existing chat messages
       try {
         var chatSnap = await get(query(dbRef(db, 'chats/' + chatIdFor(App.mySlug, slug) + '/messages'), limitToLast(10)));
         if (chatSnap.exists()) {
@@ -1937,7 +1950,6 @@ $('modalConfirm').addEventListener('click', async function() {
     App.contacts.push({ slug: slug, name: name, photo: photo });
     App.lastSeenTimes[slug] = Date.now();
     saveContacts(); saveLastSeenTimes();
-    // Sync to server (own node — allowed by rules)
     try {
       await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + slug), {
         slug: slug, name: name, time: Date.now()
@@ -1971,11 +1983,9 @@ $('groupModalConfirm').addEventListener('click', async function() {
   try {
     await set(dbRef(db, 'group_chats/' + id), { id: id, name: name, members: members, createdBy: App.mySlug });
   } catch (e) { toast('Group create failed', true); return; }
-  // Record in own groups list (self-write — allowed)
   try {
     await set(dbRef(db, 'users/' + App.mySlug + '/groups/' + id), { id: id, name: name, time: Date.now() });
   } catch (e) { console.warn('Self group write failed:', e); }
-  // Send invite DMs to each member (writes into 1:1 chats — allowed by $chatId rule)
   for (var i = 0; i < checked.length; i++) {
     var memberSlug = checked[i];
     try {
@@ -2025,38 +2035,28 @@ $('statusModalConfirm').addEventListener('click', async function() {
   try {
     var mu = null, mt = null;
     if (App.statusMediaFile) { mt = detectFileType(App.statusMediaFile); mu = await fileToBase64(App.statusMediaFile); }
-    await push(dbRef(db, 'user_statuses'), { authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto, text: text, link: link, bgColor: bg, mediaUrl: mu, mediaType: mt, time: Date.now() });
+    await push(dbRef(db, STATUS_FEED_PATH), { authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto, text: text, link: link, bgColor: bg, mediaUrl: mu, mediaType: mt, time: Date.now() });
     $('statusModal').classList.remove('show'); toast('Posted ✓');
   } catch (err) { toast('Failed', true); }
   finally { $('statusModalConfirm').disabled = false; }
 });
 
-/* ⭐ listenUserStatuses — wrapped in try/catch: parent-level query denied by rules for non-owners */
 function listenUserStatuses() {
-  try {
-    onValue(query(dbRef(db, 'user_statuses'), limitToLast(20)), function(snap) {
-      var d = snap.val() || {};
-      var fs = App.contacts.map(function(c) { return c.slug; });
-      var now = Date.now();
-      var posts = Object.keys(d).map(function(k) { var v = d[k]; v._k = k; return v; })
-        .filter(function(p) { return (now - (p.time || 0)) <= 24 * 60 * 60 * 1000; })
-        .filter(function(p) { return isOwner() || p.authorSlug === App.mySlug || fs.indexOf(p.authorSlug) !== -1; })
-        .sort(function(a, b) { return b.time - a.time; });
-      LS.set('cached_statuses', posts);
-      renderStatusFeedList(posts);
-    }, function(err) {
-      console.warn('user_statuses parent read denied (rules restrict to per-child only):', err);
-      // Fallback: show whatever is cached locally
-      var cached = LS.get('cached_statuses', []);
-      if (cached.length) renderStatusFeedList(cached);
-      else {
-        var sf = $('statusFeedList');
-        if (sf) sf.innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>Statuses unavailable.<br><small style="font-size:13px;color:var(--muted)">Ask the owner to add <code>"user_statuses": { ".read": "auth != null", ... }</code> to the rules.</small></p></div>';
-      }
-    });
-  } catch (e) {
-    console.warn('listenUserStatuses error:', e);
-  }
+  onValue(query(dbRef(db, STATUS_FEED_PATH), limitToLast(50)), function(snap) {
+    var d = snap.val() || {};
+    var fs = App.contacts.map(function(c) { return c.slug; });
+    var now = Date.now();
+    var posts = Object.keys(d).map(function(k) { var v = d[k]; v._k = k; return v; })
+      .filter(function(p) { return (now - (p.time || 0)) <= 24 * 60 * 60 * 1000; })
+      .filter(function(p) { return isOwner() || p.authorSlug === App.mySlug || fs.indexOf(p.authorSlug) !== -1; })
+      .sort(function(a, b) { return (b.time || 0) - (a.time || 0); });
+    LS.set('cached_statuses', posts);
+    renderStatusFeedList(posts);
+  }, function(err) {
+    console.warn('Status feed read error:', err);
+    var cached = LS.get('cached_statuses', []);
+    if (cached.length) renderStatusFeedList(cached);
+  });
 }
 function extractEmbed(url) {
   if (!url) return null;
@@ -2104,7 +2104,7 @@ window.__toggleStatusLike = async function(k) {
   var posts = window._cachedPosts || [], p = null;
   for (var i = 0; i < posts.length; i++) if (posts[i]._k === k) { p = posts[i]; break; }
   if (!p) return;
-  var lr = dbRef(db, 'user_statuses/' + k + '/likes/' + App.mySlug);
+  var lr = dbRef(db, STATUS_FEED_PATH + '/' + k + '/likes/' + App.mySlug);
   var sn = await get(lr);
   if (sn.exists()) { await remove(lr); toast('Unliked'); }
   else {
@@ -2119,14 +2119,14 @@ window.__sendQuickStatusEmoji = async function(k, e) {
   var posts = window._cachedPosts || [], p = null;
   for (var i = 0; i < posts.length; i++) if (posts[i]._k === k) { p = posts[i]; break; }
   if (!p) return;
-  await push(dbRef(db, 'user_statuses/' + k + '/comments'), { author: App.mySlug, text: e, time: Date.now() });
+  await push(dbRef(db, STATUS_FEED_PATH + '/' + k + '/comments'), { author: App.mySlug, text: e, time: Date.now() });
   if (p.authorSlug !== App.mySlug) {
     var at = p.mediaUrl ? { type: p.mediaType, url: p.mediaUrl, name: 'Status Media' } : null;
     await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: '💬 Reacted: ' + e, attachment: at, time: Date.now() });
   }
   toast('Sent ' + e + ' ✓');
 };
-window.__delStatus = async function(k) { if (confirm('Delete status?')) { await remove(dbRef(db, 'user_statuses/' + k)); toast('Deleted'); } };
+window.__delStatus = async function(k) { if (confirm('Delete status?')) { await remove(dbRef(db, STATUS_FEED_PATH + '/' + k)); toast('Deleted'); } };
 window.__openStatusComments = function(k) {
   var posts = window._cachedPosts || [], p = null;
   for (var i = 0; i < posts.length; i++) if (posts[i]._k === k) { p = posts[i]; break; }
@@ -2148,7 +2148,7 @@ $('statusCommentCancel').addEventListener('click', function() { $('statusComment
 $('statusCommentSend').addEventListener('click', async function() {
   var text = $('statusCommentInput').value.trim();
   if (!text || !App.activeStatusObj) return;
-  await push(dbRef(db, 'user_statuses/' + App.activeStatusObj._k + '/comments'), { author: App.mySlug, text: text, time: Date.now() });
+  await push(dbRef(db, STATUS_FEED_PATH + '/' + App.activeStatusObj._k + '/comments'), { author: App.mySlug, text: text, time: Date.now() });
   if (App.activeStatusObj.authorSlug !== App.mySlug) {
     var at = App.activeStatusObj.mediaUrl ? { type: App.activeStatusObj.mediaType, url: App.activeStatusObj.mediaUrl, name: 'Status Media' } : null;
     await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, App.activeStatusObj.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: '💬 Comment: "' + text + '"', attachment: at, time: Date.now() });
@@ -2178,7 +2178,7 @@ function loadOwnerStatuses() {
   }
   area.innerHTML = h;
 }
-window.__ownerDeleteStatus = async function(k) { if (confirm('Delete status?')) { await remove(dbRef(db, 'user_statuses/' + k)); toast('Deleted ✓'); loadOwnerStatuses(); } };
+window.__ownerDeleteStatus = async function(k) { if (confirm('Delete status?')) { await remove(dbRef(db, STATUS_FEED_PATH + '/' + k)); toast('Deleted ✓'); loadOwnerStatuses(); } };
 window.__ownerReportStatus = async function(k, u) { var r = prompt('Reason:', 'Violation'); if (!r) return; await push(dbRef(db, 'owner_reports'), { type: 'Violation', targetUser: u, reason: r, time: Date.now(), reporter: App.mySlug }); toast('Reported ✓'); };
 function loadOwnerReports() {
   var area = $('ownerContentArea');
