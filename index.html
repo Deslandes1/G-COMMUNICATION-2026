@@ -30,7 +30,6 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 @keyframes jarvisSpin{to{transform:rotate(360deg)}}
 #loadingText{font-size:22px !important;font-weight:800;letter-spacing:2px;margin-bottom:10px}
 #loadingSub{font-size:15px !important;opacity:.85;max-width:340px;line-height:1.5}
-.loading-retry-btn{margin-top:22px;padding:14px 28px;background:linear-gradient(135deg,#f0d369,#d4af37);color:#0b2a4a;border:none;border-radius:10px;font-weight:800;cursor:pointer;font-size:17px}
 #loadErrorBanner{position:fixed;top:calc(8px + env(safe-area-inset-top));left:8px;right:8px;background:#ff4757;color:#fff;padding:12px 14px;border-radius:10px;z-index:999998;display:none;font-size:13px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.3);font-weight:600;line-height:1.4}
 #loadErrorBanner.show{display:block}
 #loadErrorBanner button{background:#fff;color:#ff4757;border:none;padding:6px 12px;border-radius:6px;margin-top:8px;font-weight:700;font-size:12px;cursor:pointer}
@@ -47,8 +46,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .onboard-logo{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 50%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:46px;font-weight:800;margin-bottom:18px;box-shadow:0 12px 40px rgba(212,175,55,.55);flex-shrink:0}
 #screen-onboard h1{font-size:30px !important;letter-spacing:3px;margin-bottom:6px;font-weight:800}
 #screen-onboard > p{font-size:15px !important;opacity:.9;line-height:1.5;max-width:340px;margin-bottom:20px}
-#pendingLiveBanner{display:none;background:linear-gradient(135deg,#ff4757,#cc2334);color:#fff;padding:14px 18px;border-radius:10px;margin-bottom:16px;text-align:center;font-size:14px;font-weight:600;max-width:340px;box-shadow:0 6px 20px rgba(255,71,87,0.4);animation:pulseRed 1.8s ease-in-out infinite}
-@keyframes pulseRed{0%,100%{box-shadow:0 6px 20px rgba(255,71,87,0.4)}50%{box-shadow:0 6px 30px rgba(255,71,87,0.8)}}
+#pendingLiveBanner{display:none;background:linear-gradient(135deg,#ff4757,#cc2334);color:#fff;padding:14px 18px;border-radius:10px;margin-bottom:16px;text-align:center;font-size:14px;font-weight:600;max-width:340px;box-shadow:0 6px 20px rgba(255,71,87,0.4)}
 .auth-tabs{display:flex;gap:8px;width:100%;max-width:340px;margin-bottom:16px}
 .auth-tabs button{flex:1;padding:13px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;border-radius:10px;font-size:15px !important;font-weight:700;cursor:pointer;font-family:Calibri,sans-serif}
 .auth-tabs button.active{background:var(--gold);color:var(--navy);border-color:var(--gold)}
@@ -186,7 +184,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .toast{position:fixed;bottom:calc(90px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(60px);background:#0b2a4a;color:#fff;padding:14px 24px;border-radius:10px;font-size:14px !important;font-weight:600;border:2px solid var(--gold);opacity:0;pointer-events:none;transition:all .3s;z-index:10000;max-width:90%;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* ==================== LIVE STREAM ==================== */
+/* LIVE STREAM */
 #screen-live{background:#000}
 #screen-live .live-header{background:linear-gradient(135deg,#ff4757,#cc2334);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;min-height:56px;flex-shrink:0;z-index:5}
 #screen-live .live-header .back-btn{background:none;border:none;color:#fff;font-size:26px;cursor:pointer;padding:0 4px}
@@ -224,7 +222,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 #liveLoadingOverlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;background:rgba(0,0,0,.75);z-index:3}
 #liveLoadingOverlay.hidden{display:none}
 #liveLoadingOverlay .spinner{width:46px;height:46px;border:4px solid rgba(255,255,255,.2);border-top-color:#ff4757;border-radius:50%;animation:jarvisSpin 1s linear infinite}
-.live-badge-top{position:absolute;top:calc(10px + env(safe-area-inset-top));left:10px;background:#ff4757;color:#fff;padding:5px 12px;border-radius:16px;font-size:11px;font-weight:800;z-index:4;box-shadow:0 4px 12px rgba(255,71,87,.5);animation:pulseRed 1.5s ease-in-out infinite}
+.live-badge-top{position:absolute;top:calc(10px + env(safe-area-inset-top));left:10px;background:#ff4757;color:#fff;padding:5px 12px;border-radius:16px;font-size:11px;font-weight:800;z-index:4;box-shadow:0 4px 12px rgba(255,71,87,.5)}
 #screen-live .live-controls{background:#0b2a4a;padding:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;flex-shrink:0;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
 #screen-live .live-controls .call-btn{background:rgba(255,255,255,.15);color:#fff;width:46px;height:46px;font-size:20px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 #screen-live .live-controls .call-btn.active{background:var(--gold);color:var(--navy)}
@@ -232,8 +230,21 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 #screen-live .live-controls .call-btn.share{background:#0d7a8c;color:#fff;width:auto;min-width:86px;padding:0 16px;border-radius:24px;font-size:13px;font-weight:700;gap:6px}
 #screen-live .live-controls .call-btn.join{background:#4aff7a;color:#0b2a4a;width:auto;min-width:120px;padding:0 16px;border-radius:24px;font-size:13px;font-weight:800;gap:6px}
 #screen-live .live-controls .call-btn.join.waiting{background:#d4af37;color:#0b2a4a}
-.live-now-card{border:2px solid #ff4757 !important;background:linear-gradient(135deg,#fff5f5,#ffe5e5) !important;animation:pulseBorder 2s ease-in-out infinite}
-@keyframes pulseBorder{0%,100%{border-color:#ff4757}50%{border-color:#ff8b8b}}
+.live-now-card{border:2px solid #ff4757 !important;background:linear-gradient(135deg,#fff5f5,#ffe5e5) !important}
+.live-video-wrap video.hidden-by-avatar { visibility: hidden; }
+.avatar-fallback { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: linear-gradient(135deg, #0b2a4a 0%, #143a5f 50%, #0d7a8c 100%); z-index: 3; }
+.avatar-fallback.show { display: flex; }
+.avatar-fallback .letter { width: 140px; height: 140px; border-radius: 50%; background: linear-gradient(135deg, #f0d369, #d4af37 50%, #a8872f); color: #0b2a4a; font-size: 72px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 40px rgba(212,175,55,0.55); font-family: Calibri, sans-serif; }
+.avatar-fallback .letter.small { width: 90px; height: 90px; font-size: 42px; }
+#liveLocalAvatar { position: absolute; bottom: 14px; right: 14px; width: 130px; height: 100px; border-radius: 10px; border: 2px solid #d4af37; inset: auto; z-index: 7; }
+#liveLocalAvatar .letter.small { width: 70px; height: 70px; font-size: 32px; }
+.conf-tile .avatar-fallback { border-radius: 10px; }
+.conf-tile .avatar-fallback .letter { width: 50px; height: 50px; font-size: 24px; }
+.live-pause-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.88); color: #fff; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 9; text-align: center; padding: 20px; }
+.live-pause-overlay.show { display: flex; }
+.live-pause-overlay .icon { font-size: 70px; margin-bottom: 14px; }
+.live-pause-overlay .title { font-size: 24px; font-weight: 800; margin-bottom: 10px; letter-spacing: 2px; color: #d4af37; }
+.live-pause-overlay .sub { font-size: 14px; opacity: 0.85; max-width: 260px; line-height: 1.5; }
 @media (max-width: 540px) {
   .live-chat-side{width:45%;min-width:150px;max-width:230px}
   .live-chat-msg{font-size:12px;padding:5px 6px}
@@ -241,6 +252,9 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   .live-chat-input-row input[type=text]{font-size:11px;padding:6px 8px}
   .live-chat-input-row button{padding:6px 8px;font-size:11px}
   #liveLocalVideo{width:90px !important;height:70px !important;bottom:10px !important;right:10px !important}
+  .avatar-fallback .letter { width: 100px; height: 100px; font-size: 52px; }
+  #liveLocalAvatar { width: 90px; height: 70px; }
+  #liveLocalAvatar .letter.small { width: 50px; height: 50px; font-size: 24px; }
 }
 @media (min-width: 640px) {
   body{padding:16px;background:#e4e9ef}
@@ -291,11 +305,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     var panel = document.createElement('div');
     panel.style.cssText = 'position:fixed;bottom:0;left:0;right:0;max-height:40vh;background:rgba(0,0,0,.92);color:#4aff7a;font-family:monospace;font-size:11px;padding:8px;overflow-y:auto;z-index:999999;white-space:pre-wrap;border-top:2px solid #d4af37;';
     document.body.appendChild(panel);
-    window.__jarvisDebugLog = function(msg) {
-      panel.textContent += '[' + new Date().toLocaleTimeString() + '] ' + msg + '\n';
-      panel.scrollTop = panel.scrollHeight;
-    };
-    window.__jarvisDebugLog('JARVIS debug ON — iOS=' + iOSMajor);
+    window.__jarvisDebugLog = function(msg) { panel.textContent += '[' + new Date().toLocaleTimeString() + '] ' + msg + '\n'; panel.scrollTop = panel.scrollHeight; };
     var origErr = console.error, origWarn = console.warn, origLog = console.log;
     console.error = function() { window.__jarvisDebugLog('ERR: ' + Array.prototype.join.call(arguments, ' ')); origErr.apply(console, arguments); };
     console.warn = function() { window.__jarvisDebugLog('WRN: ' + Array.prototype.join.call(arguments, ' ')); origWarn.apply(console, arguments); };
@@ -311,16 +321,9 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     var pb = document.getElementById('pendingLiveBanner');
     if (pb && window._pendingLiveJoin) pb.style.display = 'block';
   }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', hideLoadingNow);
-  } else { setTimeout(hideLoadingNow, 0); }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', hideLoadingNow); } else { setTimeout(hideLoadingNow, 0); }
   setTimeout(hideLoadingNow, 500);
-  setTimeout(function() {
-    if (!window.__jarvisModuleLoaded) {
-      var eb = document.getElementById('loadErrorBanner');
-      if (eb) eb.classList.add('show');
-    }
-  }, 15000);
+  setTimeout(function() { if (!window.__jarvisModuleLoaded) { var eb = document.getElementById('loadErrorBanner'); if (eb) eb.classList.add('show'); } }, 15000);
   window.addEventListener('error', function(e) { console.error('[JARVIS]', e.message || e.error); });
   window.addEventListener('unhandledrejection', function(e) { console.error('[JARVIS Rejection]', e.reason); });
 })();
@@ -474,8 +477,19 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="live-video-wrap">
       <div class="live-badge-top" id="liveOnAirBadge">🔴 LIVE</div>
       <video id="liveRemoteVideo" autoplay playsinline webkit-playsinline></video>
+      <div id="liveRemoteAvatar" class="avatar-fallback">
+        <div class="letter" id="liveRemoteAvatarLetter">?</div>
+      </div>
       <video id="liveLocalVideo" autoplay playsinline muted webkit-playsinline></video>
+      <div id="liveLocalAvatar" class="avatar-fallback">
+        <div class="letter small" id="liveLocalAvatarLetter">?</div>
+      </div>
       <div id="liveConferenceGrid"></div>
+      <div class="live-pause-overlay" id="livePauseOverlay">
+        <div class="icon">⏸</div>
+        <div class="title" id="livePauseTitle">PAUSED</div>
+        <div class="sub" id="livePauseSub">Stream paused — will return soon.</div>
+      </div>
       <div id="liveLoadingOverlay">
         <div class="spinner"></div>
         <div style="margin-top:16px;font-size:13px;">Connecting to live stream…</div>
@@ -492,9 +506,13 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       </div>
     </div>
   </div>
-  <div class="live-controls">
+  <div class="live-controls wrap-extra">
     <button class="call-btn share" id="liveShareBtn" title="Share live stream">🔗 Share</button>
     <button class="call-btn join" id="liveJoinBtn" style="display:none;" title="Request to join as participant">✋ Request to Join</button>
+    <button class="call-btn" id="livePauseBtn" style="display:none;" title="Pause stream">⏸ Pause</button>
+    <button class="call-btn" id="liveBgBtn" style="display:none;" title="Virtual Background">🖼️</button>
+    <button class="call-btn" id="liveScreenBtn" style="display:none;" title="Share Screen">💻</button>
+    <button class="call-btn" id="liveRecordBtn" style="display:none;" title="Record stream">🔴</button>
     <button class="call-btn" id="liveMuteBtn" title="Mute Microphone">🎤</button>
     <button class="call-btn" id="liveCameraBtn" title="Toggle Camera">📹</button>
     <button class="call-btn end" id="liveEndBtn" title="End Stream">📵</button>
@@ -565,197 +583,34 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <button class="call-btn accept" id="acceptCallBtn">📞</button>
   </div>
 </div>
-<div class="modal-overlay" id="addModal">
-  <div class="modal">
-    <h3>Add Contact</h3>
-    <input id="modalName" type="text" placeholder="Enter username" maxlength="20" autocapitalize="none">
-    <div id="modalStatus" style="font-size:14px !important;font-family:Calibri,sans-serif;margin-bottom:10px"></div>
-    <div class="modal-actions">
-      <button class="cancel" id="modalCancel">Cancel</button>
-      <button class="confirm" id="modalConfirm" disabled>Add</button>
-    </div>
-  </div>
-</div>
-<div class="modal-overlay" id="groupModal">
-  <div class="modal">
-    <h3>Create Group Chat (👥)</h3>
-    <input id="groupNameInput" type="text" placeholder="Group Name" maxlength="30">
-    <div style="font-size:14px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:6px">Select Members from Friends:</div>
-    <div class="group-select-list" id="groupMembersSelection"></div>
-    <div class="modal-actions">
-      <button class="cancel" id="groupModalCancel">Cancel</button>
-      <button class="confirm" id="groupModalConfirm">Create Group</button>
-    </div>
-  </div>
-</div>
-<div class="modal-overlay" id="statusModal">
-  <div class="modal">
-    <h3>Post Public Status</h3>
-    <textarea id="statusTextInput" rows="2" placeholder="Write status text..."></textarea>
-    <input id="statusLinkInput" type="text" placeholder="Paste YouTube / Vimeo / Dropbox / Google Drive link to auto-embed video" style="margin-top:8px;">
-    <div style="font-size:12px;color:var(--muted);margin-top:-8px;margin-bottom:8px;">💡 Paste a video link to auto-play it on your status</div>
-    <div style="margin-bottom:10px">
-      <label style="font-size:14px !important;font-family:Calibri,sans-serif;display:block;margin-bottom:4px">Background Color:</label>
-      <input type="color" id="statusBgColor" value="#0d7a8c" style="width:100%;height:40px;border-radius:6px;padding:2px;cursor:pointer;">
-    </div>
-    <div style="margin-bottom:10px">
-      <button class="btn-primary" id="statusMediaSelectBtn" style="width:100%;max-width:none;padding:12px;font-size:15px !important;font-family:Calibri,sans-serif;background:#143a5f;color:#fff;">📹 Select Photo or Video Clip</button>
-      <div id="statusMediaName" style="font-size:13px !important;font-family:Calibri,sans-serif;color:var(--accent);margin-top:4px;word-break:break-all;"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="cancel" id="statusModalCancel">Cancel</button>
-      <button class="confirm" id="statusModalConfirm">Post Publicly</button>
-    </div>
-  </div>
-</div>
-<div class="modal-overlay" id="editMsgModal">
-  <div class="modal">
-    <h3>Edit Message / Media</h3>
-    <input id="editMsgInput" type="text" placeholder="Edit caption or text..." autocomplete="off" style="margin-bottom:10px;">
-    <div style="margin-bottom:12px">
-      <label style="font-size:14px !important;font-family:Calibri,sans-serif;display:block;margin-bottom:4px">Replace Attached Media (Optional):</label>
-      <input type="file" id="editMediaInput" accept="image/*,video/*,audio/*">
-    </div>
-    <div class="modal-actions">
-      <button class="cancel" id="editMsgCancel">Cancel</button>
-      <button class="confirm" id="editMsgConfirm">Save</button>
-    </div>
-  </div>
-</div>
-<div class="modal-overlay" id="statusCommentsModal">
-  <div class="modal" style="max-width:420px;">
-    <h3>Status Comments & Direct DM to Owner</h3>
-    <div id="statusCommentsList" style="max-height:220px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:8px;"></div>
-    <input id="statusCommentInput" type="text" placeholder="Write comment or send emoji to owner DM..." autocomplete="off">
-    <div class="modal-actions">
-      <button class="cancel" id="statusCommentCancel">Close</button>
-      <button class="confirm" id="statusCommentSend">Send DM</button>
-    </div>
-  </div>
-</div>
-<div class="modal-overlay" id="ownerAuthModal">
-  <div class="modal">
-    <h3>Owner Authentication</h3>
-    <p style="font-size:14px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:10px;">Enter your account password to unlock monitoring space (same password you use to log in):</p>
-    <input id="ownerPassInput" type="password" placeholder="Password..." autocomplete="off">
-    <div class="modal-actions">
-      <button class="cancel" id="ownerAuthCancel">Cancel</button>
-      <button class="confirm" id="ownerAuthConfirm">Unlock</button>
-    </div>
-  </div>
-</div>
-<div class="modal-overlay" id="ownerSpaceModal">
-  <div class="modal" style="max-width:640px;max-height:90vh;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <h3 style="margin:0;">🛡️ Owner Monitoring Space</h3>
-      <button id="ownerSpaceClose" style="background:none;border:none;font-size:22px;cursor:pointer;">✕</button>
-    </div>
-    <div style="display:flex;gap:6px;margin-bottom:12px;">
-      <button class="btn-primary" id="ownerTabStatusBtn" style="flex:1;max-width:none;padding:10px;font-size:13px !important;font-family:Calibri,sans-serif;">Monitor Statuses</button>
-      <button class="btn-primary" id="ownerTabChatsBtn" style="flex:1;max-width:none;padding:10px;font-size:13px !important;font-family:Calibri,sans-serif;background:#143a5f;">Monitor P2P DMs</button>
-    </div>
-    <div id="ownerContentArea" style="max-height:55vh;overflow-y:auto;display:flex;flex-direction:column;gap:10px;"></div>
-  </div>
-</div>
-<div class="modal-overlay" id="bgGalleryModal">
+<div class="modal-overlay" id="addModal"><div class="modal"><h3>Add Contact</h3><input id="modalName" type="text" placeholder="Enter username" maxlength="20" autocapitalize="none"><div id="modalStatus" style="font-size:14px !important;font-family:Calibri,sans-serif;margin-bottom:10px"></div><div class="modal-actions"><button class="cancel" id="modalCancel">Cancel</button><button class="confirm" id="modalConfirm" disabled>Add</button></div></div></div>
+<div class="modal-overlay" id="groupModal"><div class="modal"><h3>Create Group Chat (👥)</h3><input id="groupNameInput" type="text" placeholder="Group Name" maxlength="30"><div style="font-size:14px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:6px">Select Members from Friends:</div><div class="group-select-list" id="groupMembersSelection"></div><div class="modal-actions"><button class="cancel" id="groupModalCancel">Cancel</button><button class="confirm" id="groupModalConfirm">Create Group</button></div></div></div>
+<div class="modal-overlay" id="statusModal"><div class="modal"><h3>Post Public Status</h3><textarea id="statusTextInput" rows="2" placeholder="Write status text..."></textarea><input id="statusLinkInput" type="text" placeholder="Paste YouTube / Vimeo / Dropbox / Google Drive link to auto-embed video" style="margin-top:8px;"><div style="font-size:12px;color:var(--muted);margin-top:-8px;margin-bottom:8px;">💡 Paste a video link to auto-play it on your status</div><div style="margin-bottom:10px"><label style="font-size:14px !important;font-family:Calibri,sans-serif;display:block;margin-bottom:4px">Background Color:</label><input type="color" id="statusBgColor" value="#0d7a8c" style="width:100%;height:40px;border-radius:6px;padding:2px;cursor:pointer;"></div><div style="margin-bottom:10px"><button class="btn-primary" id="statusMediaSelectBtn" style="width:100%;max-width:none;padding:12px;font-size:15px !important;font-family:Calibri,sans-serif;background:#143a5f;color:#fff;">📹 Select Photo or Video Clip</button><div id="statusMediaName" style="font-size:13px !important;font-family:Calibri,sans-serif;color:var(--accent);margin-top:4px;word-break:break-all;"></div></div><div class="modal-actions"><button class="cancel" id="statusModalCancel">Cancel</button><button class="confirm" id="statusModalConfirm">Post Publicly</button></div></div></div>
+<div class="modal-overlay" id="editMsgModal"><div class="modal"><h3>Edit Message / Media</h3><input id="editMsgInput" type="text" placeholder="Edit caption or text..." autocomplete="off" style="margin-bottom:10px;"><div style="margin-bottom:12px"><label style="font-size:14px !important;font-family:Calibri,sans-serif;display:block;margin-bottom:4px">Replace Attached Media (Optional):</label><input type="file" id="editMediaInput" accept="image/*,video/*,audio/*"></div><div class="modal-actions"><button class="cancel" id="editMsgCancel">Cancel</button><button class="confirm" id="editMsgConfirm">Save</button></div></div></div>
+<div class="modal-overlay" id="statusCommentsModal"><div class="modal" style="max-width:420px;"><h3>Status Comments & Direct DM to Owner</h3><div id="statusCommentsList" style="max-height:220px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:8px;"></div><input id="statusCommentInput" type="text" placeholder="Write comment or send emoji to owner DM..." autocomplete="off"><div class="modal-actions"><button class="cancel" id="statusCommentCancel">Close</button><button class="confirm" id="statusCommentSend">Send DM</button></div></div></div>
+<div class="modal-overlay" id="ownerAuthModal"><div class="modal"><h3>Owner Authentication</h3><p style="font-size:14px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:10px;">Enter your account password to unlock monitoring space:</p><input id="ownerPassInput" type="password" placeholder="Password..." autocomplete="off"><div class="modal-actions"><button class="cancel" id="ownerAuthCancel">Cancel</button><button class="confirm" id="ownerAuthConfirm">Unlock</button></div></div></div>
+<div class="modal-overlay" id="ownerSpaceModal"><div class="modal" style="max-width:640px;max-height:90vh;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h3 style="margin:0;">🛡️ Owner Monitoring Space</h3><button id="ownerSpaceClose" style="background:none;border:none;font-size:22px;cursor:pointer;">✕</button></div><div style="display:flex;gap:6px;margin-bottom:12px;"><button class="btn-primary" id="ownerTabStatusBtn" style="flex:1;max-width:none;padding:10px;font-size:13px !important;font-family:Calibri,sans-serif;">Monitor Statuses</button><button class="btn-primary" id="ownerTabChatsBtn" style="flex:1;max-width:none;padding:10px;font-size:13px !important;font-family:Calibri,sans-serif;background:#143a5f;">Monitor P2P DMs</button></div><div id="ownerContentArea" style="max-height:55vh;overflow-y:auto;display:flex;flex-direction:column;gap:10px;"></div></div></div>
+<div class="modal-overlay" id="bgGalleryModal"><div class="modal" style="max-width:460px;"><h3>🖼️ Professional Backgrounds</h3><div class="bg-gallery-grid" id="bgGalleryGrid"></div><div class="modal-actions"><button class="cancel" id="bgGalleryClose" style="width:100%;max-width:none;">Close</button></div></div></div>
+<div class="modal-overlay" id="liveBgModal">
   <div class="modal" style="max-width:460px;">
-    <h3>🖼️ Professional Backgrounds</h3>
-    <p style="font-size:13px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:10px;">Choose a beautiful background for your video call — applies to your camera in real time.</p>
-    <div class="bg-gallery-grid" id="bgGalleryGrid"></div>
+    <h3>🖼️ Virtual Background</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">Choose a background — applies to your camera in real time.</p>
+    <div class="bg-gallery-grid" id="liveBgGallery" style="grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div>
+    <div style="margin-bottom:12px;">
+      <input type="file" id="liveBgUploadInput" accept="image/*" style="display:none;" onchange="window.__uploadLiveBg(this)">
+      <button onclick="document.getElementById('liveBgUploadInput').click()" style="width:100%;padding:12px;background:#143a5f;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:Calibri,sans-serif;font-size:14px;">📷 Upload Background From Device</button>
+    </div>
     <div class="modal-actions">
-      <button class="cancel" id="bgGalleryClose" style="width:100%;max-width:none;">Close</button>
+      <button class="cancel" onclick="document.getElementById('liveBgModal').classList.remove('show')" style="width:100%;max-width:none;">Close</button>
     </div>
   </div>
 </div>
-<div class="modal-overlay" id="preCallModal">
-  <div class="modal" style="max-width:480px;">
-    <h3 id="preCallTitle">🎥 Video Call Setup</h3>
-    <p style="font-size:13px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:12px;" id="preCallDesc">Choose a professional background and optionally invite friends before starting.</p>
-    <div id="preCallBgSection">
-      <label style="font-size:14px !important;font-family:Calibri,sans-serif;font-weight:700;display:block;margin-bottom:8px;color:var(--navy);">🖼️ Background:</label>
-      <div class="bg-gallery-grid" id="preCallBgGrid" style="grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div>
-    </div>
-    <div id="preCallInviteSection">
-      <label style="font-size:14px !important;font-family:Calibri,sans-serif;font-weight:700;display:block;margin-bottom:8px;color:var(--navy);">👥 Invite others (optional):</label>
-      <div class="group-select-list" id="preCallInviteList" style="max-height:140px;"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="cancel" id="preCallCancel">Cancel</button>
-      <button class="confirm" id="preCallStart">Start Call</button>
-    </div>
-  </div>
-</div>
-<div class="modal-overlay" id="addParticipantModal">
-  <div class="modal">
-    <h3>🎥 Invite Users to Call</h3>
-    <div style="font-size:13px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:8px;">Turn this into a conference call — select friends to invite:</div>
-    <div class="group-select-list" id="participantSelectionList"></div>
-    <div class="modal-actions">
-      <button class="cancel" id="participantCancel">Skip</button>
-      <button class="confirm" id="participantConfirm">Invite to Call</button>
-    </div>
-  </div>
-</div>
-<div class="modal-overlay" id="iosInstallGuide">
-  <div class="modal" style="max-width:420px;">
-    <h3>📱 Enable Notifications on iPhone</h3>
-    <div style="font-size:14px;font-family:Calibri,sans-serif;line-height:1.6;color:var(--text);margin-bottom:14px;">
-      <p style="margin-bottom:12px;"><strong>Notifications on iPhone require these steps:</strong></p>
-      <p style="margin-bottom:8px;">1️⃣ Tap the <strong>Share</strong> button ⬆️ at the bottom of Safari</p>
-      <p style="margin-bottom:8px;">2️⃣ Scroll down and tap <strong>"Add to Home Screen"</strong></p>
-      <p style="margin-bottom:8px;">3️⃣ Tap <strong>Add</strong> in the top right</p>
-      <p style="margin-bottom:8px;">4️⃣ Close Safari, open <strong>JARVIS</strong> from your Home Screen</p>
-      <p style="margin-bottom:8px;">5️⃣ Go to Profile → Notifications → tap to enable</p>
-      <p style="margin-top:14px;padding:12px;background:#fff8e1;border-left:4px solid #d4af37;border-radius:6px;font-size:13px;">
-        ⚠️ <strong>Note:</strong> Notifications only work on iOS 16.4 or newer. Browsers cannot auto-allow — you must tap the button and confirm Apple's prompt.
-      </p>
-    </div>
-    <div class="modal-actions">
-      <button class="cancel" onclick="document.getElementById('iosInstallGuide').classList.remove('show')" style="width:100%;max-width:none;">Got it</button>
-    </div>
-  </div>
-</div>
-<div class="modal-overlay" id="changePasswordModal">
-  <div class="modal">
-    <h3>🔑 Change Password</h3>
-    <p style="font-size:14px !important;color:var(--muted);margin-bottom:10px;">Enter current password, then choose a new one (min 6 chars).</p>
-    <input id="currentPasswordInput" type="password" placeholder="Current password" autocomplete="current-password">
-    <input id="newPasswordInput" type="password" placeholder="New password" autocomplete="new-password">
-    <input id="confirmPasswordInput" type="password" placeholder="Confirm new password" autocomplete="new-password">
-    <div class="modal-actions">
-      <button class="cancel" id="changePasswordCancel">Cancel</button>
-      <button class="confirm" id="changePasswordConfirm">Update Password</button>
-    </div>
-  </div>
-</div>
-<div class="modal-overlay" id="forgotPasswordModal">
-  <div class="modal">
-    <h3>🔑 Reset Password</h3>
-    <p style="font-size:14px;color:var(--muted);margin-bottom:12px;">Enter your name, recovery phrase, and a new password.</p>
-    <input id="forgotName" type="text" placeholder="Your name" autocomplete="username" autocapitalize="none">
-    <input id="forgotRecovery" type="text" placeholder="Recovery phrase" autocomplete="off" autocapitalize="none">
-    <input id="forgotNewPassword" type="password" placeholder="New password (min 6 chars)" autocomplete="new-password">
-    <input id="forgotConfirmPassword" type="password" placeholder="Confirm new password" autocomplete="new-password">
-    <div id="forgotStatus" style="font-size:13px;min-height:18px;margin-bottom:8px;color:var(--muted);text-align:center;"></div>
-    <div class="modal-actions">
-      <button class="cancel" id="forgotCancel">Cancel</button>
-      <button class="confirm" id="forgotConfirm">Reset Password</button>
-    </div>
-  </div>
-</div>
-<div class="modal-overlay" id="setRecoveryModal">
-  <div class="modal">
-    <h3>🛡️ Set Recovery Phrase</h3>
-    <p style="font-size:14px;color:var(--muted);margin-bottom:12px;">This phrase lets you reset your password if you forget it. Choose something only you'll remember.</p>
-    <input id="setRecoveryCurrentPwd" type="password" placeholder="Current password" autocomplete="current-password">
-    <input id="setRecoveryPhrase" type="text" placeholder="New recovery phrase" autocomplete="off" autocapitalize="none">
-    <input id="setRecoveryPhraseConfirm" type="text" placeholder="Confirm recovery phrase" autocomplete="off" autocapitalize="none">
-    <div class="modal-actions">
-      <button class="cancel" id="setRecoveryCancel">Cancel</button>
-      <button class="confirm" id="setRecoveryConfirm">Save Phrase</button>
-    </div>
-  </div>
-</div>
+<div class="modal-overlay" id="preCallModal"><div class="modal" style="max-width:480px;"><h3 id="preCallTitle">🎥 Video Call Setup</h3><p style="font-size:13px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:12px;" id="preCallDesc">Choose a professional background and optionally invite friends before starting.</p><div id="preCallBgSection"><label style="font-size:14px !important;font-family:Calibri,sans-serif;font-weight:700;display:block;margin-bottom:8px;color:var(--navy);">🖼️ Background:</label><div class="bg-gallery-grid" id="preCallBgGrid" style="grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div></div><div id="preCallInviteSection"><label style="font-size:14px !important;font-family:Calibri,sans-serif;font-weight:700;display:block;margin-bottom:8px;color:var(--navy);">👥 Invite others (optional):</label><div class="group-select-list" id="preCallInviteList" style="max-height:140px;"></div></div><div class="modal-actions"><button class="cancel" id="preCallCancel">Cancel</button><button class="confirm" id="preCallStart">Start Call</button></div></div></div>
+<div class="modal-overlay" id="addParticipantModal"><div class="modal"><h3>🎥 Invite Users to Call</h3><div class="group-select-list" id="participantSelectionList"></div><div class="modal-actions"><button class="cancel" id="participantCancel">Skip</button><button class="confirm" id="participantConfirm">Invite to Call</button></div></div></div>
+<div class="modal-overlay" id="iosInstallGuide"><div class="modal" style="max-width:420px;"><h3>📱 Enable Notifications on iPhone</h3><div style="font-size:14px;font-family:Calibri,sans-serif;line-height:1.6;color:var(--text);margin-bottom:14px;"><p style="margin-bottom:8px;">1️⃣ Tap <strong>Share</strong> ⬆️ in Safari</p><p style="margin-bottom:8px;">2️⃣ Tap <strong>"Add to Home Screen"</strong></p><p style="margin-bottom:8px;">3️⃣ Tap <strong>Add</strong></p><p style="margin-bottom:8px;">4️⃣ Open <strong>JARVIS</strong> from Home Screen</p><p style="margin-bottom:8px;">5️⃣ Profile → Notifications → enable</p></div><div class="modal-actions"><button class="cancel" onclick="document.getElementById('iosInstallGuide').classList.remove('show')" style="width:100%;max-width:none;">Got it</button></div></div></div>
+<div class="modal-overlay" id="changePasswordModal"><div class="modal"><h3>🔑 Change Password</h3><input id="currentPasswordInput" type="password" placeholder="Current password" autocomplete="current-password"><input id="newPasswordInput" type="password" placeholder="New password" autocomplete="new-password"><input id="confirmPasswordInput" type="password" placeholder="Confirm new password" autocomplete="new-password"><div class="modal-actions"><button class="cancel" id="changePasswordCancel">Cancel</button><button class="confirm" id="changePasswordConfirm">Update Password</button></div></div></div>
+<div class="modal-overlay" id="forgotPasswordModal"><div class="modal"><h3>🔑 Reset Password</h3><p style="font-size:14px;color:var(--muted);margin-bottom:12px;">Enter your name, recovery phrase, and a new password.</p><input id="forgotName" type="text" placeholder="Your name" autocomplete="username" autocapitalize="none"><input id="forgotRecovery" type="text" placeholder="Recovery phrase" autocomplete="off" autocapitalize="none"><input id="forgotNewPassword" type="password" placeholder="New password (min 6 chars)" autocomplete="new-password"><input id="forgotConfirmPassword" type="password" placeholder="Confirm new password" autocomplete="new-password"><div id="forgotStatus" style="font-size:13px;min-height:18px;margin-bottom:8px;color:var(--muted);text-align:center;"></div><div class="modal-actions"><button class="cancel" id="forgotCancel">Cancel</button><button class="confirm" id="forgotConfirm">Reset Password</button></div></div></div>
+<div class="modal-overlay" id="setRecoveryModal"><div class="modal"><h3>🛡️ Set Recovery Phrase</h3><p style="font-size:14px;color:var(--muted);margin-bottom:12px;">This phrase lets you reset your password if you forget it.</p><input id="setRecoveryCurrentPwd" type="password" placeholder="Current password" autocomplete="current-password"><input id="setRecoveryPhrase" type="text" placeholder="New recovery phrase" autocomplete="off" autocapitalize="none"><input id="setRecoveryPhraseConfirm" type="text" placeholder="Confirm recovery phrase" autocomplete="off" autocapitalize="none"><div class="modal-actions"><button class="cancel" id="setRecoveryCancel">Cancel</button><button class="confirm" id="setRecoveryConfirm">Save Phrase</button></div></div></div>
 <div id="lightbox">
   <button class="close-lb" id="lightboxClose">✕</button>
   <img id="lightboxImg" alt="">
@@ -826,26 +681,16 @@ const App = {
   pendingCallTarget: null, pendingCallType: false, pendingBg: 'none',
   isIOS: window.__jarvisIsIOS === true,
   isStandalone: window.__jarvisIsStandalone === true,
-  _cloudSynced: false,
-  _contactsListener: null,
-  _groupsListener: null,
-  _activeStreamsListener: null,
-  listenerWatchdogs: {},
-  listenerAttempts: {},
-  processedInvites: {},
-  liveMode: null,
-  liveStreamId: null,
-  liveHostSlug: null,
-  liveLocalStream: null,
-  livePeerConns: {},
-  liveHostPC: null,
-  liveUnsubs: [],
-  activeLiveStreams: {},
-  liveExtraPeers: {},
-  liveParticipantStream: null,
-  liveParticipantPC: null,
-  liveParticipant: false,
-  liveJoinRequested: false
+  _cloudSynced: false, _contactsListener: null, _groupsListener: null, _activeStreamsListener: null,
+  listenerWatchdogs: {}, listenerAttempts: {}, processedInvites: {},
+  liveMode: null, liveStreamId: null, liveHostSlug: null, liveLocalStream: null,
+  livePeerConns: {}, liveHostPC: null, liveUnsubs: [], activeLiveStreams: {},
+  liveExtraPeers: {}, liveParticipantStream: null, liveParticipantPC: null,
+  liveParticipant: false, liveJoinRequested: false,
+  livePaused: false, liveBgKey: 'none', liveCustomBgUrl: null,
+  liveRecording: false, liveRecordingChunks: [], liveMediaRecorder: null,
+  liveScreenStream: null, liveBaseVideoTrack: null, liveBgCanvasStream: null,
+  liveBgVideo: null, liveBgAnimFrame: null, liveCameraStates: {}
 };
 
 let currentAuthUser = null;
@@ -936,17 +781,6 @@ async function fetchContactsViaREST() {
     var token = await currentAuthUser.getIdToken();
     if (!token) return null;
     var url = DB_URL + '/users/' + encodeURIComponent(App.mySlug) + '/contacts.json?auth=' + encodeURIComponent(token);
-    var res = await fetch(url);
-    if (!res.ok) return null;
-    return await res.json();
-  } catch (e) { return null; }
-}
-async function fetchStatusesViaREST() {
-  try {
-    if (!currentAuthUser) return null;
-    var token = await currentAuthUser.getIdToken();
-    if (!token) return null;
-    var url = DB_URL + '/chats/_status_feed/statuses.json?auth=' + encodeURIComponent(token);
     var res = await fetch(url);
     if (!res.ok) return null;
     return await res.json();
@@ -1082,7 +916,7 @@ async function handleSignIn() {
     } catch (err) { lastErr = err; }
   }
   if (lastErr) {
-    if (lastErr.code === 'auth/too-many-requests') status.textContent = 'Too many attempts. Wait 5 minutes and try again.';
+    if (lastErr.code === 'auth/too-many-requests') status.textContent = 'Too many attempts. Wait 5 minutes.';
     else if (lastErr.code === 'auth/user-not-found') status.textContent = 'No account with this name. Tap "Create Account" first.';
     else if (lastErr.code === 'auth/wrong-password' || lastErr.code === 'auth/invalid-credential') status.textContent = 'Password does not match. Try Forgot password or contact owner: (509) 4738-5663';
     else if (lastErr.code === 'auth/operation-not-allowed') status.textContent = 'Firebase Auth not enabled in Console.';
@@ -1122,7 +956,6 @@ async function handleChangePassword() {
     $('currentPasswordInput').value = ''; $('newPasswordInput').value = ''; $('confirmPasswordInput').value = '';
     toast('Password updated ✓');
   } catch (err) {
-    console.error('Pwd change:', err);
     if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') toast('Current password incorrect', true);
     else if (err.code === 'auth/weak-password') toast('New password too weak', true);
     else toast('Could not change password', true);
@@ -1145,7 +978,7 @@ async function handleForgotPassword() {
     var hashSnap;
     try { hashSnap = await get(dbRef(db, 'users/' + slug + '/recoveryHash')); }
     catch (e) { status.textContent = 'Cannot read recovery data. Contact owner: (509) 4738-5663'; status.style.color = '#ff4757'; return; }
-    if (!hashSnap.exists() || !hashSnap.val()) { status.textContent = 'No account with this name, or no recovery phrase set'; status.style.color = '#ff4757'; return; }
+    if (!hashSnap.exists() || !hashSnap.val()) { status.textContent = 'No account or no recovery phrase set'; status.style.color = '#ff4757'; return; }
     var inputHash = await sha256Hex(recovery);
     if (inputHash !== hashSnap.val()) { status.textContent = 'Recovery phrase is incorrect'; status.style.color = '#ff4757'; return; }
     status.textContent = 'Reset in progress…';
@@ -1156,11 +989,7 @@ async function handleForgotPassword() {
     try {
       await set(dbRef(db, 'users/' + slug + '/activeAuthEmail'), newEmail);
       await set(dbRef(db, 'users/' + slug + '/authUid'), userCred.user.uid);
-    } catch (permErr) {
-      status.textContent = 'Auth created but DB locked. Contact owner: (509) 4738-5663';
-      status.style.color = '#ff4757';
-      return;
-    }
+    } catch (permErr) { status.textContent = 'Auth created but DB locked. Contact owner: (509) 4738-5663'; status.style.color = '#ff4757'; return; }
     currentAuthUser = userCred.user;
     var displayName = name;
     try {
@@ -1172,7 +1001,6 @@ async function handleForgotPassword() {
     status.textContent = 'Success! Signing in…'; status.style.color = '#4aff7a';
     setTimeout(function() { $('forgotPasswordModal').classList.remove('show'); safeStartMainApp(); toast('Password reset ✓'); }, 600);
   } catch (err) {
-    console.error('Forgot:', err);
     status.textContent = 'Reset failed. Contact owner at (509) 4738-5663.';
     status.style.color = '#ff4757';
   }
@@ -1195,7 +1023,6 @@ async function handleSetRecovery() {
     $('setRecoveryCurrentPwd').value = ''; $('setRecoveryPhrase').value = ''; $('setRecoveryPhraseConfirm').value = '';
     toast('Recovery phrase saved ✓');
   } catch (err) {
-    console.error('Set recovery:', err);
     if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') toast('Current password incorrect', true);
     else toast('Could not save. Try again.', true);
   }
@@ -1221,11 +1048,7 @@ function safeStartMainApp() {
   window._mainAppStarted = true;
   if (window.__jarvisMarkStarted) window.__jarvisMarkStarted();
   try { startMainApp(); }
-  catch (err) {
-    console.error('startMainApp failed:', err);
-    showScreen('screen-main');
-    toast('Some features may not load', true);
-  }
+  catch (err) { console.error('startMainApp failed:', err); showScreen('screen-main'); toast('Some features may not load', true); }
 }
 
 onAuthStateChanged(auth, async function(user) {
@@ -1256,16 +1079,12 @@ async function attemptJoinPendingLive() {
   if (!slug) return;
   try {
     var snap = await get(dbRef(db, LIVE_ACTIVE_PATH + '/' + slug));
-    if (!snap.exists()) {
-      toast('Live stream ended or not available', true);
-      window._pendingLiveJoin = null;
-      return;
-    }
+    if (!snap.exists()) { toast('Live stream ended or not available', true); window._pendingLiveJoin = null; return; }
     var data = snap.val();
     window._pendingLiveJoin = null;
     try { window.history.replaceState({}, document.title, window.location.pathname); } catch (e) {}
     setTimeout(function() { window.__watchLiveStream(slug, data.streamId); }, 500);
-  } catch (e) { console.warn('Pending live join failed:', e); }
+  } catch (e) {}
 }
 
 function getAudioCtx() { if (!App.audioCtx) { try { App.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } return App.audioCtx; }
@@ -1676,15 +1495,11 @@ function setupMessageListener(id, isGroup) {
       App.listenerAttempts[id] = attempts + 1;
       setupMessageListener(id, isGroup);
     } else if (firstLoad && attempts >= 2) {
-      delete App.globalUnsubs[id];
-      delete App.listenerAttempts[id];
-      updateSyncIndicator('error');
+      delete App.globalUnsubs[id]; delete App.listenerAttempts[id]; updateSyncIndicator('error');
     }
   }, 25000);
   var unsub = onValue(query(dbRef(db, path), limitToLast(100)), function(snap) {
-    clearTimeout(App.listenerWatchdogs[id]);
-    delete App.listenerWatchdogs[id];
-    delete App.listenerAttempts[id];
+    clearTimeout(App.listenerWatchdogs[id]); delete App.listenerWatchdogs[id]; delete App.listenerAttempts[id];
     var data = snap.val() || {};
     var msgs = Object.keys(data).map(function(k) { var v = data[k]; v._k = k; return v; }).sort(function(a, b) { return (a.time || 0) - (b.time || 0); });
     if (!firstLoad && msgs.length && App.activeChat !== id) {
@@ -1712,8 +1527,7 @@ function setupMessageListener(id, isGroup) {
               var g = gs.val();
               if (!findGroup(g.id)) {
                 App.groups.push(g); App.lastSeenTimes[g.id] = Date.now();
-                setupGroupMessageListener(g.id);
-                saveGroups(); saveLastSeenTimes();
+                setupGroupMessageListener(g.id); saveGroups(); saveLastSeenTimes();
                 try { set(dbRef(db, 'users/' + App.mySlug + '/groups/' + g.id), { id: g.id, name: g.name, time: Date.now() }).catch(function(){}); } catch (e) {}
                 if (debouncedBuildUI) debouncedBuildUI();
                 toast('📥 Added to group: ' + (g.name || inviteName));
@@ -1724,13 +1538,8 @@ function setupMessageListener(id, isGroup) {
       }
     }
   }, function(error) {
-    clearTimeout(App.listenerWatchdogs[id]);
-    delete App.listenerWatchdogs[id];
-    delete App.globalUnsubs[id];
-    if (attempts < 2) {
-      App.listenerAttempts[id] = attempts + 1;
-      setTimeout(function() { setupMessageListener(id, isGroup); }, 3000);
-    }
+    clearTimeout(App.listenerWatchdogs[id]); delete App.listenerWatchdogs[id]; delete App.globalUnsubs[id];
+    if (attempts < 2) { App.listenerAttempts[id] = attempts + 1; setTimeout(function() { setupMessageListener(id, isGroup); }, 3000); }
   });
   App.globalUnsubs[id] = unsub;
 }
@@ -2016,8 +1825,7 @@ $('modalConfirm').addEventListener('click', async function() {
     saveContacts(); saveLastSeenTimes();
     try { await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + slug), { slug: slug, name: name, time: Date.now() }); } catch (e) {}
     setupMessageListener(slug, false);
-    buildUI();
-    listenUserStatuses();
+    buildUI(); listenUserStatuses();
     $('addModal').classList.remove('show');
     toast('Added @' + slug + ' ✓');
   } finally { btn.disabled = false; btn.textContent = 'Add'; }
@@ -2045,7 +1853,7 @@ $('groupModalConfirm').addEventListener('click', async function() {
     try {
       await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, checked[i]) + '/messages'), {
         from: App.mySlug, fromName: App.myName,
-        text: '👥 You were added to group "' + name + '". Open it from your Groups list.',
+        text: '👥 You were added to group "' + name + '".',
         groupInvite: { id: id, name: name, members: members }, time: Date.now()
       });
     } catch (e) {}
@@ -2118,15 +1926,6 @@ function extractEmbed(url) {
   if (vm) return { t: 'i', u: 'https://player.vimeo.com/video/' + vm[1] };
   var gd = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
   if (gd) return { t: 'i', u: 'https://drive.google.com/file/d/' + gd[1] + '/preview' };
-  var dm = url.match(/dailymotion\.com\/video\/([a-zA-Z0-9]+)/);
-  if (dm) return { t: 'i', u: 'https://www.dailymotion.com/embed/video/' + dm[1] };
-  if (url.indexOf('dropbox.com') !== -1) {
-    var db2 = url;
-    if (db2.indexOf('dl=0') !== -1) db2 = db2.replace('dl=0', 'raw=1');
-    else if (db2.indexOf('raw=1') === -1 && db2.indexOf('dl=1') === -1) db2 += (db2.indexOf('?') !== -1 ? '&raw=1' : '?raw=1');
-    if (/\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(db2)) return { t: 'v', u: db2 };
-    return null;
-  }
   if (/\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(url)) return { t: 'v', u: url };
   return null;
 }
@@ -2147,7 +1946,7 @@ function renderStatusFeedList(posts) {
     var txt = p.text ? '<div class="status-content-box" style="background:' + (p.bgColor || '#0d7a8c') + '">' + esc(p.text) + '</div>' : '';
     var cm = p.comments || {}, cc = Object.keys(cm).length;
     var lk = p.likes || {}, lc = Object.keys(lk).length, ml = !!lk[App.mySlug];
-    html += '<div class="status-card"><div class="status-card-header"><div class="avatar" style="width:44px;height:44px;font-size:18px" onclick="window.__viewAvatar(\'' + (p.authorPhoto || '') + '\',\'' + esc(p.authorName) + '\')">' + avatarInner(p.authorPhoto, p.authorName) + '</div><div style="flex:1"><div style="font-weight:700;font-size:15px;">' + esc(p.authorName) + ' <small style="color:var(--accent)">(@' + esc(p.authorSlug) + ')</small></div><small style="color:var(--muted);font-size:12px;">' + new Date(p.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + '</small></div>' + (mine || isOwner() ? '<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:18px" onclick="window.__delStatus(\'' + p._k + '\')">🗑</button>' : '') + '</div>' + txt + media + emb + link + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;border-top:1px solid #f0f0f0;padding-top:8px;"><button style="background:' + (ml ? '#d4af37' : '#eef2f6') + ';color:' + (ml ? '#0b2a4a' : 'var(--text)') + ';border:none;padding:8px 12px;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window.__toggleStatusLike(\'' + p._k + '\')">👍 (' + lc + ')</button><button style="background:#eef2f6;border:none;padding:8px 12px;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window.__openStatusComments(\'' + p._k + '\')">💬 (' + cc + ')</button><button style="background:#eef2f6;border:none;padding:8px 10px;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji(\'' + p._k + '\', \'❤️\')">❤️</button><button style="background:#eef2f6;border:none;padding:8px 10px;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji(\'' + p._k + '\', \'🔥\')">🔥</button><button style="background:#eef2f6;border:none;padding:8px 10px;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji(\'' + p._k + '\', \'😂\')">😂</button></div></div>';
+    html += '<div class="status-card"><div class="status-card-header"><div class="avatar" style="width:44px;height:44px;font-size:18px" onclick="window.__viewAvatar(\'' + (p.authorPhoto || '') + '\',\'' + esc(p.authorName) + '\')">' + avatarInner(p.authorPhoto, p.authorName) + '</div><div style="flex:1"><div style="font-weight:700;font-size:15px;">' + esc(p.authorName) + ' <small style="color:var(--accent)">(@' + esc(p.authorSlug) + ')</small></div><small style="color:var(--muted);font-size:12px;">' + new Date(p.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + '</small></div>' + (mine || isOwner() ? '<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:18px" onclick="window.__delStatus(\'' + p._k + '\')">🗑</button>' : '') + '</div>' + txt + media + emb + link + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;border-top:1px solid #f0f0f0;padding-top:8px;"><button style="background:' + (ml ? '#d4af37' : '#eef2f6') + ';color:' + (ml ? '#0b2a4a' : 'var(--text)') + ';border:none;padding:8px 12px;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window.__toggleStatusLike(\'' + p._k + '\')">👍 (' + lc + ')</button><button style="background:#eef2f6;border:none;padding:8px 12px;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window.__openStatusComments(\'' + p._k + '\')">💬 (' + cc + ')</button><button style="background:#eef2f6;border:none;padding:8px 10px;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji(\'' + p._k + '\', \'❤️\')">❤️</button><button style="background:#eef2f6;border:none;padding:8px 10px;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;" onclick="window.__sendQuickStatusEmoji(\'' + p._k + '\', \'🔥\')">🔥</button></div></div>';
   }
   sf.innerHTML = html; window._cachedPosts = posts;
 }
@@ -2214,7 +2013,7 @@ var qb = document.querySelectorAll('.quick-reaction');
 for (var j = 0; j < qb.length; j++) (function(b) { b.addEventListener('click', function() { $('chatInput').value = b.dataset.emoji; sendMessage(null); }); })(qb[j]);
 
 /* ============================= */
-/*   LIVE STREAMING (GO LIVE)    */
+/*   LIVE STREAMING              */
 /* ============================= */
 
 function listenActiveLiveStreams() {
@@ -2254,6 +2053,283 @@ function renderActiveLiveStreams() {
 
 window.__returnToLiveHost = function() { if (App.liveMode === 'host') showScreen('screen-live'); else toast('Not currently streaming', true); };
 
+/* ---- CAMERA AVATAR HELPERS ---- */
+function updateLiveLocalAvatar(show) {
+  var el = $('liveLocalAvatar'), vid = $('liveLocalVideo');
+  if (!el || !vid) return;
+  if (show) {
+    $('liveLocalAvatarLetter').textContent = (App.myName || '?').charAt(0).toUpperCase();
+    el.classList.add('show');
+    vid.classList.add('hidden-by-avatar');
+  } else {
+    el.classList.remove('show');
+    vid.classList.remove('hidden-by-avatar');
+  }
+}
+function updateLiveRemoteAvatar(show, nameOrLetter) {
+  var el = $('liveRemoteAvatar'), vid = $('liveRemoteVideo');
+  if (!el || !vid) return;
+  if (show) {
+    $('liveRemoteAvatarLetter').textContent = String(nameOrLetter || '?').charAt(0).toUpperCase();
+    el.classList.add('show');
+    vid.classList.add('hidden-by-avatar');
+  } else {
+    el.classList.remove('show');
+    vid.classList.remove('hidden-by-avatar');
+  }
+}
+function writeLiveCameraState(camOn) {
+  if (!App.liveStreamId || !App.mySlug) return;
+  set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/cameraStates/' + App.mySlug), camOn ? true : false).catch(function() {});
+}
+
+window.__toggleLiveCamera = function() {
+  var targetStream = App.liveParticipantStream || App.liveLocalStream;
+  if (!targetStream) return;
+  var tracks = targetStream.getVideoTracks();
+  if (!tracks.length) return;
+  var wasEnabled = tracks[0].enabled;
+  tracks.forEach(function(t) { t.enabled = !wasEnabled; });
+  var btn = $('liveCameraBtn');
+  if (btn) btn.classList.toggle('active', wasEnabled);
+  if (App.liveParticipant) {
+    updateLiveLocalAvatar(wasEnabled);
+  } else if (App.liveMode === 'host') {
+    updateLiveRemoteAvatar(wasEnabled, App.myName || 'Host');
+  }
+  writeLiveCameraState(!wasEnabled);
+  toast(wasEnabled ? 'Camera off' : 'Camera on');
+};
+
+/* ---- PAUSE ---- */
+window.__toggleLivePause = async function() {
+  if (App.liveMode !== 'host' || !App.liveStreamId) return;
+  App.livePaused = !App.livePaused;
+  try { await set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/paused'), App.livePaused); } catch (e) {}
+  var btn = $('livePauseBtn'), ov = $('livePauseOverlay');
+  if (btn) { btn.classList.toggle('active', App.livePaused); btn.textContent = App.livePaused ? '▶ Resume' : '⏸ Pause'; }
+  if (ov) ov.classList.toggle('show', App.livePaused);
+  var onAir = $('liveOnAirBadge');
+  if (onAir) {
+    onAir.textContent = App.livePaused ? '⏸ PAUSED' : '🔴 LIVE';
+    onAir.style.background = App.livePaused ? '#d4af37' : '#ff4757';
+    onAir.style.color = App.livePaused ? '#0b2a4a' : '#fff';
+  }
+  toast(App.livePaused ? '⏸ Stream paused' : '▶ Stream resumed');
+};
+
+/* ---- RECORD ---- */
+window.__toggleLiveRecord = function() {
+  if (App.liveMode !== 'host') return toast('Recording is host-only', true);
+  var btn = $('liveRecordBtn');
+  if (App.liveRecording) {
+    if (App.liveMediaRecorder && App.liveMediaRecorder.state === 'recording') App.liveMediaRecorder.stop();
+    return;
+  }
+  var streamToRecord = App.liveLocalStream;
+  if (!streamToRecord) return toast('No stream to record', true);
+  try {
+    App.liveRecordingChunks = [];
+    var mime = 'video/webm;codecs=vp9';
+    if (typeof MediaRecorder === 'undefined' || !MediaRecorder.isTypeSupported(mime)) mime = 'video/webm';
+    if (!MediaRecorder.isTypeSupported(mime)) mime = '';
+    App.liveMediaRecorder = new MediaRecorder(streamToRecord, mime ? { mimeType: mime } : {});
+    App.liveMediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) App.liveRecordingChunks.push(e.data); };
+    App.liveMediaRecorder.onstop = function() {
+      try {
+        var b = new Blob(App.liveRecordingChunks, { type: 'video/webm' });
+        var u = URL.createObjectURL(b);
+        var a = document.createElement('a');
+        a.href = u; a.download = 'JARVIS_Live_' + Date.now() + '.webm';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function() { URL.revokeObjectURL(u); }, 8000);
+      } catch (e) { console.error('Save failed:', e); }
+      App.liveRecording = false;
+      if (btn) btn.classList.remove('active');
+      toast('Recording saved ✓');
+    };
+    App.liveMediaRecorder.start(1000);
+    App.liveRecording = true;
+    if (btn) btn.classList.add('active');
+    toast('🔴 Recording live stream…');
+  } catch (e) {
+    console.error('Record start failed:', e);
+    toast('Recording not supported', true);
+  }
+};
+
+/* ---- SCREEN SHARE ---- */
+window.__toggleLiveScreenShare = async function() {
+  if (App.liveMode !== 'host') return toast('Screen share is host-only', true);
+  var btn = $('liveScreenBtn');
+  if (App.liveScreenStream) {
+    try { App.liveScreenStream.getTracks().forEach(function(t) { t.stop(); }); } catch (e) {}
+    App.liveScreenStream = null;
+    if (btn) btn.classList.remove('active');
+    var revertTrack = App.liveBgCanvasStream ? App.liveBgCanvasStream.getVideoTracks()[0] : (App.liveBaseVideoTrack || (App.liveLocalStream ? App.liveLocalStream.getVideoTracks()[0] : null));
+    if (revertTrack) {
+      Object.keys(App.livePeerConns).forEach(function(slug) {
+        try {
+          App.livePeerConns[slug].getSenders().forEach(function(s) {
+            if (s.track && s.track.kind === 'video') s.replaceTrack(revertTrack).catch(function() {});
+          });
+        } catch (e) {}
+      });
+      if ($('liveRemoteVideo') && App.liveLocalStream) {
+        $('liveRemoteVideo').srcObject = App.liveBgCanvasStream || App.liveLocalStream;
+        $('liveRemoteVideo').muted = true;
+      }
+    }
+    toast('Screen share stopped');
+    return;
+  }
+  try {
+    var screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+    App.liveScreenStream = screenStream;
+    var screenTrack = screenStream.getVideoTracks()[0];
+    Object.keys(App.livePeerConns).forEach(function(slug) {
+      try {
+        App.livePeerConns[slug].getSenders().forEach(function(s) {
+          if (s.track && s.track.kind === 'video') s.replaceTrack(screenTrack).catch(function() {});
+        });
+      } catch (e) {}
+    });
+    if ($('liveRemoteVideo')) { $('liveRemoteVideo').srcObject = screenStream; $('liveRemoteVideo').muted = true; }
+    if (btn) btn.classList.add('active');
+    screenTrack.onended = function() { window.__toggleLiveScreenShare(); };
+    toast('💻 Screen sharing ✓');
+  } catch (e) {
+    if (e.name !== 'NotAllowedError' && e.name !== 'AbortError') toast('Screen share failed', true);
+  }
+};
+
+/* ---- VIRTUAL BACKGROUND ---- */
+function buildLiveBgGallery() {
+  var g = $('liveBgGallery'); if (!g) return;
+  var h = '';
+  for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) {
+    var b = PROFESSIONAL_BACKGROUNDS[i], p;
+    if (b.type === 'image') p = '<img src="' + b.url + '">';
+    else if (b.type === 'filter') p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);filter:' + b.value + ';"></div>';
+    else p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);"></div>';
+    var active = App.liveBgKey === b.key ? ' active' : '';
+    h += '<div class="bg-tile' + active + '" onclick="window.__applyLiveBg(\'' + b.key + '\')" style="height:60px;">' + p + '<div class="bg-tile-label" style="font-size:11px;">' + b.label + '</div></div>';
+  }
+  if (App.liveCustomBgUrl) {
+    var custActive = App.liveBgKey === 'custom' ? ' active' : '';
+    h += '<div class="bg-tile' + custActive + '" onclick="window.__applyLiveBg(\'custom\')" style="height:60px;"><img src="' + App.liveCustomBgUrl + '"><div class="bg-tile-label" style="font-size:11px;">My Upload</div></div>';
+  }
+  g.innerHTML = h;
+}
+window.__openLiveBg = function() {
+  if (App.liveMode !== 'host' && !App.liveParticipant) return toast('Backgrounds available to host or participants', true);
+  buildLiveBgGallery();
+  $('liveBgModal').classList.add('show');
+};
+window.__uploadLiveBg = async function(inp) {
+  var f = inp.files && inp.files[0]; if (!f) return;
+  if (f.type.indexOf('image/') !== 0) return toast('Please select an image', true);
+  if (f.size > 3 * 1024 * 1024) return toast('Image too large (max 3MB)', true);
+  try {
+    toast('Processing…');
+    App.liveCustomBgUrl = await fileToBase64(f);
+    buildLiveBgGallery();
+    await window.__applyLiveBg('custom');
+  } catch (e) { toast('Upload failed', true); }
+  inp.value = '';
+};
+window.__applyLiveBg = async function(k) {
+  var targetStream = App.liveParticipantStream || App.liveLocalStream;
+  if (!targetStream) return toast('No camera active', true);
+  var rawVideoTrack = targetStream.getVideoTracks()[0];
+  if (!rawVideoTrack) return toast('No video track', true);
+  if (!App.liveBaseVideoTrack) App.liveBaseVideoTrack = rawVideoTrack;
+  try {
+    if (App.liveBgAnimFrame) { cancelAnimationFrame(App.liveBgAnimFrame); App.liveBgAnimFrame = null; }
+    if (App.liveBgCanvasStream) { App.liveBgCanvasStream.getTracks().forEach(function(t) { t.stop(); }); App.liveBgCanvasStream = null; }
+    var finalTrack = App.liveBaseVideoTrack;
+    if (k !== 'none') {
+      if (!App.liveBgVideo) {
+        App.liveBgVideo = document.createElement('video');
+        App.liveBgVideo.srcObject = new MediaStream([App.liveBaseVideoTrack]);
+        App.liveBgVideo.muted = true; App.liveBgVideo.playsInline = true;
+        try { await App.liveBgVideo.play(); } catch (e) {}
+      }
+      var canvas = document.createElement('canvas');
+      canvas.width = 1280; canvas.height = 720;
+      var ctx = canvas.getContext('2d'), bgImg = null, filterValue = 'none';
+      if (k === 'custom' && App.liveCustomBgUrl) {
+        bgImg = new Image(); bgImg.crossOrigin = 'anonymous'; bgImg.src = App.liveCustomBgUrl;
+        await new Promise(function(r) { bgImg.onload = r; bgImg.onerror = r; });
+      } else {
+        for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) {
+          if (PROFESSIONAL_BACKGROUNDS[i].key === k) {
+            var b = PROFESSIONAL_BACKGROUNDS[i];
+            if (b.type === 'image') { bgImg = new Image(); bgImg.crossOrigin = 'anonymous'; bgImg.src = b.url; await new Promise(function(r) { bgImg.onload = r; bgImg.onerror = r; }); }
+            else if (b.type === 'filter') filterValue = b.value;
+            break;
+          }
+        }
+      }
+      var v = App.liveBgVideo;
+      var stillActive = function() { return (App.liveParticipantStream || App.liveLocalStream); };
+      function drawLiveBg() {
+        if (!stillActive()) return;
+        if (v.videoWidth) {
+          if (filterValue !== 'none') { ctx.save(); ctx.filter = filterValue; ctx.drawImage(v, 0, 0, canvas.width, canvas.height); ctx.restore(); }
+          else {
+            if (bgImg && bgImg.complete) ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+            else { var g = ctx.createLinearGradient(0, 0, canvas.width, canvas.height); g.addColorStop(0, '#0b2a4a'); g.addColorStop(1, '#0d7a8c'); ctx.fillStyle = g; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+            var th = canvas.height * 0.88, tw = th * (v.videoWidth / v.videoHeight), x = (canvas.width - tw) / 2, y = (canvas.height - th) / 2;
+            ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 30;
+            var r = 40;
+            ctx.beginPath();
+            ctx.moveTo(x + r, y); ctx.lineTo(x + tw - r, y);
+            ctx.quadraticCurveTo(x + tw, y, x + tw, y + r);
+            ctx.lineTo(x + tw, y + th - r);
+            ctx.quadraticCurveTo(x + tw, y + th, x + tw - r, y + th);
+            ctx.lineTo(x + r, y + th);
+            ctx.quadraticCurveTo(x, y + th, x, y + th - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath(); ctx.clip();
+            ctx.drawImage(v, x, y, tw, th); ctx.restore();
+          }
+        }
+        App.liveBgAnimFrame = requestAnimationFrame(drawLiveBg);
+      }
+      drawLiveBg();
+      App.liveBgCanvasStream = canvas.captureStream(30);
+      finalTrack = App.liveBgCanvasStream.getVideoTracks()[0];
+    }
+    if (App.liveMode === 'host') {
+      var hostAudio = App.liveLocalStream ? App.liveLocalStream.getAudioTracks() : [];
+      $('liveRemoteVideo').srcObject = new MediaStream([finalTrack].concat(hostAudio));
+      $('liveRemoteVideo').muted = true;
+      Object.keys(App.livePeerConns).forEach(function(slug) {
+        try {
+          App.livePeerConns[slug].getSenders().forEach(function(s) {
+            if (s.track && s.track.kind === 'video') s.replaceTrack(finalTrack).catch(function() {});
+          });
+        } catch (e) {}
+      });
+    } else if (App.liveParticipant) {
+      var partAudio = App.liveParticipantStream ? App.liveParticipantStream.getAudioTracks() : [];
+      $('liveLocalVideo').srcObject = new MediaStream([finalTrack].concat(partAudio));
+      $('liveLocalVideo').muted = true;
+      if (App.liveParticipantPC) {
+        App.liveParticipantPC.getSenders().forEach(function(s) {
+          if (s.track && s.track.kind === 'video') s.replaceTrack(finalTrack).catch(function() {});
+        });
+      }
+    }
+    App.liveBgKey = k;
+    buildLiveBgGallery();
+    toast('Background applied ✓');
+  } catch (e) { console.error('Background apply failed:', e); toast('Background failed', true); }
+};
+
+/* ---- GO LIVE (host) ---- */
 window.__startGoLive = async function() {
   if (App.liveMode) return toast('You are already ' + (App.liveMode === 'host' ? 'live' : 'watching a stream'), true);
   if (App.liveLocalStream) return;
@@ -2266,10 +2342,11 @@ window.__startGoLive = async function() {
     App.liveMode = 'host';
     App.liveHostSlug = App.mySlug;
     App.livePeerConns = {};
+    App.liveBaseVideoTrack = stream.getVideoTracks()[0];
 
     await set(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId), {
       hostSlug: App.mySlug, hostName: App.myName, hostPhoto: App.myPhoto || null,
-      startedAt: Date.now(), status: 'live'
+      startedAt: Date.now(), status: 'live', paused: false
     });
     await set(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug), {
       streamId: streamId, name: App.myName, photo: App.myPhoto || null, startedAt: Date.now()
@@ -2280,17 +2357,30 @@ window.__startGoLive = async function() {
     $('liveStatus').textContent = '● Live';
     $('liveStatus').style.color = '#4aff7a';
     $('liveOnAirBadge').textContent = '🔴 LIVE';
-    $('liveOnAirBadge').style.display = 'block';
+    $('liveOnAirBadge').style.background = '#ff4757';
+    $('liveOnAirBadge').style.color = '#fff';
     $('liveRemoteVideo').classList.add('visible');
     $('liveRemoteVideo').srcObject = stream;
     $('liveRemoteVideo').muted = true;
     $('liveLocalVideo').classList.remove('visible');
+    $('liveLocalAvatar').classList.remove('show');
+    $('liveRemoteAvatar').classList.remove('show');
+    $('livePauseOverlay').classList.remove('show');
     $('liveLoadingOverlay').classList.add('hidden');
     $('liveViewerCount').textContent = '👁 0';
     $('liveMuteBtn').style.display = 'flex';
     $('liveCameraBtn').style.display = 'flex';
     $('liveJoinBtn').style.display = 'none';
     $('liveShareBtn').style.display = 'flex';
+    $('livePauseBtn').style.display = 'flex';
+    $('liveBgBtn').style.display = 'flex';
+    $('liveScreenBtn').style.display = 'flex';
+    $('liveRecordBtn').style.display = 'flex';
+    $('livePauseBtn').textContent = '⏸ Pause';
+    $('livePauseBtn').classList.remove('active');
+    $('liveRemoteAvatarLetter').textContent = (App.myName || 'H').charAt(0).toUpperCase();
+    App.livePaused = false;
+    App.liveBgKey = 'none';
 
     setupHostViewerListener(streamId);
     setupHostJoinRequestsListener(streamId);
@@ -2318,13 +2408,30 @@ function setupHostViewerListener(streamId) {
     if (s.val() === 'ended' && App.liveMode === 'host') { toast('Stream ended'); cleanupLive(); }
   });
   App.liveUnsubs.push(u3);
+
+  var u4 = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/cameraStates'), function(snap) {
+    var states = snap.val() || {};
+    App.liveCameraStates = states;
+    Object.keys(states).forEach(function(slug) {
+      if (slug === App.mySlug) return;
+      var camOn = states[slug] !== false;
+      var v = document.getElementById('live-conf-' + slug);
+      var av = document.getElementById('live-conf-av-' + slug);
+      if (v) v.style.visibility = camOn ? 'visible' : 'hidden';
+      if (av) av.classList.toggle('show', !camOn);
+    });
+  });
+  App.liveUnsubs.push(u4);
 }
 
 async function hostConnectToViewer(streamId, viewerSlug) {
   try {
     var pc = new RTCPeerConnection(ICE_SERVERS);
     App.livePeerConns[viewerSlug] = pc;
-    App.liveLocalStream.getTracks().forEach(function(t) { pc.addTrack(t, App.liveLocalStream); });
+    var videoTrack = App.liveBgCanvasStream ? App.liveBgCanvasStream.getVideoTracks()[0] : (App.liveScreenStream ? App.liveScreenStream.getVideoTracks()[0] : App.liveLocalStream.getVideoTracks()[0]);
+    var audioTracks = App.liveLocalStream.getAudioTracks();
+    if (videoTrack) pc.addTrack(videoTrack, App.liveLocalStream);
+    audioTracks.forEach(function(t) { pc.addTrack(t, App.liveLocalStream); });
     pc.onicecandidate = function(e) {
       if (e.candidate) push(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + viewerSlug + '/offerCandidates'), e.candidate.toJSON()).catch(function() {});
     };
@@ -2363,8 +2470,7 @@ function setupHostJoinRequestsListener(streamId) {
 }
 
 function updateHostPendingRequests(pending) {
-  var el = $('hostRequestsArea');
-  if (!el) return;
+  var el = $('hostRequestsArea'); if (!el) return;
   if (!pending.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
   el.style.display = 'block';
   var html = '<div style="background:#fff8e1;padding:8px 12px;border-bottom:1px solid #d4af37;">';
@@ -2388,10 +2494,8 @@ window.__acceptJoinRequest = async function(viewerSlug) {
     if (!reqSnap.exists()) return;
     var req = reqSnap.val();
     if (!req.offer || !req.offer.sdp) { toast('Invalid join request', true); return; }
-
     var pc = new RTCPeerConnection(ICE_SERVERS);
     App.liveExtraPeers[viewerSlug] = { pc: pc, stream: null };
-
     pc.ontrack = function(e) {
       if (e.streams && e.streams[0]) {
         App.liveExtraPeers[viewerSlug].stream = e.streams[0];
@@ -2401,17 +2505,13 @@ window.__acceptJoinRequest = async function(viewerSlug) {
     pc.onicecandidate = function(e) {
       if (e.candidate) push(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + viewerSlug + '/answerCandidates'), e.candidate.toJSON()).catch(function() {});
     };
-
     await pc.setRemoteDescription(new RTCSessionDescription(req.offer));
     var answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
-
     await set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + viewerSlug + '/answer'), { type: answer.type, sdp: answer.sdp });
-
     onChildAdded(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + viewerSlug + '/offerCandidates'), function(s) {
       pc.addIceCandidate(new RTCIceCandidate(s.val())).catch(function() {});
     });
-
     await set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + viewerSlug + '/status'), 'accepted');
     toast('@' + viewerSlug + ' joined ✓');
   } catch (err) { console.error('Accept join failed:', err); toast('Failed to accept', true); }
@@ -2428,7 +2528,16 @@ function renderLiveConfGrid() {
   var ks = Object.keys(App.liveExtraPeers).filter(function(k) { return App.liveExtraPeers[k] && App.liveExtraPeers[k].stream; });
   if (!ks.length) { g.innerHTML = ''; return; }
   var h = '';
-  for (var i = 0; i < ks.length; i++) h += '<div class="conf-tile"><video id="live-conf-' + ks[i] + '" autoplay playsinline webkit-playsinline></video><div class="conf-tile-label">@' + esc(ks[i]) + '</div></div>';
+  for (var i = 0; i < ks.length; i++) {
+    var slug = ks[i];
+    var camOn = App.liveCameraStates[slug] !== false;
+    var letter = String(slug).charAt(0).toUpperCase();
+    h += '<div class="conf-tile" style="position:relative;">' +
+      '<video id="live-conf-' + slug + '" autoplay playsinline webkit-playsinline style="' + (camOn ? '' : 'visibility:hidden;') + '"></video>' +
+      '<div class="avatar-fallback' + (camOn ? '' : ' show') + '" id="live-conf-av-' + slug + '"><div class="letter">' + letter + '</div></div>' +
+      '<div class="conf-tile-label">@' + esc(slug) + '</div>' +
+      '</div>';
+  }
   g.innerHTML = h;
   for (var j = 0; j < ks.length; j++) {
     var v = document.getElementById('live-conf-' + ks[j]);
@@ -2441,6 +2550,8 @@ window.__endGoLive = async function() {
   if (App.liveStreamId) {
     try { await set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/status'), 'ended'); } catch (e) {}
     try { await remove(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug)); } catch (e) {}
+    try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/cameraStates')); } catch (e) {}
+    try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/paused')); } catch (e) {}
   }
   cleanupLive();
   toast('Stream ended');
@@ -2460,11 +2571,15 @@ window.__watchLiveStream = async function(hostSlug, streamId) {
   $('liveStatus').textContent = '● Live';
   $('liveStatus').style.color = '#ff4757';
   $('liveOnAirBadge').textContent = '🔴 LIVE';
-  $('liveOnAirBadge').style.display = 'block';
+  $('liveOnAirBadge').style.background = '#ff4757';
+  $('liveOnAirBadge').style.color = '#fff';
   $('liveLocalVideo').classList.remove('visible');
   $('liveLocalVideo').srcObject = null;
   $('liveRemoteVideo').classList.add('visible');
   $('liveRemoteVideo').srcObject = null;
+  $('liveLocalAvatar').classList.remove('show');
+  $('liveRemoteAvatar').classList.remove('show');
+  $('livePauseOverlay').classList.remove('show');
   $('liveLoadingOverlay').classList.remove('hidden');
   $('liveViewerCount').textContent = '👁 …';
   $('liveMuteBtn').style.display = 'none';
@@ -2473,7 +2588,12 @@ window.__watchLiveStream = async function(hostSlug, streamId) {
   $('liveJoinBtn').textContent = '✋ Request to Join';
   $('liveJoinBtn').classList.remove('waiting');
   $('liveShareBtn').style.display = 'flex';
+  $('livePauseBtn').style.display = 'none';
+  $('liveScreenBtn').style.display = 'none';
+  $('liveRecordBtn').style.display = 'none';
+  $('liveBgBtn').style.display = 'none';
   $('liveConferenceGrid').innerHTML = '';
+  App.liveBgKey = 'none';
 
   try {
     await set(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + App.mySlug), { joinedAt: Date.now(), name: App.myName });
@@ -2490,6 +2610,26 @@ window.__watchLiveStream = async function(hostSlug, streamId) {
       if (s.val() === 'ended') { toast('Stream ended'); if (App.liveMode === 'viewer') cleanupLive(); }
     });
     App.liveUnsubs.push(statusUnsub);
+
+    var pauseUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/paused'), function(s) {
+      var paused = !!s.val();
+      $('livePauseOverlay').classList.toggle('show', paused);
+      $('livePauseSub').textContent = 'Host has paused the stream — will return soon.';
+      var onAir = $('liveOnAirBadge');
+      if (onAir) {
+        onAir.textContent = paused ? '⏸ PAUSED' : '🔴 LIVE';
+        onAir.style.background = paused ? '#d4af37' : '#ff4757';
+        onAir.style.color = paused ? '#0b2a4a' : '#fff';
+      }
+    });
+    App.liveUnsubs.push(pauseUnsub);
+
+    var camStateUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/cameraStates/' + hostSlug), function(s) {
+      var camOn = s.val() !== false;
+      var hostInfo2 = App.activeLiveStreams[hostSlug];
+      updateLiveRemoteAvatar(!camOn, (hostInfo2 ? hostInfo2.name : hostSlug) || hostSlug);
+    });
+    App.liveUnsubs.push(camStateUnsub);
 
     var countUnsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers'), function(snap) {
       var viewers = snap.val() || {};
@@ -2518,13 +2658,8 @@ async function viewerConnectToHost(streamId, offer) {
           $('liveRemoteVideo').muted = true;
           $('liveRemoteVideo').play().then(function() {
             toast('🔊 Tap to enable audio');
-            var unlock = function() {
-              $('liveRemoteVideo').muted = false;
-              document.body.removeEventListener('click', unlock);
-              document.body.removeEventListener('touchstart', unlock);
-            };
-            document.body.addEventListener('click', unlock);
-            document.body.addEventListener('touchstart', unlock);
+            var unlock = function() { $('liveRemoteVideo').muted = false; document.body.removeEventListener('click', unlock); document.body.removeEventListener('touchstart', unlock); };
+            document.body.addEventListener('click', unlock); document.body.addEventListener('touchstart', unlock);
           }).catch(function() {});
         });
         $('liveLoadingOverlay').classList.add('hidden');
@@ -2553,9 +2688,11 @@ window.__requestJoinLive = async function() {
   try {
     var stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: VIDEO_CONSTRAINTS });
     App.liveParticipantStream = stream;
+    App.liveBaseVideoTrack = stream.getVideoTracks()[0];
     $('liveLocalVideo').srcObject = stream;
     $('liveLocalVideo').muted = true;
     $('liveLocalVideo').classList.add('visible');
+    $('liveBgBtn').style.display = 'flex';
 
     var pc = new RTCPeerConnection(ICE_SERVERS);
     App.liveParticipantPC = pc;
@@ -2563,15 +2700,12 @@ window.__requestJoinLive = async function() {
     pc.onicecandidate = function(e) {
       if (e.candidate) push(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + App.mySlug + '/offerCandidates'), e.candidate.toJSON()).catch(function() {});
     };
-
     var offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
-
     await set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + App.mySlug), {
       status: 'pending', name: App.myName, photo: App.myPhoto || null,
       offer: { type: offer.type, sdp: offer.sdp }, requestedAt: Date.now()
     });
-
     App.liveJoinRequested = true;
     $('liveJoinBtn').textContent = '⏳ Waiting for host…';
     $('liveJoinBtn').classList.add('waiting');
@@ -2596,13 +2730,14 @@ window.__requestJoinLive = async function() {
         if (App.liveParticipantPC) { try { App.liveParticipantPC.close(); } catch (e) {} App.liveParticipantPC = null; }
         $('liveLocalVideo').classList.remove('visible');
         $('liveLocalVideo').srcObject = null;
+        $('liveLocalAvatar').classList.remove('show');
+        $('liveBgBtn').style.display = 'none';
         App.liveJoinRequested = false;
         $('liveJoinBtn').textContent = '✋ Request to Join';
         $('liveJoinBtn').classList.remove('waiting');
       }
     });
     App.liveUnsubs.push(unsub);
-
     toast('Join request sent — waiting for host…');
   } catch (err) { handleMediaError(err); }
 };
@@ -2612,6 +2747,7 @@ window.__leaveLiveStream = async function() {
   if (App.liveStreamId && App.mySlug) {
     try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/viewers/' + App.mySlug)); } catch (e) {}
     try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + App.mySlug)); } catch (e) {}
+    try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/cameraStates/' + App.mySlug)); } catch (e) {}
   }
   cleanupLive();
 };
@@ -2652,7 +2788,6 @@ window.__sendLiveChat = async function() {
   try { await push(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/chat'), { from: App.mySlug, name: App.myName, text: t, time: Date.now() }); }
   catch (e) { toast('Send failed', true); }
 };
-
 window.__sendLiveChatImage = async function(inp) {
   var f = inp.files && inp.files[0]; if (!f || !App.liveStreamId) return;
   if (f.type.indexOf('image/') !== 0) { toast('Please select an image', true); inp.value = ''; return; }
@@ -2667,7 +2802,6 @@ window.__sendLiveChatImage = async function(inp) {
   } catch (e) { toast('Upload failed', true); }
   inp.value = '';
 };
-
 window.__deleteLiveChat = async function(msgKey) {
   if (App.liveMode !== 'host' || !App.liveStreamId) return;
   if (!confirm('Delete this message for everyone?')) return;
@@ -2686,17 +2820,15 @@ window.__shareLiveStream = async function() {
   }
   showShareModal(url, shareText);
 };
-
 function showShareModal(url, shareText) {
-  var old = document.getElementById('shareModalDynamic');
-  if (old) old.remove();
+  var old = document.getElementById('shareModalDynamic'); if (old) old.remove();
   var m = document.createElement('div');
   m.id = 'shareModalDynamic';
   m.className = 'modal-overlay show';
   var enc = encodeURIComponent;
   m.innerHTML = '<div class="modal">' +
     '<h3>🔗 Share Live Stream</h3>' +
-    '<p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Anyone with this link can sign up for JARVIS and watch your live stream. Requests to join will come to you for approval.</p>' +
+    '<p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Anyone with this link can sign up and watch. Requests to join come to you.</p>' +
     '<input type="text" value="' + esc(url) + '" readonly style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:12px;" onclick="this.select()">' +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">' +
       '<a href="https://wa.me/?text=' + enc(shareText + ' ' + url) + '" target="_blank" style="background:#25D366;color:#fff;padding:12px;border-radius:8px;text-align:center;font-weight:700;text-decoration:none;font-size:13px;">💚 WhatsApp</a>' +
@@ -2709,7 +2841,6 @@ function showShareModal(url, shareText) {
     '</div>';
   document.body.appendChild(m);
 }
-
 window.__copyShareLink = function(url) {
   if (navigator.clipboard) {
     navigator.clipboard.writeText(url).then(function() { toast('Link copied ✓'); })
@@ -2718,6 +2849,13 @@ window.__copyShareLink = function(url) {
 };
 
 function cleanupLive() {
+  if (App.liveMediaRecorder && App.liveMediaRecorder.state === 'recording') { try { App.liveMediaRecorder.stop(); } catch (e) {} }
+  App.liveRecording = false; App.liveRecordingChunks = []; App.liveMediaRecorder = null;
+  if (App.liveScreenStream) { try { App.liveScreenStream.getTracks().forEach(function(t) { t.stop(); }); } catch (e) {} App.liveScreenStream = null; }
+  if (App.liveBgAnimFrame) { cancelAnimationFrame(App.liveBgAnimFrame); App.liveBgAnimFrame = null; }
+  if (App.liveBgCanvasStream) { App.liveBgCanvasStream.getTracks().forEach(function(t) { t.stop(); }); App.liveBgCanvasStream = null; }
+  if (App.liveBgVideo) { try { App.liveBgVideo.pause(); } catch (e) {} App.liveBgVideo.srcObject = null; App.liveBgVideo = null; }
+  App.liveBaseVideoTrack = null; App.liveBgKey = 'none'; App.liveCustomBgUrl = null; App.livePaused = false; App.liveCameraStates = {};
   if (App.liveLocalStream) { App.liveLocalStream.getTracks().forEach(function(t) { t.stop(); }); App.liveLocalStream = null; }
   if (App.liveParticipantStream) { App.liveParticipantStream.getTracks().forEach(function(t) { t.stop(); }); App.liveParticipantStream = null; }
   if (App.liveParticipantPC) { try { App.liveParticipantPC.close(); } catch (e) {} App.liveParticipantPC = null; }
@@ -2728,39 +2866,30 @@ function cleanupLive() {
   if (App.liveHostPC) { try { App.liveHostPC.close(); } catch (e) {} App.liveHostPC = null; }
   App.liveUnsubs.forEach(function(u) { try { if (typeof u === 'function') u(); } catch (e) {} });
   App.liveUnsubs = [];
-  App.liveMode = null;
-  App.liveStreamId = null;
-  App.liveHostSlug = null;
-  App.liveParticipant = false;
-  App.liveJoinRequested = false;
-
-  var lv = $('liveLocalVideo'); if (lv) { lv.srcObject = null; lv.classList.remove('visible'); }
-  var rv = $('liveRemoteVideo'); if (rv) { rv.srcObject = null; rv.classList.remove('visible'); }
+  App.liveMode = null; App.liveStreamId = null; App.liveHostSlug = null;
+  App.liveParticipant = false; App.liveJoinRequested = false;
+  var lv = $('liveLocalVideo'); if (lv) { lv.srcObject = null; lv.classList.remove('visible'); lv.classList.remove('hidden-by-avatar'); }
+  var rv = $('liveRemoteVideo'); if (rv) { rv.srcObject = null; rv.classList.remove('visible'); rv.classList.remove('hidden-by-avatar'); }
+  var la = $('liveLocalAvatar'); if (la) la.classList.remove('show');
+  var ra = $('liveRemoteAvatar'); if (ra) ra.classList.remove('show');
+  var po = $('livePauseOverlay'); if (po) po.classList.remove('show');
   var cg = $('liveConferenceGrid'); if (cg) cg.innerHTML = '';
   var cm = $('liveChatMessages'); if (cm) cm.innerHTML = '';
   var ci = $('liveChatInput'); if (ci) ci.value = '';
   var lo = $('liveLoadingOverlay'); if (lo) lo.classList.remove('hidden');
   var hr = $('hostRequestsArea'); if (hr) { hr.style.display = 'none'; hr.innerHTML = ''; }
+  var onAir = $('liveOnAirBadge'); if (onAir) { onAir.textContent = '🔴 LIVE'; onAir.style.background = '#ff4757'; onAir.style.color = '#fff'; }
   showScreen('screen-main');
 }
 
 window.__toggleLiveMute = function() {
-  if (!App.liveLocalStream) return;
-  var tracks = App.liveLocalStream.getAudioTracks();
-  if (!tracks.length) return;
+  var target = App.liveParticipantStream || App.liveLocalStream;
+  if (!target) return;
+  var tracks = target.getAudioTracks(); if (!tracks.length) return;
   var wasEnabled = tracks[0].enabled;
   tracks.forEach(function(t) { t.enabled = !wasEnabled; });
   $('liveMuteBtn').classList.toggle('active', wasEnabled);
   toast(wasEnabled ? 'Muted' : 'Unmuted');
-};
-window.__toggleLiveCamera = function() {
-  if (!App.liveLocalStream) return;
-  var tracks = App.liveLocalStream.getVideoTracks();
-  if (!tracks.length) return;
-  var wasEnabled = tracks[0].enabled;
-  tracks.forEach(function(t) { t.enabled = !wasEnabled; });
-  $('liveCameraBtn').classList.toggle('active', wasEnabled);
-  toast(wasEnabled ? 'Camera off' : 'Camera on');
 };
 
 $('startGoLiveBtn').addEventListener('click', function() { window.__startGoLive(); });
@@ -2778,9 +2907,13 @@ $('liveCameraBtn').addEventListener('click', function() { window.__toggleLiveCam
 $('liveJoinBtn').addEventListener('click', function() { window.__requestJoinLive(); });
 $('liveShareBtn').addEventListener('click', function() { window.__shareLiveStream(); });
 $('liveChatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') window.__sendLiveChat(); });
+$('livePauseBtn').addEventListener('click', function() { window.__toggleLivePause(); });
+$('liveRecordBtn').addEventListener('click', function() { window.__toggleLiveRecord(); });
+$('liveScreenBtn').addEventListener('click', function() { window.__toggleLiveScreenShare(); });
+$('liveBgBtn').addEventListener('click', function() { window.__openLiveBg(); });
 
 /* ============================= */
-/*      END LIVE STREAMING       */
+/*   END LIVE STREAMING          */
 /* ============================= */
 
 $('ownerPortalTrigger').addEventListener('click', function() { $('ownerPassInput').value = ''; $('ownerAuthModal').classList.add('show'); });
@@ -2795,7 +2928,7 @@ function loadOwnerStatuses() {
   var h = '';
   for (var i = 0; i < posts.length; i++) {
     var p = posts[i];
-    h += '<div style="background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:12px;"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:6px;"><span>@' + esc(p.authorSlug) + ' (' + esc(p.authorName) + ')</span><span style="color:var(--muted);">' + new Date(p.time).toLocaleString() + '</span></div><div style="font-size:14px;margin-bottom:8px;">' + esc(p.text || '') + '</div>' + (p.mediaUrl ? (p.mediaType === 'image' ? '<img src="' + p.mediaUrl + '" style="width:100%;max-height:260px;object-fit:contain;background:#000;border-radius:8px;" onclick="window.__viewAvatar(\'' + p.mediaUrl + '\',\'' + esc(p.authorName) + '\')">' : '<video src="' + p.mediaUrl + '" controls playsinline webkit-playsinline style="width:100%;max-height:260px;background:#000;border-radius:8px;display:block;"></video>') : '') + '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;"><button class="btn-primary" style="max-width:none;padding:8px 12px;font-size:13px;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus(\'' + p._k + '\')">🗑 Delete</button><button class="btn-primary" style="max-width:none;padding:8px 12px;font-size:13px;background:#143a5f;color:#fff;" onclick="window.__ownerReportStatus(\'' + p._k + '\',\'@' + esc(p.authorSlug) + '\')">🚩 Report</button></div></div>';
+    h += '<div style="background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:12px;"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:6px;"><span>@' + esc(p.authorSlug) + ' (' + esc(p.authorName) + ')</span><span style="color:var(--muted);">' + new Date(p.time).toLocaleString() + '</span></div><div style="font-size:14px;margin-bottom:8px;">' + esc(p.text || '') + '</div>' + (p.mediaUrl ? (p.mediaType === 'image' ? '<img src="' + p.mediaUrl + '" style="width:100%;max-height:260px;object-fit:contain;background:#000;border-radius:8px;">' : '<video src="' + p.mediaUrl + '" controls playsinline style="width:100%;max-height:260px;background:#000;border-radius:8px;display:block;"></video>') : '') + '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;"><button class="btn-primary" style="max-width:none;padding:8px 12px;font-size:13px;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus(\'' + p._k + '\')">🗑 Delete</button><button class="btn-primary" style="max-width:none;padding:8px 12px;font-size:13px;background:#143a5f;color:#fff;" onclick="window.__ownerReportStatus(\'' + p._k + '\',\'@' + esc(p.authorSlug) + '\')">🚩 Report</button></div></div>';
   }
   area.innerHTML = h;
 }
@@ -2803,7 +2936,7 @@ window.__ownerDeleteStatus = async function(k) { if (confirm('Delete status?')) 
 window.__ownerReportStatus = async function(k, u) { var r = prompt('Reason:', 'Violation'); if (!r) return; await push(dbRef(db, 'owner_reports'), { type: 'Violation', targetUser: u, reason: r, time: Date.now(), reporter: App.mySlug }); toast('Reported ✓'); };
 function loadOwnerReports() {
   var area = $('ownerContentArea');
-  area.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:14px;">Loading users and chats…</div>';
+  area.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:14px;">Loading…</div>';
   onValue(dbRef(db, 'users'), function(snap) {
     var ud = snap.val() || {}, uks = Object.keys(ud);
     var h = '<div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:8px;">👥 Users (' + uks.length + ')</div>';
@@ -2829,9 +2962,7 @@ function loadOwnerReports() {
       }
       area.innerHTML = h;
     }, { onlyOnce: true });
-  }, function(err) {
-    area.innerHTML = '<div class="empty"><p style="color:#d4af37;">Cannot load users.</p></div>';
-  }, { onlyOnce: true });
+  }, function(err) { area.innerHTML = '<div class="empty"><p style="color:#d4af37;">Cannot load users.</p></div>'; }, { onlyOnce: true });
 }
 window.__ownerDirectDM = function(slug, name) {
   $('ownerSpaceModal').classList.remove('show');
@@ -2839,6 +2970,19 @@ window.__ownerDirectDM = function(slug, name) {
   window.__openChat(slug, false);
 };
 window.__ownerDeleteP2PMessage = async function(c, k) { if (confirm('Delete this message?')) { await remove(dbRef(db, 'chats/' + c + '/messages/' + k)); toast('Deleted ✓'); loadOwnerReports(); } };
+
+/* ==================== PROFESSIONAL BACKGROUNDS for calls ==================== */
+var PROFESSIONAL_BACKGROUNDS = [
+  { key: 'none', label: 'Normal Camera', type: 'filter', value: 'none' },
+  { key: 'blur', label: 'Blurred', type: 'filter', value: 'blur(8px)' },
+  { key: 'sepia', label: 'Cinematic Sepia', type: 'filter', value: 'sepia(80%)' },
+  { key: 'office', label: 'Modern Office', type: 'image', url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1280&q=80' },
+  { key: 'forest', label: 'Forest', type: 'image', url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1280&q=80' },
+  { key: 'beach', label: 'Beach', type: 'image', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1280&q=80' },
+  { key: 'city', label: 'City Night', type: 'image', url: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1280&q=80' },
+  { key: 'mountains', label: 'Mountains', type: 'image', url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1280&q=80' },
+  { key: 'studio', label: 'Studio Gradient', type: 'gradient' }
+];
 
 var acs = null, acv = null, acl = null;
 function stopActiveCanvas() { if (acs) { acs.getTracks().forEach(function(t) { t.stop(); }); acs = null; } if (acv) { try { acv.pause(); } catch (e) {} acv.srcObject = null; acv = null; } if (acl) { cancelAnimationFrame(acl); acl = null; } }
@@ -2875,18 +3019,6 @@ async function buildActiveStream(bgKey) {
   if ($('localVideo')) { $('localVideo').srcObject = cs; $('localVideo').style.filter = 'none'; }
   return { videoTrack: cs.getVideoTracks()[0], stream: cs };
 }
-
-var PROFESSIONAL_BACKGROUNDS = [
-  { key: 'none', label: 'Normal Camera', type: 'filter', value: 'none' },
-  { key: 'blur', label: 'Blurred', type: 'filter', value: 'blur(8px)' },
-  { key: 'sepia', label: 'Cinematic Sepia', type: 'filter', value: 'sepia(80%)' },
-  { key: 'office', label: 'Modern Office', type: 'image', url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1280&q=80' },
-  { key: 'forest', label: 'Forest', type: 'image', url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1280&q=80' },
-  { key: 'beach', label: 'Beach', type: 'image', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1280&q=80' },
-  { key: 'city', label: 'City Night', type: 'image', url: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1280&q=80' },
-  { key: 'mountains', label: 'Mountains', type: 'image', url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1280&q=80' },
-  { key: 'studio', label: 'Studio Gradient', type: 'gradient' }
-];
 function buildBgGallery() {
   var g = $('bgGalleryGrid'); if (!g) return;
   var h = '';
