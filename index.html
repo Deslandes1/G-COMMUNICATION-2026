@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0b2a4a">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="JARVIS">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -245,6 +248,19 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .live-pause-overlay .icon { font-size: 70px; margin-bottom: 14px; }
 .live-pause-overlay .title { font-size: 24px; font-weight: 800; margin-bottom: 10px; letter-spacing: 2px; color: #d4af37; }
 .live-pause-overlay .sub { font-size: 14px; opacity: 0.85; max-width: 260px; line-height: 1.5; }
+/* SAVE RECORDING MODAL */
+#saveRecordingModal .modal { max-width: 400px; }
+#saveRecordingModal h3 { color: #0b2a4a; margin-bottom: 6px; }
+.save-rec-info { font-size: 12px; color: #6b7a87; margin-bottom: 14px; padding: 10px 12px; background: #f2f5f8; border-radius: 8px; word-break: break-all; line-height: 1.5; }
+.save-rec-btn { padding: 16px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-family: Calibri,sans-serif; font-size: 15px; text-align: left; display: flex; align-items: center; gap: 12px; transition: transform .1s; width: 100%; margin-bottom: 8px; }
+.save-rec-btn:active { transform: scale(0.97); }
+.save-rec-btn .icon { font-size: 24px; flex-shrink: 0; }
+.save-rec-btn .label { flex: 1; }
+.save-rec-btn .hint { font-size: 11px; opacity: 0.8; font-weight: 500; display: block; margin-top: 2px; }
+.save-rec-btn.device { background: linear-gradient(135deg,#0d7a8c,#0a6474); color: #fff; }
+.save-rec-btn.drive { background: linear-gradient(135deg,#25D366,#1da851); color: #fff; }
+.save-rec-btn.share { background: linear-gradient(135deg,#6b7a87,#4a5560); color: #fff; }
+.save-rec-btn.discard { background: #fff0f0; color: #ff4757; }
 @media (max-width: 540px) {
   .live-chat-side{width:45%;min-width:150px;max-width:230px}
   .live-chat-msg{font-size:12px;padding:5px 6px}
@@ -255,6 +271,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   .avatar-fallback .letter { width: 100px; height: 100px; font-size: 52px; }
   #liveLocalAvatar { width: 90px; height: 70px; }
   #liveLocalAvatar .letter.small { width: 50px; height: 50px; font-size: 24px; }
+  .save-rec-btn { padding: 13px; font-size: 14px; }
 }
 @media (min-width: 640px) {
   body{padding:16px;background:#e4e9ef}
@@ -368,6 +385,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   <header class="app-header">
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
+    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v4</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
@@ -476,7 +494,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   <div class="live-main">
     <div class="live-video-wrap">
       <div class="live-badge-top" id="liveOnAirBadge">🔴 LIVE</div>
-      <video id="liveRemoteVideo" autoplay playsinline webkit-playsinline></video>
+      <video id="liveRemoteVideo" autoplay playsinline muted webkit-playsinline></video>
       <div id="liveRemoteAvatar" class="avatar-fallback">
         <div class="letter" id="liveRemoteAvatarLetter">?</div>
       </div>
@@ -605,6 +623,29 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     </div>
   </div>
 </div>
+<div class="modal-overlay" id="saveRecordingModal">
+  <div class="modal" style="max-width:400px;">
+    <h3>💾 Save Live Recording</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Recording complete! Where would you like to save it?</p>
+    <div id="saveRecInfo" class="save-rec-info">Preparing…</div>
+    <button class="save-rec-btn device" onclick="window.__saveLiveRecordingToDevice()">
+      <span class="icon">📱</span>
+      <span class="label">Save to This Device<span class="hint">Downloads the .webm file to your phone/computer</span></span>
+    </button>
+    <button class="save-rec-btn drive" onclick="window.__saveLiveRecordingToDrive()">
+      <span class="icon">☁️</span>
+      <span class="label">Save to Google Drive<span class="hint">Opens share sheet — pick Google Drive app or upload manually</span></span>
+    </button>
+    <button class="save-rec-btn share" onclick="window.__shareLiveRecording()">
+      <span class="icon">📤</span>
+      <span class="label">Share / Save Elsewhere<span class="hint">WhatsApp, Telegram, iCloud, Files, Email, OneDrive…</span></span>
+    </button>
+    <button class="save-rec-btn discard" onclick="window.__discardLiveRecording()">
+      <span class="icon">❌</span>
+      <span class="label">Discard Recording</span>
+    </button>
+  </div>
+</div>
 <div class="modal-overlay" id="preCallModal"><div class="modal" style="max-width:480px;"><h3 id="preCallTitle">🎥 Video Call Setup</h3><p style="font-size:13px !important;font-family:Calibri,sans-serif;color:var(--muted);margin-bottom:12px;" id="preCallDesc">Choose a professional background and optionally invite friends before starting.</p><div id="preCallBgSection"><label style="font-size:14px !important;font-family:Calibri,sans-serif;font-weight:700;display:block;margin-bottom:8px;color:var(--navy);">🖼️ Background:</label><div class="bg-gallery-grid" id="preCallBgGrid" style="grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div></div><div id="preCallInviteSection"><label style="font-size:14px !important;font-family:Calibri,sans-serif;font-weight:700;display:block;margin-bottom:8px;color:var(--navy);">👥 Invite others (optional):</label><div class="group-select-list" id="preCallInviteList" style="max-height:140px;"></div></div><div class="modal-actions"><button class="cancel" id="preCallCancel">Cancel</button><button class="confirm" id="preCallStart">Start Call</button></div></div></div>
 <div class="modal-overlay" id="addParticipantModal"><div class="modal"><h3>🎥 Invite Users to Call</h3><div class="group-select-list" id="participantSelectionList"></div><div class="modal-actions"><button class="cancel" id="participantCancel">Skip</button><button class="confirm" id="participantConfirm">Invite to Call</button></div></div></div>
 <div class="modal-overlay" id="iosInstallGuide"><div class="modal" style="max-width:420px;"><h3>📱 Enable Notifications on iPhone</h3><div style="font-size:14px;font-family:Calibri,sans-serif;line-height:1.6;color:var(--text);margin-bottom:14px;"><p style="margin-bottom:8px;">1️⃣ Tap <strong>Share</strong> ⬆️ in Safari</p><p style="margin-bottom:8px;">2️⃣ Tap <strong>"Add to Home Screen"</strong></p><p style="margin-bottom:8px;">3️⃣ Tap <strong>Add</strong></p><p style="margin-bottom:8px;">4️⃣ Open <strong>JARVIS</strong> from Home Screen</p><p style="margin-bottom:8px;">5️⃣ Profile → Notifications → enable</p></div><div class="modal-actions"><button class="cancel" onclick="document.getElementById('iosInstallGuide').classList.remove('show')" style="width:100%;max-width:none;">Got it</button></div></div></div>
@@ -690,7 +731,8 @@ const App = {
   livePaused: false, liveBgKey: 'none', liveCustomBgUrl: null,
   liveRecording: false, liveRecordingChunks: [], liveMediaRecorder: null,
   liveScreenStream: null, liveBaseVideoTrack: null, liveBgCanvasStream: null,
-  liveBgVideo: null, liveBgAnimFrame: null, liveCameraStates: {}
+  liveBgVideo: null, liveBgAnimFrame: null, liveCameraStates: {},
+  liveRecordedBlob: null, liveRecordedFileName: null
 };
 
 let currentAuthUser = null;
@@ -721,7 +763,7 @@ function toast(msg, isError) {
   var t = $('toast'); t.textContent = msg;
   t.style.borderColor = isError ? '#ff4757' : '#d4af37';
   t.classList.add('show'); clearTimeout(toastTimer);
-  toastTimer = setTimeout(function() { t.classList.remove('show'); }, 3200);
+  toastTimer = setTimeout(function() { t.classList.remove('show'); }, 4000);
 }
 
 function esc(s) { return String(s || '').replace(/[&<>"']/g, function(c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
@@ -735,6 +777,11 @@ function timeAgo(ts) {
   if (d < 60) return d + 's ago';
   if (d < 3600) return Math.floor(d / 60) + 'm ago';
   return Math.floor(d / 3600) + 'h ago';
+}
+function formatBytes(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+  return (b / 1048576).toFixed(2) + ' MB';
 }
 
 async function sha256Hex(text) {
@@ -773,6 +820,43 @@ function withTimeout(promise, ms) {
     promise.then(function(r) { if (done) return; done = true; clearTimeout(timer); resolve({ timedOut: false, result: r }); })
     .catch(function(e) { if (done) return; done = true; clearTimeout(timer); resolve({ timedOut: false, error: e }); });
   });
+}
+
+/* ============ CAMERA ACCESS — ROBUST FALLBACK CHAIN ============ */
+async function getLiveStreamRobust() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    throw new Error('Your browser does not support camera access. Please update your browser.');
+  }
+  if (!window.isSecureContext) {
+    throw new Error('Camera requires HTTPS. Open from https://deslandes1.github.io/G-COMMUNICATION-2026/');
+  }
+  var attempts = [
+    { audio: { echoCancellation: true, noiseSuppression: true }, video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } } },
+    { audio: { echoCancellation: true, noiseSuppression: true }, video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } } },
+    { audio: true, video: { facingMode: 'user' } },
+    { audio: true, video: { width: { ideal: 640 }, height: { ideal: 480 } } },
+    { audio: true, video: true },
+    { audio: true, video: false }
+  ];
+  var lastErr = null;
+  for (var i = 0; i < attempts.length; i++) {
+    try {
+      console.log('[JARVIS] camera attempt #' + i + ':', JSON.stringify(attempts[i]));
+      var p = navigator.mediaDevices.getUserMedia(attempts[i]);
+      var stream = await Promise.race([
+        p,
+        new Promise(function(_, rej) { setTimeout(function() { rej(new Error('timeout_12s')); }, 12000); })
+      ]);
+      console.log('[JARVIS] camera OK. Tracks:', stream.getTracks().map(function(t) { return t.kind; }).join(','));
+      if (stream.getVideoTracks().length === 0) toast('⚠️ Camera unavailable — audio only', false);
+      return stream;
+    } catch (err) {
+      lastErr = err;
+      console.warn('[JARVIS] attempt #' + i + ' failed:', err.name, err.message);
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError' || err.name === 'SecurityError') throw err;
+    }
+  }
+  throw lastErr || new Error('Camera failed after all attempts');
 }
 
 async function fetchContactsViaREST() {
@@ -1198,14 +1282,29 @@ function setupNotificationButton() {
 }
 function handleMediaError(err) {
   console.error('[Media]', err);
+  var name = (err && err.name) || '';
   var msg;
-  if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-    msg = App.isIOS ? 'Blocked. Tap "Aa" in Safari address bar → Allow Camera & Microphone' : 'Permission denied. Allow in browser settings.';
-  } else if (err.name === 'NotFoundError') msg = 'No camera/microphone found.';
-  else if (err.name === 'NotReadableError') msg = 'Camera/microphone in use by another app.';
-  else if (err.name === 'OverconstrainedError') msg = 'Camera settings not supported.';
-  else if (err.name === 'SecurityError' || !window.isSecureContext) msg = 'Requires HTTPS connection.';
-  else msg = 'Media error: ' + (err.message || 'unknown');
+  if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+    if (App.isIOS) {
+      msg = '📱 Camera blocked. Tap "Aa" in Safari address bar → Website Settings → Allow Camera & Microphone → reload.';
+    } else if (/Android/i.test(navigator.userAgent)) {
+      msg = '📱 Camera blocked. Tap the 🔒 in Chrome address bar → Permissions → allow Camera & Microphone → reload.';
+    } else {
+      msg = '🚫 Camera blocked. Click the 🔒 lock icon → allow Camera & Microphone → reload.';
+    }
+  } else if (name === 'NotFoundError') {
+    msg = '📷 No camera found on this device.';
+  } else if (name === 'NotReadableError') {
+    msg = '🔒 Camera in use by another app. Close Camera / WhatsApp / Zoom and retry.';
+  } else if (name === 'SecurityError' || !window.isSecureContext) {
+    msg = '🔒 Camera requires HTTPS. Use the GitHub Pages URL.';
+  } else if (name === 'OverconstrainedError') {
+    msg = '⚙️ Camera settings not supported — retrying with defaults.';
+  } else if ((err && err.message || '').indexOf('timeout') !== -1) {
+    msg = '⏱ Camera request timed out. Tap the 🔒 icon → allow Camera → reload.';
+  } else {
+    msg = 'Media error: ' + (name || (err && err.message) || 'unknown');
+  }
   toast(msg, true);
 }
 
@@ -2118,7 +2217,7 @@ window.__toggleLivePause = async function() {
   toast(App.livePaused ? '⏸ Stream paused' : '▶ Stream resumed');
 };
 
-/* ---- RECORD ---- */
+/* ---- RECORD (with Save Modal) ---- */
 window.__toggleLiveRecord = function() {
   if (App.liveMode !== 'host') return toast('Recording is host-only', true);
   var btn = $('liveRecordBtn');
@@ -2138,15 +2237,18 @@ window.__toggleLiveRecord = function() {
     App.liveMediaRecorder.onstop = function() {
       try {
         var b = new Blob(App.liveRecordingChunks, { type: 'video/webm' });
-        var u = URL.createObjectURL(b);
-        var a = document.createElement('a');
-        a.href = u; a.download = 'JARVIS_Live_' + Date.now() + '.webm';
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        setTimeout(function() { URL.revokeObjectURL(u); }, 8000);
-      } catch (e) { console.error('Save failed:', e); }
-      App.liveRecording = false;
-      if (btn) btn.classList.remove('active');
-      toast('Recording saved ✓');
+        if (b.size === 0) { toast('Recording was empty', true); App.liveRecording = false; if (btn) btn.classList.remove('active'); return; }
+        App.liveRecordedBlob = b;
+        App.liveRecordedFileName = 'JARVIS_Live_' + new Date().toISOString().slice(0,19).replace(/[:T]/g, '-') + '.webm';
+        App.liveRecording = false;
+        if (btn) btn.classList.remove('active');
+        var info = $('saveRecInfo');
+        if (info) {
+          info.textContent = '📹 ' + App.liveRecordedFileName + '  ·  ' + formatBytes(b.size) + '  ·  Ready to save';
+        }
+        $('saveRecordingModal').classList.add('show');
+        toast('✅ Recording complete — choose where to save');
+      } catch (e) { console.error('Save prep failed:', e); toast('Recording failed', true); }
     };
     App.liveMediaRecorder.start(1000);
     App.liveRecording = true;
@@ -2154,8 +2256,121 @@ window.__toggleLiveRecord = function() {
     toast('🔴 Recording live stream…');
   } catch (e) {
     console.error('Record start failed:', e);
-    toast('Recording not supported', true);
+    toast('Recording not supported on this device', true);
   }
+};
+
+window.__saveLiveRecordingToDevice = function() {
+  if (!App.liveRecordedBlob) return toast('No recording to save', true);
+  try {
+    var u = URL.createObjectURL(App.liveRecordedBlob);
+    var a = document.createElement('a');
+    a.href = u;
+    a.download = App.liveRecordedFileName || ('JARVIS_Live_' + Date.now() + '.webm');
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(u); }, 10000);
+    $('saveRecordingModal').classList.remove('show');
+    toast('📱 Saved to your device — check Downloads / Files app ✓');
+    App.liveRecordedBlob = null;
+    App.liveRecordedFileName = null;
+  } catch (e) {
+    console.error('Save to device failed:', e);
+    toast('Save failed — try Share instead', true);
+  }
+};
+
+window.__saveLiveRecordingToDrive = async function() {
+  if (!App.liveRecordedBlob) return toast('No recording to save', true);
+  var fileName = App.liveRecordedFileName || ('JARVIS_Live_' + Date.now() + '.webm');
+  try {
+    // Try native share sheet with file — user picks Google Drive app on mobile
+    var file = null;
+    try { file = new File([App.liveRecordedBlob], fileName, { type: 'video/webm' }); } catch (e) {}
+    if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: 'JARVIS Live Recording',
+          text: 'Live stream recording — save to Google Drive'
+        });
+        $('saveRecordingModal').classList.remove('show');
+        toast('✅ Save via share sheet — pick Google Drive to finish');
+        App.liveRecordedBlob = null;
+        App.liveRecordedFileName = null;
+        return;
+      } catch (shareErr) {
+        if (shareErr.name === 'AbortError') return; // user cancelled — keep modal open
+        console.warn('Drive share failed, falling back:', shareErr);
+      }
+    }
+    // Fallback: download the file, open Google Drive in new tab so user can drag-and-drop
+    var u = URL.createObjectURL(App.liveRecordedBlob);
+    var a = document.createElement('a');
+    a.href = u; a.download = fileName;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(u); }, 10000);
+    $('saveRecordingModal').classList.remove('show');
+    toast('📥 File downloaded. Opening Google Drive…');
+    App.liveRecordedBlob = null;
+    App.liveRecordedFileName = null;
+    setTimeout(function() {
+      try { window.open('https://drive.google.com/drive/my-drive', '_blank'); } catch (e) {}
+    }, 900);
+    setTimeout(function() {
+      toast('💡 In Google Drive: tap "+ New" → "File upload" → select the .webm file');
+    }, 3500);
+  } catch (e) {
+    console.error('Save to Drive failed:', e);
+    toast('Could not save to Drive — try Save to Device instead', true);
+  }
+};
+
+window.__shareLiveRecording = async function() {
+  if (!App.liveRecordedBlob) return toast('No recording to share', true);
+  var fileName = App.liveRecordedFileName || ('JARVIS_Live_' + Date.now() + '.webm');
+  try {
+    var file = null;
+    try { file = new File([App.liveRecordedBlob], fileName, { type: 'video/webm' }); } catch (e) {}
+    if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: 'JARVIS Live Recording',
+          text: 'Watch my live stream recording from JARVIS!'
+        });
+        $('saveRecordingModal').classList.remove('show');
+        toast('✅ Shared ✓');
+        App.liveRecordedBlob = null;
+        App.liveRecordedFileName = null;
+        return;
+      } catch (shareErr) {
+        if (shareErr.name === 'AbortError') return;
+        console.warn('Share failed:', shareErr);
+      }
+    }
+    // Fallback: download so user can share from Files / Photos
+    var u = URL.createObjectURL(App.liveRecordedBlob);
+    var a = document.createElement('a');
+    a.href = u; a.download = fileName;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(u); }, 10000);
+    $('saveRecordingModal').classList.remove('show');
+    toast('📥 Downloaded — open from Files / Photos to share anywhere');
+    App.liveRecordedBlob = null;
+    App.liveRecordedFileName = null;
+  } catch (e) {
+    console.error('Share failed:', e);
+    toast('Share not available — try Save to Device', true);
+  }
+};
+
+window.__discardLiveRecording = function() {
+  if (!confirm('Discard this recording permanently? This cannot be undone.')) return;
+  App.liveRecordedBlob = null;
+  App.liveRecordedFileName = null;
+  App.liveRecordingChunks = [];
+  $('saveRecordingModal').classList.remove('show');
+  toast('Recording discarded');
 };
 
 /* ---- SCREEN SHARE ---- */
@@ -2333,9 +2548,10 @@ window.__applyLiveBg = async function(k) {
 window.__startGoLive = async function() {
   if (App.liveMode) return toast('You are already ' + (App.liveMode === 'host' ? 'live' : 'watching a stream'), true);
   if (App.liveLocalStream) return;
+  try { window.scrollTo(0, 0); } catch (e) {}
   try {
-    toast('Starting live stream…');
-    var stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: VIDEO_CONSTRAINTS });
+    toast('Requesting camera & microphone…');
+    var stream = await getLiveStreamRobust();
     App.liveLocalStream = stream;
     var streamId = 'live_' + App.mySlug + '_' + Date.now();
     App.liveStreamId = streamId;
@@ -2362,6 +2578,7 @@ window.__startGoLive = async function() {
     $('liveRemoteVideo').classList.add('visible');
     $('liveRemoteVideo').srcObject = stream;
     $('liveRemoteVideo').muted = true;
+    $('liveRemoteVideo').play().catch(function() {});
     $('liveLocalVideo').classList.remove('visible');
     $('liveLocalAvatar').classList.remove('show');
     $('liveRemoteAvatar').classList.remove('show');
@@ -2686,11 +2903,12 @@ window.__requestJoinLive = async function() {
   if (App.liveJoinRequested) return;
   if (!App.liveStreamId) return;
   try {
-    var stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: VIDEO_CONSTRAINTS });
+    var stream = await getLiveStreamRobust();
     App.liveParticipantStream = stream;
     App.liveBaseVideoTrack = stream.getVideoTracks()[0];
     $('liveLocalVideo').srcObject = stream;
     $('liveLocalVideo').muted = true;
+    $('liveLocalVideo').play().catch(function() {});
     $('liveLocalVideo').classList.add('visible');
     $('liveBgBtn').style.display = 'flex';
 
@@ -2868,6 +3086,7 @@ function cleanupLive() {
   App.liveUnsubs = [];
   App.liveMode = null; App.liveStreamId = null; App.liveHostSlug = null;
   App.liveParticipant = false; App.liveJoinRequested = false;
+  App.liveRecordedBlob = null; App.liveRecordedFileName = null;
   var lv = $('liveLocalVideo'); if (lv) { lv.srcObject = null; lv.classList.remove('visible'); lv.classList.remove('hidden-by-avatar'); }
   var rv = $('liveRemoteVideo'); if (rv) { rv.srcObject = null; rv.classList.remove('visible'); rv.classList.remove('hidden-by-avatar'); }
   var la = $('liveLocalAvatar'); if (la) la.classList.remove('show');
@@ -2878,6 +3097,7 @@ function cleanupLive() {
   var ci = $('liveChatInput'); if (ci) ci.value = '';
   var lo = $('liveLoadingOverlay'); if (lo) lo.classList.remove('hidden');
   var hr = $('hostRequestsArea'); if (hr) { hr.style.display = 'none'; hr.innerHTML = ''; }
+  var sm = $('saveRecordingModal'); if (sm) sm.classList.remove('show');
   var onAir = $('liveOnAirBadge'); if (onAir) { onAir.textContent = '🔴 LIVE'; onAir.style.background = '#ff4757'; onAir.style.color = '#fff'; }
   showScreen('screen-main');
 }
@@ -2971,7 +3191,7 @@ window.__ownerDirectDM = function(slug, name) {
 };
 window.__ownerDeleteP2PMessage = async function(c, k) { if (confirm('Delete this message?')) { await remove(dbRef(db, 'chats/' + c + '/messages/' + k)); toast('Deleted ✓'); loadOwnerReports(); } };
 
-/* ==================== PROFESSIONAL BACKGROUNDS for calls ==================== */
+/* ==================== PROFESSIONAL BACKGROUNDS ==================== */
 var PROFESSIONAL_BACKGROUNDS = [
   { key: 'none', label: 'Normal Camera', type: 'filter', value: 'none' },
   { key: 'blur', label: 'Blurred', type: 'filter', value: 'blur(8px)' },
