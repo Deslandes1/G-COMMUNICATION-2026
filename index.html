@@ -143,10 +143,8 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .status-content-box{border-radius:12px;padding:20px;color:#fff;font-weight:700;font-size:17px !important;text-align:center;word-break:break-word;margin-bottom:12px}
 .status-media{width:100%;border-radius:12px;margin-bottom:10px;max-height:75vh;object-fit:contain;background:#000;display:block}
 .status-link{display:block;background:#f0f4f8;padding:12px;border-radius:8px;color:var(--accent);font-weight:600;text-decoration:none;word-break:break-all;font-size:14px !important;margin-bottom:10px;border:1px dashed var(--accent)}
-#introVideoPlayerWrap{position:relative;padding-bottom:56.25%;height:0;background:#000;}
-#introVideoPlayerWrap iframe,#introVideoPlayerWrap video{position:absolute;top:0;left:0;width:100%;height:100%;border:0;display:block;background:#000;}
-#introVideoEmpty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#8899a8;font-size:14px;text-align:center;padding:20px;background:linear-gradient(135deg,#0b2a4a,#143a5f);}
-#introVideoEmpty .icon{font-size:36px;margin-bottom:8px;opacity:.6;}
+.pinned-card{border:2px solid #d4af37 !important;background:#fff;box-shadow:0 4px 16px rgba(212,175,55,.2) !important;}
+.pinned-badge{background:#d4af37;color:#0b2a4a;font-size:9px;font-weight:800;padding:2px 7px;border-radius:6px;letter-spacing:.5px;}
 #lightbox,#avatarViewerModal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:99999;padding:20px;flex-direction:column}
 #lightbox.show,#avatarViewerModal.show{display:flex}
 #lightbox img,#avatarViewerImg{max-width:100%;max-height:85vh;border-radius:8px;object-fit:contain}
@@ -381,7 +379,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
     <div class="lite-mode-badge" id="liteModeBadge">⚡ Lite</div>
-    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v14</div>
+    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v15</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
@@ -392,14 +390,17 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div id="newUsersList"></div>
   </div>
   <div id="tabStatus" class="tab-content" style="display:none;">
-    <div id="introVideoCard" style="margin:12px 12px 0;border-radius:16px;overflow:hidden;border:2px solid #0b2a4a;background:#000;box-shadow:0 4px 16px rgba(11,42,74,.15);">
-      <div style="background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:8px;">
-        <span style="width:10px;height:10px;border-radius:50%;background:#4aff7a;box-shadow:0 0 8px #4aff7a;animation:nbcPulse 1.4s infinite;display:inline-block;"></span>
-        <span style="flex:1;font-weight:800;font-size:14px;letter-spacing:.3px;">JARVIS — WELCOME VIDEO</span>
-        <button id="changeIntroVideoBtn" onclick="window.__openChangeIntroVideo()" style="display:none;background:rgba(212,175,55,.25);color:#d4af37;border:1px solid #d4af37;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">📹 Change</button>
+    <div id="pinnedStatusCard" class="status-card pinned-card" style="margin:12px 12px 0;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+        <span class="pinned-badge">📌 PINNED</span>
+        <span style="font-size:11px;color:var(--muted);flex:1;">From Gesner</span>
+        <button id="editPinnedStatusBtn" onclick="window.__openEditPinnedStatus()" style="display:none;background:rgba(212,175,55,.25);color:#8b6914;border:1px solid #d4af37;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">✏️ Edit</button>
       </div>
-      <div id="introVideoPlayerWrap">
-        <div id="introVideoEmpty"><div class="icon">📹</div><div>No intro video yet</div></div>
+      <div id="pinnedStatusWrap">
+        <div id="pinnedEmpty" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;color:#8899a8;font-size:14px;text-align:center;">
+          <div style="font-size:36px;margin-bottom:8px;opacity:.6;">📌</div>
+          <div>Nothing pinned yet</div>
+        </div>
       </div>
     </div>
     <div style="margin:8px 12px 12px;padding:10px 14px;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;border-radius:10px;text-align:center;font-size:13px;line-height:1.5;">
@@ -591,21 +592,27 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 <div class="modal-overlay" id="statusModal"><div class="modal"><h3>Post Status</h3><textarea id="statusTextInput" rows="2" placeholder="Write status..."></textarea><input id="statusLinkInput" type="text" placeholder="Video link to embed" style="margin-top:8px;"><div style="margin-bottom:10px"><label style="font-size:14px;display:block;margin-bottom:4px">Background:</label><input type="color" id="statusBgColor" value="#0d7a8c" style="width:100%;height:40px;border-radius:6px;cursor:pointer;"></div><div style="margin-bottom:10px"><button class="btn-primary" id="statusMediaSelectBtn" style="width:100%;max-width:none;padding:12px;background:#143a5f;color:#fff;">📹 Select Photo/Video</button><div id="statusMediaName" style="font-size:13px;color:var(--accent);margin-top:4px;"></div></div><div class="modal-actions"><button class="cancel" id="statusModalCancel">Cancel</button><button class="confirm" id="statusModalConfirm">Post</button></div></div></div>
 <div class="modal-overlay" id="editMsgModal"><div class="modal"><h3>Edit Message</h3><input id="editMsgInput" type="text" placeholder="Edit text..."><div style="margin-bottom:12px"><label style="font-size:14px;display:block;margin-bottom:4px">Replace Media (optional):</label><input type="file" id="editMediaInput" accept="image/*,video/*,audio/*"></div><div class="modal-actions"><button class="cancel" id="editMsgCancel">Cancel</button><button class="confirm" id="editMsgConfirm">Save</button></div></div></div>
 <div class="modal-overlay" id="statusCommentsModal"><div class="modal" style="max-width:420px;"><h3>Comments & DM</h3><div id="statusCommentsList" style="max-height:220px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:8px;"></div><input id="statusCommentInput" type="text" placeholder="Comment..."><div class="modal-actions"><button class="cancel" id="statusCommentCancel">Close</button><button class="confirm" id="statusCommentSend">Send DM</button></div></div></div>
-<div class="modal-overlay" id="changeIntroVideoModal">
+<div class="modal-overlay" id="editPinnedStatusModal">
   <div class="modal">
-    <h3>📹 Change Welcome Video</h3>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">This video appears at the top of Status for everyone. Your contact card stays below it.</p>
-    <label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px;color:var(--navy);">Option 1 · Paste YouTube URL (recommended)</label>
-    <input id="introYtInput" type="text" placeholder="https://www.youtube.com/watch?v=…" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:14px !important;margin-bottom:4px;outline:none;">
-    <div style="font-size:11px;color:var(--muted);margin-bottom:16px;">Fast, works on 2G. Best choice for Haiti.</div>
-    <label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px;color:var(--navy);">Option 2 · Upload a video file</label>
-    <input id="introVideoFileInput" type="file" accept="video/*" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px !important;margin-bottom:4px;">
-    <div style="font-size:11px;color:#ff4757;margin-bottom:16px;">⚠️ Uses more data on 2G. Keep under 2 MB for best results. YouTube is preferred.</div>
-    <div class="modal-actions">
-      <button class="cancel" onclick="document.getElementById('changeIntroVideoModal').classList.remove('show')">Cancel</button>
-      <button class="confirm" id="introVideoSaveBtn" onclick="window.__saveIntroVideo()">Save</button>
+    <h3>📌 Edit Pinned Status</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">This appears at the top of Status for everyone. It never expires — only you can edit or delete it. Your contact card stays below it.</p>
+    <label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px;color:var(--navy);">Text (optional)</label>
+    <textarea id="pinnedTextInput" rows="2" placeholder="Write something…" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:14px !important;margin-bottom:6px;outline:none;font-family:Calibri,sans-serif;"></textarea>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;">
+      <span style="font-size:11px;color:var(--muted);">Text background:</span>
+      <input type="color" id="pinnedBgColor" value="#0d7a8c" style="width:60px;height:32px;border:none;border-radius:6px;cursor:pointer;">
     </div>
-    <button onclick="window.__clearIntroVideo()" style="width:100%;margin-top:12px;padding:12px;background:#fff0f0;color:#ff4757;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;font-family:Calibri,sans-serif;">Remove current video</button>
+    <label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px;color:var(--navy);">YouTube / video / website link (optional)</label>
+    <input id="pinnedLinkInput" type="text" placeholder="https://www.youtube.com/watch?v=…" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:14px !important;margin-bottom:4px;outline:none;">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:16px;">YouTube links play inline. Other links become a clickable button.</div>
+    <label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px;color:var(--navy);">Photo / video file (optional)</label>
+    <input id="pinnedMediaInput" type="file" accept="image/*,video/*" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px !important;margin-bottom:4px;">
+    <div id="pinnedMediaInfo" style="font-size:11px;color:var(--accent);margin-bottom:14px;">Max 3 MB. YouTube link is preferred for 2G users.</div>
+    <div class="modal-actions">
+      <button class="cancel" onclick="document.getElementById('editPinnedStatusModal').classList.remove('show')">Cancel</button>
+      <button class="confirm" id="pinnedSaveBtn" onclick="window.__savePinnedStatus()">Save</button>
+    </div>
+    <button onclick="window.__clearPinnedStatus()" style="width:100%;margin-top:12px;padding:12px;background:#fff0f0;color:#ff4757;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;font-family:Calibri,sans-serif;">Remove pinned status</button>
   </div>
 </div>
 <div class="modal-overlay" id="ownerAuthModal"><div class="modal"><h3>Owner Auth</h3><input id="ownerPassInput" type="password" placeholder="Password"><div class="modal-actions"><button class="cancel" id="ownerAuthCancel">Cancel</button><button class="confirm" id="ownerAuthConfirm">Unlock</button></div></div></div>
@@ -636,50 +643,29 @@ if (window.__jarvisMarkLoaded) window.__jarvisMarkLoaded();
 const firebaseConfig = { apiKey: "AIzaSyCG_LO9IOfwEly0uar-Pu63b8FpjADSnqE", authDomain: "g-communication-2026-c5af2.firebaseapp.com", databaseURL: "https://g-communication-2026-c5af2-default-rtdb.firebaseio.com", projectId: "g-communication-2026-c5af2", storageBucket: "g-communication-2026-c5af2.firebasestorage.app", messagingSenderId: "953142314141", appId: "1:953142314141:web:967f75943e55584c36c074" };
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   🔴  NBC NEWS LIVE STREAM — SINGLE SOURCE OF TRUTH (kept, not displayed)
+   📌  PINNED STATUS — SINGLE SOURCE OF TRUTH (owner only)
 
-   ⚠️  This constant is preserved so the NBC card can be restored later.
-   ⚠️  It is NOT deleted — the NBC card was replaced with the welcome video.
-   ⚠️  To re-enable NBC: replace the intro video card in Status with the NBC iframe.
+   The owner can post text + link + media that appears at the TOP of Status
+   for everyone. It NEVER expires after 24 hours. It's only removed when the
+   owner taps "Remove pinned status".
+
+   Stored at: chats/_jarvis_intro
+   Legacy data (from v14 videoUrl/videoType) is auto-migrated on load.
+
+   To update from code (if Firebase is empty):
+   → Set PINNED_STATUS_FALLBACK below to the desired default.
    ═══════════════════════════════════════════════════════════════════════════ */
-const NBC_LIVE_URL = 'https://www.youtube.com/watch?v=0uwAtfBIVx0';
+const PINNED_STATUS_PATH = 'chats/_jarvis_intro';
+const PINNED_STATUS_FALLBACK = { text: '', link: '', mediaUrl: null, mediaType: null, bgColor: '#0d7a8c' };
 
+/* NBC NEWS LIVE — kept for restore (not displayed) */
+const NBC_LIVE_URL = 'https://www.youtube.com/watch?v=0uwAtfBIVx0';
 function buildNbcLiveEmbedUrl() {
   var raw = String(NBC_LIVE_URL || '').trim();
   if (!raw) return '';
   var id = null;
   try { id = getYouTubeId(raw); } catch (e) {}
   if (!id) return raw;
-  return 'https://www.youtube.com/embed/' + id + '?autoplay=1&mute=1&playsinline=1&rel=0&loop=1&playlist=' + id;
-}
-/* ═══════════════════════════════════════════════════════════════════════════ */
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   🎬  JARVIS WELCOME VIDEO — SINGLE SOURCE OF TRUTH
-
-   This is the video that appears at the TOP of the Status tab for everyone.
-   Owner can change it anytime via the "📹 Change" button (stored in Firebase).
-
-   To change from code (fallback when Firebase has no video):
-   → Replace the URL between the single quotes on the next line.
-
-   Accepted YouTube URL formats (all work):
-     https://www.youtube.com/watch?v=VIDEO_ID
-     https://www.youtube.com/live/VIDEO_ID
-     https://youtu.be/VIDEO_ID
-     https://www.youtube.com/embed/VIDEO_ID
-
-   Leave empty ('') to show "No intro video yet".
-   ═══════════════════════════════════════════════════════════════════════════ */
-const JARVIS_INTRO_VIDEO_URL_FALLBACK = '';
-const INTRO_VIDEO_PATH = 'chats/_jarvis_intro';
-
-function buildIntroYouTubeEmbedUrl(url) {
-  var raw = String(url || '').trim();
-  if (!raw) return '';
-  var id = null;
-  try { id = getYouTubeId(raw); } catch (e) {}
-  if (!id) return '';
   return 'https://www.youtube.com/embed/' + id + '?autoplay=1&mute=1&playsinline=1&rel=0&loop=1&playlist=' + id;
 }
 /* ═══════════════════════════════════════════════════════════════════════════ */
@@ -712,7 +698,7 @@ const App = {
   pendingCallTarget: null, pendingCallType: false, pendingBg: 'none',
   isIOS: window.__jarvisIsIOS === true, isStandalone: window.__jarvisIsStandalone === true,
   _cloudSynced: false, _contactsListener: null, _groupsListener: null, _activeStreamsListener: null,
-  _introVideoListener: null,
+  _pinnedStatusListener: null,
   listenerWatchdogs: {}, listenerAttempts: {}, processedInvites: {},
   liveMode: null, liveStreamId: null, liveHostSlug: null, liveLocalStream: null,
   livePeerConns: {}, liveHostPC: null, liveUnsubs: [], activeLiveStreams: {},
@@ -727,7 +713,7 @@ const App = {
   incomingRequests: {}, sentRequests: {}, publicUsers: {},
   _friendReqListener: null, _publicUsersListener: null,
   networkMode: 'normal', userLiteMode: false, liteMode: false, lastConnectionType: '',
-  introVideoUrl: '', introVideoType: ''
+  pinnedStatus: null
 };
 
 let currentAuthUser = null;
@@ -776,118 +762,205 @@ function frParseKey(key) {
   return { from: parts[0], to: parts[1] };
 }
 
-/* ============ INTRO VIDEO ============ */
-function listenIntroVideo() {
-  if (App._introVideoListener) { try { if (typeof App._introVideoListener === 'function') App._introVideoListener(); } catch (e) {} App._introVideoListener = null; }
+/* ============ PINNED STATUS ============ */
+function normalizePinnedData(d) {
+  if (!d) return null;
+  // New format
+  if (d.text !== undefined || d.link !== undefined || d.mediaUrl !== undefined) {
+    return {
+      text: d.text || '',
+      link: d.link || '',
+      mediaUrl: d.mediaUrl || null,
+      mediaType: d.mediaType || null,
+      bgColor: d.bgColor || '#0d7a8c',
+      updatedAt: d.updatedAt || null,
+      updatedBy: d.updatedBy || null
+    };
+  }
+  // Legacy format migration (v14 intro video)
+  var r = { text: '', link: '', mediaUrl: null, mediaType: null, bgColor: '#0d7a8c', updatedAt: d.updatedAt || null, updatedBy: d.updatedBy || null };
+  if (d.videoUrl) {
+    if (d.videoType === 'file') { r.mediaUrl = d.videoUrl; r.mediaType = 'video'; }
+    else { r.link = d.videoUrl; }
+  }
+  return r;
+}
+
+function listenPinnedStatus() {
+  if (App._pinnedStatusListener) { try { App._pinnedStatusListener(); } catch (e) {} App._pinnedStatusListener = null; }
   try {
-    App._introVideoListener = onValue(dbRef(db, INTRO_VIDEO_PATH), function(snap) {
-      var d = snap.val() || {};
-      var url = d.videoUrl || JARVIS_INTRO_VIDEO_URL_FALLBACK || '';
-      var type = d.videoType || (url && getYouTubeId(url) ? 'youtube' : (url ? 'file' : ''));
-      App.introVideoUrl = url;
-      App.introVideoType = type;
-      try { LS.set('introVideoUrl', url); LS.set('introVideoType', type); } catch (e) {}
-      renderIntroVideo(url, type);
+    App._pinnedStatusListener = onValue(dbRef(db, PINNED_STATUS_PATH), function(snap) {
+      var data = normalizePinnedData(snap.val());
+      App.pinnedStatus = data;
+      try { LS.set('pinnedStatus', data); } catch (e) {}
+      renderPinnedStatus(data);
     }, function(err) {
-      console.warn('Intro video listener error:', err);
-      var cachedUrl = LS.get('introVideoUrl', '') || JARVIS_INTRO_VIDEO_URL_FALLBACK || '';
-      var cachedType = LS.get('introVideoType', '');
-      App.introVideoUrl = cachedUrl;
-      App.introVideoType = cachedType;
-      renderIntroVideo(cachedUrl, cachedType);
+      console.warn('Pinned listener error:', err);
+      var cached = LS.get('pinnedStatus', null);
+      App.pinnedStatus = cached;
+      renderPinnedStatus(cached);
     });
   } catch (e) { console.warn(e); }
 }
 
-function renderIntroVideo(url, type) {
-  var wrap = $('introVideoPlayerWrap');
-  var changeBtn = $('changeIntroVideoBtn');
-  if (changeBtn) changeBtn.style.display = isOwner() ? 'inline-block' : 'none';
+function renderPinnedStatus(data) {
+  var wrap = $('pinnedStatusWrap');
+  var editBtn = $('editPinnedStatusBtn');
+  if (editBtn) editBtn.style.display = isOwner() ? 'inline-block' : 'none';
   if (!wrap) return;
 
-  if (!url) {
-    wrap.innerHTML = '<div id="introVideoEmpty"><div class="icon">📹</div><div>No intro video yet</div>' + (isOwner() ? '<div style="font-size:12px;opacity:.7;margin-top:6px;">Tap "📹 Change" above to add one</div>' : '') + '</div>';
+  var hasContent = data && (data.text || data.link || data.mediaUrl);
+  if (!hasContent) {
+    wrap.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;color:#8899a8;font-size:14px;text-align:center;"><div style="font-size:36px;margin-bottom:8px;opacity:.6;">📌</div><div>Nothing pinned yet</div>' + (isOwner() ? '<div style="font-size:12px;opacity:.7;margin-top:6px;">Tap "✏️ Edit" above to post a pinned status</div>' : '') + '</div>';
     return;
   }
 
-  if (type === 'youtube' || getYouTubeId(url)) {
-    var ytSrc = buildIntroYouTubeEmbedUrl(url);
-    if (ytSrc) {
-      wrap.innerHTML = '<iframe src="' + ytSrc + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
-      return;
+  var html = '';
+
+  // Media
+  if (data.mediaUrl) {
+    if (data.mediaType === 'image') {
+      if (App.liteMode) {
+        html += '<div class="lazy-img" onclick="window.__loadLazyPinnedImg(this, \'' + esc(data.mediaUrl) + '\')"><span class="lazy-icon">🖼️</span><span>Tap to load image</span></div>';
+      } else {
+        html += '<img src="' + esc(data.mediaUrl) + '" class="status-media" loading="lazy" onclick="window.__viewAvatar(\'' + esc(data.mediaUrl) + '\',\'Pinned\')">';
+      }
+    } else {
+      html += '<video src="' + esc(data.mediaUrl) + '" controls playsinline webkit-playsinline class="status-media" preload="metadata"></video>';
     }
   }
 
-  wrap.innerHTML = '<video id="introVideoEl" src="' + esc(url) + '" autoplay muted playsinline controls preload="metadata"></video>';
+  // Text
+  if (data.text) {
+    html += '<div class="status-content-box" style="background:' + (data.bgColor || '#0d7a8c') + '">' + esc(data.text) + '</div>';
+  }
+
+  // Link
+  if (data.link) {
+    var ytId = getYouTubeId(data.link);
+    if (ytId) {
+      if (App.liteMode) {
+        html += '<div class="lazy-img" onclick="window.__loadLazyPinnedYt(this, \'' + ytId + '\')"><span class="lazy-icon">▶️</span><span>Tap to load YouTube video</span></div>';
+      } else {
+        html += '<div style="position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:12px;overflow:hidden;margin-bottom:10px;"><iframe src="https://www.youtube.com/embed/' + ytId + '?playsinline=1&rel=0" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
+      }
+    } else {
+      html += '<a href="' + esc(data.link) + '" target="_blank" class="status-link">🔗 ' + esc(data.link) + '</a>';
+    }
+  }
+
+  // Meta
+  if (data.updatedAt) {
+    html += '<div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:right;">Pinned ' + timeAgo(data.updatedAt) + '</div>';
+  }
+
+  wrap.innerHTML = html;
 }
 
-window.__openChangeIntroVideo = function() {
-  if (!isOwner()) return toast('Only the owner can change the welcome video', true);
-  var ytInput = $('introYtInput');
-  var fileInput = $('introVideoFileInput');
-  if (ytInput) ytInput.value = (App.introVideoType === 'youtube') ? App.introVideoUrl : '';
-  if (fileInput) fileInput.value = '';
-  $('changeIntroVideoModal').classList.add('show');
+window.__loadLazyPinnedImg = function(el, url) {
+  if (!el || !url) return;
+  var img = document.createElement('img');
+  img.className = 'status-media';
+  img.loading = 'lazy';
+  img.src = url;
+  img.onclick = function() { window.__viewAvatar(url, 'Pinned'); };
+  if (el.parentNode) el.parentNode.replaceChild(img, el);
 };
 
-window.__saveIntroVideo = async function() {
-  if (!isOwner()) return toast('Only the owner can change this', true);
-  var ytUrl = ($('introYtInput') ? $('introYtInput').value.trim() : '');
-  var fileInput = $('introVideoFileInput');
-  var file = fileInput && fileInput.files && fileInput.files[0];
-  var btn = $('introVideoSaveBtn');
+window.__loadLazyPinnedYt = function(el, ytId) {
+  if (!el || !ytId) return;
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:12px;overflow:hidden;margin-bottom:10px;';
+  wrap.innerHTML = '<iframe src="https://www.youtube.com/embed/' + ytId + '?playsinline=1&rel=0&autoplay=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
+  if (el.parentNode) el.parentNode.replaceChild(wrap, el);
+};
 
-  if (!ytUrl && !file) return toast('Paste a YouTube URL or select a video file', true);
+window.__openEditPinnedStatus = function() {
+  if (!isOwner()) return toast('Only the owner can edit this', true);
+  var d = App.pinnedStatus || {};
+  if ($('pinnedTextInput')) $('pinnedTextInput').value = d.text || '';
+  if ($('pinnedLinkInput')) $('pinnedLinkInput').value = d.link || '';
+  if ($('pinnedBgColor')) $('pinnedBgColor').value = d.bgColor || '#0d7a8c';
+  if ($('pinnedMediaInput')) $('pinnedMediaInput').value = '';
+  if ($('pinnedMediaInfo')) {
+    if (d.mediaUrl) $('pinnedMediaInfo').textContent = 'Current file attached. Upload a new one to replace it.';
+    else $('pinnedMediaInfo').textContent = 'Max 3 MB. YouTube link is preferred for 2G users.';
+  }
+  $('editPinnedStatusModal').classList.add('show');
+};
+
+// Backward compat
+window.__openChangeIntroVideo = window.__openEditPinnedStatus;
+
+window.__savePinnedStatus = async function() {
+  if (!isOwner()) return toast('Only the owner can post this', true);
+
+  var text = $('pinnedTextInput') ? $('pinnedTextInput').value.trim() : '';
+  var link = $('pinnedLinkInput') ? $('pinnedLinkInput').value.trim() : '';
+  var bgColor = $('pinnedBgColor') ? $('pinnedBgColor').value : '#0d7a8c';
+  var fileInput = $('pinnedMediaInput');
+  var file = fileInput && fileInput.files && fileInput.files[0];
+  var btn = $('pinnedSaveBtn');
+
+  if (!text && !link && !file) return toast('Add text, a link, or a media file', true);
+
+  // Keep existing media if no new file uploaded
+  var mediaUrl = null, mediaType = null;
+  if (!file && App.pinnedStatus && App.pinnedStatus.mediaUrl) {
+    mediaUrl = App.pinnedStatus.mediaUrl;
+    mediaType = App.pinnedStatus.mediaType;
+  }
 
   if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
 
   try {
-    if (ytUrl) {
-      var ytId = getYouTubeId(ytUrl);
-      if (!ytId) { toast('Invalid YouTube URL', true); return; }
-      await set(dbRef(db, INTRO_VIDEO_PATH), {
-        videoUrl: ytUrl,
-        videoType: 'youtube',
-        updatedAt: Date.now(),
-        updatedBy: App.mySlug
-      });
-      toast('✓ Welcome video updated');
-    } else if (file) {
+    if (file) {
       if (file.size > 3 * 1024 * 1024) {
-        toast('Video too large (max 3 MB). Use YouTube instead.', true);
+        toast('File too large (max 3 MB). Use YouTube link instead.', true);
         return;
       }
-      toast('Processing video… (up to 30 seconds)');
-      var dataUrl = await fileToBase64(file);
-      await set(dbRef(db, INTRO_VIDEO_PATH), {
-        videoUrl: dataUrl,
-        videoType: 'file',
-        updatedAt: Date.now(),
-        updatedBy: App.mySlug
-      });
-      toast('✓ Welcome video uploaded');
+      toast('Processing file… (up to 30s)');
+      mediaUrl = await fileToBase64(file);
+      mediaType = detectFileType(file);
     }
-    $('changeIntroVideoModal').classList.remove('show');
-    if ($('introYtInput')) $('introYtInput').value = '';
+
+    var payload = {
+      text: text,
+      link: link,
+      bgColor: bgColor,
+      mediaUrl: mediaUrl,
+      mediaType: mediaType,
+      updatedAt: Date.now(),
+      updatedBy: App.mySlug
+    };
+
+    await set(dbRef(db, PINNED_STATUS_PATH), payload);
+    $('editPinnedStatusModal').classList.remove('show');
     if (fileInput) fileInput.value = '';
+    toast('✓ Pinned status updated');
   } catch (e) {
-    console.error('Save intro video failed:', e);
+    console.error('Save pinned failed:', e);
     toast('Failed to save: ' + (e.message || 'unknown'), true);
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = 'Save'; }
   }
 };
 
-window.__clearIntroVideo = async function() {
+// Backward compat
+window.__saveIntroVideo = window.__savePinnedStatus;
+
+window.__clearPinnedStatus = async function() {
   if (!isOwner()) return toast('Only the owner can remove this', true);
-  if (!confirm('Remove the welcome video? Your contact card will still show.')) return;
+  if (!confirm('Remove the pinned status? Your contact card will still show.')) return;
   try {
-    await remove(dbRef(db, INTRO_VIDEO_PATH));
-    toast('✓ Welcome video removed');
-    $('changeIntroVideoModal').classList.remove('show');
+    await remove(dbRef(db, PINNED_STATUS_PATH));
+    toast('✓ Pinned status removed');
+    $('editPinnedStatusModal').classList.remove('show');
   } catch (e) { toast('Failed to remove', true); }
 };
-/* ============ END INTRO VIDEO ============ */
+
+window.__clearIntroVideo = window.__clearPinnedStatus;
+/* ============ END PINNED STATUS ============ */
 
 function detectNetworkMode() {
   if (!navigator.onLine) return 'offline';
@@ -949,6 +1022,7 @@ function toggleUserLiteMode() {
   for (var l = 0; l < App.groups.length; l++) setupGroupMessageListener(App.groups[l].id);
   if (App.activeChat) renderMessages(App.activeChat, App.lastMessages[App.activeChat] || [], App.activeIsGroup);
   renderStatusFeedList(window._cachedPosts || []);
+  renderPinnedStatus(App.pinnedStatus);
 }
 
 function loadCachedData() {
@@ -968,6 +1042,8 @@ function loadCachedData() {
       if (!App.lastMessages[id] || !App.lastMessages[id].length) App.lastMessages[id] = cache[id];
     });
   }
+  var cachedPinned = LS.get('pinnedStatus', null);
+  if (cachedPinned) App.pinnedStatus = cachedPinned;
 }
 
 if (navigator.connection) {
@@ -1565,6 +1641,7 @@ function startMainApp() {
   updateSyncIndicator('cached');
   updateProfileHeader();
   renderBlockedUsersList();
+  renderPinnedStatus(App.pinnedStatus);
   buildUI();
   listenUserStatuses();
   listenIncomingCalls();
@@ -1572,7 +1649,7 @@ function startMainApp() {
   listenActiveLiveStreams();
   listenFriendRequests();
   listenPublicUsers();
-  listenIntroVideo();
+  listenPinnedStatus();
   ensureBootstrap();
   updateNewUsersBadge();
   var changed = false;
@@ -1641,7 +1718,7 @@ async function forceFullRefresh() {
     for (var j = 0; j < App.contacts.length; j++) if (!App.globalUnsubs[App.contacts[j].slug]) setupMessageListener(App.contacts[j].slug, false);
     for (var k = 0; k < App.groups.length; k++) if (!App.globalUnsubs[App.groups[k].id]) setupGroupMessageListener(App.groups[k].id);
     buildUI(); listenUserStatuses(); listenSelfGroups(); listenActiveLiveStreams();
-    listenFriendRequests(); listenPublicUsers(); listenIntroVideo(); ensureBootstrap(); updateNewUsersBadge();
+    listenFriendRequests(); listenPublicUsers(); listenPinnedStatus(); ensureBootstrap(); updateNewUsersBadge();
     updateSyncIndicator('live');
     toast('Refreshed ✓');
   } catch (err) { toast('Refresh failed', true); }
@@ -1680,7 +1757,7 @@ function updateProfileHeader() {
   if (App.myPhoto) { if (pImg) { pImg.src = App.myPhoto; pImg.style.display = 'block'; } if (pLetter) pLetter.style.display = 'none'; }
   else { if (pImg) pImg.style.display = 'none'; if (pLetter) { pLetter.textContent = (App.myName || 'G').charAt(0).toUpperCase(); pLetter.style.display = 'inline'; } }
   var ownerTrigger = $('ownerPortalTrigger'); if (ownerTrigger) ownerTrigger.style.display = isOwner() ? 'block' : 'none';
-  var changeBtn = $('changeIntroVideoBtn'); if (changeBtn) changeBtn.style.display = isOwner() ? 'inline-block' : 'none';
+  var editPinnedBtn = $('editPinnedStatusBtn'); if (editPinnedBtn) editPinnedBtn.style.display = isOwner() ? 'inline-block' : 'none';
 }
 
 function saveContacts() { LS.set('contacts', App.contacts); }
@@ -2817,6 +2894,7 @@ for (var i = 0; i < nb.length; i++) (function(b) {
     $('headerTitle').textContent = t === 'chats' ? 'Friend List' : t === 'newusers' ? 'All Users' : t.charAt(0).toUpperCase() + t.slice(1);
     if (t === 'voicemail') listenVoicemails();
     if (t === 'status') {
+      renderPinnedStatus(App.pinnedStatus);
       renderActiveLiveStreams();
     }
     if (t === 'newusers') { renderNewUsersTab(); updateNewUsersBadge(); }
@@ -2826,7 +2904,7 @@ for (var i = 0; i < nb.length; i++) (function(b) {
 $('chatBackBtn').addEventListener('click', function() { App.activeChat = null; showScreen('screen-main'); });
 window.__lb = function(u) { $('lightboxImg').src = u; $('lightboxDownload').href = u; $('lightbox').classList.add('show'); };
 $('lightboxClose').addEventListener('click', function() { $('lightbox').classList.remove('show'); });
-$('clearBtn').addEventListener('click', function() { if (confirm('Clear local data? You will need to sign in again.')) { if (App.liveMode) cleanupLive(); LS.del('mySlug'); LS.del('contacts'); LS.del('groups'); LS.del('unreadCounts'); LS.del('blockedUsers'); LS.del('cached_chats'); LS.del('cached_statuses'); LS.del('lastSeenTimes'); LS.del('userLiteMode'); location.reload(); } });
+$('clearBtn').addEventListener('click', function() { if (confirm('Clear local data? You will need to sign in again.')) { if (App.liveMode) cleanupLive(); LS.del('mySlug'); LS.del('contacts'); LS.del('groups'); LS.del('unreadCounts'); LS.del('blockedUsers'); LS.del('cached_chats'); LS.del('cached_statuses'); LS.del('lastSeenTimes'); LS.del('userLiteMode'); LS.del('pinnedStatus'); location.reload(); } });
 </script>
 </body>
 </html>
