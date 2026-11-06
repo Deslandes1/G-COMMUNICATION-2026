@@ -377,7 +377,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
     <div class="lite-mode-badge" id="liteModeBadge">⚡ Lite</div>
-    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v12</div>
+    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v13</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
@@ -395,7 +395,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
         <span style="font-size:11px;opacity:.85;font-weight:600;">24/7 STREAM</span>
       </div>
       <div style="position:relative;padding-bottom:56.25%;height:0;background:#000;">
-        <iframe id="nbcLiveIframe" data-src="https://www.youtube.com/embed/0uwAtfBIVx0?autoplay=1&mute=1&playsinline=1&rel=0&loop=1&playlist=0uwAtfBIVx0" src="about:blank" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        <iframe id="nbcLiveIframe" src="about:blank" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
       </div>
     </div>
     <div style="margin:8px 12px 12px;padding:10px 14px;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;border-radius:10px;text-align:center;font-size:13px;line-height:1.5;">
@@ -614,6 +614,38 @@ if (window.__jarvisMarkLoaded) window.__jarvisMarkLoaded();
 
 const firebaseConfig = { apiKey: "AIzaSyCG_LO9IOfwEly0uar-Pu63b8FpjADSnqE", authDomain: "g-communication-2026-c5af2.firebaseapp.com", databaseURL: "https://g-communication-2026-c5af2-default-rtdb.firebaseio.com", projectId: "g-communication-2026-c5af2", storageBucket: "g-communication-2026-c5af2.firebasestorage.app", messagingSenderId: "953142314141", appId: "1:953142314141:web:967f75943e55584c36c074" };
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   🔴🔴🔴  NBC NEWS LIVE STREAM — SINGLE SOURCE OF TRUTH  🔴🔴🔴
+
+   ⚠️  DO NOT DELETE THIS CONSTANT — EVER.
+   ⚠️  Even if the stream appears broken, do NOT remove it.
+   ⚠️  Simply replace the URL between the quotes on the NEXT line.
+
+   WHEN NBC RENEWS THEIR LIVE LINK:
+   → Come to this exact line.
+   → Paste the new YouTube URL between the single quotes.
+   → Save. Done. Nothing else in the app needs to change.
+
+   ACCEPTED URL FORMATS (all work):
+     https://www.youtube.com/watch?v=VIDEO_ID
+     https://www.youtube.com/live/VIDEO_ID
+     https://youtu.be/VIDEO_ID
+     https://www.youtube.com/embed/VIDEO_ID
+
+   Last updated: 2026
+   ═══════════════════════════════════════════════════════════════════════════ */
+const NBC_LIVE_URL = 'https://www.youtube.com/watch?v=0uwAtfBIVx0';
+
+function buildNbcLiveEmbedUrl() {
+  var raw = String(NBC_LIVE_URL || '').trim();
+  if (!raw) return '';
+  var id = null;
+  try { id = getYouTubeId(raw); } catch (e) {}
+  if (!id) return raw;
+  return 'https://www.youtube.com/embed/' + id + '?autoplay=1&mute=1&playsinline=1&rel=0&loop=1&playlist=' + id;
+}
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
 const DB_URL = "https://g-communication-2026-c5af2-default-rtdb.firebaseio.com";
 const STATUS_FEED_PATH = 'chats/_status_feed/statuses';
 const LIVE_BASE_PATH = 'chats/_live_streams';
@@ -655,7 +687,6 @@ const App = {
   liveRecordedBlob: null, liveRecordedFileName: null, liveChatBuffer: [],
   incomingRequests: {}, sentRequests: {}, publicUsers: {},
   _friendReqListener: null, _publicUsersListener: null,
-  /* v12 — network & lite mode */
   networkMode: 'normal', userLiteMode: false, liteMode: false, lastConnectionType: ''
 };
 
@@ -705,7 +736,6 @@ function frParseKey(key) {
   return { from: parts[0], to: parts[1] };
 }
 
-/* ============ v12: NETWORK DETECTION + LITE MODE ============ */
 function detectNetworkMode() {
   if (!navigator.onLine) return 'offline';
   var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
@@ -738,7 +768,6 @@ function updateNetworkMode() {
   var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   var typeLabel = conn && conn.effectiveType ? conn.effectiveType.toUpperCase() : '';
   App.lastConnectionType = typeLabel;
-  // Notify user on network change
   if (prev !== App.networkMode && prev !== 'unknown' && App.mySlug) {
     if (App.networkMode === 'offline') toast('📵 Offline — showing cached data', true);
     else if (App.networkMode === 'lite') toast('⚡ Weak connection — Lite Mode active');
@@ -759,7 +788,6 @@ function toggleUserLiteMode() {
   updateNetworkMode();
   updateLiteModeUI();
   toast(App.userLiteMode ? '⚡ Lite Mode ON — using less data' : 'Lite Mode OFF');
-  // Re-setup message listeners with new limits
   Object.keys(App.globalUnsubs).forEach(function(id) {
     try { if (typeof App.globalUnsubs[id] === 'function') App.globalUnsubs[id](); } catch (e) {}
     delete App.globalUnsubs[id];
@@ -794,7 +822,6 @@ if (navigator.connection) {
 }
 window.addEventListener('online', updateNetworkMode);
 window.addEventListener('offline', updateNetworkMode);
-/* ============ END v12 NETWORK ============ */
 
 async function getLiveStreamRobust() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('Camera not supported');
@@ -1376,7 +1403,6 @@ window.addEventListener('beforeunload', function() {
 });
 
 function startMainApp() {
-  /* v12: load cached data FIRST — show instantly */
   App.userLiteMode = LS.get('userLiteMode', false);
   updateNetworkMode();
   updateLiteModeUI();
@@ -1566,7 +1592,6 @@ function listenIncomingCalls() {
   });
 }
 
-/* ============ v12: DELTA MESSAGE SYNC ============ */
 function setupMessageListener(id, isGroup) {
   var path = isGroup ? 'group_chats/' + id + '/messages' : 'chats/' + chatIdFor(App.mySlug, id) + '/messages';
   if (App.globalUnsubs[id]) { try { App.globalUnsubs[id](); } catch (e) {} delete App.globalUnsubs[id]; }
@@ -1636,7 +1661,6 @@ function setupMessageListener(id, isGroup) {
   };
 }
 function setupGroupMessageListener(id) { setupMessageListener(id, true); }
-/* ============ END DELTA SYNC ============ */
 
 function buildUI() {
   var cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient');
@@ -2012,7 +2036,6 @@ for (var i = 0; i < eb.length; i++) (function(b) { b.addEventListener('click', f
 var qb = document.querySelectorAll('.quick-reaction');
 for (var j = 0; j < qb.length; j++) (function(b) { b.addEventListener('click', function() { $('chatInput').value = b.dataset.emoji; sendMessage(null); }); })(qb[j]);
 
-/* LIVE STREAMING */
 function listenActiveLiveStreams() {
   if (App._activeStreamsListener) { try { if (typeof App._activeStreamsListener === 'function') App._activeStreamsListener(); } catch (e) {} App._activeStreamsListener = null; }
   try {
@@ -2641,7 +2664,10 @@ for (var i = 0; i < nb.length; i++) (function(b) {
     if (t === 'status') {
       var nbcFrame = document.getElementById('nbcLiveIframe');
       if (nbcFrame && (!nbcFrame.src || nbcFrame.src === 'about:blank' || nbcFrame.src === window.location.href)) {
-        nbcFrame.src = nbcFrame.getAttribute('data-src');
+        var nbcSrc = buildNbcLiveEmbedUrl();
+        if (nbcSrc && nbcSrc !== 'about:blank') {
+          nbcFrame.src = nbcSrc;
+        }
       }
       renderActiveLiveStreams();
     }
