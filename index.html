@@ -59,10 +59,13 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .btn-primary{width:100%;max-width:340px;padding:15px;border:none;border-radius:10px;background:linear-gradient(135deg,#f0d369 0%,#d4af37 50%,#b8912a 100%);color:var(--navy);font-size:16px !important;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(212,175,55,.4);font-family:Calibri,sans-serif}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
 #screen-main{background:#f4efe6;position:relative;overflow:hidden}
-.app-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;min-height:64px;border-bottom:2px solid var(--gold);flex-shrink:0;z-index:5}
+.app-header{background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 100%);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:10px;min-height:64px;border-bottom:2px solid var(--gold);flex-shrink:0;z-index:5}
 .app-header .logo{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#f0d369,#d4af37 60%,#a8872f);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex-shrink:0}
 .app-header h2{font-size:18px !important;font-weight:700;flex:1}
-.app-header .online-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);transition:background .3s}
+.app-header .online-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);transition:background .3s;flex-shrink:0}
+.lite-mode-badge{display:none;background:#d4af37;color:#0b2a4a;font-size:10px;font-weight:800;padding:3px 8px;border-radius:10px;letter-spacing:.3px;align-items:center;gap:3px;flex-shrink:0;animation:litePulse 2s ease-in-out infinite;}
+.lite-mode-badge.offline{background:#ff4757;color:#fff;animation:none;}
+@keyframes litePulse{0%,100%{opacity:1;}50%{opacity:.75;}}
 .tab-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:80px;position:relative;z-index:1}
 .tab-content::-webkit-scrollbar{display:none}
 .bottom-nav{position:absolute;bottom:0;left:0;right:0;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid rgba(11,42,74,.08);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:10;box-shadow:0 -4px 20px rgba(11,42,74,.06)}
@@ -115,6 +118,9 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .msg .attach-video{max-width:100%;width:100%;display:block;border-radius:12px;background:#000}
 .msg .attach-audio{width:100%;max-width:280px;margin-top:2px}
 .msg .attach-file{display:flex;align-items:center;gap:10px;padding:12px;background:#f2f7fb;border-radius:10px;text-decoration:none;color:var(--text);font-size:15px !important}
+.lazy-img{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:120px;background:linear-gradient(135deg,#f2f5f8,#e8eef4);border:2px dashed #c7d2dc;border-radius:12px;color:#6b7a87;font-weight:600;cursor:pointer;padding:20px;text-align:center;font-size:14px;gap:8px;}
+.lazy-img:active{background:#dfe6ed;}
+.lazy-img .lazy-icon{font-size:28px;}
 .quick-reactions{display:flex;gap:6px;padding:8px 12px;background:#fff;border-top:1px solid var(--border);flex-shrink:0;overflow-x:auto}
 .quick-reactions::-webkit-scrollbar{display:none}
 .quick-reaction{font-size:26px;width:44px;height:44px;background:#f7f9fb;border:1px solid var(--border);border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
@@ -170,6 +176,11 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .profile-card h3{font-size:22px !important}
 .profile-card .avatar-big{width:110px;height:110px;border-radius:50%;background:#0b2a4a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:700;margin:0 auto 12px;cursor:pointer;overflow:hidden;border:3px solid var(--gold)}
 .profile-card .avatar-big img{width:100%;height:100%;object-fit:cover;display:block}
+.lite-toggle-row{background:#fff;padding:16px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;font-size:15px;}
+.lite-toggle-switch{width:52px;height:30px;border-radius:15px;background:#e1e7ed;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+.lite-toggle-switch.active{background:#4aff7a;}
+.lite-toggle-knob{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:left .2s;}
+.lite-toggle-switch.active .lite-toggle-knob{left:25px;}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:24px}
 .modal-overlay.show{display:flex}
 .modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:440px;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -280,6 +291,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   .save-rec-btn { padding: 13px; font-size: 14px; }
   .friend-actions button{width:34px;height:34px;font-size:15px;}
   .req-btn-add,.req-btn-sent,.req-btn-accept,.req-btn-reject,.friend-badge,.blocked-badge,.pending-badge{padding:7px 10px;font-size:11px;}
+  .lite-mode-badge{font-size:9px;padding:2px 6px;}
 }
 @media (min-width: 640px) {
   body{padding:16px;background:#e4e9ef}
@@ -364,7 +376,8 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   <header class="app-header">
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
-    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v11</div>
+    <div class="lite-mode-badge" id="liteModeBadge">⚡ Lite</div>
+    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v12</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
@@ -418,6 +431,13 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     </div>
     <div style="padding:0 20px">
       <div style="background:#fff;padding:16px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;font-size:15px;" id="permBtn"><span>📢 Notifications</span><span id="permStatus" style="font-size:13px;font-weight:600;color:var(--gold)">checking…</span></div>
+      <div class="lite-toggle-row" id="liteModeToggle">
+        <div>
+          <div style="font-weight:700;">⚡ Lite Mode</div>
+          <div style="font-size:12px;color:var(--muted);">Faster on weak internet, uses less data</div>
+        </div>
+        <div class="lite-toggle-switch" id="liteModeSwitch"><div class="lite-toggle-knob"></div></div>
+      </div>
       <div id="ownerPortalTrigger" style="display:none;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;padding:16px;border-radius:10px;margin-bottom:10px;text-align:center;font-weight:700;cursor:pointer;font-size:15px;">🛡️ Owner Space</div>
       <div style="background:#fff;padding:16px;border-radius:10px;margin-bottom:10px;font-size:15px;"><div style="font-weight:700;margin-bottom:8px;color:var(--navy);">🚫 Blocked Users</div><div id="blockedUsersContainer" style="font-size:14px;color:var(--muted)">No blocked users.</div></div>
       <button class="btn-primary" id="changePasswordBtn" style="background:#0d7a8c;color:#fff;width:100%;margin-bottom:10px;">🔑 Change Password</button>
@@ -587,7 +607,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref as dbRef, push, onValue, remove, set, get, query, limitToLast, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref as dbRef, push, onValue, remove, set, get, query, limitToLast, onChildAdded, onChildChanged, onChildRemoved } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 if (window.__jarvisMarkLoaded) window.__jarvisMarkLoaded();
@@ -634,7 +654,9 @@ const App = {
   liveBgVideo: null, liveBgAnimFrame: null, liveCameraStates: {},
   liveRecordedBlob: null, liveRecordedFileName: null, liveChatBuffer: [],
   incomingRequests: {}, sentRequests: {}, publicUsers: {},
-  _friendReqListener: null, _publicUsersListener: null
+  _friendReqListener: null, _publicUsersListener: null,
+  /* v12 — network & lite mode */
+  networkMode: 'normal', userLiteMode: false, liteMode: false, lastConnectionType: ''
 };
 
 let currentAuthUser = null;
@@ -659,7 +681,7 @@ function toast(msg, isError) {
 function esc(s) { return String(s || '').replace(/[&<>"']/g, function(c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
 function slugify(name) { return String(name).toLowerCase().trim().replace(/[^a-z0-9]/g, '').slice(0, 20); }
 function chatIdFor(a, b) { var x = a < b ? a : b; var y = a < b ? b : a; return x + '__' + y; }
-function avatarInner(photo, name) { return photo ? '<img src="' + photo + '">' : esc((name || '?').charAt(0).toUpperCase()); }
+function avatarInner(photo, name) { return photo ? '<img src="' + photo + '" loading="lazy">' : esc((name || '?').charAt(0).toUpperCase()); }
 function slugToEmail(slug) { return slug + '@jarvis-app.local'; }
 function timeAgo(ts) { if (!ts) return 'just now'; var d = Math.floor((Date.now() - ts) / 1000); if (d < 60) return d + 's ago'; if (d < 3600) return Math.floor(d / 60) + 'm ago'; if (d < 86400) return Math.floor(d / 3600) + 'h ago'; return Math.floor(d / 86400) + 'd ago'; }
 function formatBytes(b) { if (b < 1024) return b + ' B'; if (b < 1048576) return (b / 1024).toFixed(1) + ' KB'; return (b / 1048576).toFixed(2) + ' MB'; }
@@ -682,6 +704,97 @@ function frParseKey(key) {
   if (parts.length !== 2) return null;
   return { from: parts[0], to: parts[1] };
 }
+
+/* ============ v12: NETWORK DETECTION + LITE MODE ============ */
+function detectNetworkMode() {
+  if (!navigator.onLine) return 'offline';
+  var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (!conn) return 'normal';
+  if (conn.saveData) return 'lite';
+  var type = conn.effectiveType || '';
+  if (type === 'slow-2g' || type === '2g' || type === '3g') return 'lite';
+  return 'normal';
+}
+
+function updateNetworkMode() {
+  var prev = App.networkMode;
+  App.networkMode = detectNetworkMode();
+  App.liteMode = App.userLiteMode || (App.networkMode === 'lite');
+  var badge = $('liteModeBadge');
+  if (badge) {
+    if (App.liteMode) {
+      badge.style.display = 'inline-flex';
+      if (App.networkMode === 'offline') {
+        badge.textContent = '📵 Offline';
+        badge.classList.add('offline');
+      } else {
+        badge.textContent = '⚡ Lite';
+        badge.classList.remove('offline');
+      }
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+  var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  var typeLabel = conn && conn.effectiveType ? conn.effectiveType.toUpperCase() : '';
+  App.lastConnectionType = typeLabel;
+  // Notify user on network change
+  if (prev !== App.networkMode && prev !== 'unknown' && App.mySlug) {
+    if (App.networkMode === 'offline') toast('📵 Offline — showing cached data', true);
+    else if (App.networkMode === 'lite') toast('⚡ Weak connection — Lite Mode active');
+    else if (App.networkMode === 'normal' && prev !== 'normal') toast('✓ Connection restored');
+  }
+}
+
+function updateLiteModeUI() {
+  var sw = $('liteModeSwitch');
+  if (!sw) return;
+  if (App.userLiteMode) sw.classList.add('active');
+  else sw.classList.remove('active');
+}
+
+function toggleUserLiteMode() {
+  App.userLiteMode = !App.userLiteMode;
+  LS.set('userLiteMode', App.userLiteMode);
+  updateNetworkMode();
+  updateLiteModeUI();
+  toast(App.userLiteMode ? '⚡ Lite Mode ON — using less data' : 'Lite Mode OFF');
+  // Re-setup message listeners with new limits
+  Object.keys(App.globalUnsubs).forEach(function(id) {
+    try { if (typeof App.globalUnsubs[id] === 'function') App.globalUnsubs[id](); } catch (e) {}
+    delete App.globalUnsubs[id];
+  });
+  for (var k = 0; k < App.contacts.length; k++) setupMessageListener(App.contacts[k].slug, false);
+  for (var l = 0; l < App.groups.length; l++) setupGroupMessageListener(App.groups[l].id);
+  if (App.activeChat) renderMessages(App.activeChat, App.lastMessages[App.activeChat] || [], App.activeIsGroup);
+  renderStatusFeedList(window._cachedPosts || []);
+}
+
+function loadCachedData() {
+  var c = LS.get('contacts', []);
+  if (c && c.length && !App.contacts.length) App.contacts = c;
+  var g = LS.get('groups', []);
+  if (g && g.length && !App.groups.length) App.groups = g;
+  var u = LS.get('unreadCounts', {});
+  if (u && Object.keys(u).length && !Object.keys(App.unreadCounts).length) App.unreadCounts = u;
+  var lst = LS.get('lastSeenTimes', {});
+  if (lst && Object.keys(lst).length && !Object.keys(App.lastSeenTimes).length) App.lastSeenTimes = lst;
+  var bl = LS.get('blockedUsers', []);
+  if (bl && bl.length && !App.blockedUsers.length) App.blockedUsers = bl;
+  var cache = LS.get('cached_chats', {});
+  if (cache) {
+    Object.keys(cache).forEach(function(id) {
+      if (!App.lastMessages[id] || !App.lastMessages[id].length) App.lastMessages[id] = cache[id];
+    });
+  }
+}
+
+if (navigator.connection) {
+  try { navigator.connection.addEventListener('change', updateNetworkMode); } catch (e) {}
+}
+window.addEventListener('online', updateNetworkMode);
+window.addEventListener('offline', updateNetworkMode);
+/* ============ END v12 NETWORK ============ */
 
 async function getLiveStreamRobust() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('Camera not supported');
@@ -750,7 +863,6 @@ async function ensureBootstrap() {
   }
 }
 
-/* ============ FRIEND REQUESTS via shared friend_requests node ============ */
 function listenFriendRequests() {
   if (!App.mySlug) return;
   if (App._friendReqListener) { try { if (typeof App._friendReqListener === 'function') App._friendReqListener(); } catch (e) {} App._friendReqListener = null; }
@@ -857,7 +969,6 @@ window.__cancelFriendRequest = async function(toSlug) {
     toast('Request cancelled');
   } catch (e) { toast('Failed: ' + (e.message || 'unknown'), true); }
 };
-/* ============ END FRIEND REQUESTS ============ */
 
 function listenPublicUsers() {
   if (App._publicUsersListener) { try { if (typeof App._publicUsersListener === 'function') App._publicUsersListener(); } catch (e) {} App._publicUsersListener = null; }
@@ -884,14 +995,12 @@ function updateNewUsersBadge() {
   }
 }
 
-/* ============ ALL USERS TAB — shows EVERYONE with relationship status ============ */
 function renderNewUsersTab() {
   var incomingList = $('incomingRequestsList');
   var newUsersList = $('newUsersList');
   var incomingHeader = $('incomingReqHeader');
   if (!incomingList || !newUsersList) return;
 
-  /* --- Incoming requests section --- */
   var incKeys = Object.keys(App.incomingRequests);
   if (incKeys.length) {
     if (incomingHeader) incomingHeader.style.display = 'block';
@@ -914,7 +1023,6 @@ function renderNewUsersTab() {
     incomingList.innerHTML = '';
   }
 
-  /* --- ALL users section (excluding self) --- */
   var users = App.publicUsers || {};
   var keys = Object.keys(users).filter(function(slug) {
     return slug !== App.mySlug;
@@ -1256,6 +1364,7 @@ $('setRecoveryBtn').addEventListener('click', function() {
 });
 $('setRecoveryCancel').addEventListener('click', function() { $('setRecoveryModal').classList.remove('show'); });
 $('setRecoveryConfirm').addEventListener('click', handleSetRecovery);
+$('liteModeToggle').addEventListener('click', toggleUserLiteMode);
 setupNotificationButton();
 updateNotifPermStatus();
 
@@ -1267,6 +1376,12 @@ window.addEventListener('beforeunload', function() {
 });
 
 function startMainApp() {
+  /* v12: load cached data FIRST — show instantly */
+  App.userLiteMode = LS.get('userLiteMode', false);
+  updateNetworkMode();
+  updateLiteModeUI();
+  loadCachedData();
+
   showScreen('screen-main');
   updateSyncIndicator('cached');
   updateProfileHeader();
@@ -1396,6 +1511,15 @@ function saveLastSeenTimes() { LS.set('lastSeenTimes', App.lastSeenTimes); }
 
 window.__viewAvatar = function(url, name) { if (!url) return; $('avatarViewerImg').src = url; $('avatarViewerName').textContent = name || 'User'; $('avatarViewerModal').classList.add('show'); };
 window.__enlargeActiveAvatar = function() { if (!App.activeChat) return; var t = App.activeIsGroup ? findGroup(App.activeChat) : findContact(App.activeChat); if (t && t.photo) window.__viewAvatar(t.photo, t.name); };
+window.__loadLazyImg = function(el, url) {
+  if (!el || !url) return;
+  var img = document.createElement('img');
+  img.className = 'attach-img';
+  img.loading = 'lazy';
+  img.src = url;
+  img.onclick = function() { window.__lb(url); };
+  if (el.parentNode) el.parentNode.replaceChild(img, el);
+};
 
 function renderBlockedUsersList() {
   var c = $('blockedUsersContainer'); if (!c) return;
@@ -1442,46 +1566,78 @@ function listenIncomingCalls() {
   });
 }
 
+/* ============ v12: DELTA MESSAGE SYNC ============ */
 function setupMessageListener(id, isGroup) {
   var path = isGroup ? 'group_chats/' + id + '/messages' : 'chats/' + chatIdFor(App.mySlug, id) + '/messages';
-  if (App.globalUnsubs[id]) return;
-  var firstLoad = true;
-  var attempts = App.listenerAttempts[id] || 0;
-  App.listenerWatchdogs[id] = setTimeout(function() {
-    if (firstLoad && attempts < 2) { try { if (typeof App.globalUnsubs[id] === 'function') App.globalUnsubs[id](); } catch (e) {} delete App.globalUnsubs[id]; App.listenerAttempts[id] = attempts + 1; setupMessageListener(id, isGroup); }
-    else if (firstLoad && attempts >= 2) { delete App.globalUnsubs[id]; delete App.listenerAttempts[id]; updateSyncIndicator('error'); }
-  }, 25000);
-  var unsub = onValue(query(dbRef(db, path), limitToLast(100)), function(snap) {
-    clearTimeout(App.listenerWatchdogs[id]); delete App.listenerWatchdogs[id]; delete App.listenerAttempts[id];
-    var data = snap.val() || {};
-    var msgs = Object.keys(data).map(function(k) { var v = data[k]; v._k = k; return v; }).sort(function(a, b) { return (a.time || 0) - (b.time || 0); });
-    if (!firstLoad && msgs.length && App.activeChat !== id) {
+  if (App.globalUnsubs[id]) { try { App.globalUnsubs[id](); } catch (e) {} delete App.globalUnsubs[id]; }
+  var limit = App.liteMode ? 15 : 50;
+  if (!App.lastMessages[id]) App.lastMessages[id] = [];
+  var seenKeys = {};
+  App.lastMessages[id].forEach(function(m) { if (m && m._k) seenKeys[m._k] = true; });
+
+  var unsubAdded = onChildAdded(query(dbRef(db, path), limitToLast(limit)), function(snap) {
+    var m = snap.val();
+    if (!m || seenKeys[snap.key]) return;
+    m._k = snap.key;
+    seenKeys[snap.key] = true;
+
+    if (m.from !== App.mySlug && App.activeChat !== id) {
       var lastSeen = App.lastSeenTimes[id] || 0;
-      var unseen = msgs.filter(function(m) { return m.from !== App.mySlug && (m.time || 0) > lastSeen; });
-      if (unseen.length) { App.unreadCounts[id] = (App.unreadCounts[id] || 0) + unseen.length; saveUnreadCounts(); App.lastSeenTimes[id] = Math.max.apply(Math, unseen.map(function(m) { return m.time || 0; })); saveLastSeenTimes(); }
-    }
-    firstLoad = false;
-    App.lastMessages[id] = msgs;
-    if (debouncedSaveCache) debouncedSaveCache();
-    if (App.activeChat === id) renderMessages(id, msgs, isGroup);
-    if (debouncedBuildUI) debouncedBuildUI();
-    for (var gi = 0; gi < msgs.length; gi++) {
-      var m = msgs[gi];
-      if (m && m.groupInvite && m.groupInvite.id && !App.processedInvites[m._k] && !findGroup(m.groupInvite.id)) {
-        App.processedInvites[m._k] = true;
-        (function(inviteId, inviteName) {
-          get(dbRef(db, 'group_chats/' + inviteId)).then(function(gs) {
-            if (gs.exists()) { var g = gs.val(); if (!findGroup(g.id)) { App.groups.push(g); App.lastSeenTimes[g.id] = Date.now(); setupGroupMessageListener(g.id); saveGroups(); saveLastSeenTimes(); try { set(dbRef(db, 'users/' + App.mySlug + '/groups/' + g.id), { id: g.id, name: g.name, time: Date.now() }).catch(function(){}); } catch (e) {} if (debouncedBuildUI) debouncedBuildUI(); toast('📥 Added to group: ' + (g.name || inviteName)); } }
-          }).catch(function(e) {});
-        })(m.groupInvite.id, m.groupInvite.name || '');
+      if ((m.time || 0) > lastSeen) {
+        App.unreadCounts[id] = (App.unreadCounts[id] || 0) + 1;
+        saveUnreadCounts();
+        App.lastSeenTimes[id] = m.time || Date.now();
+        saveLastSeenTimes();
       }
     }
-  }, function(error) { clearTimeout(App.listenerWatchdogs[id]); delete App.listenerWatchdogs[id]; delete App.globalUnsubs[id]; if (attempts < 2) { App.listenerAttempts[id] = attempts + 1; setTimeout(function() { setupMessageListener(id, isGroup); }, 3000); } });
-  App.globalUnsubs[id] = unsub;
+
+    App.lastMessages[id].push(m);
+    App.lastMessages[id].sort(function(a, b) { return (a.time || 0) - (b.time || 0); });
+    if (App.lastMessages[id].length > limit) App.lastMessages[id] = App.lastMessages[id].slice(-limit);
+    if (debouncedSaveCache) debouncedSaveCache();
+    if (App.activeChat === id) renderMessages(id, App.lastMessages[id], isGroup);
+    if (debouncedBuildUI) debouncedBuildUI();
+
+    if (m.groupInvite && m.groupInvite.id && !App.processedInvites[snap.key] && !findGroup(m.groupInvite.id)) {
+      App.processedInvites[snap.key] = true;
+      (function(inviteId, inviteName) {
+        get(dbRef(db, 'group_chats/' + inviteId)).then(function(gs) {
+          if (gs.exists()) { var g = gs.val(); if (!findGroup(g.id)) { App.groups.push(g); App.lastSeenTimes[g.id] = Date.now(); setupGroupMessageListener(g.id); saveGroups(); saveLastSeenTimes(); try { set(dbRef(db, 'users/' + App.mySlug + '/groups/' + g.id), { id: g.id, name: g.name, time: Date.now() }).catch(function(){}); } catch (e) {} if (debouncedBuildUI) debouncedBuildUI(); toast('📥 Added to group: ' + (g.name || inviteName)); } }
+        }).catch(function(e) {});
+      })(m.groupInvite.id, m.groupInvite.name || '');
+    }
+  }, function(error) {
+    delete App.globalUnsubs[id];
+    console.warn('Delta listener error:', id, error);
+    setTimeout(function() { if (App.mySlug) setupMessageListener(id, isGroup); }, 5000);
+  });
+
+  var unsubChanged = onChildChanged(dbRef(db, path), function(snap) {
+    var m = snap.val();
+    if (!m) return;
+    m._k = snap.key;
+    for (var i = 0; i < App.lastMessages[id].length; i++) {
+      if (App.lastMessages[id][i]._k === snap.key) { App.lastMessages[id][i] = m; break; }
+    }
+    if (debouncedSaveCache) debouncedSaveCache();
+    if (App.activeChat === id) renderMessages(id, App.lastMessages[id], isGroup);
+  });
+
+  var unsubRemoved = onChildRemoved(dbRef(db, path), function(snap) {
+    App.lastMessages[id] = App.lastMessages[id].filter(function(m) { return m._k !== snap.key; });
+    if (debouncedSaveCache) debouncedSaveCache();
+    if (App.activeChat === id) renderMessages(id, App.lastMessages[id], isGroup);
+  });
+
+  App.globalUnsubs[id] = function() {
+    try { unsubAdded(); } catch (e) {}
+    try { unsubChanged(); } catch (e) {}
+    try { unsubRemoved(); } catch (e) {}
+  };
 }
 function setupGroupMessageListener(id) { setupMessageListener(id, true); }
+/* ============ END DELTA SYNC ============ */
 
-/* ============ FRIEND LIST — now with Call + Block action buttons ============ */
 function buildUI() {
   var cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient');
   var html = '';
@@ -1566,9 +1722,14 @@ $('blockUserFromChatBtn').addEventListener('click', function() { if (App.activeC
 function renderAttachment(a) {
   if (!a || !a.url) return '';
   var u = esc(a.url);
-  if (a.type === 'image') return '<img class="attach-img" src="' + u + '" onclick="window.__lb(\'' + u + '\')">';
-  if (a.type === 'video') return '<video class="attach-video" controls playsinline webkit-playsinline src="' + u + '"></video>';
-  if (a.type === 'audio') return '<audio class="attach-audio" controls preload="metadata" src="' + u + '"></audio>';
+  if (a.type === 'image') {
+    if (App.liteMode) {
+      return '<div class="lazy-img" onclick="window.__loadLazyImg(this, \'' + u + '\')"><span class="lazy-icon">🖼️</span><span>Tap to load image</span><span style="font-size:11px;opacity:.7;">(Lite Mode — saves data)</span></div>';
+    }
+    return '<img class="attach-img" src="' + u + '" loading="lazy" onclick="window.__lb(\'' + u + '\')">';
+  }
+  if (a.type === 'video') return '<video class="attach-video" controls playsinline webkit-playsinline src="' + u + '" preload="none"></video>';
+  if (a.type === 'audio') return '<audio class="attach-audio" controls preload="none" src="' + u + '"></audio>';
   return '<a class="attach-file" href="' + u + '" target="_blank" download="' + esc(a.name || 'file') + '">📄 ' + esc(a.name || 'File') + '</a>';
 }
 function renderMessages(id, msgs, isGroup) {
@@ -1670,7 +1831,7 @@ function listenVoicemails() {
     var items = Object.keys(d).map(function(k) { var v = d[k]; v._k = k; return v; }).sort(function(a, b) { return b.time - a.time; });
     if (!items.length) { list.innerHTML = '<div class="empty"><p>No voicemails.</p></div>'; return; }
     var html = '';
-    for (var i = 0; i < items.length; i++) html += '<div style="background:#fff;margin:8px 16px;padding:12px;border-radius:10px;border:1px solid var(--border);"><div style="font-size:14px;font-weight:700;margin-bottom:6px;">From: @' + esc(items[i].fromName || items[i].from) + '</div><audio controls preload="metadata" src="' + items[i].url + '" style="width:100%;"></audio></div>';
+    for (var i = 0; i < items.length; i++) html += '<div style="background:#fff;margin:8px 16px;padding:12px;border-radius:10px;border:1px solid var(--border);"><div style="font-size:14px;font-weight:700;margin-bottom:6px;">From: @' + esc(items[i].fromName || items[i].from) + '</div><audio controls preload="none" src="' + items[i].url + '" style="width:100%;"></audio></div>';
     list.innerHTML = html;
   }, function(err) {});
 }
@@ -1761,12 +1922,27 @@ function renderStatusFeedList(posts) {
   var html = '';
   for (var i = 0; i < posts.length; i++) {
     var p = posts[i], mine = p.authorSlug === App.mySlug;
-    var media = p.mediaUrl ? (p.mediaType === 'image' ? '<img src="' + p.mediaUrl + '" class="status-media" onclick="window.__viewAvatar(\'' + p.mediaUrl + '\',\'' + esc(p.authorName) + '\')">' : '<video src="' + p.mediaUrl + '" controls playsinline webkit-playsinline class="status-media"></video>') : '';
+    var media = '';
+    if (p.mediaUrl) {
+      if (p.mediaType === 'image') {
+        if (App.liteMode) {
+          media = '<div class="lazy-img" onclick="window.__loadLazyStatusImg(this, \'' + esc(p.mediaUrl) + '\', \'' + esc(p.authorName) + '\')"><span class="lazy-icon">🖼️</span><span>Tap to load image</span></div>';
+        } else {
+          media = '<img src="' + p.mediaUrl + '" class="status-media" loading="lazy" onclick="window.__viewAvatar(\'' + p.mediaUrl + '\',\'' + esc(p.authorName) + '\')">';
+        }
+      } else {
+        media = '<video src="' + p.mediaUrl + '" controls playsinline webkit-playsinline class="status-media" preload="none"></video>';
+      }
+    }
     var link = '';
     if (p.link) {
       var _ytId = getYouTubeId(p.link);
       if (_ytId) {
-        link = '<div style="position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:12px;overflow:hidden;margin-bottom:10px;"><iframe src="https://www.youtube.com/embed/' + _ytId + '?playsinline=1&rel=0" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
+        if (App.liteMode) {
+          link = '<div class="lazy-img" onclick="window.__loadLazyYt(this, \'' + _ytId + '\')"><span class="lazy-icon">▶️</span><span>Tap to load YouTube video</span></div>';
+        } else {
+          link = '<div style="position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:12px;overflow:hidden;margin-bottom:10px;"><iframe src="https://www.youtube.com/embed/' + _ytId + '?playsinline=1&rel=0" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
+        }
       } else {
         link = '<a href="' + esc(p.link) + '" target="_blank" class="status-link">🔗 ' + esc(p.link) + '</a>';
       }
@@ -1778,6 +1954,22 @@ function renderStatusFeedList(posts) {
   }
   sf.innerHTML = html; window._cachedPosts = posts;
 }
+window.__loadLazyStatusImg = function(el, url, name) {
+  if (!el || !url) return;
+  var img = document.createElement('img');
+  img.className = 'status-media';
+  img.loading = 'lazy';
+  img.src = url;
+  img.onclick = function() { window.__viewAvatar(url, name); };
+  if (el.parentNode) el.parentNode.replaceChild(img, el);
+};
+window.__loadLazyYt = function(el, ytId) {
+  if (!el || !ytId) return;
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:12px;overflow:hidden;margin-bottom:10px;';
+  wrap.innerHTML = '<iframe src="https://www.youtube.com/embed/' + ytId + '?playsinline=1&rel=0&autoplay=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
+  if (el.parentNode) el.parentNode.replaceChild(wrap, el);
+};
 window.__toggleStatusLike = async function(k) {
   var posts = window._cachedPosts || [], p = null;
   for (var i = 0; i < posts.length; i++) if (posts[i]._k === k) { p = posts[i]; break; }
@@ -1820,10 +2012,7 @@ for (var i = 0; i < eb.length; i++) (function(b) { b.addEventListener('click', f
 var qb = document.querySelectorAll('.quick-reaction');
 for (var j = 0; j < qb.length; j++) (function(b) { b.addEventListener('click', function() { $('chatInput').value = b.dataset.emoji; sendMessage(null); }); })(qb[j]);
 
-/* ============================= */
-/*   LIVE STREAMING              */
-/* ============================= */
-
+/* LIVE STREAMING */
 function listenActiveLiveStreams() {
   if (App._activeStreamsListener) { try { if (typeof App._activeStreamsListener === 'function') App._activeStreamsListener(); } catch (e) {} App._activeStreamsListener = null; }
   try {
@@ -1834,7 +2023,6 @@ function listenActiveLiveStreams() {
     }, function(err) {});
   } catch (e) {}
 }
-
 function renderActiveLiveStreams() {
   var list = $('liveStreamsList'), header = $('liveNowHeader');
   if (!list) return;
@@ -1857,56 +2045,25 @@ function renderActiveLiveStreams() {
   list.innerHTML = html;
 }
 window.__returnToLiveHost = function() { if (App.liveMode === 'host') showScreen('screen-live'); else toast('Not currently streaming', true); };
-
-function updateLiveLocalAvatar(show) {
-  var el = $('liveLocalAvatar'), vid = $('liveLocalVideo');
-  if (!el || !vid) return;
-  if (show) { $('liveLocalAvatarLetter').textContent = (App.myName || '?').charAt(0).toUpperCase(); el.classList.add('show'); vid.classList.add('hidden-by-avatar'); }
-  else { el.classList.remove('show'); vid.classList.remove('hidden-by-avatar'); }
-}
-function updateLiveRemoteAvatar(show, nameOrLetter) {
-  var el = $('liveRemoteAvatar'), vid = $('liveRemoteVideo');
-  if (!el || !vid) return;
-  if (show) { $('liveRemoteAvatarLetter').textContent = String(nameOrLetter || '?').charAt(0).toUpperCase(); el.classList.add('show'); vid.classList.add('hidden-by-avatar'); }
-  else { el.classList.remove('show'); vid.classList.remove('hidden-by-avatar'); }
-}
-function writeLiveCameraState(camOn) {
-  if (!App.liveStreamId || !App.mySlug) return;
-  set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/cameraStates/' + App.mySlug), camOn ? true : false).catch(function() {});
-}
-
+function updateLiveLocalAvatar(show) { var el = $('liveLocalAvatar'), vid = $('liveLocalVideo'); if (!el || !vid) return; if (show) { $('liveLocalAvatarLetter').textContent = (App.myName || '?').charAt(0).toUpperCase(); el.classList.add('show'); vid.classList.add('hidden-by-avatar'); } else { el.classList.remove('show'); vid.classList.remove('hidden-by-avatar'); } }
+function updateLiveRemoteAvatar(show, nameOrLetter) { var el = $('liveRemoteAvatar'), vid = $('liveRemoteVideo'); if (!el || !vid) return; if (show) { $('liveRemoteAvatarLetter').textContent = String(nameOrLetter || '?').charAt(0).toUpperCase(); el.classList.add('show'); vid.classList.add('hidden-by-avatar'); } else { el.classList.remove('show'); vid.classList.remove('hidden-by-avatar'); } }
+function writeLiveCameraState(camOn) { if (!App.liveStreamId || !App.mySlug) return; set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/cameraStates/' + App.mySlug), camOn ? true : false).catch(function() {}); }
 window.__toggleLiveCamera = async function() {
   var targetStream = App.liveParticipantStream || App.liveLocalStream;
   if (!targetStream) return toast('No stream active', true);
   var tracks = targetStream.getVideoTracks();
   if (!tracks.length) {
-    try {
-      toast('Requesting camera…');
-      var newStream = await getLiveStreamRobust();
-      var newVideo = newStream.getVideoTracks()[0];
-      if (!newVideo) { toast('Camera unavailable on this device', true); return; }
-      targetStream.addTrack(newVideo);
-      App.liveBaseVideoTrack = newVideo;
-      if (App.liveParticipant && App.liveParticipantPC) { try { App.liveParticipantPC.addTrack(newVideo, targetStream); } catch (e) {} }
-      if (App.liveMode === 'host' && App.livePeerConns) { Object.keys(App.livePeerConns).forEach(function(slug) { try { App.livePeerConns[slug].addTrack(newVideo, targetStream); } catch (e) {} }); }
-      if (App.liveParticipant && $('liveLocalVideo')) { $('liveLocalVideo').srcObject = targetStream; $('liveLocalVideo').classList.add('visible'); }
-      updateLiveLocalAvatar(false); updateLiveRemoteAvatar(false);
-      writeLiveCameraState(true);
-      var btn = $('liveCameraBtn'); if (btn) btn.classList.remove('active');
-      toast('📹 Camera on ✓');
-    } catch (e) { handleMediaError(e); }
+    try { toast('Requesting camera…'); var newStream = await getLiveStreamRobust(); var newVideo = newStream.getVideoTracks()[0]; if (!newVideo) { toast('Camera unavailable on this device', true); return; } targetStream.addTrack(newVideo); App.liveBaseVideoTrack = newVideo; if (App.liveParticipant && App.liveParticipantPC) { try { App.liveParticipantPC.addTrack(newVideo, targetStream); } catch (e) {} } if (App.liveMode === 'host' && App.livePeerConns) { Object.keys(App.livePeerConns).forEach(function(slug) { try { App.livePeerConns[slug].addTrack(newVideo, targetStream); } catch (e) {} }); } if (App.liveParticipant && $('liveLocalVideo')) { $('liveLocalVideo').srcObject = targetStream; $('liveLocalVideo').classList.add('visible'); } updateLiveLocalAvatar(false); updateLiveRemoteAvatar(false); writeLiveCameraState(true); var btn = $('liveCameraBtn'); if (btn) btn.classList.remove('active'); toast('📹 Camera on ✓'); } catch (e) { handleMediaError(e); }
     return;
   }
   var wasEnabled = tracks[0].enabled;
   tracks.forEach(function(t) { t.enabled = !wasEnabled; });
-  var btn2 = $('liveCameraBtn');
-  if (btn2) btn2.classList.toggle('active', wasEnabled);
+  var btn2 = $('liveCameraBtn'); if (btn2) btn2.classList.toggle('active', wasEnabled);
   if (App.liveParticipant) updateLiveLocalAvatar(wasEnabled);
   else if (App.liveMode === 'host') updateLiveRemoteAvatar(wasEnabled, App.myName || 'Host');
   writeLiveCameraState(!wasEnabled);
   toast(wasEnabled ? '📹 Camera off' : '📹 Camera on');
 };
-
 window.__toggleLivePause = async function() {
   if (App.liveMode !== 'host' || !App.liveStreamId) return;
   App.livePaused = !App.livePaused;
@@ -1914,22 +2071,13 @@ window.__toggleLivePause = async function() {
   var btn = $('livePauseBtn'), ov = $('livePauseOverlay');
   if (btn) { btn.classList.toggle('active', App.livePaused); btn.textContent = App.livePaused ? '▶ Resume' : '⏸ Pause'; }
   if (ov) ov.classList.toggle('show', App.livePaused);
-  var onAir = $('liveOnAirBadge');
-  if (onAir) { onAir.textContent = App.livePaused ? '⏸ PAUSED' : '🔴 LIVE'; onAir.style.background = App.livePaused ? '#d4af37' : '#ff4757'; onAir.style.color = App.livePaused ? '#0b2a4a' : '#fff'; }
+  var onAir = $('liveOnAirBadge'); if (onAir) { onAir.textContent = App.livePaused ? '⏸ PAUSED' : '🔴 LIVE'; onAir.style.background = App.livePaused ? '#d4af37' : '#ff4757'; onAir.style.color = App.livePaused ? '#0b2a4a' : '#fff'; }
   toast(App.livePaused ? '⏸ Paused' : '▶ Resumed');
 };
-
 function getDashboardRecordingStream() {
-  var canvas = document.createElement('canvas');
-  canvas.width = 1280; canvas.height = 720;
-  var ctx = canvas.getContext('2d');
-  var startTime = Date.now();
-  var frameId = null;
-  var stopped = false;
-  function rr(x, y, w, h, r) {
-    if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); return; }
-    ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r); ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h); ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
-  }
+  var canvas = document.createElement('canvas'); canvas.width = 1280; canvas.height = 720;
+  var ctx = canvas.getContext('2d'); var startTime = Date.now(); var frameId = null; var stopped = false;
+  function rr(x, y, w, h, r) { if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); return; } ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r); ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h); ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath(); }
   var videoAreaW = Math.floor(canvas.width * 0.68), chatAreaX = videoAreaW + 4, chatAreaW = canvas.width - chatAreaX - 4, bottomBarH = 70, videoAreaH = canvas.height - bottomBarH;
   function drawFrame() {
     if (stopped) return;
@@ -1940,45 +2088,21 @@ function getDashboardRecordingStream() {
     if (App.liveParticipant && $('liveLocalVideo') && $('liveLocalVideo').videoWidth > 0) { var selfVid = $('liveLocalVideo'); var svw = selfVid.videoWidth, svh = selfVid.videoHeight; var sw = 160, sh = (sw / svw) * svh; if (sh > 120) { sh = 120; sw = (sh / svh) * svw; } var sx = videoAreaW - sw - 10, sy = videoAreaH - sh - 10; ctx.save(); rr(sx, sy, sw, sh, 8); ctx.clip(); ctx.drawImage(selfVid, sx, sy, sw, sh); ctx.restore(); ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 2; rr(sx, sy, sw, sh, 8); ctx.stroke(); }
     var peers = App.liveMode === 'host' ? App.liveExtraPeers : App.liveParticipantPeers;
     var tileX = 10, tileY = 50, tileW = 130, tileH = 100, tileGap = 8;
-    Object.keys(peers).forEach(function(slug) {
-      var v = document.getElementById('live-conf-' + slug);
-      if (!v || v.videoWidth === 0) return;
-      ctx.save(); rr(tileX, tileY, tileW, tileH, 8); ctx.clip();
-      var vw2 = v.videoWidth, vh2 = v.videoHeight; var scale2 = Math.max(tileW / vw2, tileH / vh2); var dw2 = vw2 * scale2, dh2 = vh2 * scale2;
-      ctx.drawImage(v, tileX + (tileW - dw2) / 2, tileY + (tileH - dh2) / 2, dw2, dh2); ctx.restore();
-      ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 2; rr(tileX, tileY, tileW, tileH, 8); ctx.stroke();
-      ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(tileX, tileY + tileH - 20, tileW, 20);
-      ctx.fillStyle = '#fff'; ctx.font = '11px Calibri, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('@' + slug, tileX + tileW/2, tileY + tileH - 6);
-      tileX += tileW + tileGap;
-    });
+    Object.keys(peers).forEach(function(slug) { var v = document.getElementById('live-conf-' + slug); if (!v || v.videoWidth === 0) return; ctx.save(); rr(tileX, tileY, tileW, tileH, 8); ctx.clip(); var vw2 = v.videoWidth, vh2 = v.videoHeight; var scale2 = Math.max(tileW / vw2, tileH / vh2); var dw2 = vw2 * scale2, dh2 = vh2 * scale2; ctx.drawImage(v, tileX + (tileW - dw2) / 2, tileY + (tileH - dh2) / 2, dw2, dh2); ctx.restore(); ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 2; rr(tileX, tileY, tileW, tileH, 8); ctx.stroke(); ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(tileX, tileY + tileH - 20, tileW, 20); ctx.fillStyle = '#fff'; ctx.font = '11px Calibri, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('@' + slug, tileX + tileW/2, tileY + tileH - 6); tileX += tileW + tileGap; });
     ctx.fillStyle = '#ff4757'; rr(10, 10, 90, 30, 15); ctx.fill();
     ctx.fillStyle = '#fff'; ctx.font = 'bold 14px Calibri, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('● LIVE', 55, 31);
-    var elapsed = Math.floor((Date.now() - startTime) / 1000);
-    var mm = String(Math.floor(elapsed / 60)).padStart(2, '0'); var ss = String(elapsed % 60).padStart(2, '0');
+    var elapsed = Math.floor((Date.now() - startTime) / 1000); var mm = String(Math.floor(elapsed / 60)).padStart(2, '0'); var ss = String(elapsed % 60).padStart(2, '0');
     ctx.fillStyle = 'rgba(0,0,0,0.75)'; rr(videoAreaW - 110, 10, 100, 30, 15); ctx.fill();
     ctx.fillStyle = '#ff4757'; ctx.font = 'bold 15px monospace'; ctx.fillText('REC ' + mm + ':' + ss, videoAreaW - 60, 31);
     ctx.fillStyle = '#0f1722'; ctx.fillRect(chatAreaX, 0, chatAreaW, videoAreaH);
     ctx.fillStyle = '#0b2a4a'; ctx.fillRect(chatAreaX, 0, chatAreaW, 40);
     ctx.fillStyle = '#d4af37'; ctx.font = 'bold 14px Calibri, sans-serif'; ctx.textAlign = 'left'; ctx.fillText('💬 LIVE CHAT', chatAreaX + 12, 26);
-    var messages = App.liveChatBuffer || [];
-    var chatY = 55;
-    ctx.font = '12px Calibri, sans-serif';
-    messages.forEach(function(msg) {
-      if (chatY > videoAreaH - 60) return;
-      ctx.fillStyle = '#d4af37'; ctx.fillText((msg.name || msg.from || '?').substring(0, 15) + ':', chatAreaX + 10, chatY); chatY += 14;
-      ctx.fillStyle = '#fff'; ctx.fillText((msg.text || '').substring(0, 40), chatAreaX + 10, chatY); chatY += 22;
-    });
+    var messages = App.liveChatBuffer || []; var chatY = 55; ctx.font = '12px Calibri, sans-serif';
+    messages.forEach(function(msg) { if (chatY > videoAreaH - 60) return; ctx.fillStyle = '#d4af37'; ctx.fillText((msg.name || msg.from || '?').substring(0, 15) + ':', chatAreaX + 10, chatY); chatY += 14; ctx.fillStyle = '#fff'; ctx.fillText((msg.text || '').substring(0, 40), chatAreaX + 10, chatY); chatY += 22; });
     ctx.fillStyle = '#0b2a4a'; ctx.fillRect(0, videoAreaH, canvas.width, bottomBarH);
     var btnY = videoAreaH + bottomBarH / 2, btnX = 50;
     var btns = [{ icon: '🎤', active: App.isMuted }, { icon: '📹', active: false }, { icon: '🔴', active: App.liveRecording }, { icon: '💻', active: !!App.liveScreenStream }, { icon: '🖼️', active: App.liveBgKey !== 'none' }, { icon: '📵', active: false, isEnd: true }];
-    btns.forEach(function(b) {
-      ctx.fillStyle = b.isEnd ? '#ff4757' : (b.active ? '#d4af37' : 'rgba(255,255,255,0.2)');
-      ctx.beginPath(); ctx.arc(btnX, btnY, 26, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = b.isEnd ? '#fff' : (b.active ? '#0b2a4a' : '#fff');
-      ctx.font = '20px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(b.icon, btnX, btnY);
-      ctx.textBaseline = 'alphabetic';
-      btnX += 80;
-    });
+    btns.forEach(function(b) { ctx.fillStyle = b.isEnd ? '#ff4757' : (b.active ? '#d4af37' : 'rgba(255,255,255,0.2)'); ctx.beginPath(); ctx.arc(btnX, btnY, 26, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = b.isEnd ? '#fff' : (b.active ? '#0b2a4a' : '#fff'); ctx.font = '20px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(b.icon, btnX, btnY); ctx.textBaseline = 'alphabetic'; btnX += 80; });
     frameId = requestAnimationFrame(drawFrame);
   }
   drawFrame();
@@ -1987,13 +2111,11 @@ function getDashboardRecordingStream() {
   window._liveRecordingCanvas = { stop: function() { stopped = true; if (frameId) { cancelAnimationFrame(frameId); frameId = null; } } };
   return canvasStream;
 }
-
 window.__toggleLiveRecord = function() {
   if (App.liveMode !== 'host') return toast('Recording is host-only', true);
   var btn = $('liveRecordBtn');
   if (App.liveRecording) { if (App.liveMediaRecorder && App.liveMediaRecorder.state === 'recording') App.liveMediaRecorder.stop(); return; }
-  var streamToRecord = getDashboardRecordingStream();
-  if (!streamToRecord) return toast('Cannot start recording', true);
+  var streamToRecord = getDashboardRecordingStream(); if (!streamToRecord) return toast('Cannot start recording', true);
   try {
     App.liveRecordingChunks = [];
     var mime = 'video/webm;codecs=vp9';
@@ -2001,82 +2123,15 @@ window.__toggleLiveRecord = function() {
     if (!MediaRecorder.isTypeSupported(mime)) mime = '';
     App.liveMediaRecorder = new MediaRecorder(streamToRecord, mime ? { mimeType: mime } : {});
     App.liveMediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) App.liveRecordingChunks.push(e.data); };
-    App.liveMediaRecorder.onstop = function() {
-      try {
-        var b = new Blob(App.liveRecordingChunks, { type: 'video/webm' });
-        if (b.size === 0) { toast('Recording was empty', true); App.liveRecording = false; if (btn) btn.classList.remove('active'); if (window._liveRecordingCanvas) { window._liveRecordingCanvas.stop(); window._liveRecordingCanvas = null; } return; }
-        App.liveRecordedBlob = b;
-        App.liveRecordedFileName = 'JARVIS_Live_' + new Date().toISOString().slice(0,19).replace(/[:T]/g, '-') + '.webm';
-        App.liveRecording = false;
-        if (btn) btn.classList.remove('active');
-        if (window._liveRecordingCanvas) { window._liveRecordingCanvas.stop(); window._liveRecordingCanvas = null; }
-        var info = $('saveRecInfo');
-        if (info) info.textContent = '📹 ' + App.liveRecordedFileName + '  ·  ' + formatBytes(b.size) + '  ·  Ready to save';
-        $('saveRecordingModal').classList.add('show');
-        toast('✅ Recording complete — choose where to save');
-      } catch (e) { console.error('Save prep failed:', e); toast('Recording failed', true); }
-    };
-    App.liveMediaRecorder.start(1000);
-    App.liveRecording = true;
-    if (btn) btn.classList.add('active');
+    App.liveMediaRecorder.onstop = function() { try { var b = new Blob(App.liveRecordingChunks, { type: 'video/webm' }); if (b.size === 0) { toast('Recording was empty', true); App.liveRecording = false; if (btn) btn.classList.remove('active'); if (window._liveRecordingCanvas) { window._liveRecordingCanvas.stop(); window._liveRecordingCanvas = null; } return; } App.liveRecordedBlob = b; App.liveRecordedFileName = 'JARVIS_Live_' + new Date().toISOString().slice(0,19).replace(/[:T]/g, '-') + '.webm'; App.liveRecording = false; if (btn) btn.classList.remove('active'); if (window._liveRecordingCanvas) { window._liveRecordingCanvas.stop(); window._liveRecordingCanvas = null; } var info = $('saveRecInfo'); if (info) info.textContent = '📹 ' + App.liveRecordedFileName + '  ·  ' + formatBytes(b.size) + '  ·  Ready to save'; $('saveRecordingModal').classList.add('show'); toast('✅ Recording complete — choose where to save'); } catch (e) { console.error('Save prep failed:', e); toast('Recording failed', true); } };
+    App.liveMediaRecorder.start(1000); App.liveRecording = true; if (btn) btn.classList.add('active');
     toast('🔴 Recording dashboard (video + chat + controls)…');
   } catch (e) { console.error('Record start failed:', e); toast('Recording not supported on this device', true); if (window._liveRecordingCanvas) { window._liveRecordingCanvas.stop(); window._liveRecordingCanvas = null; } }
 };
-
-window.__saveLiveRecordingToDevice = function() {
-  if (!App.liveRecordedBlob) return toast('No recording to save', true);
-  try {
-    var u = URL.createObjectURL(App.liveRecordedBlob);
-    var a = document.createElement('a'); a.href = u; a.download = App.liveRecordedFileName || ('JARVIS_Live_' + Date.now() + '.webm');
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(function() { URL.revokeObjectURL(u); }, 10000);
-    $('saveRecordingModal').classList.remove('show');
-    toast('📱 Saved — check Downloads / Files app ✓');
-    App.liveRecordedBlob = null; App.liveRecordedFileName = null;
-  } catch (e) { console.error('Save failed:', e); toast('Save failed — try Share instead', true); }
-};
-
-window.__saveLiveRecordingToDrive = async function() {
-  if (!App.liveRecordedBlob) return toast('No recording to save', true);
-  var fileName = App.liveRecordedFileName || ('JARVIS_Live_' + Date.now() + '.webm');
-  try {
-    var file = null;
-    try { file = new File([App.liveRecordedBlob], fileName, { type: 'video/webm' }); } catch (e) {}
-    if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-      try { await navigator.share({ files: [file], title: 'JARVIS Live Recording', text: 'Live stream recording — save to Google Drive / OneDrive' }); $('saveRecordingModal').classList.remove('show'); toast('✅ Save via share sheet — pick Drive/OneDrive'); App.liveRecordedBlob = null; App.liveRecordedFileName = null; return; } catch (shareErr) { if (shareErr.name === 'AbortError') return; }
-    }
-    var u = URL.createObjectURL(App.liveRecordedBlob);
-    var a = document.createElement('a'); a.href = u; a.download = fileName;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(function() { URL.revokeObjectURL(u); }, 10000);
-    $('saveRecordingModal').classList.remove('show');
-    toast('📥 File downloaded. Opening OneDrive…');
-    App.liveRecordedBlob = null; App.liveRecordedFileName = null;
-    setTimeout(function() { try { window.open('https://onedrive.live.com/', '_blank'); } catch (e) {} }, 900);
-  } catch (e) { console.error('Drive save failed:', e); toast('Could not save to Drive', true); }
-};
-
-window.__shareLiveRecording = async function() {
-  if (!App.liveRecordedBlob) return toast('No recording to share', true);
-  var fileName = App.liveRecordedFileName || ('JARVIS_Live_' + Date.now() + '.webm');
-  try {
-    var file = null;
-    try { file = new File([App.liveRecordedBlob], fileName, { type: 'video/webm' }); } catch (e) {}
-    if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-      try { await navigator.share({ files: [file], title: 'JARVIS Live Recording', text: 'Watch my JARVIS live stream!' }); $('saveRecordingModal').classList.remove('show'); toast('✅ Shared ✓'); App.liveRecordedBlob = null; App.liveRecordedFileName = null; return; } catch (shareErr) { if (shareErr.name === 'AbortError') return; }
-    }
-    var u = URL.createObjectURL(App.liveRecordedBlob);
-    var a = document.createElement('a'); a.href = u; a.download = fileName;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(function() { URL.revokeObjectURL(u); }, 10000);
-    $('saveRecordingModal').classList.remove('show');
-    toast('📥 Downloaded — share from Files');
-    App.liveRecordedBlob = null; App.liveRecordedFileName = null;
-  } catch (e) { toast('Share not available', true); }
-};
-
+window.__saveLiveRecordingToDevice = function() { if (!App.liveRecordedBlob) return toast('No recording to save', true); try { var u = URL.createObjectURL(App.liveRecordedBlob); var a = document.createElement('a'); a.href = u; a.download = App.liveRecordedFileName || ('JARVIS_Live_' + Date.now() + '.webm'); document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function() { URL.revokeObjectURL(u); }, 10000); $('saveRecordingModal').classList.remove('show'); toast('📱 Saved — check Downloads / Files app ✓'); App.liveRecordedBlob = null; App.liveRecordedFileName = null; } catch (e) { console.error('Save failed:', e); toast('Save failed — try Share instead', true); } };
+window.__saveLiveRecordingToDrive = async function() { if (!App.liveRecordedBlob) return toast('No recording to save', true); var fileName = App.liveRecordedFileName || ('JARVIS_Live_' + Date.now() + '.webm'); try { var file = null; try { file = new File([App.liveRecordedBlob], fileName, { type: 'video/webm' }); } catch (e) {} if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: 'JARVIS Live Recording', text: 'Live stream recording — save to Google Drive / OneDrive' }); $('saveRecordingModal').classList.remove('show'); toast('✅ Save via share sheet — pick Drive/OneDrive'); App.liveRecordedBlob = null; App.liveRecordedFileName = null; return; } catch (shareErr) { if (shareErr.name === 'AbortError') return; } } var u = URL.createObjectURL(App.liveRecordedBlob); var a = document.createElement('a'); a.href = u; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function() { URL.revokeObjectURL(u); }, 10000); $('saveRecordingModal').classList.remove('show'); toast('📥 File downloaded. Opening OneDrive…'); App.liveRecordedBlob = null; App.liveRecordedFileName = null; setTimeout(function() { try { window.open('https://onedrive.live.com/', '_blank'); } catch (e) {} }, 900); } catch (e) { console.error('Drive save failed:', e); toast('Could not save to Drive', true); } };
+window.__shareLiveRecording = async function() { if (!App.liveRecordedBlob) return toast('No recording to share', true); var fileName = App.liveRecordedFileName || ('JARVIS_Live_' + Date.now() + '.webm'); try { var file = null; try { file = new File([App.liveRecordedBlob], fileName, { type: 'video/webm' }); } catch (e) {} if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: 'JARVIS Live Recording', text: 'Watch my JARVIS live stream!' }); $('saveRecordingModal').classList.remove('show'); toast('✅ Shared ✓'); App.liveRecordedBlob = null; App.liveRecordedFileName = null; return; } catch (shareErr) { if (shareErr.name === 'AbortError') return; } } var u = URL.createObjectURL(App.liveRecordedBlob); var a = document.createElement('a'); a.href = u; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function() { URL.revokeObjectURL(u); }, 10000); $('saveRecordingModal').classList.remove('show'); toast('📥 Downloaded — share from Files'); App.liveRecordedBlob = null; App.liveRecordedFileName = null; } catch (e) { toast('Share not available', true); } };
 window.__discardLiveRecording = function() { if (!confirm('Discard this recording?')) return; App.liveRecordedBlob = null; App.liveRecordedFileName = null; App.liveRecordingChunks = []; $('saveRecordingModal').classList.remove('show'); toast('Recording discarded'); };
-
 window.__toggleLiveScreenShare = async function() {
   if (App.liveMode !== 'host') return toast('Screen share is host-only', true);
   var btn = $('liveScreenBtn');
@@ -2088,18 +2143,8 @@ window.__toggleLiveScreenShare = async function() {
     if (revertTrack) { Object.keys(App.livePeerConns).forEach(function(slug) { try { App.livePeerConns[slug].getSenders().forEach(function(s) { if (s.track && s.track.kind === 'video') s.replaceTrack(revertTrack).catch(function() {}); }); } catch (e) {} }); if ($('liveRemoteVideo') && App.liveLocalStream) { $('liveRemoteVideo').srcObject = App.liveBgCanvasStream || App.liveLocalStream; $('liveRemoteVideo').muted = true; } }
     toast('Screen share stopped'); return;
   }
-  try {
-    var screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
-    App.liveScreenStream = screenStream;
-    var screenTrack = screenStream.getVideoTracks()[0];
-    Object.keys(App.livePeerConns).forEach(function(slug) { try { App.livePeerConns[slug].getSenders().forEach(function(s) { if (s.track && s.track.kind === 'video') s.replaceTrack(screenTrack).catch(function() {}); }); } catch (e) {} });
-    if ($('liveRemoteVideo')) { $('liveRemoteVideo').srcObject = screenStream; $('liveRemoteVideo').muted = true; }
-    if (btn) btn.classList.add('active');
-    screenTrack.onended = function() { window.__toggleLiveScreenShare(); };
-    toast('💻 Screen sharing ✓');
-  } catch (e) { if (e.name !== 'NotAllowedError' && e.name !== 'AbortError') toast('Screen share failed', true); }
+  try { var screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false }); App.liveScreenStream = screenStream; var screenTrack = screenStream.getVideoTracks()[0]; Object.keys(App.livePeerConns).forEach(function(slug) { try { App.livePeerConns[slug].getSenders().forEach(function(s) { if (s.track && s.track.kind === 'video') s.replaceTrack(screenTrack).catch(function() {}); }); } catch (e) {} }); if ($('liveRemoteVideo')) { $('liveRemoteVideo').srcObject = screenStream; $('liveRemoteVideo').muted = true; } if (btn) btn.classList.add('active'); screenTrack.onended = function() { window.__toggleLiveScreenShare(); }; toast('💻 Screen sharing ✓'); } catch (e) { if (e.name !== 'NotAllowedError' && e.name !== 'AbortError') toast('Screen share failed', true); }
 };
-
 function buildLiveBgGallery() {
   var g = $('liveBgGallery'); if (!g) return;
   var h = '';
@@ -2109,7 +2154,6 @@ function buildLiveBgGallery() {
 }
 window.__openLiveBg = function() { if (App.liveMode !== 'host' && !App.liveParticipant) return toast('Backgrounds for host/participants only', true); buildLiveBgGallery(); $('liveBgModal').classList.add('show'); };
 window.__uploadLiveBg = async function(inp) { var f = inp.files && inp.files[0]; if (!f) return; if (f.type.indexOf('image/') !== 0) return toast('Please select an image', true); if (f.size > 3 * 1024 * 1024) return toast('Image too large (max 3MB)', true); try { toast('Processing…'); App.liveCustomBgUrl = await fileToBase64(f); buildLiveBgGallery(); await window.__applyLiveBg('custom'); } catch (e) { toast('Upload failed', true); } inp.value = ''; };
-
 window.__applyLiveBg = async function(k) {
   var targetStream = App.liveParticipantStream || App.liveLocalStream;
   if (!targetStream) return toast('No camera active', true);
@@ -2128,21 +2172,7 @@ window.__applyLiveBg = async function(k) {
       else { for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) { if (PROFESSIONAL_BACKGROUNDS[i].key === k) { var b = PROFESSIONAL_BACKGROUNDS[i]; if (b.type === 'image') { bgImg = new Image(); bgImg.crossOrigin = 'anonymous'; bgImg.src = b.url; await new Promise(function(r) { bgImg.onload = r; bgImg.onerror = r; }); } else if (b.type === 'filter') filterValue = b.value; break; } } }
       var v = App.liveBgVideo;
       var stillActive = function() { return (App.liveParticipantStream || App.liveLocalStream); };
-      function drawLiveBg() {
-        if (!stillActive()) return;
-        if (v.videoWidth) {
-          if (filterValue !== 'none') { ctx.save(); ctx.filter = filterValue; ctx.drawImage(v, 0, 0, canvas.width, canvas.height); ctx.restore(); }
-          else {
-            if (bgImg && bgImg.complete) ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-            else { var g = ctx.createLinearGradient(0, 0, canvas.width, canvas.height); g.addColorStop(0, '#0b2a4a'); g.addColorStop(1, '#0d7a8c'); ctx.fillStyle = g; ctx.fillRect(0, 0, canvas.width, canvas.height); }
-            var th = canvas.height * 0.88, tw = th * (v.videoWidth / v.videoHeight), x = (canvas.width - tw) / 2, y = (canvas.height - th) / 2, r = 40;
-            ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 30;
-            ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + tw - r, y); ctx.quadraticCurveTo(x + tw, y, x + tw, y + r); ctx.lineTo(x + tw, y + th - r); ctx.quadraticCurveTo(x + tw, y + th, x + tw - r, y + th); ctx.lineTo(x + r, y + th); ctx.quadraticCurveTo(x, y + th, x, y + th - r); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath(); ctx.clip();
-            ctx.drawImage(v, x, y, tw, th); ctx.restore();
-          }
-        }
-        App.liveBgAnimFrame = requestAnimationFrame(drawLiveBg);
-      }
+      function drawLiveBg() { if (!stillActive()) return; if (v.videoWidth) { if (filterValue !== 'none') { ctx.save(); ctx.filter = filterValue; ctx.drawImage(v, 0, 0, canvas.width, canvas.height); ctx.restore(); } else { if (bgImg && bgImg.complete) ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height); else { var g = ctx.createLinearGradient(0, 0, canvas.width, canvas.height); g.addColorStop(0, '#0b2a4a'); g.addColorStop(1, '#0d7a8c'); ctx.fillStyle = g; ctx.fillRect(0, 0, canvas.width, canvas.height); } var th = canvas.height * 0.88, tw = th * (v.videoWidth / v.videoHeight), x = (canvas.width - tw) / 2, y = (canvas.height - th) / 2, r = 40; ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 30; ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + tw - r, y); ctx.quadraticCurveTo(x + tw, y, x + tw, y + r); ctx.lineTo(x + tw, y + th - r); ctx.quadraticCurveTo(x + tw, y + th, x + tw - r, y + th); ctx.lineTo(x + r, y + th); ctx.quadraticCurveTo(x, y + th, x, y + th - r); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath(); ctx.clip(); ctx.drawImage(v, x, y, tw, th); ctx.restore(); } } App.liveBgAnimFrame = requestAnimationFrame(drawLiveBg); }
       drawLiveBg();
       App.liveBgCanvasStream = canvas.captureStream(30);
       finalTrack = App.liveBgCanvasStream.getVideoTracks()[0];
@@ -2154,7 +2184,6 @@ window.__applyLiveBg = async function(k) {
     toast('Background applied ✓');
   } catch (e) { console.error('Background apply failed:', e); toast('Background failed', true); }
 };
-
 window.__startGoLive = async function() {
   if (App.liveMode) return toast('Already ' + (App.liveMode === 'host' ? 'live' : 'watching a stream'), true);
   if (App.liveLocalStream) return;
@@ -2172,35 +2201,19 @@ window.__startGoLive = async function() {
     $('liveTitle').textContent = 'Your Live Stream';
     $('liveStatus').textContent = '● Live'; $('liveStatus').style.color = '#4aff7a';
     $('liveOnAirBadge').textContent = '🔴 LIVE'; $('liveOnAirBadge').style.background = '#ff4757'; $('liveOnAirBadge').style.color = '#fff';
-    $('liveRemoteVideo').classList.add('visible');
-    $('liveRemoteVideo').srcObject = stream;
-    $('liveRemoteVideo').muted = true;
-    $('liveRemoteVideo').play().catch(function() {});
-    $('liveLocalVideo').classList.remove('visible');
-    $('liveLocalAvatar').classList.remove('show');
-    $('liveRemoteAvatar').classList.remove('show');
-    $('livePauseOverlay').classList.remove('show');
-    $('liveLoadingOverlay').classList.add('hidden');
+    $('liveRemoteVideo').classList.add('visible'); $('liveRemoteVideo').srcObject = stream; $('liveRemoteVideo').muted = true; $('liveRemoteVideo').play().catch(function() {});
+    $('liveLocalVideo').classList.remove('visible'); $('liveLocalAvatar').classList.remove('show'); $('liveRemoteAvatar').classList.remove('show');
+    $('livePauseOverlay').classList.remove('show'); $('liveLoadingOverlay').classList.add('hidden');
     $('liveViewerCount').textContent = '👁 0';
-    $('liveMuteBtn').style.display = 'flex';
-    $('liveCameraBtn').style.display = 'flex';
-    $('liveJoinBtn').style.display = 'none';
-    $('liveShareBtn').style.display = 'flex';
-    $('livePauseBtn').style.display = 'flex';
-    $('liveBgBtn').style.display = 'flex';
-    $('liveScreenBtn').style.display = 'flex';
-    $('liveRecordBtn').style.display = 'flex';
-    $('livePauseBtn').textContent = '⏸ Pause';
-    $('livePauseBtn').classList.remove('active');
+    $('liveMuteBtn').style.display = 'flex'; $('liveCameraBtn').style.display = 'flex'; $('liveJoinBtn').style.display = 'none';
+    $('liveShareBtn').style.display = 'flex'; $('livePauseBtn').style.display = 'flex'; $('liveBgBtn').style.display = 'flex'; $('liveScreenBtn').style.display = 'flex'; $('liveRecordBtn').style.display = 'flex';
+    $('livePauseBtn').textContent = '⏸ Pause'; $('livePauseBtn').classList.remove('active');
     $('liveRemoteAvatarLetter').textContent = (App.myName || 'H').charAt(0).toUpperCase();
     App.livePaused = false; App.liveBgKey = 'none';
-    setupHostViewerListener(streamId);
-    setupHostJoinRequestsListener(streamId);
-    setupLiveChatListener(streamId);
+    setupHostViewerListener(streamId); setupHostJoinRequestsListener(streamId); setupLiveChatListener(streamId);
     toast('You are LIVE 🔴');
   } catch (err) { handleMediaError(err); cleanupLive(); }
 };
-
 function setupHostViewerListener(streamId) {
   var u1 = onChildAdded(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers'), function(snap) { var viewerSlug = snap.key; if (!viewerSlug || viewerSlug === App.mySlug) return; if (App.livePeerConns[viewerSlug]) return; hostConnectToViewer(streamId, viewerSlug); });
   App.liveUnsubs.push(u1);
@@ -2211,7 +2224,6 @@ function setupHostViewerListener(streamId) {
   var u4 = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/cameraStates'), function(snap) { var states = snap.val() || {}; App.liveCameraStates = states; Object.keys(states).forEach(function(slug) { if (slug === App.mySlug) return; var camOn = states[slug] !== false; var v = document.getElementById('live-conf-' + slug); var av = document.getElementById('live-conf-av-' + slug); if (v) v.style.visibility = camOn ? 'visible' : 'hidden'; if (av) av.classList.toggle('show', !camOn); }); });
   App.liveUnsubs.push(u4);
 }
-
 async function hostConnectToViewer(streamId, viewerSlug) {
   try {
     var pc = new RTCPeerConnection(ICE_SERVERS);
@@ -2230,12 +2242,10 @@ async function hostConnectToViewer(streamId, viewerSlug) {
     App.liveUnsubs.push(iceUnsub);
   } catch (err) { console.error('Host viewer connect failed:', err); }
 }
-
 function setupHostJoinRequestsListener(streamId) {
   var unsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/joinRequests'), function(snap) { var reqs = snap.val() || {}, pending = []; Object.keys(reqs).forEach(function(slug) { if (reqs[slug] && reqs[slug].status === 'pending') pending.push({ slug: slug, data: reqs[slug] }); }); updateHostPendingRequests(pending); });
   App.liveUnsubs.push(unsub);
 }
-
 function updateHostPendingRequests(pending) {
   var el = $('hostRequestsArea'); if (!el) return;
   if (!pending.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
@@ -2245,7 +2255,6 @@ function updateHostPendingRequests(pending) {
   html += '</div>';
   el.innerHTML = html;
 }
-
 window.__acceptJoinRequest = async function(viewerSlug) {
   if (App.liveMode !== 'host' || !App.liveStreamId) return;
   try {
@@ -2266,109 +2275,49 @@ window.__acceptJoinRequest = async function(viewerSlug) {
     toast('@' + viewerSlug + ' joined ✓');
   } catch (err) { console.error('Accept join failed:', err); toast('Failed to accept', true); }
 };
-
 window.__declineJoinRequest = async function(viewerSlug) { if (App.liveMode !== 'host' || !App.liveStreamId) return; try { await set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + viewerSlug + '/status'), 'declined'); toast('Declined'); } catch (e) { toast('Failed', true); } };
-
 function renderLiveConfGrid() {
   var g = $('liveConferenceGrid'); if (!g) return;
-  var peers;
-  if (App.liveMode === 'host') peers = App.liveExtraPeers;
-  else if (App.liveParticipant) peers = App.liveParticipantPeers;
-  else { g.innerHTML = ''; return; }
+  var peers; if (App.liveMode === 'host') peers = App.liveExtraPeers; else if (App.liveParticipant) peers = App.liveParticipantPeers; else { g.innerHTML = ''; return; }
   var ks = Object.keys(peers).filter(function(k) { return peers[k] && peers[k].stream; });
   if (!ks.length) { g.innerHTML = ''; return; }
   var h = '';
-  for (var i = 0; i < ks.length; i++) {
-    var slug = ks[i], camOn = App.liveCameraStates[slug] !== false, letter = String(slug).charAt(0).toUpperCase();
-    h += '<div class="conf-tile" style="position:relative;"><video id="live-conf-' + slug + '" autoplay playsinline webkit-playsinline style="' + (camOn ? '' : 'visibility:hidden;') + '"></video><div class="avatar-fallback' + (camOn ? '' : ' show') + '" id="live-conf-av-' + slug + '"><div class="letter">' + letter + '</div></div><div class="conf-tile-label">@' + esc(slug) + '</div></div>';
-  }
+  for (var i = 0; i < ks.length; i++) { var slug = ks[i], camOn = App.liveCameraStates[slug] !== false, letter = String(slug).charAt(0).toUpperCase(); h += '<div class="conf-tile" style="position:relative;"><video id="live-conf-' + slug + '" autoplay playsinline webkit-playsinline style="' + (camOn ? '' : 'visibility:hidden;') + '"></video><div class="avatar-fallback' + (camOn ? '' : ' show') + '" id="live-conf-av-' + slug + '"><div class="letter">' + letter + '</div></div><div class="conf-tile-label">@' + esc(slug) + '</div></div>'; }
   g.innerHTML = h;
   for (var j = 0; j < ks.length; j++) { var v = document.getElementById('live-conf-' + ks[j]); if (v) { v.srcObject = peers[ks[j]].stream; v.play().catch(function() {}); } }
 }
-
 function setupCameraStatesListenerForParticipant(streamId) {
-  var unsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/cameraStates'), function(snap) {
-    var states = snap.val() || {};
-    App.liveCameraStates = states;
-    Object.keys(states).forEach(function(slug) {
-      if (slug === App.mySlug) return;
-      if (slug === App.liveHostSlug) return;
-      var camOn = states[slug] !== false;
-      var v = document.getElementById('live-conf-' + slug);
-      var av = document.getElementById('live-conf-av-' + slug);
-      if (v) v.style.visibility = camOn ? 'visible' : 'hidden';
-      if (av) av.classList.toggle('show', !camOn);
-    });
-  });
+  var unsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/cameraStates'), function(snap) { var states = snap.val() || {}; App.liveCameraStates = states; Object.keys(states).forEach(function(slug) { if (slug === App.mySlug) return; if (slug === App.liveHostSlug) return; var camOn = states[slug] !== false; var v = document.getElementById('live-conf-' + slug); var av = document.getElementById('live-conf-av-' + slug); if (v) v.style.visibility = camOn ? 'visible' : 'hidden'; if (av) av.classList.toggle('show', !camOn); }); });
   App.liveUnsubs.push(unsub);
 }
-
 function setupParticipantMesh(streamId) {
-  var unsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/acceptedParticipants'), function(snap) {
-    var participants = snap.val() || {};
-    Object.keys(participants).forEach(function(otherSlug) {
-      if (otherSlug === App.mySlug) return;
-      if (otherSlug === App.liveHostSlug) return;
-      if (App.liveParticipantPeers[otherSlug] && App.liveParticipantPeers[otherSlug].pc) return;
-      if (App.mySlug < otherSlug) initiateParticipantConnection(streamId, otherSlug);
-      else listenForParticipantOffer(streamId, otherSlug);
-    });
-  });
+  var unsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/acceptedParticipants'), function(snap) { var participants = snap.val() || {}; Object.keys(participants).forEach(function(otherSlug) { if (otherSlug === App.mySlug) return; if (otherSlug === App.liveHostSlug) return; if (App.liveParticipantPeers[otherSlug] && App.liveParticipantPeers[otherSlug].pc) return; if (App.mySlug < otherSlug) initiateParticipantConnection(streamId, otherSlug); else listenForParticipantOffer(streamId, otherSlug); }); });
   App.liveUnsubs.push(unsub);
 }
-
 async function initiateParticipantConnection(streamId, otherSlug) {
   try {
-    var pc = new RTCPeerConnection(ICE_SERVERS);
-    App.liveParticipantPeers[otherSlug] = { pc: pc, stream: null };
+    var pc = new RTCPeerConnection(ICE_SERVERS); App.liveParticipantPeers[otherSlug] = { pc: pc, stream: null };
     if (App.liveParticipantStream) App.liveParticipantStream.getTracks().forEach(function(t) { pc.addTrack(t, App.liveParticipantStream); });
     var path = LIVE_STREAMS_PATH + '/' + streamId + '/p2p/' + App.mySlug + '_' + otherSlug;
     pc.ontrack = function(e) { if (e.streams && e.streams[0]) { App.liveParticipantPeers[otherSlug].stream = e.streams[0]; renderLiveConfGrid(); } };
     pc.onicecandidate = function(e) { if (e.candidate) push(dbRef(db, path + '/offerCandidates'), e.candidate.toJSON()).catch(function() {}); };
-    var offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
+    var offer = await pc.createOffer(); await pc.setLocalDescription(offer);
     await set(dbRef(db, path + '/offer'), { type: offer.type, sdp: offer.sdp, from: App.mySlug });
     onValue(dbRef(db, path + '/answer'), async function(s) { var a = s.val(); if (a && pc && !pc.currentRemoteDescription) { try { await pc.setRemoteDescription(new RTCSessionDescription(a)); } catch (e) {} } });
     onChildAdded(dbRef(db, path + '/answerCandidates'), function(s) { if (pc) pc.addIceCandidate(new RTCIceCandidate(s.val())).catch(function() {}); });
   } catch (e) { console.error('initiateParticipantConnection:', e); }
 }
-
 function listenForParticipantOffer(streamId, otherSlug) {
   var path = LIVE_STREAMS_PATH + '/' + streamId + '/p2p/' + otherSlug + '_' + App.mySlug;
-  var unsub = onValue(dbRef(db, path + '/offer'), async function(snap) {
-    var offer = snap.val();
-    if (!offer || !offer.sdp) return;
-    if (App.liveParticipantPeers[otherSlug] && App.liveParticipantPeers[otherSlug].pc) return;
-    try {
-      var pc = new RTCPeerConnection(ICE_SERVERS);
-      App.liveParticipantPeers[otherSlug] = { pc: pc, stream: null };
-      if (App.liveParticipantStream) App.liveParticipantStream.getTracks().forEach(function(t) { pc.addTrack(t, App.liveParticipantStream); });
-      pc.ontrack = function(e) { if (e.streams && e.streams[0]) { App.liveParticipantPeers[otherSlug].stream = e.streams[0]; renderLiveConfGrid(); } };
-      pc.onicecandidate = function(e) { if (e.candidate) push(dbRef(db, path + '/answerCandidates'), e.candidate.toJSON()).catch(function() {}); };
-      await pc.setRemoteDescription(new RTCSessionDescription(offer));
-      var ans = await pc.createAnswer();
-      await pc.setLocalDescription(ans);
-      await set(dbRef(db, path + '/answer'), { type: ans.type, sdp: ans.sdp });
-      onChildAdded(dbRef(db, path + '/offerCandidates'), function(s) { if (pc) pc.addIceCandidate(new RTCIceCandidate(s.val())).catch(function() {}); });
-    } catch (e) { console.error('listenForParticipantOffer:', e); }
-  });
+  var unsub = onValue(dbRef(db, path + '/offer'), async function(snap) { var offer = snap.val(); if (!offer || !offer.sdp) return; if (App.liveParticipantPeers[otherSlug] && App.liveParticipantPeers[otherSlug].pc) return; try { var pc = new RTCPeerConnection(ICE_SERVERS); App.liveParticipantPeers[otherSlug] = { pc: pc, stream: null }; if (App.liveParticipantStream) App.liveParticipantStream.getTracks().forEach(function(t) { pc.addTrack(t, App.liveParticipantStream); }); pc.ontrack = function(e) { if (e.streams && e.streams[0]) { App.liveParticipantPeers[otherSlug].stream = e.streams[0]; renderLiveConfGrid(); } }; pc.onicecandidate = function(e) { if (e.candidate) push(dbRef(db, path + '/answerCandidates'), e.candidate.toJSON()).catch(function() {}); }; await pc.setRemoteDescription(new RTCSessionDescription(offer)); var ans = await pc.createAnswer(); await pc.setLocalDescription(ans); await set(dbRef(db, path + '/answer'), { type: ans.type, sdp: ans.sdp }); onChildAdded(dbRef(db, path + '/offerCandidates'), function(s) { if (pc) pc.addIceCandidate(new RTCIceCandidate(s.val())).catch(function() {}); }); } catch (e) { console.error('listenForParticipantOffer:', e); } });
   App.liveUnsubs.push(unsub);
 }
-
 window.__endGoLive = async function() {
   if (App.liveMode !== 'host') return;
-  if (App.liveStreamId) {
-    try { await set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/status'), 'ended'); } catch (e) {}
-    try { await remove(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug)); } catch (e) {}
-    try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/cameraStates')); } catch (e) {}
-    try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/paused')); } catch (e) {}
-    try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/acceptedParticipants')); } catch (e) {}
-    try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/p2p')); } catch (e) {}
-  }
+  if (App.liveStreamId) { try { await set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/status'), 'ended'); } catch (e) {} try { await remove(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug)); } catch (e) {} try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/cameraStates')); } catch (e) {} try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/paused')); } catch (e) {} try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/acceptedParticipants')); } catch (e) {} try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/p2p')); } catch (e) {} }
   cleanupLive();
   toast('Stream ended');
 };
-
 window.__watchLiveStream = async function(hostSlug, streamId) {
   if (App.liveMode) return toast('Already watching', true);
   App.liveMode = 'viewer'; App.liveStreamId = streamId; App.liveHostSlug = hostSlug;
@@ -2381,19 +2330,11 @@ window.__watchLiveStream = async function(hostSlug, streamId) {
   $('liveLocalVideo').classList.remove('visible'); $('liveLocalVideo').srcObject = null;
   $('liveRemoteVideo').classList.add('visible'); $('liveRemoteVideo').srcObject = null;
   $('liveLocalAvatar').classList.remove('show'); $('liveRemoteAvatar').classList.remove('show');
-  $('livePauseOverlay').classList.remove('show');
-  $('liveLoadingOverlay').classList.remove('hidden');
+  $('livePauseOverlay').classList.remove('show'); $('liveLoadingOverlay').classList.remove('hidden');
   $('liveViewerCount').textContent = '👁 …';
-  $('liveMuteBtn').style.display = 'none';
-  $('liveCameraBtn').style.display = 'none';
-  $('liveJoinBtn').style.display = 'flex';
-  $('liveJoinBtn').textContent = '✋ Request to Join';
-  $('liveJoinBtn').classList.remove('waiting');
-  $('liveShareBtn').style.display = 'flex';
-  $('livePauseBtn').style.display = 'none';
-  $('liveScreenBtn').style.display = 'none';
-  $('liveRecordBtn').style.display = 'none';
-  $('liveBgBtn').style.display = 'none';
+  $('liveMuteBtn').style.display = 'none'; $('liveCameraBtn').style.display = 'none';
+  $('liveJoinBtn').style.display = 'flex'; $('liveJoinBtn').textContent = '✋ Request to Join'; $('liveJoinBtn').classList.remove('waiting');
+  $('liveShareBtn').style.display = 'flex'; $('livePauseBtn').style.display = 'none'; $('liveScreenBtn').style.display = 'none'; $('liveRecordBtn').style.display = 'none'; $('liveBgBtn').style.display = 'none';
   $('liveConferenceGrid').innerHTML = '';
   App.liveBgKey = 'none';
   try {
@@ -2411,19 +2352,10 @@ window.__watchLiveStream = async function(hostSlug, streamId) {
     setupLiveChatListener(streamId);
   } catch (err) { console.error('Watch failed:', err); toast('Could not join', true); cleanupLive(); }
 };
-
 async function viewerConnectToHost(streamId, offer) {
   try {
-    var pc = new RTCPeerConnection(ICE_SERVERS);
-    App.liveHostPC = pc;
-    pc.ontrack = function(e) {
-      if (e.streams && e.streams[0]) {
-        $('liveRemoteVideo').srcObject = e.streams[0];
-        $('liveRemoteVideo').muted = false; $('liveRemoteVideo').volume = 1;
-        $('liveRemoteVideo').play().catch(function() { $('liveRemoteVideo').muted = true; $('liveRemoteVideo').play().then(function() { toast('🔊 Tap to enable audio'); var unlock = function() { $('liveRemoteVideo').muted = false; document.body.removeEventListener('click', unlock); document.body.removeEventListener('touchstart', unlock); }; document.body.addEventListener('click', unlock); document.body.addEventListener('touchstart', unlock); }).catch(function() {}); });
-        $('liveLoadingOverlay').classList.add('hidden');
-      }
-    };
+    var pc = new RTCPeerConnection(ICE_SERVERS); App.liveHostPC = pc;
+    pc.ontrack = function(e) { if (e.streams && e.streams[0]) { $('liveRemoteVideo').srcObject = e.streams[0]; $('liveRemoteVideo').muted = false; $('liveRemoteVideo').volume = 1; $('liveRemoteVideo').play().catch(function() { $('liveRemoteVideo').muted = true; $('liveRemoteVideo').play().then(function() { toast('🔊 Tap to enable audio'); var unlock = function() { $('liveRemoteVideo').muted = false; document.body.removeEventListener('click', unlock); document.body.removeEventListener('touchstart', unlock); }; document.body.addEventListener('click', unlock); document.body.addEventListener('touchstart', unlock); }).catch(function() {}); }); $('liveLoadingOverlay').classList.add('hidden'); } };
     pc.onicecandidate = function(e) { if (e.candidate) push(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + App.mySlug + '/answerCandidates'), e.candidate.toJSON()).catch(function() {}); };
     await pc.setRemoteDescription(new RTCSessionDescription(offer));
     var answer = await pc.createAnswer(); await pc.setLocalDescription(answer);
@@ -2431,89 +2363,53 @@ async function viewerConnectToHost(streamId, offer) {
     onChildAdded(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + App.mySlug + '/offerCandidates'), function(s) { if (pc) pc.addIceCandidate(new RTCIceCandidate(s.val())).catch(function() {}); });
   } catch (err) { console.error('Viewer connect failed:', err); toast('Connection failed', true); }
 }
-
 window.__requestJoinLive = async function() {
-  if (App.liveMode !== 'viewer') return;
-  if (App.liveParticipant) return;
-  if (App.liveJoinRequested) return;
-  if (!App.liveStreamId) return;
+  if (App.liveMode !== 'viewer') return; if (App.liveParticipant) return; if (App.liveJoinRequested) return; if (!App.liveStreamId) return;
   try {
-    var stream = await getLiveStreamRobust();
-    App.liveParticipantStream = stream;
-    App.liveBaseVideoTrack = stream.getVideoTracks()[0];
-    $('liveLocalVideo').srcObject = stream;
-    $('liveLocalVideo').muted = true;
-    $('liveLocalVideo').play().catch(function() {});
-    $('liveLocalVideo').classList.add('visible');
+    var stream = await getLiveStreamRobust(); App.liveParticipantStream = stream; App.liveBaseVideoTrack = stream.getVideoTracks()[0];
+    $('liveLocalVideo').srcObject = stream; $('liveLocalVideo').muted = true; $('liveLocalVideo').play().catch(function() {}); $('liveLocalVideo').classList.add('visible');
     $('liveBgBtn').style.display = 'flex';
-    var pc = new RTCPeerConnection(ICE_SERVERS);
-    App.liveParticipantPC = pc;
+    var pc = new RTCPeerConnection(ICE_SERVERS); App.liveParticipantPC = pc;
     stream.getTracks().forEach(function(t) { pc.addTrack(t, stream); });
     pc.onicecandidate = function(e) { if (e.candidate) push(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + App.mySlug + '/offerCandidates'), e.candidate.toJSON()).catch(function() {}); };
-    var offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
+    var offer = await pc.createOffer(); await pc.setLocalDescription(offer);
     await set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + App.mySlug), { status: 'pending', name: App.myName, photo: App.myPhoto || null, offer: { type: offer.type, sdp: offer.sdp }, requestedAt: Date.now() });
-    App.liveJoinRequested = true;
-    $('liveJoinBtn').textContent = '⏳ Waiting for host…';
-    $('liveJoinBtn').classList.add('waiting');
+    App.liveJoinRequested = true; $('liveJoinBtn').textContent = '⏳ Waiting for host…'; $('liveJoinBtn').classList.add('waiting');
     var unsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + App.mySlug + '/status'), async function(s) {
       var st = s.val();
       if (st === 'accepted') {
         var aSnap = await get(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + App.mySlug + '/answer'));
         if (aSnap.exists() && pc && !pc.currentRemoteDescription) { try { await pc.setRemoteDescription(new RTCSessionDescription(aSnap.val())); } catch (e) {} }
         onChildAdded(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + App.mySlug + '/answerCandidates'), function(s2) { pc.addIceCandidate(new RTCIceCandidate(s2.val())).catch(function() {}); });
-        App.liveParticipant = true;
-        App.liveJoinRequested = false;
-        $('liveCameraBtn').style.display = 'flex';
-        $('liveMuteBtn').style.display = 'flex';
-        $('liveCameraBtn').classList.remove('active');
-        $('liveMuteBtn').classList.remove('active');
-        if (App.liveParticipantStream) {
-          var vTracks = App.liveParticipantStream.getVideoTracks();
-          if (vTracks.length) {
-            vTracks.forEach(function(t) { t.enabled = true; });
-            App.liveBaseVideoTrack = vTracks[0];
-          }
-        }
+        App.liveParticipant = true; App.liveJoinRequested = false;
+        $('liveCameraBtn').style.display = 'flex'; $('liveMuteBtn').style.display = 'flex';
+        $('liveCameraBtn').classList.remove('active'); $('liveMuteBtn').classList.remove('active');
+        if (App.liveParticipantStream) { var vTracks = App.liveParticipantStream.getVideoTracks(); if (vTracks.length) { vTracks.forEach(function(t) { t.enabled = true; }); App.liveBaseVideoTrack = vTracks[0]; } }
         writeLiveCameraState(true);
-        setupParticipantMesh(App.liveStreamId);
-        setupCameraStatesListenerForParticipant(App.liveStreamId);
+        setupParticipantMesh(App.liveStreamId); setupCameraStatesListenerForParticipant(App.liveStreamId);
         var hasCam = App.liveParticipantStream && App.liveParticipantStream.getVideoTracks().length > 0;
-        if (hasCam) { toast('✓ Joined — camera ON. Tap 📹 to turn off/on.'); }
-        else { toast('⚠️ Camera not available — tap 📹 to retry', true); }
+        if (hasCam) { toast('✓ Joined — camera ON. Tap 📹 to turn off/on.'); } else { toast('⚠️ Camera not available — tap 📹 to retry', true); }
         $('liveJoinBtn').style.display = 'none';
       } else if (st === 'declined') {
         toast('Request declined', true);
         if (App.liveParticipantStream) { App.liveParticipantStream.getTracks().forEach(function(t) { t.stop(); }); App.liveParticipantStream = null; }
         if (App.liveParticipantPC) { try { App.liveParticipantPC.close(); } catch (e) {} App.liveParticipantPC = null; }
-        $('liveLocalVideo').classList.remove('visible');
-        $('liveLocalVideo').srcObject = null;
-        $('liveLocalAvatar').classList.remove('show');
-        $('liveCameraBtn').style.display = 'none';
-        $('liveMuteBtn').style.display = 'none';
-        $('liveBgBtn').style.display = 'none';
-        App.liveJoinRequested = false;
-        $('liveJoinBtn').textContent = '✋ Request to Join';
-        $('liveJoinBtn').classList.remove('waiting');
+        $('liveLocalVideo').classList.remove('visible'); $('liveLocalVideo').srcObject = null; $('liveLocalAvatar').classList.remove('show');
+        $('liveCameraBtn').style.display = 'none'; $('liveMuteBtn').style.display = 'none'; $('liveBgBtn').style.display = 'none';
+        App.liveJoinRequested = false; $('liveJoinBtn').textContent = '✋ Request to Join'; $('liveJoinBtn').classList.remove('waiting');
       }
     });
     App.liveUnsubs.push(unsub);
     toast('Join request sent — waiting for host…');
   } catch (err) { handleMediaError(err); }
 };
-
 window.__leaveLiveStream = async function() {
   if (App.liveMode !== 'viewer') return;
-  if (App.liveStreamId && App.mySlug) {
-    try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/viewers/' + App.mySlug)); } catch (e) {}
-    try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + App.mySlug)); } catch (e) {}
-    try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/cameraStates/' + App.mySlug)); } catch (e) {}
-  }
+  if (App.liveStreamId && App.mySlug) { try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/viewers/' + App.mySlug)); } catch (e) {} try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + App.mySlug)); } catch (e) {} try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/cameraStates/' + App.mySlug)); } catch (e) {} }
   Object.keys(App.liveParticipantPeers).forEach(function(k) { try { if (App.liveParticipantPeers[k].pc) App.liveParticipantPeers[k].pc.close(); } catch (e) {} });
   App.liveParticipantPeers = {};
   cleanupLive();
 };
-
 function setupLiveChatListener(streamId) {
   var unsub = onValue(query(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/chat'), limitToLast(80)), function(snap) {
     var data = snap.val() || {};
@@ -2522,29 +2418,16 @@ function setupLiveChatListener(streamId) {
     var el = $('liveChatMessages'); if (!el) return;
     if (!msgs.length) { el.innerHTML = '<div style="color:rgba(255,255,255,0.4);font-size:12px;text-align:center;padding:12px;">No messages yet 👋</div>'; return; }
     var isHost = App.liveMode === 'host', html = '';
-    for (var i = 0; i < msgs.length; i++) {
-      var m = msgs[i], isMine = m.from === App.mySlug;
-      var t = m.time ? new Date(m.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-      html += '<div class="live-chat-msg' + (isMine ? ' out' : '') + '"><div class="live-chat-msg-header"><strong>' + esc(m.name || m.from) + '</strong><small>' + t + '</small>';
-      if (isHost) html += '<button class="live-chat-del" onclick="window.__deleteLiveChat(\'' + m._k + '\')" title="Delete">🗑</button>';
-      html += '</div>';
-      if (m.text) html += '<div class="live-chat-msg-text">' + esc(m.text) + '</div>';
-      if (m.attachment && m.attachment.url && m.attachment.type === 'image') html += '<img class="live-chat-msg-img" src="' + esc(m.attachment.url) + '" onclick="window.__lb(\'' + esc(m.attachment.url) + '\')">';
-      html += '</div>';
-    }
-    el.innerHTML = html;
-    el.scrollTop = el.scrollHeight;
+    for (var i = 0; i < msgs.length; i++) { var m = msgs[i], isMine = m.from === App.mySlug; var t = m.time ? new Date(m.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''; html += '<div class="live-chat-msg' + (isMine ? ' out' : '') + '"><div class="live-chat-msg-header"><strong>' + esc(m.name || m.from) + '</strong><small>' + t + '</small>'; if (isHost) html += '<button class="live-chat-del" onclick="window.__deleteLiveChat(\'' + m._k + '\')" title="Delete">🗑</button>'; html += '</div>'; if (m.text) html += '<div class="live-chat-msg-text">' + esc(m.text) + '</div>'; if (m.attachment && m.attachment.url && m.attachment.type === 'image') html += '<img class="live-chat-msg-img" src="' + esc(m.attachment.url) + '" loading="lazy" onclick="window.__lb(\'' + esc(m.attachment.url) + '\')">'; html += '</div>'; }
+    el.innerHTML = html; el.scrollTop = el.scrollHeight;
   });
   App.liveUnsubs.push(unsub);
 }
-
 window.__sendLiveChat = async function() { var inp = $('liveChatInput'), t = inp.value.trim(); if (!t || !App.liveStreamId) return; inp.value = ''; try { await push(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/chat'), { from: App.mySlug, name: App.myName, text: t, time: Date.now() }); } catch (e) { toast('Send failed', true); } };
 window.__sendLiveChatImage = async function(inp) { var f = inp.files && inp.files[0]; if (!f || !App.liveStreamId) return; if (f.type.indexOf('image/') !== 0) { toast('Select an image', true); inp.value = ''; return; } if (f.size > 2 * 1024 * 1024) { toast('Image too large (max 2MB)', true); inp.value = ''; return; } try { toast('Uploading…'); var url = await fileToBase64(f); await push(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/chat'), { from: App.mySlug, name: App.myName, text: '', attachment: { type: 'image', url: url, name: f.name }, time: Date.now() }); } catch (e) { toast('Upload failed', true); } inp.value = ''; };
 window.__deleteLiveChat = async function(msgKey) { if (App.liveMode !== 'host' || !App.liveStreamId) return; if (!confirm('Delete this message for everyone?')) return; try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/chat/' + msgKey)); } catch (e) { toast('Delete failed', true); } };
-
 window.__shareLiveStream = async function() {
-  var slug = App.liveHostSlug || App.mySlug;
-  if (!slug) return;
+  var slug = App.liveHostSlug || App.mySlug; if (!slug) return;
   var base = window.location.origin + window.location.pathname;
   var url = base + '?live=' + encodeURIComponent(slug);
   var shareText = '🔴 I\'m LIVE on JARVIS — tap the link to watch and join!';
@@ -2559,7 +2442,6 @@ function showShareModal(url, shareText) {
   document.body.appendChild(m);
 }
 window.__copyShareLink = function(url) { if (navigator.clipboard) { navigator.clipboard.writeText(url).then(function() { toast('Link copied ✓'); }).catch(function() { prompt('Copy:', url); }); } else prompt('Copy:', url); };
-
 function cleanupLive() {
   if (App.liveMediaRecorder && App.liveMediaRecorder.state === 'recording') { try { App.liveMediaRecorder.stop(); } catch (e) {} }
   App.liveRecording = false; App.liveRecordingChunks = []; App.liveMediaRecorder = null;
@@ -2598,17 +2480,7 @@ function cleanupLive() {
   var onAir = $('liveOnAirBadge'); if (onAir) { onAir.textContent = '🔴 LIVE'; onAir.style.background = '#ff4757'; onAir.style.color = '#fff'; }
   showScreen('screen-main');
 }
-
-window.__toggleLiveMute = function() {
-  var target = App.liveParticipantStream || App.liveLocalStream;
-  if (!target) return;
-  var tracks = target.getAudioTracks(); if (!tracks.length) return;
-  var wasEnabled = tracks[0].enabled;
-  tracks.forEach(function(t) { t.enabled = !wasEnabled; });
-  App.isMuted = wasEnabled;
-  $('liveMuteBtn').classList.toggle('active', wasEnabled);
-  toast(wasEnabled ? 'Muted' : 'Unmuted');
-};
+window.__toggleLiveMute = function() { var target = App.liveParticipantStream || App.liveLocalStream; if (!target) return; var tracks = target.getAudioTracks(); if (!tracks.length) return; var wasEnabled = tracks[0].enabled; tracks.forEach(function(t) { t.enabled = !wasEnabled; }); App.isMuted = wasEnabled; $('liveMuteBtn').classList.toggle('active', wasEnabled); toast(wasEnabled ? 'Muted' : 'Unmuted'); };
 
 $('startGoLiveBtn').addEventListener('click', function() { window.__startGoLive(); });
 $('liveBackBtn').addEventListener('click', function() { if (App.liveMode === 'host') { if (confirm('End your live stream?')) window.__endGoLive(); } else if (App.liveMode === 'viewer') { window.__leaveLiveStream(); } else showScreen('screen-main'); });
@@ -2629,94 +2501,36 @@ function openOwnerSpace() { loadOwnerStatuses(); $('ownerSpaceModal').classList.
 $('ownerSpaceClose').addEventListener('click', function() { $('ownerSpaceModal').classList.remove('show'); });
 $('ownerTabStatusBtn').addEventListener('click', function() { $('ownerTabStatusBtn').style.background = 'linear-gradient(135deg,#f0d369,#d4af37)'; $('ownerTabStatusBtn').style.color = 'var(--navy)'; $('ownerTabChatsBtn').style.background = '#143a5f'; $('ownerTabChatsBtn').style.color = '#fff'; loadOwnerStatuses(); });
 $('ownerTabChatsBtn').addEventListener('click', function() { $('ownerTabChatsBtn').style.background = 'linear-gradient(135deg,#f0d369,#d4af37)'; $('ownerTabChatsBtn').style.color = 'var(--navy)'; $('ownerTabStatusBtn').style.background = '#143a5f'; $('ownerTabStatusBtn').style.color = '#fff'; loadOwnerReports(); });
-function loadOwnerStatuses() {
-  var area = $('ownerContentArea'), posts = window._cachedPosts || [];
-  if (!posts.length) { area.innerHTML = '<div class="empty"><p>No statuses.</p></div>'; return; }
-  var h = '';
-  for (var i = 0; i < posts.length; i++) { var p = posts[i]; h += '<div style="background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;"><div style="font-size:13px;font-weight:700;margin-bottom:6px;">@' + esc(p.authorSlug) + ' (' + esc(p.authorName) + ')</div><div style="font-size:14px;margin-bottom:8px;">' + esc(p.text || '') + '</div><button class="btn-primary" style="max-width:none;padding:8px 12px;font-size:13px;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus(\'' + p._k + '\')">🗑 Delete</button></div>'; }
-  area.innerHTML = h;
-}
+function loadOwnerStatuses() { var area = $('ownerContentArea'), posts = window._cachedPosts || []; if (!posts.length) { area.innerHTML = '<div class="empty"><p>No statuses.</p></div>'; return; } var h = ''; for (var i = 0; i < posts.length; i++) { var p = posts[i]; h += '<div style="background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;"><div style="font-size:13px;font-weight:700;margin-bottom:6px;">@' + esc(p.authorSlug) + ' (' + esc(p.authorName) + ')</div><div style="font-size:14px;margin-bottom:8px;">' + esc(p.text || '') + '</div><button class="btn-primary" style="max-width:none;padding:8px 12px;font-size:13px;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus(\'' + p._k + '\')">🗑 Delete</button></div>'; } area.innerHTML = h; }
 window.__ownerDeleteStatus = async function(k) { if (confirm('Delete?')) { await remove(dbRef(db, STATUS_FEED_PATH + '/' + k)); toast('Deleted ✓'); loadOwnerStatuses(); } };
-function loadOwnerReports() {
-  var area = $('ownerContentArea');
-  area.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">Loading…</div>';
-  onValue(dbRef(db, 'users'), function(snap) {
-    var ud = snap.val() || {}, uks = Object.keys(ud);
-    var h = '<div style="font-size:14px;font-weight:700;margin-bottom:8px;">👥 Users (' + uks.length + ')</div>';
-    for (var i = 0; i < uks.length; i++) { var u = ud[uks[i]]; h += '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;margin-bottom:6px;font-size:14px;"><strong>' + esc(u.displayName) + '</strong> (@' + esc(u.slug) + ')</div>'; }
-    area.innerHTML = h;
-  }, function(err) { area.innerHTML = '<div class="empty">Cannot load users.</div>'; }, { onlyOnce: true });
-}
+function loadOwnerReports() { var area = $('ownerContentArea'); area.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">Loading…</div>'; onValue(dbRef(db, 'users'), function(snap) { var ud = snap.val() || {}, uks = Object.keys(ud); var h = '<div style="font-size:14px;font-weight:700;margin-bottom:8px;">👥 Users (' + uks.length + ')</div>'; for (var i = 0; i < uks.length; i++) { var u = ud[uks[i]]; h += '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:8px;margin-bottom:6px;font-size:14px;"><strong>' + esc(u.displayName) + '</strong> (@' + esc(u.slug) + ')</div>'; } area.innerHTML = h; }, function(err) { area.innerHTML = '<div class="empty">Cannot load users.</div>'; }, { onlyOnce: true }); }
 
-var PROFESSIONAL_BACKGROUNDS = [
-  { key: 'none', label: 'Normal', type: 'filter', value: 'none' },
-  { key: 'blur', label: 'Blurred', type: 'filter', value: 'blur(8px)' },
-  { key: 'sepia', label: 'Sepia', type: 'filter', value: 'sepia(80%)' },
-  { key: 'office', label: 'Office', type: 'image', url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1280&q=80' },
-  { key: 'forest', label: 'Forest', type: 'image', url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1280&q=80' },
-  { key: 'beach', label: 'Beach', type: 'image', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1280&q=80' },
-  { key: 'city', label: 'City', type: 'image', url: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1280&q=80' },
-  { key: 'mountains', label: 'Mountains', type: 'image', url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1280&q=80' },
-  { key: 'studio', label: 'Studio', type: 'gradient' }
-];
+var PROFESSIONAL_BACKGROUNDS = [ { key: 'none', label: 'Normal', type: 'filter', value: 'none' }, { key: 'blur', label: 'Blurred', type: 'filter', value: 'blur(8px)' }, { key: 'sepia', label: 'Sepia', type: 'filter', value: 'sepia(80%)' }, { key: 'office', label: 'Office', type: 'image', url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1280&q=80' }, { key: 'forest', label: 'Forest', type: 'image', url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1280&q=80' }, { key: 'beach', label: 'Beach', type: 'image', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1280&q=80' }, { key: 'city', label: 'City', type: 'image', url: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1280&q=80' }, { key: 'mountains', label: 'Mountains', type: 'image', url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1280&q=80' }, { key: 'studio', label: 'Studio', type: 'gradient' } ];
 
 var acs = null, acv = null, acl = null;
 function stopActiveCanvas() { if (acs) { acs.getTracks().forEach(function(t) { t.stop(); }); acs = null; } if (acv) { try { acv.pause(); } catch (e) {} acv.srcObject = null; acv = null; } if (acl) { cancelAnimationFrame(acl); acl = null; } }
 async function buildActiveStream(bgKey) {
-  stopActiveCanvas();
-  var bg = null;
-  for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) if (PROFESSIONAL_BACKGROUNDS[i].key === bgKey) { bg = PROFESSIONAL_BACKGROUNDS[i]; break; }
+  stopActiveCanvas(); var bg = null; for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) if (PROFESSIONAL_BACKGROUNDS[i].key === bgKey) { bg = PROFESSIONAL_BACKGROUNDS[i]; break; }
   var ovt = App.localStream ? App.localStream.getVideoTracks()[0] : null;
   if (!bg || bgKey === 'none') { if ($('localVideo')) { $('localVideo').srcObject = App.localStream; $('localVideo').style.filter = 'none'; } return { videoTrack: ovt, stream: App.localStream }; }
   if (!App.localStream || !ovt) return { videoTrack: ovt, stream: App.localStream };
-  var video = document.createElement('video'); video.srcObject = App.localStream; video.muted = true; video.playsInline = true;
-  try { await video.play(); } catch (e) {}
-  acv = video;
-  var canvas = document.createElement('canvas'); canvas.width = 1280; canvas.height = 720;
-  var ctx = canvas.getContext('2d'), bgImg = null;
+  var video = document.createElement('video'); video.srcObject = App.localStream; video.muted = true; video.playsInline = true; try { await video.play(); } catch (e) {}
+  acv = video; var canvas = document.createElement('canvas'); canvas.width = 1280; canvas.height = 720; var ctx = canvas.getContext('2d'), bgImg = null;
   if (bg.type === 'image') { bgImg = new Image(); bgImg.crossOrigin = 'anonymous'; bgImg.src = bg.url; await new Promise(function(r) { bgImg.onload = r; bgImg.onerror = r; }); }
-  function draw() {
-    if (bg.type === 'filter') { if (video.videoWidth) { ctx.save(); ctx.filter = bg.value; ctx.drawImage(video, 0, 0, canvas.width, canvas.height); ctx.restore(); } }
-    else {
-      if (bg.type === 'image' && bgImg && bgImg.complete) ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-      else { var g = ctx.createLinearGradient(0, 0, canvas.width, canvas.height); g.addColorStop(0, '#0b2a4a'); g.addColorStop(1, '#0d7a8c'); ctx.fillStyle = g; ctx.fillRect(0, 0, canvas.width, canvas.height); }
-      if (video.videoWidth) {
-        ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        var th = canvas.height * 0.88, tw = th * (video.videoWidth / video.videoHeight), x = (canvas.width - tw) / 2, y = (canvas.height - th) / 2, r = 40;
-        ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 30;
-        ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + tw - r, y); ctx.quadraticCurveTo(x + tw, y, x + tw, y + r); ctx.lineTo(x + tw, y + th - r); ctx.quadraticCurveTo(x + tw, y + th, x + tw - r, y + th); ctx.lineTo(x + r, y + th); ctx.quadraticCurveTo(x, y + th, x, y + th - r); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath(); ctx.clip();
-        ctx.drawImage(video, x, y, tw, th); ctx.restore();
-      }
-    }
-    acl = requestAnimationFrame(draw);
-  }
+  function draw() { if (bg.type === 'filter') { if (video.videoWidth) { ctx.save(); ctx.filter = bg.value; ctx.drawImage(video, 0, 0, canvas.width, canvas.height); ctx.restore(); } } else { if (bg.type === 'image' && bgImg && bgImg.complete) ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height); else { var g = ctx.createLinearGradient(0, 0, canvas.width, canvas.height); g.addColorStop(0, '#0b2a4a'); g.addColorStop(1, '#0d7a8c'); ctx.fillStyle = g; ctx.fillRect(0, 0, canvas.width, canvas.height); } if (video.videoWidth) { ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0, 0, canvas.width, canvas.height); var th = canvas.height * 0.88, tw = th * (video.videoWidth / video.videoHeight), x = (canvas.width - tw) / 2, y = (canvas.height - th) / 2, r = 40; ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 30; ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + tw - r, y); ctx.quadraticCurveTo(x + tw, y, x + tw, y + r); ctx.lineTo(x + tw, y + th - r); ctx.quadraticCurveTo(x + tw, y + th, x + tw - r, y + th); ctx.lineTo(x + r, y + th); ctx.quadraticCurveTo(x, y + th, x, y + th - r); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath(); ctx.clip(); ctx.drawImage(video, x, y, tw, th); ctx.restore(); } } acl = requestAnimationFrame(draw); }
   draw();
   var cs = canvas.captureStream(30); acs = cs;
   if ($('localVideo')) { $('localVideo').srcObject = cs; $('localVideo').style.filter = 'none'; }
   return { videoTrack: cs.getVideoTracks()[0], stream: cs };
 }
-function buildBgGallery() {
-  var g = $('bgGalleryGrid'); if (!g) return;
-  var h = '';
-  for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) { var b = PROFESSIONAL_BACKGROUNDS[i], p; if (b.type === 'image') p = '<img src="' + b.url + '">'; else if (b.type === 'filter') p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);filter:' + b.value + ';"></div>'; else p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);"></div>'; h += '<div class="bg-tile' + (App.currentBg === b.key ? ' active' : '') + '" onclick="window.__applyBackground(\'' + b.key + '\')">' + p + '<div class="bg-tile-label">' + b.label + '</div></div>'; }
-  g.innerHTML = h;
-}
+function buildBgGallery() { var g = $('bgGalleryGrid'); if (!g) return; var h = ''; for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) { var b = PROFESSIONAL_BACKGROUNDS[i], p; if (b.type === 'image') p = '<img src="' + b.url + '">'; else if (b.type === 'filter') p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);filter:' + b.value + ';"></div>'; else p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);"></div>'; h += '<div class="bg-tile' + (App.currentBg === b.key ? ' active' : '') + '" onclick="window.__applyBackground(\'' + b.key + '\')">' + p + '<div class="bg-tile-label">' + b.label + '</div></div>'; } g.innerHTML = h; }
 $('filterBtn').addEventListener('click', function() { if (!App.isVideoCall) return toast('Video only', true); buildBgGallery(); $('bgGalleryModal').classList.add('show'); });
 $('bgGalleryClose').addEventListener('click', function() { $('bgGalleryModal').classList.remove('show'); });
 window.__applyBackground = async function(k) { try { var r = await buildActiveStream(k); if (App.videoSender && r.videoTrack) await App.videoSender.replaceTrack(r.videoTrack); App.currentBg = k; buildBgGallery(); $('bgGalleryModal').classList.remove('show'); toast('Applied ✓'); } catch (e) { toast('Failed', true); } };
 function buildPreBg() { var g = $('preCallBgGrid'); if (!g) return; var h = ''; for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) { var b = PROFESSIONAL_BACKGROUNDS[i], p; if (b.type === 'image') p = '<img src="' + b.url + '">'; else if (b.type === 'filter') p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);filter:' + b.value + ';"></div>'; else p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);"></div>'; h += '<div class="bg-tile' + (App.pendingBg === b.key ? ' active' : '') + '" onclick="window.__selectPreBg(\'' + b.key + '\')" style="height:60px;">' + p + '<div class="bg-tile-label" style="font-size:11px;">' + b.label + '</div></div>'; } g.innerHTML = h; }
 window.__selectPreBg = function(k) { App.pendingBg = k; buildPreBg(); };
 window.startCall = function(slug, v) { if (!slug || slug === App.mySlug) return toast('Invalid contact', true); if (App.blockedUsers.indexOf(slug) !== -1) return toast('Unblock this user first', true); showPreCall(slug, v); };
-function showPreCall(slug, v) {
-  App.pendingCallTarget = slug; App.pendingCallType = v; App.pendingBg = 'none';
-  $('preCallTitle').textContent = v ? '🎥 Video Call Setup' : '📞 Voice Call Setup';
-  $('preCallBgSection').style.display = v ? 'block' : 'none';
-  buildPreBg();
-  var oth = App.contacts.filter(function(c) { return c.slug !== slug && c.slug !== App.mySlug; });
-  if (oth.length) { var h = ''; for (var i = 0; i < oth.length; i++) h += '<div class="group-select-item"><input type="checkbox" value="' + oth[i].slug + '" id="preinv_' + oth[i].slug + '" style="width:20px;height:20px;"><label for="preinv_' + oth[i].slug + '">' + esc(oth[i].name) + '</label></div>'; $('preCallInviteList').innerHTML = h; }
-  else $('preCallInviteList').innerHTML = '<div style="color:var(--muted);padding:8px;font-size:14px;">No others to invite.</div>';
-  $('preCallModal').classList.add('show');
-}
+function showPreCall(slug, v) { App.pendingCallTarget = slug; App.pendingCallType = v; App.pendingBg = 'none'; $('preCallTitle').textContent = v ? '🎥 Video Call Setup' : '📞 Voice Call Setup'; $('preCallBgSection').style.display = v ? 'block' : 'none'; buildPreBg(); var oth = App.contacts.filter(function(c) { return c.slug !== slug && c.slug !== App.mySlug; }); if (oth.length) { var h = ''; for (var i = 0; i < oth.length; i++) h += '<div class="group-select-item"><input type="checkbox" value="' + oth[i].slug + '" id="preinv_' + oth[i].slug + '" style="width:20px;height:20px;"><label for="preinv_' + oth[i].slug + '">' + esc(oth[i].name) + '</label></div>'; $('preCallInviteList').innerHTML = h; } else $('preCallInviteList').innerHTML = '<div style="color:var(--muted);padding:8px;font-size:14px;">No others to invite.</div>'; $('preCallModal').classList.add('show'); }
 $('preCallCancel').addEventListener('click', function() { $('preCallModal').classList.remove('show'); App.pendingCallTarget = null; });
 $('preCallStart').addEventListener('click', async function() { var t = App.pendingCallTarget, v = App.pendingCallType; if (!t) return; var ck = Array.prototype.slice.call(document.querySelectorAll('#preCallInviteList input:checked')).map(function(i) { return i.value; }); $('preCallModal').classList.remove('show'); await doStartCall(t, v); if (ck.length) setTimeout(function() { inviteExtras(ck); }, 2500); });
 function attachRemote(s) { var rv = $('remoteVideo'); rv.srcObject = s; rv.muted = false; rv.volume = 1; var p = rv.play(); if (p && p.catch) p.catch(function() { rv.muted = true; rv.play().then(function() { toast('🔊 Tap to enable audio'); var u = function() { rv.muted = false; rv.volume = 1; document.body.removeEventListener('click', u); document.body.removeEventListener('touchstart', u); }; document.body.addEventListener('click', u); document.body.addEventListener('touchstart', u); }).catch(function() {}); }); }
@@ -2731,23 +2545,18 @@ async function doStartCall(slug, v) {
   if (v) $('videoContainer').classList.add('active'); else $('videoContainer').classList.remove('active');
   showScreen('screen-call'); setupCallChat();
   try {
-    App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: v ? VIDEO_CONSTRAINTS : false });
-    ensureAudio();
+    App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: v ? VIDEO_CONSTRAINTS : false }); ensureAudio();
     if (v && $('localVideo')) { $('localVideo').srcObject = App.localStream; $('localVideo').style.filter = 'none'; $('localVideo').muted = true; }
     var vt = App.localStream.getVideoTracks()[0];
     if (v && App.pendingBg && App.pendingBg !== 'none') { try { var r = await buildActiveStream(App.pendingBg); if (r.videoTrack) vt = r.videoTrack; App.currentBg = App.pendingBg; } catch (e) {} } else App.currentBg = 'none';
     App.peerConn = new RTCPeerConnection(ICE_SERVERS);
     App.localStream.getAudioTracks().forEach(function(t) { App.peerConn.addTrack(t, App.localStream); });
     if (vt) App.peerConn.addTrack(vt, App.localStream);
-    App.videoSender = null;
-    var senders = App.peerConn.getSenders();
-    for (var i = 0; i < senders.length; i++) if (senders[i].track && senders[i].track.kind === 'video') { App.videoSender = senders[i]; break; }
+    App.videoSender = null; var senders = App.peerConn.getSenders(); for (var i = 0; i < senders.length; i++) if (senders[i].track && senders[i].track.kind === 'video') { App.videoSender = senders[i]; break; }
     App.peerConn.ontrack = function(e) { if (e.streams && e.streams[0]) attachRemote(e.streams[0]); };
-    var cr = dbRef(db, 'calls/' + slug + '/' + App.activeCallId);
-    var ocr = dbRef(db, 'calls/' + slug + '/' + App.activeCallId + '/offerCandidates');
+    var cr = dbRef(db, 'calls/' + slug + '/' + App.activeCallId); var ocr = dbRef(db, 'calls/' + slug + '/' + App.activeCallId + '/offerCandidates');
     App.peerConn.onicecandidate = function(e) { if (e.candidate) push(ocr, e.candidate.toJSON()); };
-    var offer = await App.peerConn.createOffer();
-    await App.peerConn.setLocalDescription(offer);
+    var offer = await App.peerConn.createOffer(); await App.peerConn.setLocalDescription(offer);
     await set(cr, { caller: App.mySlug, callerName: App.myName, type: v ? 'video' : 'voice', sdp: offer.sdp, status: 'calling', time: Date.now() });
     onValue(dbRef(db, 'calls/' + slug + '/' + App.activeCallId + '/answer'), async function(s) { var a = s.val(); if (a && App.peerConn && !App.peerConn.currentRemoteDescription) { await App.peerConn.setRemoteDescription(new RTCSessionDescription(a)); $('callStatus').textContent = 'Connected'; } });
     onChildAdded(dbRef(db, 'calls/' + slug + '/' + App.activeCallId + '/answerCandidates'), function(s) { if (App.peerConn) App.peerConn.addIceCandidate(new RTCIceCandidate(s.val())).catch(function() {}); });
@@ -2764,15 +2573,12 @@ async function inviteExtras(slugs) {
     var slug = slugs[i];
     try {
       var id = 'call_' + chatIdFor(App.mySlug, slug) + '_' + Date.now();
-      var pc = new RTCPeerConnection(ICE_SERVERS);
-      if (App.localStream) App.localStream.getTracks().forEach(function(t) { pc.addTrack(t, App.localStream); });
+      var pc = new RTCPeerConnection(ICE_SERVERS); if (App.localStream) App.localStream.getTracks().forEach(function(t) { pc.addTrack(t, App.localStream); });
       (function(sl, p) { p.ontrack = function(e) { if (e.streams && e.streams[0]) { if (!App.extraPeers[sl]) App.extraPeers[sl] = {}; App.extraPeers[sl].stream = e.streams[0]; renderConfGrid(); } }; })(slug, pc);
       var o = await pc.createOffer(); await pc.setLocalDescription(o);
-      var cr = dbRef(db, 'calls/' + slug + '/' + id + '/offerCandidates');
-      pc.onicecandidate = function(e) { if (e.candidate) push(cr, e.candidate.toJSON()); };
+      var cr = dbRef(db, 'calls/' + slug + '/' + id + '/offerCandidates'); pc.onicecandidate = function(e) { if (e.candidate) push(cr, e.candidate.toJSON()); };
       await set(dbRef(db, 'calls/' + slug + '/' + id), { caller: App.mySlug, callerName: App.myName, type: App.isVideoCall ? 'video' : 'voice', sdp: o.sdp, status: 'calling', time: Date.now() });
-      if (!App.extraPeers[slug]) App.extraPeers[slug] = {};
-      App.extraPeers[slug].pc = pc;
+      if (!App.extraPeers[slug]) App.extraPeers[slug] = {}; App.extraPeers[slug].pc = pc;
       (function(sl, p, cid) { onValue(dbRef(db, 'calls/' + sl + '/' + cid + '/answer'), async function(s) { var a = s.val(); if (a && !p.currentRemoteDescription) await p.setRemoteDescription(new RTCSessionDescription(a)); }); onChildAdded(dbRef(db, 'calls/' + sl + '/' + cid + '/answerCandidates'), function(s) { p.addIceCandidate(new RTCIceCandidate(s.val())).catch(function() {}); }); })(slug, pc, id);
     } catch (e) { console.error(e); }
   }
@@ -2790,20 +2596,15 @@ $('acceptCallBtn').addEventListener('click', async function() {
   if (v) $('videoContainer').classList.add('active'); else $('videoContainer').classList.remove('active');
   showScreen('screen-call'); setupCallChat();
   try {
-    App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: v ? VIDEO_CONSTRAINTS : false });
-    ensureAudio();
+    App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: v ? VIDEO_CONSTRAINTS : false }); ensureAudio();
     if (v && $('localVideo')) { $('localVideo').srcObject = App.localStream; $('localVideo').style.filter = 'none'; $('localVideo').muted = true; }
-    App.peerConn = new RTCPeerConnection(ICE_SERVERS);
-    App.localStream.getTracks().forEach(function(t) { App.peerConn.addTrack(t, App.localStream); });
-    App.videoSender = null;
-    var ss = App.peerConn.getSenders();
-    for (var i = 0; i < ss.length; i++) if (ss[i].track && ss[i].track.kind === 'video') { App.videoSender = ss[i]; break; }
+    App.peerConn = new RTCPeerConnection(ICE_SERVERS); App.localStream.getTracks().forEach(function(t) { App.peerConn.addTrack(t, App.localStream); });
+    App.videoSender = null; var ss = App.peerConn.getSenders(); for (var i = 0; i < ss.length; i++) if (ss[i].track && ss[i].track.kind === 'video') { App.videoSender = ss[i]; break; }
     App.peerConn.ontrack = function(e) { if (e.streams && e.streams[0]) attachRemote(e.streams[0]); };
     var acr = dbRef(db, 'calls/' + App.mySlug + '/' + App.activeCallId + '/answerCandidates');
     App.peerConn.onicecandidate = function(e) { if (e.candidate) push(acr, e.candidate.toJSON()); };
     await App.peerConn.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: cd.sdp }));
-    var ans = await App.peerConn.createAnswer();
-    await App.peerConn.setLocalDescription(ans);
+    var ans = await App.peerConn.createAnswer(); await App.peerConn.setLocalDescription(ans);
     await set(dbRef(db, 'calls/' + App.mySlug + '/' + App.activeCallId + '/answer'), { type: ans.type, sdp: ans.sdp });
     await set(dbRef(db, 'calls/' + App.mySlug + '/' + App.activeCallId + '/status'), 'connected');
     $('callStatus').textContent = 'Connected';
@@ -2811,15 +2612,7 @@ $('acceptCallBtn').addEventListener('click', async function() {
   } catch (err) { handleMediaError(err); endCallLocally(); }
 });
 $('rejectCallBtn').addEventListener('click', async function() { $('incoming-call').classList.remove('show'); if (App.activeCallId) await set(dbRef(db, 'calls/' + App.mySlug + '/' + App.activeCallId + '/status'), 'rejected'); });
-function endCallLocally() {
-  stopActiveCanvas();
-  if (App.localStream) { App.localStream.getTracks().forEach(function(t) { t.stop(); }); App.localStream = null; }
-  if (App.peerConn) { App.peerConn.close(); App.peerConn = null; }
-  var ks = Object.keys(App.extraPeers); for (var i = 0; i < ks.length; i++) { if (App.extraPeers[ks[i]].pc) App.extraPeers[ks[i]].pc.close(); }
-  App.extraPeers = {}; App.videoSender = null; App.currentBg = 'none'; App.pendingBg = 'none';
-  $('conferenceGrid').innerHTML = ''; $('videoContainer').classList.remove('active'); $('inCallChatDrawer').classList.remove('show');
-  showScreen('screen-main');
-}
+function endCallLocally() { stopActiveCanvas(); if (App.localStream) { App.localStream.getTracks().forEach(function(t) { t.stop(); }); App.localStream = null; } if (App.peerConn) { App.peerConn.close(); App.peerConn = null; } var ks = Object.keys(App.extraPeers); for (var i = 0; i < ks.length; i++) { if (App.extraPeers[ks[i]].pc) App.extraPeers[ks[i]].pc.close(); } App.extraPeers = {}; App.videoSender = null; App.currentBg = 'none'; App.pendingBg = 'none'; $('conferenceGrid').innerHTML = ''; $('videoContainer').classList.remove('active'); $('inCallChatDrawer').classList.remove('show'); showScreen('screen-main'); }
 $('endCallBtn').addEventListener('click', async function() { if (App.activeCallId) { if (App.currentCallTarget) await set(dbRef(db, 'calls/' + App.currentCallTarget + '/' + App.activeCallId + '/status'), 'ended').catch(function() {}); await set(dbRef(db, 'calls/' + App.mySlug + '/' + App.activeCallId + '/status'), 'ended').catch(function() {}); } endCallLocally(); });
 $('muteBtn').addEventListener('click', function() { if (!App.localStream) return; App.isMuted = !App.isMuted; var ts = App.localStream.getAudioTracks(); for (var i = 0; i < ts.length; i++) ts[i].enabled = !App.isMuted; $('muteBtn').classList.toggle('active', App.isMuted); toast(App.isMuted ? 'Muted' : 'Unmuted'); });
 $('voiceCallFromChatBtn').addEventListener('click', function() { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, false); });
@@ -2859,14 +2652,7 @@ for (var i = 0; i < nb.length; i++) (function(b) {
 $('chatBackBtn').addEventListener('click', function() { App.activeChat = null; showScreen('screen-main'); });
 window.__lb = function(u) { $('lightboxImg').src = u; $('lightboxDownload').href = u; $('lightbox').classList.add('show'); };
 $('lightboxClose').addEventListener('click', function() { $('lightbox').classList.remove('show'); });
-$('clearBtn').addEventListener('click', function() {
-  if (confirm('Clear local data? You will need to sign in again.')) {
-    if (App.liveMode) cleanupLive();
-    LS.del('mySlug'); LS.del('contacts'); LS.del('groups'); LS.del('unreadCounts');
-    LS.del('blockedUsers'); LS.del('cached_chats'); LS.del('cached_statuses'); LS.del('lastSeenTimes');
-    location.reload();
-  }
-});
+$('clearBtn').addEventListener('click', function() { if (confirm('Clear local data? You will need to sign in again.')) { if (App.liveMode) cleanupLive(); LS.del('mySlug'); LS.del('contacts'); LS.del('groups'); LS.del('unreadCounts'); LS.del('blockedUsers'); LS.del('cached_chats'); LS.del('cached_statuses'); LS.del('lastSeenTimes'); LS.del('userLiteMode'); location.reload(); } });
 </script>
 </body>
 </html>
