@@ -143,6 +143,10 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .status-content-box{border-radius:12px;padding:20px;color:#fff;font-weight:700;font-size:17px !important;text-align:center;word-break:break-word;margin-bottom:12px}
 .status-media{width:100%;border-radius:12px;margin-bottom:10px;max-height:75vh;object-fit:contain;background:#000;display:block}
 .status-link{display:block;background:#f0f4f8;padding:12px;border-radius:8px;color:var(--accent);font-weight:600;text-decoration:none;word-break:break-all;font-size:14px !important;margin-bottom:10px;border:1px dashed var(--accent)}
+#introVideoPlayerWrap{position:relative;padding-bottom:56.25%;height:0;background:#000;}
+#introVideoPlayerWrap iframe,#introVideoPlayerWrap video{position:absolute;top:0;left:0;width:100%;height:100%;border:0;display:block;background:#000;}
+#introVideoEmpty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#8899a8;font-size:14px;text-align:center;padding:20px;background:linear-gradient(135deg,#0b2a4a,#143a5f);}
+#introVideoEmpty .icon{font-size:36px;margin-bottom:8px;opacity:.6;}
 #lightbox,#avatarViewerModal{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:99999;padding:20px;flex-direction:column}
 #lightbox.show,#avatarViewerModal.show{display:flex}
 #lightbox img,#avatarViewerImg{max-width:100%;max-height:85vh;border-radius:8px;object-fit:contain}
@@ -377,7 +381,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
     <div class="lite-mode-badge" id="liteModeBadge">⚡ Lite</div>
-    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v13</div>
+    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v14</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
@@ -388,14 +392,14 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div id="newUsersList"></div>
   </div>
   <div id="tabStatus" class="tab-content" style="display:none;">
-    <div id="nbcLiveNewsCard" style="margin:12px 12px 0;border-radius:16px;overflow:hidden;border:2px solid #0b2a4a;background:#000;box-shadow:0 4px 16px rgba(11,42,74,.15);">
+    <div id="introVideoCard" style="margin:12px 12px 0;border-radius:16px;overflow:hidden;border:2px solid #0b2a4a;background:#000;box-shadow:0 4px 16px rgba(11,42,74,.15);">
       <div style="background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:8px;">
-        <span style="width:10px;height:10px;border-radius:50%;background:#ff4757;box-shadow:0 0 8px #ff4757;animation:nbcPulse 1.4s infinite;display:inline-block;"></span>
-        <span style="flex:1;font-weight:800;font-size:14px;letter-spacing:.3px;">NBC LIVE NEWS</span>
-        <span style="font-size:11px;opacity:.85;font-weight:600;">24/7 STREAM</span>
+        <span style="width:10px;height:10px;border-radius:50%;background:#4aff7a;box-shadow:0 0 8px #4aff7a;animation:nbcPulse 1.4s infinite;display:inline-block;"></span>
+        <span style="flex:1;font-weight:800;font-size:14px;letter-spacing:.3px;">JARVIS — WELCOME VIDEO</span>
+        <button id="changeIntroVideoBtn" onclick="window.__openChangeIntroVideo()" style="display:none;background:rgba(212,175,55,.25);color:#d4af37;border:1px solid #d4af37;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">📹 Change</button>
       </div>
-      <div style="position:relative;padding-bottom:56.25%;height:0;background:#000;">
-        <iframe id="nbcLiveIframe" src="about:blank" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      <div id="introVideoPlayerWrap">
+        <div id="introVideoEmpty"><div class="icon">📹</div><div>No intro video yet</div></div>
       </div>
     </div>
     <div style="margin:8px 12px 12px;padding:10px 14px;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;border-radius:10px;text-align:center;font-size:13px;line-height:1.5;">
@@ -587,6 +591,23 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 <div class="modal-overlay" id="statusModal"><div class="modal"><h3>Post Status</h3><textarea id="statusTextInput" rows="2" placeholder="Write status..."></textarea><input id="statusLinkInput" type="text" placeholder="Video link to embed" style="margin-top:8px;"><div style="margin-bottom:10px"><label style="font-size:14px;display:block;margin-bottom:4px">Background:</label><input type="color" id="statusBgColor" value="#0d7a8c" style="width:100%;height:40px;border-radius:6px;cursor:pointer;"></div><div style="margin-bottom:10px"><button class="btn-primary" id="statusMediaSelectBtn" style="width:100%;max-width:none;padding:12px;background:#143a5f;color:#fff;">📹 Select Photo/Video</button><div id="statusMediaName" style="font-size:13px;color:var(--accent);margin-top:4px;"></div></div><div class="modal-actions"><button class="cancel" id="statusModalCancel">Cancel</button><button class="confirm" id="statusModalConfirm">Post</button></div></div></div>
 <div class="modal-overlay" id="editMsgModal"><div class="modal"><h3>Edit Message</h3><input id="editMsgInput" type="text" placeholder="Edit text..."><div style="margin-bottom:12px"><label style="font-size:14px;display:block;margin-bottom:4px">Replace Media (optional):</label><input type="file" id="editMediaInput" accept="image/*,video/*,audio/*"></div><div class="modal-actions"><button class="cancel" id="editMsgCancel">Cancel</button><button class="confirm" id="editMsgConfirm">Save</button></div></div></div>
 <div class="modal-overlay" id="statusCommentsModal"><div class="modal" style="max-width:420px;"><h3>Comments & DM</h3><div id="statusCommentsList" style="max-height:220px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:8px;"></div><input id="statusCommentInput" type="text" placeholder="Comment..."><div class="modal-actions"><button class="cancel" id="statusCommentCancel">Close</button><button class="confirm" id="statusCommentSend">Send DM</button></div></div></div>
+<div class="modal-overlay" id="changeIntroVideoModal">
+  <div class="modal">
+    <h3>📹 Change Welcome Video</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">This video appears at the top of Status for everyone. Your contact card stays below it.</p>
+    <label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px;color:var(--navy);">Option 1 · Paste YouTube URL (recommended)</label>
+    <input id="introYtInput" type="text" placeholder="https://www.youtube.com/watch?v=…" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:14px !important;margin-bottom:4px;outline:none;">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:16px;">Fast, works on 2G. Best choice for Haiti.</div>
+    <label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px;color:var(--navy);">Option 2 · Upload a video file</label>
+    <input id="introVideoFileInput" type="file" accept="video/*" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px !important;margin-bottom:4px;">
+    <div style="font-size:11px;color:#ff4757;margin-bottom:16px;">⚠️ Uses more data on 2G. Keep under 2 MB for best results. YouTube is preferred.</div>
+    <div class="modal-actions">
+      <button class="cancel" onclick="document.getElementById('changeIntroVideoModal').classList.remove('show')">Cancel</button>
+      <button class="confirm" id="introVideoSaveBtn" onclick="window.__saveIntroVideo()">Save</button>
+    </div>
+    <button onclick="window.__clearIntroVideo()" style="width:100%;margin-top:12px;padding:12px;background:#fff0f0;color:#ff4757;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;font-family:Calibri,sans-serif;">Remove current video</button>
+  </div>
+</div>
 <div class="modal-overlay" id="ownerAuthModal"><div class="modal"><h3>Owner Auth</h3><input id="ownerPassInput" type="password" placeholder="Password"><div class="modal-actions"><button class="cancel" id="ownerAuthCancel">Cancel</button><button class="confirm" id="ownerAuthConfirm">Unlock</button></div></div></div>
 <div class="modal-overlay" id="ownerSpaceModal"><div class="modal" style="max-width:640px;max-height:90vh;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h3 style="margin:0;">🛡️ Owner Space</h3><button id="ownerSpaceClose" style="background:none;border:none;font-size:22px;cursor:pointer;">✕</button></div><div style="display:flex;gap:6px;margin-bottom:12px;"><button class="btn-primary" id="ownerTabStatusBtn" style="flex:1;max-width:none;padding:10px;">Statuses</button><button class="btn-primary" id="ownerTabChatsBtn" style="flex:1;max-width:none;padding:10px;background:#143a5f;">P2P DMs</button></div><div id="ownerContentArea" style="max-height:55vh;overflow-y:auto;"></div></div></div>
 <div class="modal-overlay" id="bgGalleryModal"><div class="modal" style="max-width:460px;"><h3>🖼️ Backgrounds</h3><div class="bg-gallery-grid" id="bgGalleryGrid"></div><div class="modal-actions"><button class="cancel" id="bgGalleryClose" style="width:100%;max-width:none;">Close</button></div></div></div>
@@ -615,24 +636,11 @@ if (window.__jarvisMarkLoaded) window.__jarvisMarkLoaded();
 const firebaseConfig = { apiKey: "AIzaSyCG_LO9IOfwEly0uar-Pu63b8FpjADSnqE", authDomain: "g-communication-2026-c5af2.firebaseapp.com", databaseURL: "https://g-communication-2026-c5af2-default-rtdb.firebaseio.com", projectId: "g-communication-2026-c5af2", storageBucket: "g-communication-2026-c5af2.firebasestorage.app", messagingSenderId: "953142314141", appId: "1:953142314141:web:967f75943e55584c36c074" };
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   🔴🔴🔴  NBC NEWS LIVE STREAM — SINGLE SOURCE OF TRUTH  🔴🔴🔴
+   🔴  NBC NEWS LIVE STREAM — SINGLE SOURCE OF TRUTH (kept, not displayed)
 
-   ⚠️  DO NOT DELETE THIS CONSTANT — EVER.
-   ⚠️  Even if the stream appears broken, do NOT remove it.
-   ⚠️  Simply replace the URL between the quotes on the NEXT line.
-
-   WHEN NBC RENEWS THEIR LIVE LINK:
-   → Come to this exact line.
-   → Paste the new YouTube URL between the single quotes.
-   → Save. Done. Nothing else in the app needs to change.
-
-   ACCEPTED URL FORMATS (all work):
-     https://www.youtube.com/watch?v=VIDEO_ID
-     https://www.youtube.com/live/VIDEO_ID
-     https://youtu.be/VIDEO_ID
-     https://www.youtube.com/embed/VIDEO_ID
-
-   Last updated: 2026
+   ⚠️  This constant is preserved so the NBC card can be restored later.
+   ⚠️  It is NOT deleted — the NBC card was replaced with the welcome video.
+   ⚠️  To re-enable NBC: replace the intro video card in Status with the NBC iframe.
    ═══════════════════════════════════════════════════════════════════════════ */
 const NBC_LIVE_URL = 'https://www.youtube.com/watch?v=0uwAtfBIVx0';
 
@@ -642,6 +650,36 @@ function buildNbcLiveEmbedUrl() {
   var id = null;
   try { id = getYouTubeId(raw); } catch (e) {}
   if (!id) return raw;
+  return 'https://www.youtube.com/embed/' + id + '?autoplay=1&mute=1&playsinline=1&rel=0&loop=1&playlist=' + id;
+}
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   🎬  JARVIS WELCOME VIDEO — SINGLE SOURCE OF TRUTH
+
+   This is the video that appears at the TOP of the Status tab for everyone.
+   Owner can change it anytime via the "📹 Change" button (stored in Firebase).
+
+   To change from code (fallback when Firebase has no video):
+   → Replace the URL between the single quotes on the next line.
+
+   Accepted YouTube URL formats (all work):
+     https://www.youtube.com/watch?v=VIDEO_ID
+     https://www.youtube.com/live/VIDEO_ID
+     https://youtu.be/VIDEO_ID
+     https://www.youtube.com/embed/VIDEO_ID
+
+   Leave empty ('') to show "No intro video yet".
+   ═══════════════════════════════════════════════════════════════════════════ */
+const JARVIS_INTRO_VIDEO_URL_FALLBACK = '';
+const INTRO_VIDEO_PATH = 'chats/_jarvis_intro';
+
+function buildIntroYouTubeEmbedUrl(url) {
+  var raw = String(url || '').trim();
+  if (!raw) return '';
+  var id = null;
+  try { id = getYouTubeId(raw); } catch (e) {}
+  if (!id) return '';
   return 'https://www.youtube.com/embed/' + id + '?autoplay=1&mute=1&playsinline=1&rel=0&loop=1&playlist=' + id;
 }
 /* ═══════════════════════════════════════════════════════════════════════════ */
@@ -674,6 +712,7 @@ const App = {
   pendingCallTarget: null, pendingCallType: false, pendingBg: 'none',
   isIOS: window.__jarvisIsIOS === true, isStandalone: window.__jarvisIsStandalone === true,
   _cloudSynced: false, _contactsListener: null, _groupsListener: null, _activeStreamsListener: null,
+  _introVideoListener: null,
   listenerWatchdogs: {}, listenerAttempts: {}, processedInvites: {},
   liveMode: null, liveStreamId: null, liveHostSlug: null, liveLocalStream: null,
   livePeerConns: {}, liveHostPC: null, liveUnsubs: [], activeLiveStreams: {},
@@ -687,7 +726,8 @@ const App = {
   liveRecordedBlob: null, liveRecordedFileName: null, liveChatBuffer: [],
   incomingRequests: {}, sentRequests: {}, publicUsers: {},
   _friendReqListener: null, _publicUsersListener: null,
-  networkMode: 'normal', userLiteMode: false, liteMode: false, lastConnectionType: ''
+  networkMode: 'normal', userLiteMode: false, liteMode: false, lastConnectionType: '',
+  introVideoUrl: '', introVideoType: ''
 };
 
 let currentAuthUser = null;
@@ -735,6 +775,119 @@ function frParseKey(key) {
   if (parts.length !== 2) return null;
   return { from: parts[0], to: parts[1] };
 }
+
+/* ============ INTRO VIDEO ============ */
+function listenIntroVideo() {
+  if (App._introVideoListener) { try { if (typeof App._introVideoListener === 'function') App._introVideoListener(); } catch (e) {} App._introVideoListener = null; }
+  try {
+    App._introVideoListener = onValue(dbRef(db, INTRO_VIDEO_PATH), function(snap) {
+      var d = snap.val() || {};
+      var url = d.videoUrl || JARVIS_INTRO_VIDEO_URL_FALLBACK || '';
+      var type = d.videoType || (url && getYouTubeId(url) ? 'youtube' : (url ? 'file' : ''));
+      App.introVideoUrl = url;
+      App.introVideoType = type;
+      try { LS.set('introVideoUrl', url); LS.set('introVideoType', type); } catch (e) {}
+      renderIntroVideo(url, type);
+    }, function(err) {
+      console.warn('Intro video listener error:', err);
+      var cachedUrl = LS.get('introVideoUrl', '') || JARVIS_INTRO_VIDEO_URL_FALLBACK || '';
+      var cachedType = LS.get('introVideoType', '');
+      App.introVideoUrl = cachedUrl;
+      App.introVideoType = cachedType;
+      renderIntroVideo(cachedUrl, cachedType);
+    });
+  } catch (e) { console.warn(e); }
+}
+
+function renderIntroVideo(url, type) {
+  var wrap = $('introVideoPlayerWrap');
+  var changeBtn = $('changeIntroVideoBtn');
+  if (changeBtn) changeBtn.style.display = isOwner() ? 'inline-block' : 'none';
+  if (!wrap) return;
+
+  if (!url) {
+    wrap.innerHTML = '<div id="introVideoEmpty"><div class="icon">📹</div><div>No intro video yet</div>' + (isOwner() ? '<div style="font-size:12px;opacity:.7;margin-top:6px;">Tap "📹 Change" above to add one</div>' : '') + '</div>';
+    return;
+  }
+
+  if (type === 'youtube' || getYouTubeId(url)) {
+    var ytSrc = buildIntroYouTubeEmbedUrl(url);
+    if (ytSrc) {
+      wrap.innerHTML = '<iframe src="' + ytSrc + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
+      return;
+    }
+  }
+
+  wrap.innerHTML = '<video id="introVideoEl" src="' + esc(url) + '" autoplay muted playsinline controls preload="metadata"></video>';
+}
+
+window.__openChangeIntroVideo = function() {
+  if (!isOwner()) return toast('Only the owner can change the welcome video', true);
+  var ytInput = $('introYtInput');
+  var fileInput = $('introVideoFileInput');
+  if (ytInput) ytInput.value = (App.introVideoType === 'youtube') ? App.introVideoUrl : '';
+  if (fileInput) fileInput.value = '';
+  $('changeIntroVideoModal').classList.add('show');
+};
+
+window.__saveIntroVideo = async function() {
+  if (!isOwner()) return toast('Only the owner can change this', true);
+  var ytUrl = ($('introYtInput') ? $('introYtInput').value.trim() : '');
+  var fileInput = $('introVideoFileInput');
+  var file = fileInput && fileInput.files && fileInput.files[0];
+  var btn = $('introVideoSaveBtn');
+
+  if (!ytUrl && !file) return toast('Paste a YouTube URL or select a video file', true);
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+  try {
+    if (ytUrl) {
+      var ytId = getYouTubeId(ytUrl);
+      if (!ytId) { toast('Invalid YouTube URL', true); return; }
+      await set(dbRef(db, INTRO_VIDEO_PATH), {
+        videoUrl: ytUrl,
+        videoType: 'youtube',
+        updatedAt: Date.now(),
+        updatedBy: App.mySlug
+      });
+      toast('✓ Welcome video updated');
+    } else if (file) {
+      if (file.size > 3 * 1024 * 1024) {
+        toast('Video too large (max 3 MB). Use YouTube instead.', true);
+        return;
+      }
+      toast('Processing video… (up to 30 seconds)');
+      var dataUrl = await fileToBase64(file);
+      await set(dbRef(db, INTRO_VIDEO_PATH), {
+        videoUrl: dataUrl,
+        videoType: 'file',
+        updatedAt: Date.now(),
+        updatedBy: App.mySlug
+      });
+      toast('✓ Welcome video uploaded');
+    }
+    $('changeIntroVideoModal').classList.remove('show');
+    if ($('introYtInput')) $('introYtInput').value = '';
+    if (fileInput) fileInput.value = '';
+  } catch (e) {
+    console.error('Save intro video failed:', e);
+    toast('Failed to save: ' + (e.message || 'unknown'), true);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Save'; }
+  }
+};
+
+window.__clearIntroVideo = async function() {
+  if (!isOwner()) return toast('Only the owner can remove this', true);
+  if (!confirm('Remove the welcome video? Your contact card will still show.')) return;
+  try {
+    await remove(dbRef(db, INTRO_VIDEO_PATH));
+    toast('✓ Welcome video removed');
+    $('changeIntroVideoModal').classList.remove('show');
+  } catch (e) { toast('Failed to remove', true); }
+};
+/* ============ END INTRO VIDEO ============ */
 
 function detectNetworkMode() {
   if (!navigator.onLine) return 'offline';
@@ -1419,6 +1572,7 @@ function startMainApp() {
   listenActiveLiveStreams();
   listenFriendRequests();
   listenPublicUsers();
+  listenIntroVideo();
   ensureBootstrap();
   updateNewUsersBadge();
   var changed = false;
@@ -1487,7 +1641,7 @@ async function forceFullRefresh() {
     for (var j = 0; j < App.contacts.length; j++) if (!App.globalUnsubs[App.contacts[j].slug]) setupMessageListener(App.contacts[j].slug, false);
     for (var k = 0; k < App.groups.length; k++) if (!App.globalUnsubs[App.groups[k].id]) setupGroupMessageListener(App.groups[k].id);
     buildUI(); listenUserStatuses(); listenSelfGroups(); listenActiveLiveStreams();
-    listenFriendRequests(); listenPublicUsers(); ensureBootstrap(); updateNewUsersBadge();
+    listenFriendRequests(); listenPublicUsers(); listenIntroVideo(); ensureBootstrap(); updateNewUsersBadge();
     updateSyncIndicator('live');
     toast('Refreshed ✓');
   } catch (err) { toast('Refresh failed', true); }
@@ -1526,6 +1680,7 @@ function updateProfileHeader() {
   if (App.myPhoto) { if (pImg) { pImg.src = App.myPhoto; pImg.style.display = 'block'; } if (pLetter) pLetter.style.display = 'none'; }
   else { if (pImg) pImg.style.display = 'none'; if (pLetter) { pLetter.textContent = (App.myName || 'G').charAt(0).toUpperCase(); pLetter.style.display = 'inline'; } }
   var ownerTrigger = $('ownerPortalTrigger'); if (ownerTrigger) ownerTrigger.style.display = isOwner() ? 'block' : 'none';
+  var changeBtn = $('changeIntroVideoBtn'); if (changeBtn) changeBtn.style.display = isOwner() ? 'inline-block' : 'none';
 }
 
 function saveContacts() { LS.set('contacts', App.contacts); }
@@ -2662,13 +2817,6 @@ for (var i = 0; i < nb.length; i++) (function(b) {
     $('headerTitle').textContent = t === 'chats' ? 'Friend List' : t === 'newusers' ? 'All Users' : t.charAt(0).toUpperCase() + t.slice(1);
     if (t === 'voicemail') listenVoicemails();
     if (t === 'status') {
-      var nbcFrame = document.getElementById('nbcLiveIframe');
-      if (nbcFrame && (!nbcFrame.src || nbcFrame.src === 'about:blank' || nbcFrame.src === window.location.href)) {
-        var nbcSrc = buildNbcLiveEmbedUrl();
-        if (nbcSrc && nbcSrc !== 'about:blank') {
-          nbcFrame.src = nbcSrc;
-        }
-      }
       renderActiveLiveStreams();
     }
     if (t === 'newusers') { renderNewUsersTab(); updateNewUsersBadge(); }
