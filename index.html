@@ -83,6 +83,12 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .badge-unread{background:#ff4757;color:#fff;font-size:13px !important;font-weight:800;padding:2px 9px;border-radius:12px;min-width:22px;text-align:center;box-shadow:0 2px 6px rgba(255,71,87,.4)}
 .list-item-sub{font-size:14px !important;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .list-item-action{font-size:19px !important;color:var(--muted)}
+.friend-actions{display:flex;gap:4px;flex-shrink:0;align-items:center;}
+.friend-actions button{width:38px;height:38px;border-radius:50%;border:none;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+.fa-call{background:#e0f2fe;color:#0b2a4a;}
+.fa-video{background:#dcfce7;color:#0b2a4a;}
+.fa-block{background:#fff0f0;color:#ff4757;}
+.fa-chat{background:#f2f5f8;color:#0b2a4a;}
 .empty{text-align:center;padding:50px 30px;color:var(--muted);font-size:16px !important}
 .empty .empty-icon{font-size:46px;margin-bottom:10px;opacity:.5}
 .fab-container{position:absolute;bottom:84px;right:20px;display:flex;flex-direction:column;gap:12px;z-index:9}
@@ -258,6 +264,9 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .req-btn-reject{background:#ff4757;color:#fff;border:none;padding:8px 12px;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer}
 .req-btn-add{background:linear-gradient(135deg,#0d7a8c,#0a6474);color:#fff;border:none;padding:8px 14px;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer}
 .req-btn-sent{background:#e1e7ed;color:#6b7a87;border:none;padding:8px 12px;border-radius:14px;font-size:12px;font-weight:600;cursor:pointer}
+.friend-badge{background:#dcfce7;color:#0b2a4a;border:none;padding:8px 14px;border-radius:14px;font-size:12px;font-weight:700}
+.blocked-badge{background:#fff0f0;color:#ff4757;border:none;padding:8px 14px;border-radius:14px;font-size:12px;font-weight:700}
+.pending-badge{background:#fff8e1;color:#8b6914;border:none;padding:8px 14px;border-radius:14px;font-size:12px;font-weight:600}
 @media (max-width: 540px) {
   .live-chat-side{width:45%;min-width:150px;max-width:230px}
   .live-chat-msg{font-size:12px;padding:5px 6px}
@@ -269,6 +278,8 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   #liveLocalAvatar { width: 90px; height: 70px; }
   #liveLocalAvatar .letter.small { width: 50px; height: 50px; font-size: 24px; }
   .save-rec-btn { padding: 13px; font-size: 14px; }
+  .friend-actions button{width:34px;height:34px;font-size:15px;}
+  .req-btn-add,.req-btn-sent,.req-btn-accept,.req-btn-reject,.friend-badge,.blocked-badge,.pending-badge{padding:7px 10px;font-size:11px;}
 }
 @media (min-width: 640px) {
   body{padding:16px;background:#e4e9ef}
@@ -353,14 +364,14 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   <header class="app-header">
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
-    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v10</div>
+    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v11</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
   <div id="tabNewusers" class="tab-content" style="display:none;">
     <div class="section-title" id="incomingReqHeader" style="display:none;color:#d4af37;">📩 Friend Requests</div>
     <div id="incomingRequestsList"></div>
-    <div class="section-title">✨ New Jarvis Users</div>
+    <div class="section-title">✨ All Jarvis Users</div>
     <div id="newUsersList"></div>
   </div>
   <div id="tabStatus" class="tab-content" style="display:none;">
@@ -739,7 +750,7 @@ async function ensureBootstrap() {
   }
 }
 
-/* ============ FIXED FRIEND REQUESTS via top-level friend_requests node ============ */
+/* ============ FRIEND REQUESTS via shared friend_requests node ============ */
 function listenFriendRequests() {
   if (!App.mySlug) return;
   if (App._friendReqListener) { try { if (typeof App._friendReqListener === 'function') App._friendReqListener(); } catch (e) {} App._friendReqListener = null; }
@@ -764,6 +775,7 @@ function listenFriendRequests() {
               setupMessageListener(p.to, false);
               saveContacts();
               if (debouncedBuildUI) debouncedBuildUI();
+              renderNewUsersTab();
               toast('✓ @' + p.to + ' accepted your request');
             }).catch(function(){});
           }
@@ -782,6 +794,7 @@ window.__sendFriendRequest = async function(targetSlug) {
   if (findContact(targetSlug)) return toast('Already friends', true);
   if (App.sentRequests[targetSlug] && App.sentRequests[targetSlug].status === 'pending') return toast('Request already sent', true);
   if (App.incomingRequests[targetSlug]) return toast('They already sent you a request — accept it above', true);
+  if (App.blockedUsers.indexOf(targetSlug) !== -1) return toast('Unblock this user first', true);
   var key = frPairKey(App.mySlug, targetSlug);
   var tInfo = (App.publicUsers || {})[targetSlug] || {};
   try {
@@ -820,6 +833,7 @@ window.__acceptFriendRequest = async function(fromSlug) {
     setupMessageListener(fromSlug, false);
     saveContacts();
     if (debouncedBuildUI) debouncedBuildUI();
+    renderNewUsersTab();
     toast('✓ Now friends with @' + fromSlug);
   } catch (e) {
     console.error('Accept failed:', e);
@@ -843,7 +857,7 @@ window.__cancelFriendRequest = async function(toSlug) {
     toast('Request cancelled');
   } catch (e) { toast('Failed: ' + (e.message || 'unknown'), true); }
 };
-/* ============ END FIXED FRIEND REQUESTS ============ */
+/* ============ END FRIEND REQUESTS ============ */
 
 function listenPublicUsers() {
   if (App._publicUsersListener) { try { if (typeof App._publicUsersListener === 'function') App._publicUsersListener(); } catch (e) {} App._publicUsersListener = null; }
@@ -870,12 +884,14 @@ function updateNewUsersBadge() {
   }
 }
 
+/* ============ ALL USERS TAB — shows EVERYONE with relationship status ============ */
 function renderNewUsersTab() {
   var incomingList = $('incomingRequestsList');
   var newUsersList = $('newUsersList');
   var incomingHeader = $('incomingReqHeader');
   if (!incomingList || !newUsersList) return;
 
+  /* --- Incoming requests section --- */
   var incKeys = Object.keys(App.incomingRequests);
   if (incKeys.length) {
     if (incomingHeader) incomingHeader.style.display = 'block';
@@ -898,32 +914,48 @@ function renderNewUsersTab() {
     incomingList.innerHTML = '';
   }
 
+  /* --- ALL users section (excluding self) --- */
   var users = App.publicUsers || {};
   var keys = Object.keys(users).filter(function(slug) {
-    if (slug === App.mySlug) return false;
-    if (App.blockedUsers.indexOf(slug) !== -1) return false;
-    if (findContact(slug)) return false;
-    if (App.incomingRequests[slug] !== undefined) return false;
-    return true;
+    return slug !== App.mySlug;
   });
   keys.sort(function(a, b) { return ((users[b] && users[b].created) || 0) - ((users[a] && users[a].created) || 0); });
 
   if (!keys.length) {
-    newUsersList.innerHTML = '<div class="empty"><div class="empty-icon">✨</div><p>No new users to discover right now.<br>Check back later!</p></div>';
+    newUsersList.innerHTML = '<div class="empty"><div class="empty-icon">✨</div><p>No other users yet.<br>Invite someone to join JARVIS!</p></div>';
     return;
   }
+
   var h2 = '';
   keys.forEach(function(slug) {
     var u = users[slug] || {};
+    var isFriend = !!findContact(slug);
+    var isBlocked = App.blockedUsers.indexOf(slug) !== -1;
+    var isIncoming = !!App.incomingRequests[slug];
     var sentReq = App.sentRequests[slug];
     var isOutgoing = sentReq && sentReq.status === 'pending';
+
     var actionHtml;
-    if (isOutgoing) { actionHtml = '<button class="req-btn-sent" onclick="window.__cancelFriendRequest(\'' + esc(slug) + '\')">Request Sent · Cancel</button>'; }
-    else { actionHtml = '<button class="req-btn-add" onclick="window.__sendFriendRequest(\'' + esc(slug) + '\')">+ Add Friend</button>'; }
+    if (isBlocked) {
+      actionHtml = '<button class="blocked-badge" onclick="window.unblockUser(\'' + esc(slug) + '\')" style="cursor:pointer;">🚫 Unblock</button>';
+    } else if (isFriend) {
+      actionHtml = '<span class="friend-badge">✓ Friends</span>';
+    } else if (isIncoming) {
+      actionHtml = '<span class="pending-badge">📩 Check requests above</span>';
+    } else if (isOutgoing) {
+      actionHtml = '<button class="req-btn-sent" onclick="window.__cancelFriendRequest(\'' + esc(slug) + '\')">Request Sent · Cancel</button>';
+    } else {
+      actionHtml = '<button class="req-btn-add" onclick="window.__sendFriendRequest(\'' + esc(slug) + '\')">+ Add Friend</button>';
+    }
+
     var timeLabel = u.created ? timeAgo(u.created) : '';
+    var statusLine = '@' + esc(slug) + (timeLabel ? ' · joined ' + timeLabel : '');
+    if (isBlocked) statusLine += ' · 🚫 Blocked';
+    else if (isFriend) statusLine += ' · Friends';
+
     h2 += '<div class="list-item">' +
       '<div class="avatar" onclick="window.__viewAvatar(\'' + (u.photo || '') + '\',\'' + esc(u.name || slug) + '\')">' + avatarInner(u.photo, u.name) + '</div>' +
-      '<div class="list-item-body"><div class="list-item-title">' + esc(u.name || slug) + '</div><div class="list-item-sub">@' + esc(slug) + (timeLabel ? ' · ' + timeLabel : '') + '</div></div>' +
+      '<div class="list-item-body"><div class="list-item-title">' + esc(u.name || slug) + '</div><div class="list-item-sub">' + statusLine + '</div></div>' +
       '<div style="flex-shrink:0;">' + actionHtml + '</div>' +
       '</div>';
   });
@@ -1336,7 +1368,7 @@ async function restoreCloudContent() {
         if (!snap.exists()) { updateSyncIndicator('live'); return; }
         var data = snap.val() || {}, slugs = Object.keys(data), changed = false;
         for (var i2 = 0; i2 < slugs.length; i2++) { var c = data[slugs[i2]]; if (c && c.slug && !findContact(c.slug)) { App.contacts.push({ slug: c.slug, name: c.name || c.slug, photo: c.photo || null }); App.lastSeenTimes[c.slug] = App.lastSeenTimes[c.slug] || Date.now(); setupMessageListener(c.slug, false); changed = true; } }
-        if (changed) { saveContacts(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); }
+        if (changed) { saveContacts(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); renderNewUsersTab(); }
         App._cloudSynced = true; updateSyncIndicator('live');
       }, function(error) { App._contactsListener = null; updateSyncIndicator('error'); setTimeout(function() { if (App.mySlug) restoreCloudContent(); }, 5000); });
     }
@@ -1375,16 +1407,26 @@ function renderBlockedUsersList() {
 window.blockUser = function(slug) {
   if (!slug || slug === App.mySlug) return;
   if (App.blockedUsers.indexOf(slug) !== -1) return toast('Already blocked', true);
-  if (confirm('Block @' + slug + '?')) {
+  if (confirm('Block @' + slug + '?\n\nThey will be removed from your friends and you will not receive messages from them until you unblock.')) {
     App.blockedUsers.push(slug); saveBlockedUsers();
     App.contacts = App.contacts.filter(function(c) { return c.slug !== slug; }); saveContacts();
-    renderBlockedUsersList(); buildUI();
-    if (App.activeChat === slug) { App.activeChat = null; showScreen('screen-main'); }
     try { remove(dbRef(db, 'users/' + App.mySlug + '/contacts/' + slug)).catch(function(){}); } catch (e) {}
-    toast('Blocked ✓');
+    try { remove(dbRef(db, FR_PATH + '/' + frPairKey(App.mySlug, slug))).catch(function(){}); } catch (e) {}
+    try { remove(dbRef(db, FR_PATH + '/' + frPairKey(slug, App.mySlug))).catch(function(){}); } catch (e) {}
+    renderBlockedUsersList(); buildUI(); renderNewUsersTab();
+    if (App.activeChat === slug) { App.activeChat = null; showScreen('screen-main'); }
+    toast('🚫 Blocked @' + slug + ' — unblock anytime from New Users tab or Profile');
   }
 };
-window.unblockUser = function(slug) { App.blockedUsers = App.blockedUsers.filter(function(s) { return s !== slug; }); saveBlockedUsers(); renderBlockedUsersList(); buildUI(); toast('Unblocked ✓'); };
+window.unblockUser = function(slug) {
+  if (!slug) return;
+  App.blockedUsers = App.blockedUsers.filter(function(s) { return s !== slug; });
+  saveBlockedUsers();
+  renderBlockedUsersList();
+  buildUI();
+  renderNewUsersTab();
+  toast('✓ Unblocked @' + slug + ' — you can now send a friend request');
+};
 
 function listenIncomingCalls() {
   onChildAdded(dbRef(db, 'calls/' + App.mySlug), function(snap) {
@@ -1439,6 +1481,7 @@ function setupMessageListener(id, isGroup) {
 }
 function setupGroupMessageListener(id) { setupMessageListener(id, true); }
 
+/* ============ FRIEND LIST — now with Call + Block action buttons ============ */
 function buildUI() {
   var cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient');
   var html = '';
@@ -1452,13 +1495,22 @@ function buildUI() {
   html += '<div class="section-title">Friend List</div>';
   if (!App.contacts.length) {
     var syncState = App._cloudSynced === true ? '' : '<div style="margin-top:10px;color:#d4af37;font-size:13px;">Syncing…</div>';
-    html += '<div class="empty"><div class="empty-icon">💬</div><p>No contacts yet.<br>Tap <strong>＋</strong> to send a request.</p>' + syncState + '</div>';
+    html += '<div class="empty"><div class="empty-icon">💬</div><p>No contacts yet.<br>Tap <strong>✨ New Users</strong> to send a friend request.</p>' + syncState + '</div>';
   } else {
     for (var j = 0; j < App.contacts.length; j++) {
       var c = App.contacts[j], uc = App.unreadCounts[c.slug] || 0;
       var isLive = App.activeLiveStreams[c.slug] && App.activeLiveStreams[c.slug].streamId;
       var liveBadge = isLive ? ' <span style="color:#ff4757;font-weight:700;font-size:12px;">● LIVE</span>' : '';
-      html += '<div class="list-item" onclick="window.__openChat(\'' + c.slug + '\', false)"><div class="avatar" onclick="event.stopPropagation(); window.__viewAvatar(\'' + (c.photo || '') + '\',\'' + esc(c.name) + '\')">' + avatarInner(c.photo, c.name) + '</div><div class="list-item-body"><div class="list-item-header"><div class="list-item-title">' + esc(c.name) + liveBadge + '</div>' + (uc > 0 ? '<div class="badge-unread">' + uc + '</div>' : '') + '</div><div class="list-item-sub">@' + c.slug + '</div></div><div class="list-item-action">›</div></div>';
+      html += '<div class="list-item" onclick="window.__openChat(\'' + c.slug + '\', false)">' +
+        '<div class="avatar" onclick="event.stopPropagation(); window.__viewAvatar(\'' + (c.photo || '') + '\',\'' + esc(c.name) + '\')">' + avatarInner(c.photo, c.name) + '</div>' +
+        '<div class="list-item-body"><div class="list-item-header"><div class="list-item-title">' + esc(c.name) + liveBadge + '</div>' + (uc > 0 ? '<div class="badge-unread">' + uc + '</div>' : '') + '</div><div class="list-item-sub">@' + c.slug + '</div></div>' +
+        '<div class="friend-actions">' +
+          '<button class="fa-chat" title="Chat" onclick="event.stopPropagation(); window.__openChat(\'' + c.slug + '\', false)">💬</button>' +
+          '<button class="fa-call" title="Voice Call" onclick="event.stopPropagation(); window.startCall(\'' + c.slug + '\', false)">📞</button>' +
+          '<button class="fa-video" title="Video Call" onclick="event.stopPropagation(); window.startCall(\'' + c.slug + '\', true)">📹</button>' +
+          '<button class="fa-block" title="Block" onclick="event.stopPropagation(); window.blockUser(\'' + c.slug + '\')">🚫</button>' +
+        '</div>' +
+      '</div>';
     }
   }
   if (cl) cl.innerHTML = html;
@@ -1633,6 +1685,7 @@ $('modalConfirm').addEventListener('click', async function() {
   if (findContact(slug)) return toast('Already friends', true);
   if (App.sentRequests[slug] && App.sentRequests[slug].status === 'pending') return toast('Request already sent', true);
   if (App.incomingRequests[slug]) return toast('They already sent you a request — check New Users tab', false);
+  if (App.blockedUsers.indexOf(slug) !== -1) return toast('Unblock this user first', true);
   var btn = $('modalConfirm'); btn.disabled = true; btn.textContent = 'Sending…';
   try {
     var emailSnap;
@@ -2653,7 +2706,7 @@ $('bgGalleryClose').addEventListener('click', function() { $('bgGalleryModal').c
 window.__applyBackground = async function(k) { try { var r = await buildActiveStream(k); if (App.videoSender && r.videoTrack) await App.videoSender.replaceTrack(r.videoTrack); App.currentBg = k; buildBgGallery(); $('bgGalleryModal').classList.remove('show'); toast('Applied ✓'); } catch (e) { toast('Failed', true); } };
 function buildPreBg() { var g = $('preCallBgGrid'); if (!g) return; var h = ''; for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) { var b = PROFESSIONAL_BACKGROUNDS[i], p; if (b.type === 'image') p = '<img src="' + b.url + '">'; else if (b.type === 'filter') p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);filter:' + b.value + ';"></div>'; else p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);"></div>'; h += '<div class="bg-tile' + (App.pendingBg === b.key ? ' active' : '') + '" onclick="window.__selectPreBg(\'' + b.key + '\')" style="height:60px;">' + p + '<div class="bg-tile-label" style="font-size:11px;">' + b.label + '</div></div>'; } g.innerHTML = h; }
 window.__selectPreBg = function(k) { App.pendingBg = k; buildPreBg(); };
-window.startCall = function(slug, v) { if (!slug || slug === App.mySlug) return toast('Invalid contact', true); showPreCall(slug, v); };
+window.startCall = function(slug, v) { if (!slug || slug === App.mySlug) return toast('Invalid contact', true); if (App.blockedUsers.indexOf(slug) !== -1) return toast('Unblock this user first', true); showPreCall(slug, v); };
 function showPreCall(slug, v) {
   App.pendingCallTarget = slug; App.pendingCallType = v; App.pendingBg = 'none';
   $('preCallTitle').textContent = v ? '🎥 Video Call Setup' : '📞 Voice Call Setup';
@@ -2790,7 +2843,7 @@ for (var i = 0; i < nb.length; i++) (function(b) {
     for (var k = 0; k < tabs.length; k++) tabs[k].style.display = 'none';
     var tab = $('tab' + t.charAt(0).toUpperCase() + t.slice(1));
     if (tab) tab.style.display = 'block';
-    $('headerTitle').textContent = t === 'chats' ? 'Friend List' : t === 'newusers' ? 'New Users' : t.charAt(0).toUpperCase() + t.slice(1);
+    $('headerTitle').textContent = t === 'chats' ? 'Friend List' : t === 'newusers' ? 'All Users' : t.charAt(0).toUpperCase() + t.slice(1);
     if (t === 'voicemail') listenVoicemails();
     if (t === 'status') {
       var nbcFrame = document.getElementById('nbcLiveIframe');
