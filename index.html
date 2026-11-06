@@ -353,7 +353,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   <header class="app-header">
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
-    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v9</div>
+    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v10</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
@@ -590,6 +590,7 @@ const LIVE_ACTIVE_PATH = LIVE_BASE_PATH + '/active';
 const LIVE_STREAMS_PATH = LIVE_BASE_PATH + '/streams';
 const OWNER_SLUG = 'gesnerdeslandes';
 const OWNER_NAME = 'Gesner Deslandes';
+const FR_PATH = 'friend_requests';
 
 let fbApp, db, auth;
 try { fbApp = initializeApp(firebaseConfig); db = getDatabase(fbApp); auth = getAuth(fbApp); }
@@ -622,7 +623,7 @@ const App = {
   liveBgVideo: null, liveBgAnimFrame: null, liveCameraStates: {},
   liveRecordedBlob: null, liveRecordedFileName: null, liveChatBuffer: [],
   incomingRequests: {}, sentRequests: {}, publicUsers: {},
-  _friendReqListener: null, _sentReqListener: null, _publicUsersListener: null
+  _friendReqListener: null, _publicUsersListener: null
 };
 
 let currentAuthUser = null;
@@ -663,6 +664,12 @@ function getYouTubeId(url) {
   var u = String(url).trim();
   var m = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|live\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
   return m ? m[1] : null;
+}
+function frPairKey(from, to) { return from + '__to__' + to; }
+function frParseKey(key) {
+  var parts = String(key).split('__to__');
+  if (parts.length !== 2) return null;
+  return { from: parts[0], to: parts[1] };
 }
 
 async function getLiveStreamRobust() {
@@ -732,24 +739,111 @@ async function ensureBootstrap() {
   }
 }
 
+/* ============ FIXED FRIEND REQUESTS via top-level friend_requests node ============ */
 function listenFriendRequests() {
   if (!App.mySlug) return;
   if (App._friendReqListener) { try { if (typeof App._friendReqListener === 'function') App._friendReqListener(); } catch (e) {} App._friendReqListener = null; }
-  if (App._sentReqListener) { try { if (typeof App._sentReqListener === 'function') App._sentReqListener(); } catch (e) {} App._sentReqListener = null; }
   try {
-    App._friendReqListener = onValue(dbRef(db, 'users/' + App.mySlug + '/friendRequests'), function(snap) {
-      App.incomingRequests = snap.val() || {};
+    App._friendReqListener = onValue(dbRef(db, FR_PATH), function(snap) {
+      var all = snap.val() || {};
+      var incoming = {}, sent = {};
+      Object.keys(all).forEach(function(key) {
+        var req = all[key];
+        if (!req) return;
+        var p = frParseKey(key);
+        if (!p) return;
+        if (p.to === App.mySlug && req.status === 'pending') {
+          incoming[p.from] = req;
+        }
+        if (p.from === App.mySlug) {
+          sent[p.to] = req;
+          if (req.status === 'accepted' && !findContact(p.to)) {
+            set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + p.to), {
+              slug: p.to, name: req.toName || p.to, photo: req.toPhoto || null, time: Date.now()
+            }).then(function() {
+              setupMessageListener(p.to, false);
+              saveContacts();
+              if (debouncedBuildUI) debouncedBuildUI();
+              toast('✓ @' + p.to + ' accepted your request');
+            }).catch(function(){});
+          }
+        }
+      });
+      App.incomingRequests = incoming;
+      App.sentRequests = sent;
       renderNewUsersTab();
       updateNewUsersBadge();
-    }, function(err) {});
-  } catch (e) {}
-  try {
-    App._sentReqListener = onValue(dbRef(db, 'users/' + App.mySlug + '/friendRequestsSent'), function(snap) {
-      App.sentRequests = snap.val() || {};
-      renderNewUsersTab();
-    }, function(err) {});
-  } catch (e) {}
+    }, function(err) { console.warn('Friend request listener error:', err); });
+  } catch (e) { console.warn(e); }
 }
+
+window.__sendFriendRequest = async function(targetSlug) {
+  if (!targetSlug || targetSlug === App.mySlug) return;
+  if (findContact(targetSlug)) return toast('Already friends', true);
+  if (App.sentRequests[targetSlug] && App.sentRequests[targetSlug].status === 'pending') return toast('Request already sent', true);
+  if (App.incomingRequests[targetSlug]) return toast('They already sent you a request — accept it above', true);
+  var key = frPairKey(App.mySlug, targetSlug);
+  var tInfo = (App.publicUsers || {})[targetSlug] || {};
+  try {
+    await set(dbRef(db, FR_PATH + '/' + key), {
+      from: App.mySlug,
+      to: targetSlug,
+      fromName: App.myName,
+      toName: tInfo.name || targetSlug,
+      photo: App.myPhoto || null,
+      toPhoto: tInfo.photo || null,
+      status: 'pending',
+      time: Date.now()
+    });
+    toast('Friend request sent to @' + targetSlug + ' ✓');
+  } catch (e) {
+    console.error('Send failed:', e);
+    var msg = String((e && e.message) || 'unknown');
+    if (msg.toLowerCase().indexOf('permission') !== -1) {
+      toast('Firebase rules must allow friend_requests writes. See README.', true);
+    } else {
+      toast('Failed to send: ' + msg, true);
+    }
+  }
+};
+
+window.__acceptFriendRequest = async function(fromSlug) {
+  var req = App.incomingRequests[fromSlug];
+  if (!req) return toast('Request not found', true);
+  var key = frPairKey(fromSlug, App.mySlug);
+  try {
+    await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + fromSlug), {
+      slug: fromSlug, name: req.fromName || fromSlug, photo: req.photo || null, time: Date.now()
+    });
+    await set(dbRef(db, FR_PATH + '/' + key + '/status'), 'accepted');
+    await set(dbRef(db, FR_PATH + '/' + key + '/acceptedAt'), Date.now());
+    setupMessageListener(fromSlug, false);
+    saveContacts();
+    if (debouncedBuildUI) debouncedBuildUI();
+    toast('✓ Now friends with @' + fromSlug);
+  } catch (e) {
+    console.error('Accept failed:', e);
+    toast('Accept failed: ' + (e.message || 'unknown'), true);
+  }
+};
+
+window.__rejectFriendRequest = async function(fromSlug) {
+  var key = frPairKey(fromSlug, App.mySlug);
+  try {
+    await set(dbRef(db, FR_PATH + '/' + key + '/status'), 'rejected');
+    await set(dbRef(db, FR_PATH + '/' + key + '/rejectedAt'), Date.now());
+    toast('Request rejected');
+  } catch (e) { toast('Failed: ' + (e.message || 'unknown'), true); }
+};
+
+window.__cancelFriendRequest = async function(toSlug) {
+  var key = frPairKey(App.mySlug, toSlug);
+  try {
+    await remove(dbRef(db, FR_PATH + '/' + key));
+    toast('Request cancelled');
+  } catch (e) { toast('Failed: ' + (e.message || 'unknown'), true); }
+};
+/* ============ END FIXED FRIEND REQUESTS ============ */
 
 function listenPublicUsers() {
   if (App._publicUsersListener) { try { if (typeof App._publicUsersListener === 'function') App._publicUsersListener(); } catch (e) {} App._publicUsersListener = null; }
@@ -821,7 +915,8 @@ function renderNewUsersTab() {
   var h2 = '';
   keys.forEach(function(slug) {
     var u = users[slug] || {};
-    var isOutgoing = App.sentRequests[slug] !== undefined;
+    var sentReq = App.sentRequests[slug];
+    var isOutgoing = sentReq && sentReq.status === 'pending';
     var actionHtml;
     if (isOutgoing) { actionHtml = '<button class="req-btn-sent" onclick="window.__cancelFriendRequest(\'' + esc(slug) + '\')">Request Sent · Cancel</button>'; }
     else { actionHtml = '<button class="req-btn-add" onclick="window.__sendFriendRequest(\'' + esc(slug) + '\')">+ Add Friend</button>'; }
@@ -834,46 +929,6 @@ function renderNewUsersTab() {
   });
   newUsersList.innerHTML = h2;
 }
-
-window.__sendFriendRequest = async function(targetSlug) {
-  if (!targetSlug || targetSlug === App.mySlug) return;
-  if (findContact(targetSlug)) return toast('Already friends', true);
-  if (App.sentRequests[targetSlug]) return toast('Request already sent', true);
-  if (App.incomingRequests[targetSlug]) return toast('They already sent you a request — check top of list', true);
-  try {
-    await set(dbRef(db, 'users/' + targetSlug + '/friendRequests/' + App.mySlug), { from: App.mySlug, fromName: App.myName, photo: App.myPhoto || null, time: Date.now() });
-    await set(dbRef(db, 'users/' + App.mySlug + '/friendRequestsSent/' + targetSlug), { to: targetSlug, time: Date.now() });
-    toast('Friend request sent to @' + targetSlug + ' ✓');
-  } catch (e) { console.error(e); toast('Failed to send request', true); }
-};
-
-window.__acceptFriendRequest = async function(fromSlug) {
-  var req = App.incomingRequests[fromSlug];
-  if (!req) return toast('Request not found', true);
-  try {
-    await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + fromSlug), { slug: fromSlug, name: req.fromName || fromSlug, photo: req.photo || null, time: Date.now() });
-    await set(dbRef(db, 'users/' + fromSlug + '/contacts/' + App.mySlug), { slug: App.mySlug, name: App.myName, photo: App.myPhoto || null, time: Date.now() });
-    await remove(dbRef(db, 'users/' + App.mySlug + '/friendRequests/' + fromSlug));
-    await remove(dbRef(db, 'users/' + fromSlug + '/friendRequestsSent/' + App.mySlug));
-    toast('✓ Now friends with @' + fromSlug);
-  } catch (e) { console.error(e); toast('Failed to accept request', true); }
-};
-
-window.__rejectFriendRequest = async function(fromSlug) {
-  try {
-    await remove(dbRef(db, 'users/' + App.mySlug + '/friendRequests/' + fromSlug));
-    await remove(dbRef(db, 'users/' + fromSlug + '/friendRequestsSent/' + App.mySlug));
-    toast('Request rejected');
-  } catch (e) { toast('Failed to reject request', true); }
-};
-
-window.__cancelFriendRequest = async function(toSlug) {
-  try {
-    await remove(dbRef(db, 'users/' + toSlug + '/friendRequests/' + App.mySlug));
-    await remove(dbRef(db, 'users/' + App.mySlug + '/friendRequestsSent/' + toSlug));
-    toast('Request cancelled');
-  } catch (e) { toast('Failed to cancel', true); }
-};
 
 async function handleSignUp() {
   var nameVal = $('signUpName').value.trim(), password = $('signUpPassword').value, confirmPwd = $('signUpPasswordConfirm').value, recoveryPhrase = $('signUpRecovery').value.trim();
@@ -1576,7 +1631,7 @@ $('modalConfirm').addEventListener('click', async function() {
   if (!slug) return toast('Enter a valid name', true);
   if (slug === App.mySlug) return toast('Cannot add yourself', true);
   if (findContact(slug)) return toast('Already friends', true);
-  if (App.sentRequests[slug]) return toast('Request already sent', true);
+  if (App.sentRequests[slug] && App.sentRequests[slug].status === 'pending') return toast('Request already sent', true);
   if (App.incomingRequests[slug]) return toast('They already sent you a request — check New Users tab', false);
   var btn = $('modalConfirm'); btn.disabled = true; btn.textContent = 'Sending…';
   try {
