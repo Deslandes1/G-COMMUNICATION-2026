@@ -298,6 +298,8 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .platform-tab[data-platform="linkedin"].active{background:linear-gradient(135deg,#0a66c2,#004182);border-color:#0a66c2}
 .platform-tab[data-platform="gmail"].active{background:linear-gradient(135deg,#ea4335,#c5221f);border-color:#ea4335}
 .platform-tab[data-platform="whatsapp"].active{background:linear-gradient(135deg,#25D366,#1da851);border-color:#25D366}
+.platform-tab[data-platform="zoom"].active{background:linear-gradient(135deg,#2D8CFF,#1a6dcc);border-color:#2D8CFF}
+.platform-tab[data-platform="meet"].active{background:linear-gradient(135deg,#00897B,#00695C);border-color:#00897B}
 .platform-panel{padding:12px}
 .social-input-row{display:flex;gap:8px;margin-bottom:10px}
 .social-input-row input{flex:1;padding:16px 18px;border:2px solid var(--border);border-radius:24px;font-size:17px;outline:none;background:#fff;min-width:0}
@@ -446,6 +448,8 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       <button class="platform-tab" data-platform="linkedin">💼 LinkedIn</button>
       <button class="platform-tab" data-platform="gmail">✉️ Gmail</button>
       <button class="platform-tab" data-platform="whatsapp">💚 WhatsApp</button>
+      <button class="platform-tab" data-platform="zoom">🎥 Zoom</button>
+      <button class="platform-tab" data-platform="meet">📹 Google Meet</button>
     </div>
     <div class="platform-panel" data-platform="youtube" id="panelYoutube">
       <div class="social-input-row">
@@ -547,21 +551,39 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       <div style="text-align:center;padding:24px 12px;">
         <div style="font-size:72px;margin-bottom:14px;">✉️</div>
         <h2 style="font-size:24px;font-weight:800;margin-bottom:10px;color:var(--text);">Gmail Inbox</h2>
-        <p style="font-size:16px;color:var(--muted);line-height:1.6;margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto;">Sign in to your Gmail account to check your inbox. Google's security policy blocks their inbox from being embedded inside other apps — but we open it in JARVIS's built-in browser so you never leave the app.</p>
-        <button id="gmailOpenBtn" class="social-action-btn" style="background:linear-gradient(135deg,#ea4335,#c5221f);"><span class="icon">🔑</span>Sign in to Gmail (opens in-app)</button>
-        <button id="gmailInboxBtn" class="social-action-btn" style="background:linear-gradient(135deg,#ea4335,#c5221f);"><span class="icon">📥</span>Go to Inbox (opens in-app)</button>
-        <div style="font-size:13px;color:var(--muted);margin-top:14px;line-height:1.5;">If Google blocks the page, a single "Open in browser" button appears — this is Google's restriction, not JARVIS.</div>
+        <p style="font-size:16px;color:var(--muted);line-height:1.6;margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto;">Opens Gmail in your device's browser for full Google sign-in and inbox access.</p>
+        <button id="gmailOpenBtn" class="social-action-btn" style="background:linear-gradient(135deg,#ea4335,#c5221f);"><span class="icon">🔑</span>Sign in to Gmail</button>
+        <button id="gmailInboxBtn" class="social-action-btn" style="background:linear-gradient(135deg,#ea4335,#c5221f);"><span class="icon">📥</span>Go to Inbox</button>
+        <div style="font-size:13px;color:var(--muted);margin-top:14px;line-height:1.5;">Launches your phone/computer's default browser. Sign in securely as usual.</div>
       </div>
     </div>
     <div class="platform-panel" data-platform="whatsapp" id="panelWhatsapp" style="display:none;">
       <div style="text-align:center;padding:24px 12px;">
         <div style="font-size:72px;margin-bottom:14px;">💚</div>
         <h2 style="font-size:24px;font-weight:800;margin-bottom:10px;color:var(--text);">WhatsApp Web</h2>
-        <p style="font-size:16px;color:var(--muted);line-height:1.6;margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto;">Connect your WhatsApp account using the QR code. The login page will open inside JARVIS. If WhatsApp blocks the frame, a single "Open in Browser" button appears.</p>
+        <p style="font-size:16px;color:var(--muted);line-height:1.6;margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto;">Connect your WhatsApp account using the QR code. Opens in your device's browser.</p>
         <button id="waOpenBtn" class="social-action-btn" style="background:linear-gradient(135deg,#25D366,#1da851);"><span class="icon">📱</span>Open WhatsApp Web (QR Login)</button>
         <button id="waHomeBtn" class="social-action-btn" style="background:linear-gradient(135deg,#25D366,#1da851);"><span class="icon">🌐</span>Open web.whatsapp.com</button>
-        <div style="font-size:13px;color:var(--muted);margin-top:14px;line-height:1.5;">WhatsApp Web also blocks iframe embedding for security. The in-app browser will attempt to load it; if it fails, you can open it in your device's browser.</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:14px;line-height:1.5;">Launches in your device's default browser. Full WhatsApp Web features available.</div>
       </div>
+    </div>
+    <div class="platform-panel" data-platform="zoom" id="panelZoom" style="display:none;">
+      <div class="social-input-row">
+        <input id="zoomInput" type="text" placeholder="Paste Zoom meeting link…" autocomplete="off">
+        <button id="zoomOpenBtn" style="background:linear-gradient(135deg,#2D8CFF,#1a6dcc);">Open</button>
+      </div>
+      <div class="social-hint">Paste a Zoom link (e.g. zoom.us/j/123456789). Opens inside JARVIS; if Zoom blocks embedding, tap the ↗ button in the top bar to open in browser.</div>
+      <button id="zoomHomeBtn" class="social-action-btn" style="background:linear-gradient(135deg,#2D8CFF,#1a6dcc);"><span class="icon">🏠</span>Open Zoom Home</button>
+      <div style="font-size:13px;color:var(--muted);margin-top:14px;line-height:1.5;text-align:center;">Zoom's security policy may prevent some links from loading in-app. Use ↗ to launch your system browser if needed.</div>
+    </div>
+    <div class="platform-panel" data-platform="meet" id="panelMeet" style="display:none;">
+      <div class="social-input-row">
+        <input id="meetInput" type="text" placeholder="Paste Google Meet link…" autocomplete="off">
+        <button id="meetOpenBtn" style="background:linear-gradient(135deg,#00897B,#00695C);">Open</button>
+      </div>
+      <div class="social-hint">Paste a Google Meet link (e.g. meet.google.com/abc-defg-hij). Opens inside JARVIS; if Meet blocks embedding, tap the ↗ button in the top bar.</div>
+      <button id="meetHomeBtn" class="social-action-btn" style="background:linear-gradient(135deg,#00897B,#00695C);"><span class="icon">🏠</span>Open Google Meet Home</button>
+      <div style="font-size:13px;color:var(--muted);margin-top:14px;line-height:1.5;text-align:center;">Google Meet's security policy may prevent some links from loading in-app. Use ↗ to launch your system browser if needed.</div>
     </div>
   </div>
   <div id="tabStatus" class="tab-content" style="display:none;">
@@ -2145,8 +2167,8 @@ $('lightboxClose').addEventListener('click', function() { $('lightbox').classLis
 $('clearBtn').addEventListener('click', function() { if (confirm('Clear local data?')) { if (App.liveMode) cleanupLive(); LS.del('mySlug'); LS.del('contacts'); LS.del('groups'); LS.del('unreadCounts'); LS.del('blockedUsers'); LS.del('cached_chats'); LS.del('cached_statuses'); LS.del('lastSeenTimes'); LS.del('userLiteMode'); LS.del('pinnedStatus'); LS.del('presence'); LS.del('ytRecent'); LS.del('youtubeApiKey'); location.reload(); } });
 
 /* ═══════════════════════════════════════════════════════════
-   SOCIAL HUB — YouTube, TikTok, Facebook, Instagram, LinkedIn, Gmail, WhatsApp
-   All features stay inside JARVIS via embeds and an in-app browser overlay.
+   SOCIAL HUB — YouTube, TikTok, Facebook, Instagram, LinkedIn (in-app)
+   Gmail, WhatsApp (external browser). Zoom & Meet (in-app browser).
    ═══════════════════════════════════════════════════════════ */
 
 /* ---------- IN-APP BROWSER OVERLAY ---------- */
@@ -2163,12 +2185,6 @@ var InAppBrowser = {
     $('iabFrame').style.display = 'block';
     setTimeout(function() {
       try { $('iabFrame').src = url; } catch (e) {}
-      // Auto-show blocked panel after 8s if we suspect the frame failed
-      setTimeout(function() {
-        if (!self.isOpen) return;
-        // We can't reliably detect X-Frame-Options from JS, so we give the user the fallback button proactively
-        // via the always-visible "Open in Browser" button in the header
-      }, 8000);
     }, 50);
   },
   showBlockedFallback: function(reason) {
@@ -2313,11 +2329,17 @@ function liLoadPost() {
   InAppBrowser.open(raw);
 }
 
-/* ---------- GMAIL ---------- */
-function gmailOpenInApp(url) { InAppBrowser.open(url); }
+/* ---------- GMAIL (external browser) ---------- */
+function gmailOpenExternally(url) { try { window.open(url, '_blank', 'noopener'); } catch (e) { location.href = url; } }
 
-/* ---------- WHATSAPP ---------- */
-function waOpenInApp(url) { InAppBrowser.open(url); }
+/* ---------- WHATSAPP (external browser) ---------- */
+function waOpenExternally(url) { try { window.open(url, '_blank', 'noopener'); } catch (e) { location.href = url; } }
+
+/* ---------- ZOOM (in-app browser) ---------- */
+function zoomOpenInApp(url) { InAppBrowser.open(url); }
+
+/* ---------- GOOGLE MEET (in-app browser) ---------- */
+function meetOpenInApp(url) { InAppBrowser.open(url); }
 
 /* ---------- SOCIAL HUB INIT + BINDINGS ---------- */
 var SocialHub = {
@@ -2367,12 +2389,30 @@ var SocialHub = {
       $('liBackBtn').addEventListener('click', function() { $('liPlayerArea').style.display = 'none'; $('liFrame').src = ''; });
       $('liSearchBtn').addEventListener('click', function() { InAppBrowser.open('https://www.linkedin.com/search/results/all/?keywords='); });
       $('liHomeBtn').addEventListener('click', function() { InAppBrowser.open('https://www.linkedin.com/feed/'); });
-      // Gmail
-      $('gmailOpenBtn').addEventListener('click', function() { gmailOpenInApp('https://accounts.google.com/ServiceLogin?service=mail'); });
-      $('gmailInboxBtn').addEventListener('click', function() { gmailOpenInApp('https://mail.google.com/mail/u/0/#inbox'); });
-      // WhatsApp
-      $('waOpenBtn').addEventListener('click', function() { waOpenInApp('https://web.whatsapp.com/'); });
-      $('waHomeBtn').addEventListener('click', function() { waOpenInApp('https://web.whatsapp.com/'); });
+      // Gmail — opens in device's browser
+      $('gmailOpenBtn').addEventListener('click', function() { gmailOpenExternally('https://accounts.google.com/ServiceLogin?service=mail'); });
+      $('gmailInboxBtn').addEventListener('click', function() { gmailOpenExternally('https://mail.google.com/mail/u/0/#inbox'); });
+      // WhatsApp — opens in device's browser
+      $('waOpenBtn').addEventListener('click', function() { waOpenExternally('https://web.whatsapp.com/'); });
+      $('waHomeBtn').addEventListener('click', function() { waOpenExternally('https://web.whatsapp.com/'); });
+      // Zoom — in-app browser
+      $('zoomOpenBtn').addEventListener('click', function() {
+        var raw = $('zoomInput').value.trim();
+        if (!raw) return toast('Paste a Zoom link', true);
+        var url = raw.match(/^https?:\/\//) ? raw : 'https://' + raw;
+        zoomOpenInApp(url);
+      });
+      $('zoomInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') $('zoomOpenBtn').click(); });
+      $('zoomHomeBtn').addEventListener('click', function() { zoomOpenInApp('https://zoom.us/'); });
+      // Google Meet — in-app browser
+      $('meetOpenBtn').addEventListener('click', function() {
+        var raw = $('meetInput').value.trim();
+        if (!raw) return toast('Paste a Google Meet link', true);
+        var url = raw.match(/^https?:\/\//) ? raw : 'https://' + raw;
+        meetOpenInApp(url);
+      });
+      $('meetInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') $('meetOpenBtn').click(); });
+      $('meetHomeBtn').addEventListener('click', function() { meetOpenInApp('https://meet.google.com/'); });
     }
   }
 };
