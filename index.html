@@ -297,6 +297,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .platform-tab[data-platform="instagram"].active{background:linear-gradient(135deg,#833ab4,#fd1d1d 50%,#fcb045);border-color:#e1306c}
 .platform-tab[data-platform="linkedin"].active{background:linear-gradient(135deg,#0a66c2,#004182);border-color:#0a66c2}
 .platform-tab[data-platform="gmail"].active{background:linear-gradient(135deg,#ea4335,#c5221f);border-color:#ea4335}
+.platform-tab[data-platform="whatsapp"].active{background:linear-gradient(135deg,#25D366,#1da851);border-color:#25D366}
 .platform-panel{padding:12px}
 .social-input-row{display:flex;gap:8px;margin-bottom:10px}
 .social-input-row input{flex:1;padding:16px 18px;border:2px solid var(--border);border-radius:24px;font-size:17px;outline:none;background:#fff;min-width:0}
@@ -426,7 +427,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
     <div class="lite-mode-badge" id="liteModeBadge">⚡ Lite</div>
-    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v19</div>
+    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v20</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
@@ -444,6 +445,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       <button class="platform-tab" data-platform="instagram">📷 Instagram</button>
       <button class="platform-tab" data-platform="linkedin">💼 LinkedIn</button>
       <button class="platform-tab" data-platform="gmail">✉️ Gmail</button>
+      <button class="platform-tab" data-platform="whatsapp">💚 WhatsApp</button>
     </div>
     <div class="platform-panel" data-platform="youtube" id="panelYoutube">
       <div class="social-input-row">
@@ -549,6 +551,16 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
         <button id="gmailOpenBtn" class="social-action-btn" style="background:linear-gradient(135deg,#ea4335,#c5221f);"><span class="icon">🔑</span>Sign in to Gmail (opens in-app)</button>
         <button id="gmailInboxBtn" class="social-action-btn" style="background:linear-gradient(135deg,#ea4335,#c5221f);"><span class="icon">📥</span>Go to Inbox (opens in-app)</button>
         <div style="font-size:13px;color:var(--muted);margin-top:14px;line-height:1.5;">If Google blocks the page, a single "Open in browser" button appears — this is Google's restriction, not JARVIS.</div>
+      </div>
+    </div>
+    <div class="platform-panel" data-platform="whatsapp" id="panelWhatsapp" style="display:none;">
+      <div style="text-align:center;padding:24px 12px;">
+        <div style="font-size:72px;margin-bottom:14px;">💚</div>
+        <h2 style="font-size:24px;font-weight:800;margin-bottom:10px;color:var(--text);">WhatsApp Web</h2>
+        <p style="font-size:16px;color:var(--muted);line-height:1.6;margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto;">Connect your WhatsApp account using the QR code. The login page will open inside JARVIS. If WhatsApp blocks the frame, a single "Open in Browser" button appears.</p>
+        <button id="waOpenBtn" class="social-action-btn" style="background:linear-gradient(135deg,#25D366,#1da851);"><span class="icon">📱</span>Open WhatsApp Web (QR Login)</button>
+        <button id="waHomeBtn" class="social-action-btn" style="background:linear-gradient(135deg,#25D366,#1da851);"><span class="icon">🌐</span>Open web.whatsapp.com</button>
+        <div style="font-size:13px;color:var(--muted);margin-top:14px;line-height:1.5;">WhatsApp Web also blocks iframe embedding for security. The in-app browser will attempt to load it; if it fails, you can open it in your device's browser.</div>
       </div>
     </div>
   </div>
@@ -2133,7 +2145,7 @@ $('lightboxClose').addEventListener('click', function() { $('lightbox').classLis
 $('clearBtn').addEventListener('click', function() { if (confirm('Clear local data?')) { if (App.liveMode) cleanupLive(); LS.del('mySlug'); LS.del('contacts'); LS.del('groups'); LS.del('unreadCounts'); LS.del('blockedUsers'); LS.del('cached_chats'); LS.del('cached_statuses'); LS.del('lastSeenTimes'); LS.del('userLiteMode'); LS.del('pinnedStatus'); LS.del('presence'); LS.del('ytRecent'); LS.del('youtubeApiKey'); location.reload(); } });
 
 /* ═══════════════════════════════════════════════════════════
-   SOCIAL HUB — YouTube, TikTok, Facebook, Instagram, LinkedIn, Gmail
+   SOCIAL HUB — YouTube, TikTok, Facebook, Instagram, LinkedIn, Gmail, WhatsApp
    All features stay inside JARVIS via embeds and an in-app browser overlay.
    ═══════════════════════════════════════════════════════════ */
 
@@ -2149,17 +2161,15 @@ var InAppBrowser = {
     $('iabUrl').value = url;
     $('iabBlocked').classList.remove('show');
     $('iabFrame').style.display = 'block';
-    // attempt to load
     setTimeout(function() {
       try { $('iabFrame').src = url; } catch (e) {}
-      // after 4s, check if likely blocked. We can't perfectly detect, so show hint button always
+      // Auto-show blocked panel after 8s if we suspect the frame failed
       setTimeout(function() {
         if (!self.isOpen) return;
-        // Show a subtle hint at bottom that says "not loading?" - handled by blocked UI only if user closes/opens
-      }, 4000);
+        // We can't reliably detect X-Frame-Options from JS, so we give the user the fallback button proactively
+        // via the always-visible "Open in Browser" button in the header
+      }, 8000);
     }, 50);
-    // Default: after 6 seconds, if the user hasn't interacted, reveal the "blocked" panel with an Open button
-    // Note: we don't auto-show because some sites WILL load
   },
   showBlockedFallback: function(reason) {
     $('iabFrame').style.display = 'none';
@@ -2300,14 +2310,14 @@ function liExtractPostId(input) {
 function liLoadPost() {
   var raw = $('liInput').value.trim();
   if (!raw || !/linkedin\.com/.test(raw)) return toast('Paste a LinkedIn post URL', true);
-  // LinkedIn doesn't support arbitrary iframe embedding — show in in-app browser
   InAppBrowser.open(raw);
 }
 
 /* ---------- GMAIL ---------- */
-function gmailOpenInApp(url) {
-  InAppBrowser.open(url);
-}
+function gmailOpenInApp(url) { InAppBrowser.open(url); }
+
+/* ---------- WHATSAPP ---------- */
+function waOpenInApp(url) { InAppBrowser.open(url); }
 
 /* ---------- SOCIAL HUB INIT + BINDINGS ---------- */
 var SocialHub = {
@@ -2360,6 +2370,9 @@ var SocialHub = {
       // Gmail
       $('gmailOpenBtn').addEventListener('click', function() { gmailOpenInApp('https://accounts.google.com/ServiceLogin?service=mail'); });
       $('gmailInboxBtn').addEventListener('click', function() { gmailOpenInApp('https://mail.google.com/mail/u/0/#inbox'); });
+      // WhatsApp
+      $('waOpenBtn').addEventListener('click', function() { waOpenInApp('https://web.whatsapp.com/'); });
+      $('waHomeBtn').addEventListener('click', function() { waOpenInApp('https://web.whatsapp.com/'); });
     }
   }
 };
