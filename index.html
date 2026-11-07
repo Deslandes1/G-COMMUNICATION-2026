@@ -316,6 +316,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .social-result-meta{font-size:13px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .social-embed-wrap{position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:12px;overflow:hidden;margin-bottom:12px}
 .social-embed-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+.social-sim-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(212,175,55,.2);color:#8b6914;font-size:11px;font-weight:800;padding:3px 8px;border-radius:8px;letter-spacing:.3px;margin-left:6px;vertical-align:middle}
 
 /* ══════════ IN-APP BROWSER ══════════ */
 #inAppBrowser{position:fixed;inset:0;background:#fff;z-index:9000;display:none;flex-direction:column}
@@ -323,7 +324,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .iab-header{background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;padding:12px 10px;display:flex;align-items:center;gap:8px;padding-top:calc(12px + env(safe-area-inset-top));flex-shrink:0}
 .iab-header button{background:rgba(255,255,255,.15);color:#fff;border:none;width:44px;height:44px;border-radius:50%;font-size:22px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .iab-url{flex:1;background:rgba(255,255,255,.12);color:#fff;padding:12px 14px;border-radius:22px;font-size:15px;border:none;outline:none;min-width:0;text-overflow:ellipsis}
-.iab-body{flex:1;position:relative;background:#f2f5f8}
+.iab-body{flex:1;position:relative;background:#f2f5f8;overflow:hidden}
 #iabFrame{width:100%;height:100%;border:0;background:#fff}
 .iab-blocked{position:absolute;inset:0;background:#f2f5f8;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;overflow-y:auto}
 .iab-blocked.show{display:flex}
@@ -332,6 +333,22 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .iab-blocked p{font-size:16px;color:var(--muted);line-height:1.6;margin-bottom:20px;max-width:380px}
 .iab-blocked button{padding:16px 24px;background:linear-gradient(135deg,#0d7a8c,#0a6474);color:#fff;border:none;border-radius:10px;font-size:17px;font-weight:700;cursor:pointer;margin-bottom:10px;width:100%;max-width:320px}
 .iab-blocked .secondary{background:#eef2f6;color:var(--text)}
+
+/* ══════════ SIMULATED EXTERNAL LAUNCHER ══════════ */
+.iab-launching{position:absolute;inset:0;background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 50%,#0d7a8c 100%);display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;color:#fff;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.iab-launching.show{display:flex}
+.launch-platform-icon{width:120px;height:120px;border-radius:30px;background:rgba(255,255,255,.12);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;font-size:64px;margin-bottom:26px;box-shadow:0 20px 60px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.18);flex-shrink:0;animation:launchIconPulse 2s ease-in-out infinite}
+@keyframes launchIconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+#launchTitle{font-size:25px;font-weight:800;margin-bottom:12px;letter-spacing:.3px;max-width:400px;line-height:1.3}
+#launchSubtitle{font-size:16px;opacity:.85;line-height:1.55;max-width:380px;margin-bottom:26px}
+.launch-spinner{width:52px;height:52px;border:5px solid rgba(255,255,255,.2);border-top-color:#d4af37;border-radius:50%;animation:jarvisSpin 1s linear infinite;margin-bottom:26px}
+.launch-actions{display:none;flex-direction:column;gap:12px;width:100%;max-width:360px}
+.launch-actions.show{display:flex}
+.launch-btn{padding:18px 24px;border:none;border-radius:14px;font-size:17px;font-weight:700;cursor:pointer;font-family:Calibri,sans-serif;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .1s}
+.launch-btn:active{transform:scale(.97)}
+.launch-btn.primary{background:linear-gradient(135deg,#f0d369 0%,#d4af37 50%,#b8912a 100%);color:#0b2a4a;box-shadow:0 8px 24px rgba(212,175,55,.45)}
+.launch-btn.secondary{background:rgba(255,255,255,.13);color:#fff;border:1.5px solid rgba(255,255,255,.28)}
+.launch-tip{font-size:13px;opacity:.7;margin-top:20px;max-width:340px;line-height:1.5;background:rgba(0,0,0,.25);padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.1)}
 
 /* ══════════ RESPONSIVE ══════════ */
 @media (max-width: 540px){
@@ -355,6 +372,9 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   .social-result-thumb{width:100px;height:58px}
   .social-result-title{font-size:14px}
   .social-result-meta{font-size:12px}
+  .launch-platform-icon{width:96px;height:96px;font-size:52px;margin-bottom:20px}
+  #launchTitle{font-size:22px}
+  #launchSubtitle{font-size:15px;margin-bottom:22px}
 }
 @media (min-width: 640px){
   body{padding:16px;background:#e4e9ef}
@@ -429,7 +449,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
     <div class="lite-mode-badge" id="liteModeBadge">⚡ Lite</div>
-    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v20</div>
+    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v21</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
@@ -456,7 +476,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
         <input id="ytSearchInput" type="text" placeholder="Search YouTube or paste video URL…" autocomplete="off">
         <button id="ytSearchBtn" style="background:linear-gradient(135deg,#ff0000,#cc0000);">Search</button>
       </div>
-      <div class="social-hint">Search videos, or paste a YouTube link / ID to play instantly</div>
+      <div class="social-hint">Search videos, or paste a YouTube link / ID to play instantly inside JARVIS</div>
       <div id="ytSearchResults"></div>
       <div id="ytPlayerArea" style="display:none;">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
@@ -484,16 +504,9 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
         <input id="ttInput" type="text" placeholder="Paste TikTok video URL…" autocomplete="off">
         <button id="ttPlayBtn" style="background:linear-gradient(135deg,#000,#ff0050);">Play</button>
       </div>
-      <div class="social-hint">Paste a TikTok video link (e.g. tiktok.com/@user/video/123…) to play it right here</div>
-      <button id="ttSearchBtn" class="social-action-btn" style="background:linear-gradient(135deg,#000,#ff0050);"><span class="icon">🔍</span>Search TikTok inside JARVIS</button>
+      <div class="social-hint">Paste a TikTok link. Opens in your browser — JARVIS stays with you.</div>
+      <button id="ttSearchBtn" class="social-action-btn" style="background:linear-gradient(135deg,#000,#ff0050);"><span class="icon">🔍</span>Search TikTok</button>
       <button id="ttHomeBtn" class="social-action-btn" style="background:linear-gradient(135deg,#25F4EE,#FE2C55);"><span class="icon">🏠</span>Open TikTok Home</button>
-      <div id="ttPlayerArea" style="display:none;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-          <button id="ttBackBtn" style="background:#eef2f6;border:none;padding:10px 16px;border-radius:20px;font-size:15px;font-weight:700;cursor:pointer;color:var(--text);">← Back</button>
-          <div style="flex:1;font-size:15px;font-weight:700;">TikTok Video</div>
-        </div>
-        <div class="social-embed-wrap" style="padding-bottom:150%;max-width:400px;margin:0 auto 12px;"><iframe id="ttFrame" src="" allow="fullscreen; autoplay; encrypted-media" allowfullscreen></iframe></div>
-      </div>
       <div id="ttRecentWrap" style="margin-top:16px;">
         <div style="font-size:14px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Recently watched</div>
         <div id="ttRecentList"></div>
@@ -502,69 +515,46 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="platform-panel" data-platform="facebook" id="panelFacebook" style="display:none;">
       <div class="social-input-row">
         <input id="fbInput" type="text" placeholder="Paste Facebook video/post URL…" autocomplete="off">
-        <button id="fbPlayBtn" style="background:linear-gradient(135deg,#1877f2,#0d5dbf);">Load</button>
+        <button id="fbPlayBtn" style="background:linear-gradient(135deg,#1877f2,#0d5dbf);">Open</button>
       </div>
-      <div class="social-hint">Paste a Facebook video or post URL to view it here</div>
-      <button id="fbSearchBtn" class="social-action-btn" style="background:linear-gradient(135deg,#1877f2,#0d5dbf);"><span class="icon">🔍</span>Search Facebook inside JARVIS</button>
+      <div class="social-hint">Paste a Facebook link. Opens in your browser — JARVIS stays with you.</div>
+      <button id="fbSearchBtn" class="social-action-btn" style="background:linear-gradient(135deg,#1877f2,#0d5dbf);"><span class="icon">🔍</span>Search Facebook</button>
       <button id="fbHomeBtn" class="social-action-btn" style="background:linear-gradient(135deg,#1877f2,#0d5dbf);"><span class="icon">🏠</span>Open Facebook Home</button>
-      <div id="fbPlayerArea" style="display:none;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-          <button id="fbBackBtn" style="background:#eef2f6;border:none;padding:10px 16px;border-radius:20px;font-size:15px;font-weight:700;cursor:pointer;color:var(--text);">← Back</button>
-          <div style="flex:1;font-size:15px;font-weight:700;">Facebook Video</div>
-        </div>
-        <div class="social-embed-wrap"><iframe id="fbFrame" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>
-      </div>
     </div>
     <div class="platform-panel" data-platform="instagram" id="panelInstagram" style="display:none;">
       <div class="social-input-row">
         <input id="igInput" type="text" placeholder="Paste Instagram post URL…" autocomplete="off">
-        <button id="igPlayBtn" style="background:linear-gradient(135deg,#833ab4,#fd1d1d 50%,#fcb045);">Load</button>
+        <button id="igPlayBtn" style="background:linear-gradient(135deg,#833ab4,#fd1d1d 50%,#fcb045);">Open</button>
       </div>
-      <div class="social-hint">Paste an Instagram post/reel URL (e.g. instagram.com/p/ABC…) to view it here</div>
-      <button id="igSearchBtn" class="social-action-btn" style="background:linear-gradient(135deg,#833ab4,#fd1d1d 50%,#fcb045);"><span class="icon">🔍</span>Search Instagram inside JARVIS</button>
+      <div class="social-hint">Paste an Instagram link. Opens in your browser — JARVIS stays with you.</div>
+      <button id="igSearchBtn" class="social-action-btn" style="background:linear-gradient(135deg,#833ab4,#fd1d1d 50%,#fcb045);"><span class="icon">🔍</span>Search Instagram</button>
       <button id="igHomeBtn" class="social-action-btn" style="background:linear-gradient(135deg,#833ab4,#fd1d1d 50%,#fcb045);"><span class="icon">🏠</span>Open Instagram Home</button>
-      <div id="igPlayerArea" style="display:none;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-          <button id="igBackBtn" style="background:#eef2f6;border:none;padding:10px 16px;border-radius:20px;font-size:15px;font-weight:700;cursor:pointer;color:var(--text);">← Back</button>
-          <div style="flex:1;font-size:15px;font-weight:700;">Instagram Post</div>
-        </div>
-        <div class="social-embed-wrap" style="padding-bottom:125%;max-width:540px;margin:0 auto 12px;"><iframe id="igFrame" src="" allowfullscreen></iframe></div>
-      </div>
     </div>
     <div class="platform-panel" data-platform="linkedin" id="panelLinkedin" style="display:none;">
       <div class="social-input-row">
         <input id="liInput" type="text" placeholder="Paste LinkedIn post URL…" autocomplete="off">
-        <button id="liPlayBtn" style="background:linear-gradient(135deg,#0a66c2,#004182);">Load</button>
+        <button id="liPlayBtn" style="background:linear-gradient(135deg,#0a66c2,#004182);">Open</button>
       </div>
-      <div class="social-hint">Paste a LinkedIn post URL to view it here</div>
-      <button id="liSearchBtn" class="social-action-btn" style="background:linear-gradient(135deg,#0a66c2,#004182);"><span class="icon">🔍</span>Search LinkedIn inside JARVIS</button>
+      <div class="social-hint">Paste a LinkedIn link. Opens in your browser — JARVIS stays with you.</div>
+      <button id="liSearchBtn" class="social-action-btn" style="background:linear-gradient(135deg,#0a66c2,#004182);"><span class="icon">🔍</span>Search LinkedIn</button>
       <button id="liHomeBtn" class="social-action-btn" style="background:linear-gradient(135deg,#0a66c2,#004182);"><span class="icon">🏠</span>Open LinkedIn Home</button>
-      <div id="liPlayerArea" style="display:none;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-          <button id="liBackBtn" style="background:#eef2f6;border:none;padding:10px 16px;border-radius:20px;font-size:15px;font-weight:700;cursor:pointer;color:var(--text);">← Back</button>
-          <div style="flex:1;font-size:15px;font-weight:700;">LinkedIn Post</div>
-        </div>
-        <div class="social-embed-wrap"><iframe id="liFrame" src="" allowfullscreen></iframe></div>
-      </div>
     </div>
     <div class="platform-panel" data-platform="gmail" id="panelGmail" style="display:none;">
       <div style="text-align:center;padding:24px 12px;">
         <div style="font-size:72px;margin-bottom:14px;">✉️</div>
         <h2 style="font-size:24px;font-weight:800;margin-bottom:10px;color:var(--text);">Gmail Inbox</h2>
-        <p style="font-size:16px;color:var(--muted);line-height:1.6;margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto;">Opens Gmail in your device's browser for full Google sign-in and inbox access.</p>
+        <p style="font-size:16px;color:var(--muted);line-height:1.6;margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto;">Sign in securely. Opens in your browser — JARVIS stays with you.</p>
         <button id="gmailOpenBtn" class="social-action-btn" style="background:linear-gradient(135deg,#ea4335,#c5221f);"><span class="icon">🔑</span>Sign in to Gmail</button>
         <button id="gmailInboxBtn" class="social-action-btn" style="background:linear-gradient(135deg,#ea4335,#c5221f);"><span class="icon">📥</span>Go to Inbox</button>
-        <div style="font-size:13px;color:var(--muted);margin-top:14px;line-height:1.5;">Launches your phone/computer's default browser. Sign in securely as usual.</div>
       </div>
     </div>
     <div class="platform-panel" data-platform="whatsapp" id="panelWhatsapp" style="display:none;">
       <div style="text-align:center;padding:24px 12px;">
         <div style="font-size:72px;margin-bottom:14px;">💚</div>
         <h2 style="font-size:24px;font-weight:800;margin-bottom:10px;color:var(--text);">WhatsApp Web</h2>
-        <p style="font-size:16px;color:var(--muted);line-height:1.6;margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto;">Connect your WhatsApp account using the QR code. Opens in your device's browser.</p>
+        <p style="font-size:16px;color:var(--muted);line-height:1.6;margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto;">Connect using the QR code. Opens in your browser — JARVIS stays with you.</p>
         <button id="waOpenBtn" class="social-action-btn" style="background:linear-gradient(135deg,#25D366,#1da851);"><span class="icon">📱</span>Open WhatsApp Web (QR Login)</button>
         <button id="waHomeBtn" class="social-action-btn" style="background:linear-gradient(135deg,#25D366,#1da851);"><span class="icon">🌐</span>Open web.whatsapp.com</button>
-        <div style="font-size:13px;color:var(--muted);margin-top:14px;line-height:1.5;">Launches in your device's default browser. Full WhatsApp Web features available.</div>
       </div>
     </div>
     <div class="platform-panel" data-platform="zoom" id="panelZoom" style="display:none;">
@@ -572,18 +562,16 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
         <input id="zoomInput" type="text" placeholder="Paste Zoom meeting link…" autocomplete="off">
         <button id="zoomOpenBtn" style="background:linear-gradient(135deg,#2D8CFF,#1a6dcc);">Open</button>
       </div>
-      <div class="social-hint">Paste a Zoom link (e.g. zoom.us/j/123456789). Opens inside JARVIS; if Zoom blocks embedding, tap the ↗ button in the top bar to open in browser.</div>
+      <div class="social-hint">Paste a Zoom link. Opens in your browser — JARVIS stays with you.</div>
       <button id="zoomHomeBtn" class="social-action-btn" style="background:linear-gradient(135deg,#2D8CFF,#1a6dcc);"><span class="icon">🏠</span>Open Zoom Home</button>
-      <div style="font-size:13px;color:var(--muted);margin-top:14px;line-height:1.5;text-align:center;">Zoom's security policy may prevent some links from loading in-app. Use ↗ to launch your system browser if needed.</div>
     </div>
     <div class="platform-panel" data-platform="meet" id="panelMeet" style="display:none;">
       <div class="social-input-row">
         <input id="meetInput" type="text" placeholder="Paste Google Meet link…" autocomplete="off">
         <button id="meetOpenBtn" style="background:linear-gradient(135deg,#00897B,#00695C);">Open</button>
       </div>
-      <div class="social-hint">Paste a Google Meet link (e.g. meet.google.com/abc-defg-hij). Opens inside JARVIS; if Meet blocks embedding, tap the ↗ button in the top bar.</div>
+      <div class="social-hint">Paste a Google Meet link. Opens in your browser — JARVIS stays with you.</div>
       <button id="meetHomeBtn" class="social-action-btn" style="background:linear-gradient(135deg,#00897B,#00695C);"><span class="icon">🏠</span>Open Google Meet Home</button>
-      <div style="font-size:13px;color:var(--muted);margin-top:14px;line-height:1.5;text-align:center;">Google Meet's security policy may prevent some links from loading in-app. Use ↗ to launch your system browser if needed.</div>
     </div>
   </div>
   <div id="tabStatus" class="tab-content" style="display:none;">
@@ -838,7 +826,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 <div id="avatarViewerModal"><button class="close-lb" id="avatarViewerClose" onclick="document.getElementById('avatarViewerModal').classList.remove('show')">✕</button><img id="avatarViewerImg" src="" alt=""><div id="avatarViewerName">User</div></div>
 <div class="toast" id="toast"></div>
 
-<!-- IN-APP BROWSER OVERLAY -->
+<!-- IN-APP BROWSER / SIMULATED LAUNCHER OVERLAY -->
 <div id="inAppBrowser">
   <div class="iab-header">
     <button id="iabClose" title="Close">✕</button>
@@ -854,6 +842,17 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       <p id="iabBlockedMsg">For security reasons, this website doesn't allow being shown inside other apps. You can still use it — tap below to open it in your device's browser.</p>
       <button id="iabOpenBtn">Open in Browser</button>
       <button id="iabBackBtn2" class="secondary">← Go Back in JARVIS</button>
+    </div>
+    <div class="iab-launching" id="iabLaunching">
+      <div class="launch-platform-icon" id="launchIcon">🌐</div>
+      <h2 id="launchTitle">Opening…</h2>
+      <p id="launchSubtitle">Launching in your device's browser</p>
+      <div class="launch-spinner" id="launchSpinner"></div>
+      <div class="launch-actions" id="launchActions">
+        <button id="launchReopenBtn" class="launch-btn primary">↗ Open Again</button>
+        <button id="launchReturnBtn" class="launch-btn secondary">← Return to JARVIS</button>
+      </div>
+      <div class="launch-tip">💡 Content opens in a new browser tab. JARVIS stays here when you come back.</div>
     </div>
   </div>
 </div>
@@ -2167,49 +2166,121 @@ $('lightboxClose').addEventListener('click', function() { $('lightbox').classLis
 $('clearBtn').addEventListener('click', function() { if (confirm('Clear local data?')) { if (App.liveMode) cleanupLive(); LS.del('mySlug'); LS.del('contacts'); LS.del('groups'); LS.del('unreadCounts'); LS.del('blockedUsers'); LS.del('cached_chats'); LS.del('cached_statuses'); LS.del('lastSeenTimes'); LS.del('userLiteMode'); LS.del('pinnedStatus'); LS.del('presence'); LS.del('ytRecent'); LS.del('youtubeApiKey'); location.reload(); } });
 
 /* ═══════════════════════════════════════════════════════════
-   SOCIAL HUB — YouTube, TikTok, Facebook, Instagram, LinkedIn (in-app)
-   Gmail, WhatsApp (external browser). Zoom & Meet (in-app browser).
+   SOCIAL HUB
+   ─ YouTube: plays embedded inside JARVIS (iframe player)
+   ─ TikTok, Facebook, Instagram, LinkedIn, Gmail, WhatsApp,
+     Zoom, Google Meet: open in external browser but the
+     JARVIS UI stays visible via a full-screen launcher so it
+     feels like they're still inside the G Communication Portal.
    ═══════════════════════════════════════════════════════════ */
 
-/* ---------- IN-APP BROWSER OVERLAY ---------- */
 var InAppBrowser = {
   isOpen: false,
+  mode: 'iframe',
   currentUrl: '',
-  open: function(url, title) {
-    var self = this;
-    self.currentUrl = url;
-    self.isOpen = true;
+  platform: null,
+
+  // Regular iframe mode (used by YouTube player and available for future embeds)
+  open: function(url) {
+    this.isOpen = true;
+    this.mode = 'iframe';
+    this.currentUrl = url;
     $('inAppBrowser').classList.add('show');
     $('iabUrl').value = url;
-    $('iabBlocked').classList.remove('show');
     $('iabFrame').style.display = 'block';
-    setTimeout(function() {
-      try { $('iabFrame').src = url; } catch (e) {}
-    }, 50);
+    $('iabBlocked').classList.remove('show');
+    $('iabLaunching').classList.remove('show');
+    $('iabReload').style.display = 'flex';
+    try { $('iabFrame').src = url; } catch (e) {}
   },
-  showBlockedFallback: function(reason) {
+
+  // Simulated external launch — opens externally, keeps JARVIS UI visible
+  launchExternal: function(url, platform) {
+    var self = this;
+    var opened = false;
+
+    // Call window.open FIRST inside the user gesture so popup blockers allow it
+    try {
+      var w = window.open(url, '_blank', 'noopener');
+      opened = (w !== null) || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    } catch (e) { opened = false; }
+
+    // Show the JARVIS-styled launching overlay
+    self.isOpen = true;
+    self.mode = 'launching';
+    self.currentUrl = url;
+    self.platform = platform;
+
+    $('inAppBrowser').classList.add('show');
+    $('iabUrl').value = url;
     $('iabFrame').style.display = 'none';
-    $('iabBlocked').classList.add('show');
-    if (reason) $('iabBlockedMsg').textContent = reason;
-    $('iabOpenBtn').onclick = function() {
-      try { window.open(InAppBrowser.currentUrl, '_blank', 'noopener'); } catch (e) {}
-      InAppBrowser.close();
-    };
+    $('iabBlocked').classList.remove('show');
+    $('iabLaunching').classList.add('show');
+    $('iabReload').style.display = 'none';
+
+    $('launchIcon').textContent = platform.icon || '🌐';
+    $('launchReopenBtn').textContent = '↗ Open ' + (platform.name || 'App') + ' Again';
+    $('launchSpinner').style.display = 'none';
+    $('launchActions').classList.add('show');
+
+    if (opened) {
+      $('launchTitle').textContent = platform.name + ' opened in your browser';
+      $('launchSubtitle').textContent = 'View it in your device\'s browser tab. Return to JARVIS anytime.';
+    } else {
+      $('launchTitle').textContent = 'Open ' + platform.name;
+      $('launchSubtitle').textContent = 'Your browser blocked the automatic open. Tap below to continue.';
+    }
   },
+
+  reopen: function() {
+    if (!this.currentUrl) return;
+    try {
+      var w = window.open(this.currentUrl, '_blank', 'noopener');
+      if (w === null && !/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        toast('Browser blocked the popup — please allow popups for this site', true);
+      } else {
+        $('launchTitle').textContent = (this.platform ? this.platform.name : 'App') + ' opened in your browser';
+        $('launchSubtitle').textContent = 'View it in your device\'s browser tab. Return to JARVIS anytime.';
+      }
+    } catch (e) {
+      toast('Could not open — check browser settings', true);
+    }
+  },
+
   close: function() {
     this.isOpen = false;
     $('inAppBrowser').classList.remove('show');
     try { $('iabFrame').src = 'about:blank'; } catch (e) {}
+    $('iabLaunching').classList.remove('show');
+    $('iabBlocked').classList.remove('show');
+    $('iabReload').style.display = 'flex';
   }
 };
 
 $('iabClose').addEventListener('click', function() { InAppBrowser.close(); });
 $('iabBackBtn2').addEventListener('click', function() { InAppBrowser.close(); });
-$('iabReload').addEventListener('click', function() { if (InAppBrowser.currentUrl) { try { $('iabFrame').src = InAppBrowser.currentUrl; $('iabFrame').style.display = 'block'; $('iabBlocked').classList.remove('show'); } catch (e) {} } });
-$('iabExternal').addEventListener('click', function() { if (InAppBrowser.currentUrl) { try { window.open(InAppBrowser.currentUrl, '_blank', 'noopener'); } catch (e) {} } });
+$('iabReload').addEventListener('click', function() {
+  if (InAppBrowser.mode === 'iframe' && InAppBrowser.currentUrl) {
+    try { $('iabFrame').src = InAppBrowser.currentUrl; $('iabFrame').style.display = 'block'; $('iabBlocked').classList.remove('show'); } catch (e) {}
+  }
+});
+$('iabExternal').addEventListener('click', function() {
+  if (InAppBrowser.mode === 'launching') { InAppBrowser.reopen(); return; }
+  if (InAppBrowser.currentUrl) { try { window.open(InAppBrowser.currentUrl, '_blank', 'noopener'); } catch (e) {} }
+});
 $('iabOpenBtn').addEventListener('click', function() { if (InAppBrowser.currentUrl) { try { window.open(InAppBrowser.currentUrl, '_blank', 'noopener'); } catch (e) {} } });
+$('launchReopenBtn').addEventListener('click', function() { InAppBrowser.reopen(); });
+$('launchReturnBtn').addEventListener('click', function() { InAppBrowser.close(); });
 
-/* ---------- YOUTUBE ---------- */
+/* ── Helper: normalize pasted URL ── */
+function normalizeUrl(raw) {
+  raw = String(raw || '').trim();
+  if (!raw) return null;
+  if (!/^https?:\/\//i.test(raw)) raw = 'https://' + raw;
+  return raw;
+}
+
+/* ══════════ YOUTUBE (embedded inside JARVIS) ══════════ */
 var YT_INVIDIOUS = ['https://inv.nadeko.net','https://invidious.nerdvpn.de','https://yewtu.be','https://invidious.fdn.fr'];
 var YT_PIPED = ['https://pipedapi.kavin.rocks','https://pipedapi.adminforge.de'];
 
@@ -2266,22 +2337,14 @@ function ytRenderRecent() {
   el.innerHTML = html;
 }
 
-/* ---------- TIKTOK ---------- */
-function ttExtractVideoId(input) {
-  if (!input) return null;
-  var m = String(input).match(/tiktok\.com\/(?:@[^\/]+\/video\/|v\/|embed\/v2\/)(\d{15,25})/);
-  return m ? m[1] : null;
-}
+/* ══════════ TIKTOK (external, simulated inside) ══════════ */
 function ttPlayVideo() {
-  var raw = $('ttInput').value.trim();
-  var vid = ttExtractVideoId(raw);
-  if (!vid) return toast('Paste a TikTok video URL', true);
-  var embedUrl = 'https://www.tiktok.com/embed/v2/' + vid;
-  $('ttFrame').src = embedUrl;
-  $('ttPlayerArea').style.display = 'block';
+  var url = normalizeUrl($('ttInput').value);
+  if (!url) return toast('Paste a TikTok link', true);
+  InAppBrowser.launchExternal(url, { name: 'TikTok', icon: '🎵' });
   var recent = LS.get('ttRecent', []) || [];
-  recent = recent.filter(function(r) { return r.id !== vid; });
-  recent.unshift({ id: vid, time: Date.now() });
+  recent = recent.filter(function(r) { return r.url !== url; });
+  recent.unshift({ url: url, time: Date.now() });
   LS.set('ttRecent', recent.slice(0, 10));
   ttRenderRecent();
 }
@@ -2290,58 +2353,48 @@ function ttRenderRecent() {
   var recent = LS.get('ttRecent', []) || [];
   if (!recent.length) { el.innerHTML = '<div style="font-size:14px;color:var(--muted);padding:8px;text-align:center;">No recent TikTok videos yet.</div>'; return; }
   var html = '';
-  for (var i = 0; i < recent.length; i++) { html += '<div style="display:flex;gap:10px;align-items:center;padding:10px;border-bottom:1px solid #f0f0f0;"><div style="flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">TikTok · ' + recent[i].id + '</div><button style="background:#ff0050;color:#fff;border:none;padding:6px 12px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;" onclick="document.getElementById(\'ttInput\').value=\'https://tiktok.com/video/' + recent[i].id + '\';document.getElementById(\'ttPlayBtn\').click();">▶ Play</button></div>'; }
+  for (var i = 0; i < recent.length; i++) {
+    var r = recent[i], safeUrl = esc(r.url).replace(/'/g, "\\'");
+    var label = String(r.url).replace(/^https?:\/\/(www\.)?/, '').slice(0, 42);
+    html += '<div style="display:flex;gap:10px;align-items:center;padding:10px;border-bottom:1px solid #f0f0f0;"><div style="flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(label) + '</div><button style="background:#ff0050;color:#fff;border:none;padding:6px 12px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;" onclick="InAppBrowser.launchExternal(\'' + safeUrl + '\', {name:\'TikTok\', icon:\'🎵\'})">▶ Open</button></div>';
+  }
   el.innerHTML = html;
 }
 
-/* ---------- FACEBOOK ---------- */
-function fbEmbedVideo() {
-  var raw = $('fbInput').value.trim();
-  if (!raw || !/facebook\.com/.test(raw)) return toast('Paste a Facebook video URL', true);
-  var embed = 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(raw) + '&show_text=false&width=560&t=0&autoplay=1';
-  $('fbFrame').src = embed;
-  $('fbPlayerArea').style.display = 'block';
+/* ══════════ FACEBOOK (external, simulated inside) ══════════ */
+function fbOpenVideo() {
+  var url = normalizeUrl($('fbInput').value);
+  if (!url) return toast('Paste a Facebook link', true);
+  InAppBrowser.launchExternal(url, { name: 'Facebook', icon: '📘' });
 }
 
-/* ---------- INSTAGRAM ---------- */
-function igExtractPostId(input) {
-  if (!input) return null;
-  var m = String(input).match(/instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)/);
-  return m ? m[1] : null;
-}
-function igLoadPost() {
-  var raw = $('igInput').value.trim();
-  var pid = igExtractPostId(raw);
-  if (!pid) return toast('Paste an Instagram post or reel URL', true);
-  $('igFrame').src = 'https://www.instagram.com/p/' + pid + '/embed/';
-  $('igPlayerArea').style.display = 'block';
+/* ══════════ INSTAGRAM (external, simulated inside) ══════════ */
+function igOpenPost() {
+  var url = normalizeUrl($('igInput').value);
+  if (!url) return toast('Paste an Instagram link', true);
+  InAppBrowser.launchExternal(url, { name: 'Instagram', icon: '📷' });
 }
 
-/* ---------- LINKEDIN ---------- */
-function liExtractPostId(input) {
-  if (!input) return null;
-  var m = String(input).match(/linkedin\.com\/(?:feed\/update\/urn:li:activity:|posts\/)(\d+)/);
-  return m ? m[1] : null;
-}
-function liLoadPost() {
-  var raw = $('liInput').value.trim();
-  if (!raw || !/linkedin\.com/.test(raw)) return toast('Paste a LinkedIn post URL', true);
-  InAppBrowser.open(raw);
+/* ══════════ LINKEDIN (external, simulated inside) ══════════ */
+function liOpenPost() {
+  var url = normalizeUrl($('liInput').value);
+  if (!url) return toast('Paste a LinkedIn link', true);
+  InAppBrowser.launchExternal(url, { name: 'LinkedIn', icon: '💼' });
 }
 
-/* ---------- GMAIL (external browser) ---------- */
-function gmailOpenExternally(url) { try { window.open(url, '_blank', 'noopener'); } catch (e) { location.href = url; } }
+/* ══════════ GMAIL (external, simulated inside) ══════════ */
+function gmailOpen(url) { InAppBrowser.launchExternal(url, { name: 'Gmail', icon: '✉️' }); }
 
-/* ---------- WHATSAPP (external browser) ---------- */
-function waOpenExternally(url) { try { window.open(url, '_blank', 'noopener'); } catch (e) { location.href = url; } }
+/* ══════════ WHATSAPP (external, simulated inside) ══════════ */
+function waOpen(url) { InAppBrowser.launchExternal(url, { name: 'WhatsApp', icon: '💚' }); }
 
-/* ---------- ZOOM (in-app browser) ---------- */
-function zoomOpenInApp(url) { InAppBrowser.open(url); }
+/* ══════════ ZOOM (external, simulated inside) ══════════ */
+function zoomOpen(url) { InAppBrowser.launchExternal(url, { name: 'Zoom', icon: '🎥' }); }
 
-/* ---------- GOOGLE MEET (in-app browser) ---------- */
-function meetOpenInApp(url) { InAppBrowser.open(url); }
+/* ══════════ GOOGLE MEET (external, simulated inside) ══════════ */
+function meetOpen(url) { InAppBrowser.launchExternal(url, { name: 'Google Meet', icon: '📹' }); }
 
-/* ---------- SOCIAL HUB INIT + BINDINGS ---------- */
+/* ══════════ SOCIAL HUB INIT + BINDINGS ══════════ */
 var SocialHub = {
   init: function() {
     if (!this._bound) {
@@ -2357,62 +2410,56 @@ var SocialHub = {
           });
         })(tabs[i]);
       }
-      // YouTube bindings
+      // YouTube (embedded)
       $('ytSearchBtn').addEventListener('click', function() { ytDoSearch($('ytSearchInput').value); });
       $('ytSearchInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') ytDoSearch(e.target.value); });
       $('ytBackBtn').addEventListener('click', function() { $('ytPlayerArea').style.display = 'none'; $('ytPlayerFrame').src = ''; if ($('ytSearchResults').innerHTML.trim()) $('ytSearchResults').style.display = 'block'; });
       $('ytApiKeyInput').value = LS.get('youtubeApiKey', '') || '';
       $('ytSaveApiKeyBtn').addEventListener('click', function() { var v = $('ytApiKeyInput').value.trim(); if (v) { LS.set('youtubeApiKey', v); toast('YouTube API key saved ✓'); } else { LS.del('youtubeApiKey'); toast('API key cleared'); } });
       ytRenderRecent();
-      // TikTok
+      // TikTok (external simulated)
       $('ttPlayBtn').addEventListener('click', ttPlayVideo);
       $('ttInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') ttPlayVideo(); });
-      $('ttBackBtn').addEventListener('click', function() { $('ttPlayerArea').style.display = 'none'; $('ttFrame').src = ''; });
-      $('ttSearchBtn').addEventListener('click', function() { InAppBrowser.open('https://www.tiktok.com/search?q='); });
-      $('ttHomeBtn').addEventListener('click', function() { InAppBrowser.open('https://www.tiktok.com/'); });
+      $('ttSearchBtn').addEventListener('click', function() { InAppBrowser.launchExternal('https://www.tiktok.com/search', { name: 'TikTok', icon: '🎵' }); });
+      $('ttHomeBtn').addEventListener('click', function() { InAppBrowser.launchExternal('https://www.tiktok.com/', { name: 'TikTok', icon: '🎵' }); });
       ttRenderRecent();
-      // Facebook
-      $('fbPlayBtn').addEventListener('click', fbEmbedVideo);
-      $('fbInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') fbEmbedVideo(); });
-      $('fbBackBtn').addEventListener('click', function() { $('fbPlayerArea').style.display = 'none'; $('fbFrame').src = ''; });
-      $('fbSearchBtn').addEventListener('click', function() { InAppBrowser.open('https://www.facebook.com/search/top?q='); });
-      $('fbHomeBtn').addEventListener('click', function() { InAppBrowser.open('https://www.facebook.com/'); });
-      // Instagram
-      $('igPlayBtn').addEventListener('click', igLoadPost);
-      $('igInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') igLoadPost(); });
-      $('igBackBtn').addEventListener('click', function() { $('igPlayerArea').style.display = 'none'; $('igFrame').src = ''; });
-      $('igSearchBtn').addEventListener('click', function() { InAppBrowser.open('https://www.instagram.com/explore/search/keyword/'); });
-      $('igHomeBtn').addEventListener('click', function() { InAppBrowser.open('https://www.instagram.com/'); });
-      // LinkedIn
-      $('liPlayBtn').addEventListener('click', liLoadPost);
-      $('liInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') liLoadPost(); });
-      $('liBackBtn').addEventListener('click', function() { $('liPlayerArea').style.display = 'none'; $('liFrame').src = ''; });
-      $('liSearchBtn').addEventListener('click', function() { InAppBrowser.open('https://www.linkedin.com/search/results/all/?keywords='); });
-      $('liHomeBtn').addEventListener('click', function() { InAppBrowser.open('https://www.linkedin.com/feed/'); });
-      // Gmail — opens in device's browser
-      $('gmailOpenBtn').addEventListener('click', function() { gmailOpenExternally('https://accounts.google.com/ServiceLogin?service=mail'); });
-      $('gmailInboxBtn').addEventListener('click', function() { gmailOpenExternally('https://mail.google.com/mail/u/0/#inbox'); });
-      // WhatsApp — opens in device's browser
-      $('waOpenBtn').addEventListener('click', function() { waOpenExternally('https://web.whatsapp.com/'); });
-      $('waHomeBtn').addEventListener('click', function() { waOpenExternally('https://web.whatsapp.com/'); });
-      // Zoom — in-app browser
+      // Facebook (external simulated)
+      $('fbPlayBtn').addEventListener('click', fbOpenVideo);
+      $('fbInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') fbOpenVideo(); });
+      $('fbSearchBtn').addEventListener('click', function() { InAppBrowser.launchExternal('https://www.facebook.com/search/top/', { name: 'Facebook', icon: '📘' }); });
+      $('fbHomeBtn').addEventListener('click', function() { InAppBrowser.launchExternal('https://www.facebook.com/', { name: 'Facebook', icon: '📘' }); });
+      // Instagram (external simulated)
+      $('igPlayBtn').addEventListener('click', igOpenPost);
+      $('igInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') igOpenPost(); });
+      $('igSearchBtn').addEventListener('click', function() { InAppBrowser.launchExternal('https://www.instagram.com/explore/search/keyword/', { name: 'Instagram', icon: '📷' }); });
+      $('igHomeBtn').addEventListener('click', function() { InAppBrowser.launchExternal('https://www.instagram.com/', { name: 'Instagram', icon: '📷' }); });
+      // LinkedIn (external simulated)
+      $('liPlayBtn').addEventListener('click', liOpenPost);
+      $('liInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') liOpenPost(); });
+      $('liSearchBtn').addEventListener('click', function() { InAppBrowser.launchExternal('https://www.linkedin.com/search/results/all/', { name: 'LinkedIn', icon: '💼' }); });
+      $('liHomeBtn').addEventListener('click', function() { InAppBrowser.launchExternal('https://www.linkedin.com/feed/', { name: 'LinkedIn', icon: '💼' }); });
+      // Gmail (external simulated)
+      $('gmailOpenBtn').addEventListener('click', function() { gmailOpen('https://accounts.google.com/ServiceLogin?service=mail'); });
+      $('gmailInboxBtn').addEventListener('click', function() { gmailOpen('https://mail.google.com/mail/u/0/#inbox'); });
+      // WhatsApp (external simulated)
+      $('waOpenBtn').addEventListener('click', function() { waOpen('https://web.whatsapp.com/'); });
+      $('waHomeBtn').addEventListener('click', function() { waOpen('https://web.whatsapp.com/'); });
+      // Zoom (external simulated)
       $('zoomOpenBtn').addEventListener('click', function() {
-        var raw = $('zoomInput').value.trim();
-        if (!raw) return toast('Paste a Zoom link', true);
-        var url = raw.match(/^https?:\/\//) ? raw : 'https://' + raw;
-        zoomOpenInApp(url);
+        var url = normalizeUrl($('zoomInput').value);
+        if (!url) return toast('Paste a Zoom link', true);
+        zoomOpen(url);
       });
       $('zoomInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') $('zoomOpenBtn').click(); });
-      $('zoomHomeBtn').addEventListener('click', function() { zoomOpenInApp('https://zoom.us/'); });
-      // Google Meet — in-app browser
+      $('zoomHomeBtn').addEventListener('click', function() { zoomOpen('https://zoom.us/'); });
+      // Google Meet (external simulated)
       $('meetOpenBtn').addEventListener('click', function() {
-        var raw = $('meetInput').value.trim();
-        if (!raw) return toast('Paste a Google Meet link', true);
-        var url = raw.match(/^https?:\/\//) ? raw : 'https://' + raw;
-        meetOpenInApp(url);
+        var url = normalizeUrl($('meetInput').value);
+        if (!url) return toast('Paste a Google Meet link', true);
+        meetOpen(url);
       });
       $('meetInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') $('meetOpenBtn').click(); });
-      $('meetHomeBtn').addEventListener('click', function() { meetOpenInApp('https://meet.google.com/'); });
+      $('meetHomeBtn').addEventListener('click', function() { meetOpen('https://meet.google.com/'); });
     }
   }
 };
