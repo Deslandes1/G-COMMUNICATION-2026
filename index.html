@@ -315,7 +315,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   body{padding:16px;background:#e4e9ef}
   #app{max-width:1100px;border-radius:20px}
   .msg{max-width:68%}
-  #tabChats,#tabCalls,#tabVoicemail,#tabStatus,#tabProfile,#tabNewusers{max-width:720px;margin:0 auto;width:100%}
+  #tabChats,#tabCalls,#tabVoicemail,#tabStatus,#tabProfile,#tabNewusers,#tabYoutube{max-width:720px;margin:0 auto;width:100%}
 }
 </style>
 </head>
@@ -395,7 +395,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
     <div class="lite-mode-badge" id="liteModeBadge">⚡ Lite</div>
-    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v17</div>
+    <div style="font-size:10px;background:rgba(212,175,55,.25);color:#d4af37;padding:3px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px;" id="buildBadge">v18</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
@@ -404,6 +404,51 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div id="incomingRequestsList"></div>
     <div class="section-title">✨ All Jarvis Users</div>
     <div id="newUsersList"></div>
+  </div>
+  <div id="tabYoutube" class="tab-content" style="display:none;">
+    <div style="padding:12px 12px 0;">
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <input id="ytSearchInput" type="text" placeholder="Search YouTube or paste video URL/ID…" autocomplete="off" style="flex:1;padding:14px 16px;border:1px solid var(--border);border-radius:24px;font-size:15px;outline:none;background:#fff;min-width:0;">
+        <button id="ytSearchBtn" style="padding:14px 18px;border:none;border-radius:24px;background:linear-gradient(135deg,#ff0000,#cc0000);color:#fff;font-weight:700;font-size:14px;cursor:pointer;flex-shrink:0;">Search</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:10px;">Search videos, or paste a YouTube link to play directly</div>
+    </div>
+    <div id="ytSearchResults" style="padding:0 12px 12px;"></div>
+    <div id="ytPlayerArea" style="display:none;padding:0 12px 12px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <button id="ytBackBtn" style="background:#eef2f6;border:none;padding:8px 14px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;color:var(--text);flex-shrink:0;">← Back</button>
+        <div id="ytVideoTitle" style="flex:1;font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+        <button id="ytOpenInApp" style="background:#ff0000;color:#fff;border:none;padding:8px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;">Open ↗</button>
+      </div>
+      <div style="position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.2);">
+        <iframe id="ytPlayerFrame" src="" title="YouTube player" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+      <div id="ytVideoInfo" style="margin-top:10px;font-size:13px;color:var(--muted);"></div>
+    </div>
+    <div id="ytFooter" style="padding:12px;border-top:1px solid var(--border);margin-top:10px;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+        <button id="ytSignInQuick" style="flex:1;min-width:140px;padding:12px;border:none;border-radius:10px;background:#ff0000;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">🔑 Sign in to YouTube</button>
+        <button id="ytOpenQuick" style="flex:1;min-width:140px;padding:12px;border:none;border-radius:10px;background:#0b2a4a;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">🌐 Open youtube.com</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.5;text-align:center;">
+        💡 Sign in opens YouTube in a new tab where you can log in with your Google account. Videos here play inside JARVIS.
+      </div>
+      <div id="ytRecentWrap" style="margin-top:12px;">
+        <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Recently watched</div>
+        <div id="ytRecentList"></div>
+      </div>
+      <div style="margin-top:12px;">
+        <details style="font-size:12px;color:var(--muted);">
+          <summary style="cursor:pointer;font-weight:700;">⚙️ Advanced: faster &amp; more reliable search</summary>
+          <div style="margin-top:8px;line-height:1.5;">
+            Free search uses public Invidious/Piped mirrors. For dependable results, add a <strong>YouTube Data API v3</strong> key.
+            <br><a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" rel="noopener" style="color:var(--accent);">Get a free API key →</a>
+          </div>
+          <input id="ytApiKeyInput" type="text" placeholder="Paste YouTube API key" autocomplete="off" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:12px;margin-top:8px;">
+          <button id="ytSaveApiKeyBtn" style="width:100%;padding:10px;margin-top:6px;border:none;border-radius:8px;background:#0d7a8c;color:#fff;font-weight:700;cursor:pointer;font-size:12px;">Save API Key</button>
+        </details>
+      </div>
+    </div>
   </div>
   <div id="tabStatus" class="tab-content" style="display:none;">
     <div id="pinnedStatusCard" class="status-card pinned-card" style="margin:12px 12px 0;">
@@ -491,6 +536,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   <nav class="bottom-nav">
     <button class="nav-item active" data-tab="chats"><span class="icon">💬</span>Friends</button>
     <button class="nav-item" data-tab="newusers"><span class="icon">✨</span>New Users</button>
+    <button class="nav-item" data-tab="youtube"><span class="icon">▶</span>YouTube</button>
     <button class="nav-item" data-tab="status"><span class="icon">⭕</span>Status</button>
     <button class="nav-item" data-tab="calls"><span class="icon">📞</span>Calls</button>
     <button class="nav-item" data-tab="voicemail"><span class="icon">🎙</span>Voicemail</button>
@@ -1969,17 +2015,324 @@ for (var i = 0; i < nb.length; i++) (function(b) {
     for (var k = 0; k < tabs.length; k++) tabs[k].style.display = 'none';
     var tab = $('tab' + t.charAt(0).toUpperCase() + t.slice(1));
     if (tab) tab.style.display = 'block';
-    $('headerTitle').textContent = t === 'chats' ? 'Friend List' : t === 'newusers' ? 'All Users' : t.charAt(0).toUpperCase() + t.slice(1);
+    $('headerTitle').textContent = t === 'chats' ? 'Friend List' : t === 'newusers' ? 'All Users' : t === 'youtube' ? 'YouTube' : t.charAt(0).toUpperCase() + t.slice(1);
     if (t === 'voicemail') listenVoicemails();
     if (t === 'status') { renderPinnedStatus(App.pinnedStatus); renderActiveLiveStreams(); }
     if (t === 'newusers') { renderNewUsersTab(); updateNewUsersBadge(); }
+    if (t === 'youtube') { try { ytInit(); ytRenderRecent(); } catch (e) {} }
   });
 })(nb[i]);
 
 $('chatBackBtn').addEventListener('click', function() { App.activeChat = null; showScreen('screen-main'); });
 window.__lb = function(u) { $('lightboxImg').src = u; $('lightboxDownload').href = u; $('lightbox').classList.add('show'); };
 $('lightboxClose').addEventListener('click', function() { $('lightbox').classList.remove('show'); });
-$('clearBtn').addEventListener('click', function() { if (confirm('Clear local data? You will need to sign in again.')) { if (App.liveMode) cleanupLive(); LS.del('mySlug'); LS.del('contacts'); LS.del('groups'); LS.del('unreadCounts'); LS.del('blockedUsers'); LS.del('cached_chats'); LS.del('cached_statuses'); LS.del('lastSeenTimes'); LS.del('userLiteMode'); LS.del('pinnedStatus'); LS.del('presence'); location.reload(); } });
+$('clearBtn').addEventListener('click', function() { if (confirm('Clear local data? You will need to sign in again.')) { if (App.liveMode) cleanupLive(); LS.del('mySlug'); LS.del('contacts'); LS.del('groups'); LS.del('unreadCounts'); LS.del('blockedUsers'); LS.del('cached_chats'); LS.del('cached_statuses'); LS.del('lastSeenTimes'); LS.del('userLiteMode'); LS.del('pinnedStatus'); LS.del('presence'); LS.del('ytRecent'); LS.del('youtubeApiKey'); location.reload(); } });
+
+/* ════════════════════ YOUTUBE BROWSER ════════════════════ */
+var YT_INVIDIOUS = [
+  'https://inv.nadeko.net',
+  'https://invidious.nerdvpn.de',
+  'https://yewtu.be',
+  'https://invidious.fdn.fr',
+  'https://vid.puffyan.us',
+  'https://invidious.slipfox.xyz'
+];
+var YT_PIPED = [
+  'https://pipedapi.kavin.rocks',
+  'https://pipedapi.adminforge.de',
+  'https://api.piped.yt'
+];
+
+function ytExtractVideoId(input) {
+  if (!input) return null;
+  var s = String(input).trim();
+  if (/^[A-Za-z0-9_-]{11}$/.test(s)) return s;
+  var m = s.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|live\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+function ytExtractPlaylistId(input) {
+  if (!input) return null;
+  var m = String(input).match(/[?&]list=([A-Za-z0-9_-]+)/);
+  return m ? m[1] : null;
+}
+
+function ytFormatDuration(sec) {
+  sec = parseInt(sec, 10);
+  if (!sec || isNaN(sec)) return '';
+  var h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+  if (h > 0) return h + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+function ytFormatViews(n) {
+  n = parseInt(n, 10);
+  if (!n || isNaN(n)) return '';
+  if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B views';
+  if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M views';
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K views';
+  return n + ' views';
+}
+
+function ytFetchWithTimeout(url, ms) {
+  ms = ms || 6000;
+  var tid;
+  var t = new Promise(function(_, rej) {
+    tid = setTimeout(function() { rej(new Error('timeout')); }, ms);
+  });
+  return Promise.race([
+    fetch(url, { headers: { 'Accept': 'application/json' } }),
+    t
+  ]).finally(function() { clearTimeout(tid); });
+}
+
+async function ytSearchInvidious(query) {
+  for (var i = 0; i < YT_INVIDIOUS.length; i++) {
+    try {
+      var url = YT_INVIDIOUS[i] + '/api/v1/search?q=' + encodeURIComponent(query) + '&type=video&sort_by=relevance';
+      var res = await ytFetchWithTimeout(url, 5000);
+      if (!res.ok) continue;
+      var data = await res.json();
+      if (Array.isArray(data) && data.length) {
+        var out = data.filter(function(v) { return v.videoId; }).map(function(v) {
+          return {
+            id: v.videoId,
+            title: v.title || 'Untitled',
+            author: v.author || '',
+            thumbnail: (v.videoThumbnails && v.videoThumbnails[0] && v.videoThumbnails[0].url) || ('https://i.ytimg.com/vi/' + v.videoId + '/mqdefault.jpg'),
+            duration: ytFormatDuration(v.lengthSeconds),
+            views: ytFormatViews(v.viewCount),
+            published: v.publishedText || ''
+          };
+        });
+        if (out.length) return out;
+      }
+    } catch (e) {}
+  }
+  return null;
+}
+
+async function ytSearchPiped(query) {
+  for (var i = 0; i < YT_PIPED.length; i++) {
+    try {
+      var url = YT_PIPED[i] + '/search?q=' + encodeURIComponent(query) + '&filter=videos';
+      var res = await ytFetchWithTimeout(url, 5000);
+      if (!res.ok) continue;
+      var data = await res.json();
+      if (data && Array.isArray(data.items) && data.items.length) {
+        var out = data.items.filter(function(v) { return v.type === 'stream' && v.url; }).map(function(v) {
+          var vid = String(v.url).replace('/watch?v=', '');
+          return {
+            id: vid,
+            title: v.title || 'Untitled',
+            author: v.uploaderName || '',
+            thumbnail: v.thumbnail || ('https://i.ytimg.com/vi/' + vid + '/mqdefault.jpg'),
+            duration: ytFormatDuration(v.duration),
+            views: ytFormatViews(v.views),
+            published: v.uploadedDate || ''
+          };
+        });
+        if (out.length) return out;
+      }
+    } catch (e) {}
+  }
+  return null;
+}
+
+async function ytSearchDataApi(query) {
+  var apiKey = LS.get('youtubeApiKey', '');
+  if (!apiKey) return null;
+  try {
+    var url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=20&q=' + encodeURIComponent(query) + '&key=' + encodeURIComponent(apiKey);
+    var res = await ytFetchWithTimeout(url, 6000);
+    if (!res.ok) {
+      if (res.status === 403 || res.status === 400) toast('YouTube API key invalid or quota exceeded', true);
+      return null;
+    }
+    var data = await res.json();
+    if (!data.items) return null;
+    return data.items.filter(function(it) { return it.id && it.id.videoId; }).map(function(it) {
+      var thumbs = it.snippet.thumbnails || {};
+      return {
+        id: it.id.videoId,
+        title: it.snippet.title,
+        author: it.snippet.channelTitle,
+        thumbnail: (thumbs.medium || thumbs.default || {}).url || ('https://i.ytimg.com/vi/' + it.id.videoId + '/mqdefault.jpg'),
+        duration: '',
+        views: '',
+        published: it.snippet.publishedAt ? new Date(it.snippet.publishedAt).toLocaleDateString() : ''
+      };
+    });
+  } catch (e) { return null; }
+}
+
+async function ytDoSearch(query) {
+  query = String(query || '').trim();
+  if (!query) return;
+
+  var vid = ytExtractVideoId(query);
+  if (vid) { ytPlayVideo(vid, 'YouTube Video', ''); return; }
+
+  var listId = ytExtractPlaylistId(query);
+  if (listId) { ytPlayPlaylist(listId); return; }
+
+  var resultsEl = $('ytSearchResults');
+  var playerArea = $('ytPlayerArea');
+  if (playerArea) playerArea.style.display = 'none';
+  if (resultsEl) {
+    resultsEl.style.display = 'block';
+    resultsEl.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);"><div style="display:inline-block;width:40px;height:40px;border:4px solid #eee;border-top-color:#ff0000;border-radius:50%;animation:jarvisSpin 1s linear infinite;margin-bottom:12px;"></div><div>Searching YouTube…</div></div>';
+  }
+
+  var results = await ytSearchDataApi(query);
+  if (!results) results = await ytSearchInvidious(query);
+  if (!results) results = await ytSearchPiped(query);
+
+  if (!results || !results.length) { ytShowFallback(query); return; }
+  ytRenderResults(results, query);
+}
+
+function ytRenderResults(results, query) {
+  var el = $('ytSearchResults');
+  if (!el) return;
+  var html = '<div style="font-size:12px;color:var(--muted);margin-bottom:8px;padding:0 4px;">' + results.length + ' results for "' + esc(query) + '"</div>';
+  for (var i = 0; i < results.length; i++) {
+    var r = results[i];
+    var safeTitle = esc(r.title).replace(/'/g, "\\'");
+    var safeAuthor = esc(r.author || '').replace(/'/g, "\\'");
+    html += '<div style="display:flex;gap:10px;background:#fff;border-radius:10px;padding:8px;margin-bottom:8px;border:1px solid var(--border);cursor:pointer;overflow:hidden;" onclick="window.__ytPlay(\'' + r.id + '\',\'' + safeTitle + '\',\'' + safeAuthor + '\')">' +
+      '<div style="position:relative;flex-shrink:0;width:120px;height:68px;border-radius:6px;overflow:hidden;background:#000;">' +
+        '<img src="' + esc(r.thumbnail) + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display=\'none\'">' +
+        (r.duration ? '<div style="position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,.8);color:#fff;font-size:10px;padding:1px 4px;border-radius:3px;font-weight:700;">' + esc(r.duration) + '</div>' : '') +
+      '</div>' +
+      '<div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;">' +
+        '<div style="font-size:13px;font-weight:700;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">' + esc(r.title) + '</div>' +
+        '<div style="font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(r.author) + (r.views ? ' · ' + esc(r.views) : '') + '</div>' +
+      '</div>' +
+    '</div>';
+  }
+  el.innerHTML = html;
+}
+
+function ytShowFallback(query) {
+  var el = $('ytSearchResults');
+  if (!el) return;
+  el.innerHTML = '<div style="text-align:center;padding:24px 16px;background:#fff;border-radius:12px;border:1px solid var(--border);">' +
+    '<div style="font-size:40px;margin-bottom:10px;">🔍</div>' +
+    '<div style="font-weight:700;font-size:15px;margin-bottom:6px;">Search unavailable right now</div>' +
+    '<div style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.5;">The free search services are busy. You can still watch any video by pasting a YouTube link above, or search directly on YouTube.</div>' +
+    '<a href="https://www.youtube.com/results?search_query=' + encodeURIComponent(query) + '" target="_blank" rel="noopener" style="display:inline-block;background:#ff0000;color:#fff;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;">Search "' + esc(query) + '" on YouTube →</a>' +
+    '<div style="font-size:11px;color:var(--muted);margin-top:12px;">Tip: Add a YouTube API key in Advanced settings for reliable search.</div>' +
+  '</div>';
+}
+
+function ytPlayVideo(videoId, title, author) {
+  var embed = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&playsinline=1&rel=0&modestbranding=1';
+  var playerArea = $('ytPlayerArea');
+  var resultsEl = $('ytSearchResults');
+  if ($('ytPlayerFrame')) $('ytPlayerFrame').src = embed;
+  if ($('ytVideoTitle')) $('ytVideoTitle').textContent = title || 'YouTube Video';
+  if ($('ytVideoInfo')) $('ytVideoInfo').innerHTML = (author ? 'by ' + esc(author) + ' · ' : '') + 'Video ID: ' + esc(videoId);
+  if (playerArea) playerArea.style.display = 'block';
+  if (resultsEl) resultsEl.style.display = 'none';
+  var openBtn = $('ytOpenInApp');
+  if (openBtn) openBtn.onclick = function() { window.open('https://www.youtube.com/watch?v=' + videoId, '_blank'); };
+  var recent = LS.get('ytRecent', []) || [];
+  recent = recent.filter(function(r) { return r.id !== videoId; });
+  recent.unshift({ id: videoId, title: title || '', author: author || '', time: Date.now() });
+  recent = recent.slice(0, 10);
+  LS.set('ytRecent', recent);
+  ytRenderRecent();
+}
+
+function ytPlayPlaylist(listId) {
+  var embed = 'https://www.youtube.com/embed/videoseries?list=' + listId + '&autoplay=1';
+  if ($('ytPlayerFrame')) $('ytPlayerFrame').src = embed;
+  if ($('ytVideoTitle')) $('ytVideoTitle').textContent = 'YouTube Playlist';
+  if ($('ytVideoInfo')) $('ytVideoInfo').textContent = 'Playlist ID: ' + listId;
+  if ($('ytPlayerArea')) $('ytPlayerArea').style.display = 'block';
+  if ($('ytSearchResults')) $('ytSearchResults').style.display = 'none';
+  var openBtn = $('ytOpenInApp');
+  if (openBtn) openBtn.onclick = function() { window.open('https://www.youtube.com/playlist?list=' + listId, '_blank'); };
+}
+
+window.__ytPlay = function(videoId, title, author) { ytPlayVideo(videoId, title, author); };
+
+function ytRenderRecent() {
+  var el = $('ytRecentList');
+  if (!el) return;
+  var recent = LS.get('ytRecent', []) || [];
+  if (!recent.length) { el.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:8px;text-align:center;">No recent videos yet.</div>'; return; }
+  var html = '';
+  for (var i = 0; i < recent.length; i++) {
+    var r = recent[i];
+    var safeTitle = esc(r.title || r.id).replace(/'/g, "\\'");
+    var safeAuthor = esc(r.author || '').replace(/'/g, "\\'");
+    html += '<div style="display:flex;gap:8px;align-items:center;padding:6px;border-bottom:1px solid #f0f0f0;cursor:pointer;" onclick="window.__ytPlay(\'' + r.id + '\',\'' + safeTitle + '\',\'' + safeAuthor + '\')">' +
+      '<img src="https://i.ytimg.com/vi/' + r.id + '/default.jpg" style="width:60px;height:34px;object-fit:cover;border-radius:4px;flex-shrink:0;background:#000;" onerror="this.style.display=\'none\'">' +
+      '<div style="flex:1;min-width:0;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(r.title || r.id) + '</div>' +
+    '</div>';
+  }
+  el.innerHTML = html;
+}
+
+function ytInit() {
+  var input = $('ytSearchInput');
+  var btn = $('ytSearchBtn');
+  if (btn && !btn._ytBound) {
+    btn._ytBound = true;
+    btn.addEventListener('click', function() { ytDoSearch(input ? input.value : ''); });
+  }
+  if (input && !input._ytBound) {
+    input._ytBound = true;
+    input.addEventListener('keydown', function(e) { if (e.key === 'Enter') ytDoSearch(input.value); });
+  }
+  var back = $('ytBackBtn');
+  if (back && !back._ytBound) {
+    back._ytBound = true;
+    back.addEventListener('click', function() {
+      if ($('ytPlayerArea')) $('ytPlayerArea').style.display = 'none';
+      if ($('ytPlayerFrame')) $('ytPlayerFrame').src = '';
+      if ($('ytSearchResults') && $('ytSearchResults').innerHTML.trim()) $('ytSearchResults').style.display = 'block';
+    });
+  }
+  var signIn = $('ytSignInQuick');
+  if (signIn && !signIn._ytBound) {
+    signIn._ytBound = true;
+    signIn.addEventListener('click', function() { window.open('https://accounts.google.com/ServiceLogin?service=youtube', '_blank'); });
+  }
+  var openSite = $('ytOpenQuick');
+  if (openSite && !openSite._ytBound) {
+    openSite._ytBound = true;
+    openSite.addEventListener('click', function() { window.open('https://www.youtube.com', '_blank'); });
+  }
+  var apiInput = $('ytApiKeyInput');
+  if (apiInput && !apiInput._ytBound) {
+    apiInput._ytBound = true;
+    apiInput.value = LS.get('youtubeApiKey', '') || '';
+  }
+  var saveKey = $('ytSaveApiKeyBtn');
+  if (saveKey && !saveKey._ytBound) {
+    saveKey._ytBound = true;
+    saveKey.addEventListener('click', function() {
+      var v = $('ytApiKeyInput') ? $('ytApiKeyInput').value.trim() : '';
+      if (v) { LS.set('youtubeApiKey', v); toast('YouTube API key saved ✓'); }
+      else { LS.del('youtubeApiKey'); toast('API key cleared'); }
+    });
+  }
+  ytRenderRecent();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', ytInit);
+} else {
+  setTimeout(ytInit, 0);
+}
+document.addEventListener('click', function(e) {
+  var b = e.target.closest ? e.target.closest('.nav-item[data-tab="youtube"]') : null;
+  if (b) setTimeout(ytRenderRecent, 50);
+});
+/* ══════════════════════════════════════════════════════════ */
 </script>
 </body>
 </html>
