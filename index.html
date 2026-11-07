@@ -300,6 +300,8 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .platform-tab[data-platform="whatsapp"].active{background:linear-gradient(135deg,#25D366,#1da851);border-color:#25D366}
 .platform-tab[data-platform="zoom"].active{background:linear-gradient(135deg,#2D8CFF,#1a6dcc);border-color:#2D8CFF}
 .platform-tab[data-platform="meet"].active{background:linear-gradient(135deg,#00897B,#00695C);border-color:#00897B}
+.platform-tab[data-platform="gemini"].active{background:linear-gradient(135deg,#4285F4,#1a73e8);border-color:#4285F4}
+.platform-tab[data-platform="deepseek"].active{background:linear-gradient(135deg,#4D6BFE,#3a55d4);border-color:#4D6BFE}
 .platform-panel{padding:12px}
 .social-input-row{display:flex;gap:8px;margin-bottom:10px}
 .social-input-row input{flex:1;padding:16px 18px;border:2px solid var(--border);border-radius:24px;font-size:17px;outline:none;background:#fff;min-width:0}
@@ -449,7 +451,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
     <div class="lite-mode-badge" id="liteModeBadge">⚡ Lite</div>
-    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v21</div>
+    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v22</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
@@ -470,6 +472,8 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       <button class="platform-tab" data-platform="whatsapp">💚 WhatsApp</button>
       <button class="platform-tab" data-platform="zoom">🎥 Zoom</button>
       <button class="platform-tab" data-platform="meet">📹 Google Meet</button>
+      <button class="platform-tab" data-platform="gemini">✨ Gemini</button>
+      <button class="platform-tab" data-platform="deepseek">🐋 DeepSeek</button>
     </div>
     <div class="platform-panel" data-platform="youtube" id="panelYoutube">
       <div class="social-input-row">
@@ -572,6 +576,22 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       </div>
       <div class="social-hint">Paste a Google Meet link. Opens in your browser — JARVIS stays with you.</div>
       <button id="meetHomeBtn" class="social-action-btn" style="background:linear-gradient(135deg,#00897B,#00695C);"><span class="icon">🏠</span>Open Google Meet Home</button>
+    </div>
+    <div class="platform-panel" data-platform="gemini" id="panelGemini" style="display:none;">
+      <div class="social-input-row">
+        <input id="geminiInput" type="text" placeholder="Paste Gemini conversation link…" autocomplete="off">
+        <button id="geminiOpenBtn" style="background:linear-gradient(135deg,#4285F4,#1a73e8);">Open</button>
+      </div>
+      <div class="social-hint">Paste a Gemini link. Opens in your browser — JARVIS stays with you.</div>
+      <button id="geminiHomeBtn" class="social-action-btn" style="background:linear-gradient(135deg,#4285F4,#1a73e8);"><span class="icon">🏠</span>Open Gemini Home</button>
+    </div>
+    <div class="platform-panel" data-platform="deepseek" id="panelDeepseek" style="display:none;">
+      <div class="social-input-row">
+        <input id="deepseekInput" type="text" placeholder="Paste DeepSeek conversation link…" autocomplete="off">
+        <button id="deepseekOpenBtn" style="background:linear-gradient(135deg,#4D6BFE,#3a55d4);">Open</button>
+      </div>
+      <div class="social-hint">Paste a DeepSeek link. Opens in your browser — JARVIS stays with you.</div>
+      <button id="deepseekHomeBtn" class="social-action-btn" style="background:linear-gradient(135deg,#4D6BFE,#3a55d4);"><span class="icon">🏠</span>Open DeepSeek Home</button>
     </div>
   </div>
   <div id="tabStatus" class="tab-content" style="display:none;">
@@ -2163,15 +2183,16 @@ for (var i = 0; i < nb.length; i++) (function(b) {
 $('chatBackBtn').addEventListener('click', function() { App.activeChat = null; showScreen('screen-main'); });
 window.__lb = function(u) { $('lightboxImg').src = u; $('lightboxDownload').href = u; $('lightbox').classList.add('show'); };
 $('lightboxClose').addEventListener('click', function() { $('lightbox').classList.remove('show'); });
-$('clearBtn').addEventListener('click', function() { if (confirm('Clear local data?')) { if (App.liveMode) cleanupLive(); LS.del('mySlug'); LS.del('contacts'); LS.del('groups'); LS.del('unreadCounts'); LS.del('blockedUsers'); LS.del('cached_chats'); LS.del('cached_statuses'); LS.del('lastSeenTimes'); LS.del('userLiteMode'); LS.del('pinnedStatus'); LS.del('presence'); LS.del('ytRecent'); LS.del('youtubeApiKey'); location.reload(); } });
+$('clearBtn').addEventListener('click', function() { if (confirm('Clear local data?')) { if (App.liveMode) cleanupLive(); LS.del('mySlug'); LS.del('contacts'); LS.del('groups'); LS.del('unreadCounts'); LS.del('blockedUsers'); LS.del('cached_chats'); LS.del('cached_statuses'); LS.del('lastSeenTimes'); LS.del('userLiteMode'); LS.del('pinnedStatus'); LS.del('presence'); LS.del('ytRecent'); LS.del('youtubeApiKey'); LS.del('ttRecent'); location.reload(); } });
 
 /* ═══════════════════════════════════════════════════════════
    SOCIAL HUB
    ─ YouTube: plays embedded inside JARVIS (iframe player)
    ─ TikTok, Facebook, Instagram, LinkedIn, Gmail, WhatsApp,
-     Zoom, Google Meet: open in external browser but the
-     JARVIS UI stays visible via a full-screen launcher so it
-     feels like they're still inside the G Communication Portal.
+     Zoom, Google Meet, Gemini, DeepSeek: open in external
+     browser but keep JARVIS UI visible via a full-screen
+     launcher so it feels like they're still inside the
+     G Communication Portal / G Jarvis.
    ═══════════════════════════════════════════════════════════ */
 
 var InAppBrowser = {
@@ -2394,6 +2415,12 @@ function zoomOpen(url) { InAppBrowser.launchExternal(url, { name: 'Zoom', icon: 
 /* ══════════ GOOGLE MEET (external, simulated inside) ══════════ */
 function meetOpen(url) { InAppBrowser.launchExternal(url, { name: 'Google Meet', icon: '📹' }); }
 
+/* ══════════ GEMINI (external, simulated inside) ══════════ */
+function geminiOpen(url) { InAppBrowser.launchExternal(url, { name: 'Gemini', icon: '✨' }); }
+
+/* ══════════ DEEPSEEK (external, simulated inside) ══════════ */
+function deepseekOpen(url) { InAppBrowser.launchExternal(url, { name: 'DeepSeek', icon: '🐋' }); }
+
 /* ══════════ SOCIAL HUB INIT + BINDINGS ══════════ */
 var SocialHub = {
   init: function() {
@@ -2460,6 +2487,22 @@ var SocialHub = {
       });
       $('meetInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') $('meetOpenBtn').click(); });
       $('meetHomeBtn').addEventListener('click', function() { meetOpen('https://meet.google.com/'); });
+      // Gemini (external simulated)
+      $('geminiOpenBtn').addEventListener('click', function() {
+        var url = normalizeUrl($('geminiInput').value);
+        if (!url) return toast('Paste a Gemini link', true);
+        geminiOpen(url);
+      });
+      $('geminiInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') $('geminiOpenBtn').click(); });
+      $('geminiHomeBtn').addEventListener('click', function() { geminiOpen('https://gemini.google.com/'); });
+      // DeepSeek (external simulated)
+      $('deepseekOpenBtn').addEventListener('click', function() {
+        var url = normalizeUrl($('deepseekInput').value);
+        if (!url) return toast('Paste a DeepSeek link', true);
+        deepseekOpen(url);
+      });
+      $('deepseekInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') $('deepseekOpenBtn').click(); });
+      $('deepseekHomeBtn').addEventListener('click', function() { deepseekOpen('https://chat.deepseek.com/'); });
     }
   }
 };
