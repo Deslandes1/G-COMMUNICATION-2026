@@ -1,35 +1,37 @@
-# G Communication Portal
+# JARVIS Communication Portal
 
-Private chat, voicemail, and peer-to-peer voice calls — a mobile-first telecom app built by **Gesner Deslandes**.
+Real-time chat, voice/video calls, live streaming, social feed & hub — powered by Firebase.
 
-## Live app
+## 🔴 Live App
+`https://<your-username>.github.io/<repo-name>/`
 
-`https://YOUR-USERNAME.github.io/g-comm/`
+## ✨ Features
+- 💬 Real-time 1-to-1 & group chat
+- 📹 Voice & video calls (WebRTC)
+- 🔴 Live streaming with in-app chat
+- 📰 Wall / Feed with Public / Friends / Selected privacy
+- ▶️ In-app YouTube player (never leaves the app)
+- 🌍 Social Hub — YouTube, TikTok, Facebook, Instagram, LinkedIn, Gmail, WhatsApp, Zoom, Meet, Gemini, DeepSeek, Google, Chrome, Edge
+- ⚡ Lite Mode for 2G/3G
+- 📱 Installable PWA
+- 🛡️ Owner Space for admin
+- 🔔 Like / comment / reaction DMs (author gets notified)
 
-## Features
+## 🚀 Deploy
+1. Push all files to repo root
+2. Settings → Pages → `main` / `/ (root)` → Save
+3. Wait 1–2 min → open your URL
 
-- **Chat** — real-time text messages synced through Firebase Realtime Database
-- **Voicemail** — record audio on your phone and send it to any contact
-- **Voice calls** — real two-way audio using WebRTC (PeerJS + STUN)
-- **Works offline for receivers** — chat and voicemail are stored in Firebase
-- **PWA** — installable on iPhone and Android home screens
+## 🔥 Firebase Setup
+1. Create project at console.firebase.google.com
+2. Enable Authentication → Email/Password
+3. Enable Realtime Database
+4. Rules tab → paste `database.rules.json` → Publish
+5. Data tab → ⋮ → Import `jarvis-seed.json`
+6. Update `firebaseConfig` in `index.html` if needed
 
-## Tech stack
+## 👤 Owner
+Gesner Deslandes — Software Engineer
 
-| Layer | Technology |
-|---|---|
-| Frontend | Vanilla HTML / CSS / JavaScript (single `index.html`) |
-| Messaging + voicemail storage | Firebase Realtime Database |
-| Voice calls | WebRTC via PeerJS |
-| Hosting | GitHub Pages |
-| Offline cache | Service Worker |
-
-## How to use
-
-1. Open the app, enter your name — you get a **Peer ID** on the Profile tab.
-2. Share that ID with the person you want to reach.
-3. They tap **＋**, paste your ID, and give you a name.
-4. You do the same with their ID.
-5. Chat, call, or record a voicemail.
-
-## Deploy it yourself
+## 📄 License
+All Rights Reserved © 2026 JARVIS
