@@ -2,11 +2,17 @@
   "rules": {
     ".read": "auth != null",
     ".write": "auth != null",
-    "public_users": {
-      ".read": true,
+    "users": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "statuses": {
+      ".read": "auth != null",
       ".write": "auth != null"
     },
-    "presence": {
+    "wall_posts": {
       ".read": "auth != null",
       ".write": "auth != null"
     },
@@ -14,47 +20,16 @@
       ".read": "auth != null",
       ".write": "auth != null"
     },
-    "users": {
-      "$uid": {
-        ".read": "auth != null",
-        ".write": "auth != null"
-      }
-    },
-    "chats": {
-      "$chatId": {
-        ".read": "auth != null",
-        ".write": "auth != null"
-      }
-    },
-    "group_chats": {
+    "public_users": {
       ".read": "auth != null",
       ".write": "auth != null"
     },
-    "voicemails": {
-      "$uid": {
-        ".read": "auth != null",
-        ".write": "auth != null"
-      }
-    },
-    "calls": {
-      "$uid": {
-        ".read": "auth != null",
-        ".write": "auth != null"
-      }
-    },
-    "call_chats": {
-      "$callId": {
-        ".read": "auth != null",
-        ".write": "auth != null"
-      }
-    },
-    "wall_posts": {
+    "presence": {
       ".read": "auth != null",
-      ".write": "auth != null"
-    },
-    "status_interactions": {
-      ".read": "auth != null",
-      ".write": "auth != null"
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid"
+      }
     }
   }
 }
+      
