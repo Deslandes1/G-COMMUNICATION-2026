@@ -113,6 +113,9 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .msg .attach-video{max-width:100%;width:100%;display:block;border-radius:12px;background:#000}
 .msg .attach-audio{width:100%;max-width:280px;margin-top:2px}
 .msg .attach-file{display:flex;align-items:center;gap:10px;padding:12px;background:#f2f7fb;border-radius:10px;text-decoration:none;color:var(--text);font-size:17px !important}
+.msg .status-interaction-badge{display:inline-block;font-size:12px;background:#d4af37;color:#0b2a4a;padding:3px 9px;border-radius:6px;font-weight:800;letter-spacing:.4px;margin-bottom:6px}
+.msg .status-original-block{background:#fff8e1;border-left:3px solid #d4af37;padding:10px 12px;border-radius:8px;margin-top:8px;font-size:15px;line-height:1.5}
+.msg .status-original-block .label{font-size:11px;color:#8b6914;font-weight:800;letter-spacing:.5px;display:block;margin-bottom:4px}
 .lazy-img{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:120px;background:linear-gradient(135deg,#f2f5f8,#e8eef4);border:2px dashed #c7d2dc;border-radius:12px;color:#6b7a87;font-weight:600;cursor:pointer;padding:20px;text-align:center;font-size:16px;gap:8px}
 .lazy-img:active{background:#dfe6ed}
 .lazy-img .lazy-icon{font-size:32px}
@@ -335,8 +338,6 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .iab-blocked p{font-size:16px;color:var(--muted);line-height:1.6;margin-bottom:20px;max-width:380px}
 .iab-blocked button{padding:16px 24px;background:linear-gradient(135deg,#0d7a8c,#0a6474);color:#fff;border:none;border-radius:10px;font-size:17px;font-weight:700;cursor:pointer;margin-bottom:10px;width:100%;max-width:320px}
 .iab-blocked .secondary{background:#eef2f6;color:var(--text)}
-
-/* ══════════ SIMULATED EXTERNAL LAUNCHER ══════════ */
 .iab-launching{position:absolute;inset:0;background:linear-gradient(135deg,#0b2a4a 0%,#143a5f 50%,#0d7a8c 100%);display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;color:#fff;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .iab-launching.show{display:flex}
 .launch-platform-icon{width:120px;height:120px;border-radius:30px;background:rgba(255,255,255,.12);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;font-size:64px;margin-bottom:26px;box-shadow:0 20px 60px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.18);flex-shrink:0;animation:launchIconPulse 2s ease-in-out infinite}
@@ -351,6 +352,23 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .launch-btn.primary{background:linear-gradient(135deg,#f0d369 0%,#d4af37 50%,#b8912a 100%);color:#0b2a4a;box-shadow:0 8px 24px rgba(212,175,55,.45)}
 .launch-btn.secondary{background:rgba(255,255,255,.13);color:#fff;border:1.5px solid rgba(255,255,255,.28)}
 .launch-tip{font-size:13px;opacity:.7;margin-top:20px;max-width:340px;line-height:1.5;background:rgba(0,0,0,.25);padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.1)}
+
+/* ══════════ OWNER INTERACTIONS ══════════ */
+.owner-interaction-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(11,42,74,.05)}
+.owner-interaction-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.owner-interaction-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;overflow:hidden;flex-shrink:0}
+.owner-interaction-avatar img{width:100%;height:100%;object-fit:cover}
+.owner-interaction-text{flex:1;font-size:14px;line-height:1.35;min-width:0}
+.owner-interaction-time{font-size:12px;color:var(--muted);flex-shrink:0}
+.owner-interaction-comment{background:#f0f7ff;border-left:3px solid #0d7a8c;padding:10px 12px;border-radius:6px;margin-bottom:8px;font-size:15px;line-height:1.5}
+.owner-original-block{background:#fff8e1;border-left:3px solid #d4af37;padding:10px 12px;border-radius:6px;margin-bottom:8px}
+.owner-original-label{color:#8b6914;font-size:11px;font-weight:800;letter-spacing:.5px;display:block;margin-bottom:4px}
+.owner-original-text{color:#0b2a4a;font-size:14px;line-height:1.5;word-break:break-word}
+.owner-original-media{width:100%;max-height:220px;object-fit:contain;border-radius:8px;background:#f2f5f8;display:block;margin-top:4px;cursor:pointer}
+.owner-interaction-actions{display:flex;gap:6px;margin-top:6px}
+.owner-interaction-actions button{flex:1;padding:9px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;border:none}
+.owner-jump-btn{background:#eef2f6;color:#0b2a4a}
+.owner-delete-btn{background:#fff0f0;color:#ff4757;flex:0 0 auto !important;padding:9px 14px !important}
 
 /* ══════════ RESPONSIVE ══════════ */
 @media (max-width: 540px){
@@ -451,7 +469,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
     <div class="lite-mode-badge" id="liteModeBadge">⚡ Lite</div>
-    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v22</div>
+    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v23</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
@@ -832,7 +850,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   </div>
 </div>
 <div class="modal-overlay" id="ownerAuthModal"><div class="modal"><h3>Owner Auth</h3><input id="ownerPassInput" type="password" placeholder="Password"><div class="modal-actions"><button class="cancel" id="ownerAuthCancel">Cancel</button><button class="confirm" id="ownerAuthConfirm">Unlock</button></div></div></div>
-<div class="modal-overlay" id="ownerSpaceModal"><div class="modal" style="max-width:640px;max-height:90vh;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h3 style="margin:0;">🛡️ Owner Space</h3><button id="ownerSpaceClose" style="background:none;border:none;font-size:26px;cursor:pointer;">✕</button></div><div style="display:flex;gap:6px;margin-bottom:12px;"><button class="btn-primary" id="ownerTabStatusBtn" style="flex:1;max-width:none;padding:12px;">Statuses</button><button class="btn-primary" id="ownerTabChatsBtn" style="flex:1;max-width:none;padding:12px;background:#143a5f;">P2P DMs</button></div><div id="ownerContentArea" style="max-height:55vh;overflow-y:auto;"></div></div></div>
+<div class="modal-overlay" id="ownerSpaceModal"><div class="modal" style="max-width:640px;max-height:90vh;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h3 style="margin:0;">🛡️ Owner Space</h3><button id="ownerSpaceClose" style="background:none;border:none;font-size:26px;cursor:pointer;">✕</button></div><div style="display:flex;gap:6px;margin-bottom:12px;"><button class="btn-primary" id="ownerTabStatusBtn" style="flex:1;max-width:none;padding:12px;">Statuses</button><button class="btn-primary" id="ownerTabChatsBtn" style="flex:1;max-width:none;padding:12px;background:#143a5f;">P2P DMs</button><button class="btn-primary" id="ownerTabInteractionsBtn" style="flex:1;max-width:none;padding:12px;background:#143a5f;">🔍 Interactions</button></div><div id="ownerContentArea" style="max-height:55vh;overflow-y:auto;"></div></div></div>
 <div class="modal-overlay" id="bgGalleryModal"><div class="modal" style="max-width:460px;"><h3>🖼️ Backgrounds</h3><div class="bg-gallery-grid" id="bgGalleryGrid"></div><div class="modal-actions"><button class="cancel" id="bgGalleryClose" style="width:100%;max-width:none;">Close</button></div></div></div>
 <div class="modal-overlay" id="liveBgModal"><div class="modal" style="max-width:460px;"><h3>🖼️ Virtual Background</h3><div class="bg-gallery-grid" id="liveBgGallery" style="grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div><div style="margin-bottom:12px;"><input type="file" id="liveBgUploadInput" accept="image/*" style="display:none;" onchange="window.__uploadLiveBg(this)"><button onclick="document.getElementById('liveBgUploadInput').click()" style="width:100%;padding:14px;background:#143a5f;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:16px;">📷 Upload From Device</button></div><div class="modal-actions"><button class="cancel" onclick="document.getElementById('liveBgModal').classList.remove('show')" style="width:100%;max-width:none;">Close</button></div></div></div>
 <div class="modal-overlay" id="saveRecordingModal"><div class="modal" style="max-width:400px;"><h3>💾 Save Recording</h3><p style="font-size:15px;color:var(--muted);margin-bottom:14px;">Recording complete! Where to save?</p><div id="saveRecInfo" class="save-rec-info">Preparing…</div><button class="save-rec-btn device" onclick="window.__saveLiveRecordingToDevice()"><span class="icon">📱</span><span class="label">Save to Device<span class="hint">Downloads .webm file</span></span></button><button class="save-rec-btn drive" onclick="window.__saveLiveRecordingToDrive()"><span class="icon">☁️</span><span class="label">Save to Google Drive / OneDrive<span class="hint">Share sheet or upload</span></span></button><button class="save-rec-btn share" onclick="window.__shareLiveRecording()"><span class="icon">📤</span><span class="label">Share Elsewhere<span class="hint">WhatsApp, iCloud, OneDrive…</span></span></button><button class="save-rec-btn discard" onclick="window.__discardLiveRecording()"><span class="icon">❌</span><span class="label">Discard</span></button></div></div>
@@ -895,6 +913,7 @@ const PINNED_STATUS_PATH = 'chats/_jarvis_intro';
 const PRESENCE_PATH = 'presence';
 const DB_URL = "https://g-communication-2026-c5af2-default-rtdb.firebaseio.com";
 const STATUS_FEED_PATH = 'chats/_status_feed/statuses';
+const STATUS_INTERACTIONS_PATH = 'status_interactions';
 const LIVE_BASE_PATH = 'chats/_live_streams';
 const LIVE_ACTIVE_PATH = LIVE_BASE_PATH + '/active';
 const LIVE_STREAMS_PATH = LIVE_BASE_PATH + '/streams';
@@ -1614,6 +1633,7 @@ $('blockUserFromChatBtn').addEventListener('click', function() { if (App.activeC
 
 function renderAttachment(a) { if (!a || !a.url) return ''; var u = esc(a.url); if (a.type === 'image') { if (App.liteMode) return '<div class="lazy-img" onclick="window.__loadLazyImg(this, \'' + u + '\')"><span class="lazy-icon">🖼️</span><span>Tap to load image</span></div>'; return '<img class="attach-img" src="' + u + '" loading="lazy" onclick="window.__lb(\'' + u + '\')">'; } if (a.type === 'video') return '<video class="attach-video" controls playsinline webkit-playsinline src="' + u + '" preload="none"></video>'; if (a.type === 'audio') return '<audio class="attach-audio" controls preload="none" src="' + u + '"></audio>'; return '<a class="attach-file" href="' + u + '" target="_blank" download="' + esc(a.name || 'file') + '">📄 ' + esc(a.name || 'File') + '</a>'; }
 
+/* ══════════ RENDER MESSAGES WITH STATUS INTERACTION BADGE ══════════ */
 function renderMessages(id, msgs, isGroup) {
   var area = $('messagesArea'), del = App.deletedLocally[id] || [];
   var vis = msgs.filter(function(m) { return del.indexOf(m._k) === -1; });
@@ -1624,7 +1644,12 @@ function renderMessages(id, msgs, isGroup) {
     var t = m.time ? formatDateTime(m.time, 'short') : '';
     var st = (isGroup && !out) ? '<span class="sender-tag">@' + esc(m.fromName || m.from) + '</span>' : '';
     var et = m.edited ? '<span class="edited-tag">(edited)</span>' : '';
-    html += '<div class="msg ' + (out ? 'out' : 'in') + '" onclick="window.__openActionSheet(\'' + m._k + '\', ' + out + ')">' + st + (m.attachment ? renderAttachment(m.attachment) : '') + (m.text ? '<div>' + esc(m.text) + et + '</div>' : '') + '<span class="time">' + t + '</span></div>';
+    var interactionBadge = '';
+    if (m.statusInteraction) {
+      interactionBadge = '<div class="status-interaction-badge">STATUS ' + (m.statusInteraction.type === 'like' ? '👍 LIKE' : '💬 COMMENT') + '</div>';
+    }
+    var mainText = m.text ? '<div style="white-space:pre-wrap;">' + esc(m.text) + et + '</div>' : '';
+    html += '<div class="msg ' + (out ? 'out' : 'in') + '" onclick="window.__openActionSheet(\'' + m._k + '\', ' + out + ')">' + st + interactionBadge + (m.attachment ? renderAttachment(m.attachment) : '') + mainText + '<span class="time">' + t + '</span></div>';
   }
   area.innerHTML = html;
   setTimeout(function() { area.scrollTop = area.scrollHeight; }, 10);
@@ -1706,12 +1731,77 @@ function renderStatusFeedList(posts) {
 window.__loadLazyStatusImg = function(el, url, name) { if (!el || !url) return; var img = document.createElement('img'); img.className = 'status-media'; img.loading = 'lazy'; img.src = url; img.onclick = function() { window.__viewAvatar(url, name); }; if (el.parentNode) el.parentNode.replaceChild(img, el); };
 window.__loadLazyYt = function(el, ytId) { if (!el || !ytId) return; var wrap = document.createElement('div'); wrap.style.cssText = 'position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:12px;overflow:hidden;margin-bottom:10px;'; wrap.innerHTML = '<iframe src="https://www.youtube.com/embed/' + ytId + '?playsinline=1&rel=0&autoplay=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>'; if (el.parentNode) el.parentNode.replaceChild(wrap, el); };
 
-window.__toggleStatusLike = async function(k) { var posts = window._cachedPosts || [], p = null; for (var i = 0; i < posts.length; i++) if (posts[i]._k === k) { p = posts[i]; break; } if (!p) return; var lr = dbRef(db, STATUS_FEED_PATH + '/' + k + '/likes/' + App.mySlug); var sn = await get(lr); if (sn.exists()) { await remove(lr); toast('Unliked'); } else { await set(lr, { time: Date.now() }); toast('Liked 👍'); if (p.authorSlug !== App.mySlug) { await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: '👍 Liked your status.', time: Date.now() }); } } };
+/* ══════════ STATUS LIKE — sends rich DM + logs to owner feed ══════════ */
+window.__toggleStatusLike = async function(k) {
+  var posts = window._cachedPosts || [], p = null;
+  for (var i = 0; i < posts.length; i++) if (posts[i]._k === k) { p = posts[i]; break; }
+  if (!p) return;
+  var lr = dbRef(db, STATUS_FEED_PATH + '/' + k + '/likes/' + App.mySlug);
+  var sn = await get(lr);
+  if (sn.exists()) { await remove(lr); toast('Unliked'); return; }
+  await set(lr, { time: Date.now() }); toast('Liked 👍');
+  if (p.authorSlug === App.mySlug) return;
+  try {
+    // ── DM to post owner with FULL original post content ──
+    var dmAttachment = null;
+    if (p.mediaUrl) dmAttachment = { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Original status media' };
+    var dmText = '👍 ' + App.myName + ' (@' + App.mySlug + ') liked your status.' +
+      (p.text ? '\n\n📝 Original post: "' + p.text + '"' : '') +
+      (p.link ? '\n\n🔗 ' + p.link : '') +
+      (dmAttachment ? '\n\n📎 Original media is attached below.' : '');
+    await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), {
+      from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment,
+      statusInteraction: { type: 'like', statusKey: k, statusText: p.text || '', statusMediaUrl: p.mediaUrl || null, statusMediaType: p.mediaType || null, statusLink: p.link || '' },
+      time: Date.now()
+    });
+    // ── Log to global owner monitoring feed ──
+    await push(dbRef(db, STATUS_INTERACTIONS_PATH), {
+      type: 'like', statusKey: k,
+      actorSlug: App.mySlug, actorName: App.myName, actorPhoto: App.myPhoto || null,
+      ownerSlug: p.authorSlug, ownerName: p.authorName || p.authorSlug,
+      statusText: p.text || '', statusMediaUrl: p.mediaUrl || null, statusMediaType: p.mediaType || null, statusLink: p.link || '',
+      time: Date.now()
+    });
+  } catch (e) { console.warn('Interaction log failed', e); }
+};
 window.__delStatus = async function(k) { if (confirm('Delete status?')) { await remove(dbRef(db, STATUS_FEED_PATH + '/' + k)); toast('Deleted'); } };
 window.__openStatusComments = function(k) { var posts = window._cachedPosts || [], p = null; for (var i = 0; i < posts.length; i++) if (posts[i]._k === k) { p = posts[i]; break; } if (!p) return; App.activeStatusObj = p; $('statusCommentInput').value = ''; renderStatusCommentsLocal(); $('statusCommentsModal').classList.add('show'); };
 function renderStatusCommentsLocal() { if (!App.activeStatusObj) return; var d = App.activeStatusObj.comments || {}; var c = Object.keys(d).map(function(k) { return d[k]; }).sort(function(a, b) { return a.time - b.time; }); var list = $('statusCommentsList'); if (!c.length) { list.innerHTML = '<div style="font-size:16px;color:var(--muted);text-align:center;padding:8px;">No comments yet.</div>'; return; } var h = ''; for (var i = 0; i < c.length; i++) h += '<div style="background:#f7f9fb;padding:10px 12px;border-radius:8px;font-size:16px;"><strong style="color:var(--accent);">@' + esc(c[i].author) + ':</strong> ' + esc(c[i].text) + '</div>'; list.innerHTML = h; }
 $('statusCommentCancel').addEventListener('click', function() { $('statusCommentsModal').classList.remove('show'); });
-$('statusCommentSend').addEventListener('click', async function() { var text = $('statusCommentInput').value.trim(); if (!text || !App.activeStatusObj) return; await push(dbRef(db, STATUS_FEED_PATH + '/' + App.activeStatusObj._k + '/comments'), { author: App.mySlug, text: text, time: Date.now() }); if (App.activeStatusObj.authorSlug !== App.mySlug) { await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, App.activeStatusObj.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: '💬 Comment: "' + text + '"', time: Date.now() }); } $('statusCommentInput').value = ''; $('statusCommentsModal').classList.remove('show'); toast('Sent ✓'); });
+
+/* ══════════ STATUS COMMENT — sends rich DM + logs to owner feed ══════════ */
+$('statusCommentSend').addEventListener('click', async function() {
+  var text = $('statusCommentInput').value.trim();
+  if (!text || !App.activeStatusObj) return;
+  var p = App.activeStatusObj;
+  await push(dbRef(db, STATUS_FEED_PATH + '/' + p._k + '/comments'), { author: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto || null, text: text, time: Date.now() });
+  if (p.authorSlug !== App.mySlug) {
+    try {
+      var dmAttachment = null;
+      if (p.mediaUrl) dmAttachment = { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Original status media' };
+      var dmText = '💬 ' + App.myName + ' (@' + App.mySlug + ') commented on your status:\n\n💭 "' + text + '"' +
+        (p.text ? '\n\n📝 Original post: "' + p.text + '"' : '') +
+        (p.link ? '\n\n🔗 ' + p.link : '') +
+        (dmAttachment ? '\n\n📎 Original media is attached below.' : '');
+      await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), {
+        from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment,
+        statusInteraction: { type: 'comment', statusKey: p._k, commentText: text, statusText: p.text || '', statusMediaUrl: p.mediaUrl || null, statusMediaType: p.mediaType || null, statusLink: p.link || '' },
+        time: Date.now()
+      });
+      await push(dbRef(db, STATUS_INTERACTIONS_PATH), {
+        type: 'comment', statusKey: p._k,
+        actorSlug: App.mySlug, actorName: App.myName, actorPhoto: App.myPhoto || null,
+        ownerSlug: p.authorSlug, ownerName: p.authorName || p.authorSlug,
+        commentText: text,
+        statusText: p.text || '', statusMediaUrl: p.mediaUrl || null, statusMediaType: p.mediaType || null, statusLink: p.link || '',
+        time: Date.now()
+      });
+    } catch (e) { console.warn('Interaction log failed', e); }
+  }
+  $('statusCommentInput').value = '';
+  $('statusCommentsModal').classList.remove('show');
+  toast('Sent ✓');
+});
 
 $('emojiBtn').addEventListener('click', function() { $('emojiPalette').classList.toggle('show'); });
 var ebi = document.querySelectorAll('.emoji-item'); for (var i = 0; i < ebi.length; i++) (function(b) { b.addEventListener('click', function() { $('chatInput').value += b.textContent; $('sendBtn').disabled = false; }); })(ebi[i]);
@@ -2060,13 +2150,89 @@ $('liveBgBtn').addEventListener('click', function() { window.__openLiveBg(); });
 
 $('ownerPortalTrigger').addEventListener('click', function() { $('ownerPassInput').value = ''; $('ownerAuthModal').classList.add('show'); });
 $('ownerAuthCancel').addEventListener('click', function() { $('ownerAuthModal').classList.remove('show'); });
-function openOwnerSpace() { loadOwnerStatuses(); $('ownerSpaceModal').classList.add('show'); }
+function openOwnerSpace() { loadOwnerStatuses(); __setOwnerTab('ownerTabStatusBtn'); $('ownerSpaceModal').classList.add('show'); }
 $('ownerSpaceClose').addEventListener('click', function() { $('ownerSpaceModal').classList.remove('show'); });
-$('ownerTabStatusBtn').addEventListener('click', function() { $('ownerTabStatusBtn').style.background = 'linear-gradient(135deg,#f0d369,#d4af37)'; $('ownerTabStatusBtn').style.color = 'var(--navy)'; $('ownerTabChatsBtn').style.background = '#143a5f'; $('ownerTabChatsBtn').style.color = '#fff'; loadOwnerStatuses(); });
-$('ownerTabChatsBtn').addEventListener('click', function() { $('ownerTabChatsBtn').style.background = 'linear-gradient(135deg,#f0d369,#d4af37)'; $('ownerTabChatsBtn').style.color = 'var(--navy)'; $('ownerTabStatusBtn').style.background = '#143a5f'; $('ownerTabStatusBtn').style.color = '#fff'; loadOwnerReports(); });
+
+/* ══════════ OWNER SPACE TAB SWITCHER ══════════ */
+function __setOwnerTab(activeId) {
+  var ids = ['ownerTabStatusBtn', 'ownerTabChatsBtn', 'ownerTabInteractionsBtn'];
+  ids.forEach(function(id) {
+    var b = $(id); if (!b) return;
+    if (id === activeId) { b.style.background = 'linear-gradient(135deg,#f0d369,#d4af37)'; b.style.color = 'var(--navy)'; }
+    else { b.style.background = '#143a5f'; b.style.color = '#fff'; }
+  });
+}
+$('ownerTabStatusBtn').addEventListener('click', function() { __setOwnerTab('ownerTabStatusBtn'); loadOwnerStatuses(); });
+$('ownerTabChatsBtn').addEventListener('click', function() { __setOwnerTab('ownerTabChatsBtn'); loadOwnerReports(); });
+$('ownerTabInteractionsBtn').addEventListener('click', function() { __setOwnerTab('ownerTabInteractionsBtn'); loadOwnerInteractions(); });
+
 function loadOwnerStatuses() { var area = $('ownerContentArea'), posts = window._cachedPosts || []; if (!posts.length) { area.innerHTML = '<div class="empty"><p>No statuses.</p></div>'; return; } var h = ''; for (var i = 0; i < posts.length; i++) { var p = posts[i]; h += '<div style="background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;"><div style="font-size:15px;font-weight:700;margin-bottom:6px;">@' + esc(p.authorSlug) + ' (' + esc(p.authorName) + ')</div><div style="font-size:16px;margin-bottom:8px;">' + esc(p.text || '') + '</div><button class="btn-primary" style="max-width:none;padding:10px 14px;font-size:15px;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus(\'' + p._k + '\')">🗑 Delete</button></div>'; } area.innerHTML = h; }
 window.__ownerDeleteStatus = async function(k) { if (confirm('Delete?')) { await remove(dbRef(db, STATUS_FEED_PATH + '/' + k)); toast('Deleted ✓'); loadOwnerStatuses(); } };
 function loadOwnerReports() { var area = $('ownerContentArea'); area.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">Loading…</div>'; onValue(dbRef(db, 'users'), function(snap) { var ud = snap.val() || {}, uks = Object.keys(ud); var h = '<div style="font-size:16px;font-weight:700;margin-bottom:8px;">👥 Users (' + uks.length + ')</div>'; for (var i = 0; i < uks.length; i++) { var u = ud[uks[i]]; h += '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:6px;font-size:16px;"><strong>' + esc(u.displayName) + '</strong> (@' + esc(u.slug) + ')</div>'; } area.innerHTML = h; }, function(err) { area.innerHTML = '<div class="empty">Cannot load users.</div>'; }, { onlyOnce: true }); }
+
+/* ══════════ OWNER INTERACTIONS MONITORING FEED ══════════ */
+function loadOwnerInteractions() {
+  var area = $('ownerContentArea');
+  area.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">Loading live interactions…</div>';
+  onValue(query(dbRef(db, STATUS_INTERACTIONS_PATH), limitToLast(150)), function(snap) {
+    var d = snap.val() || {};
+    var items = Object.keys(d).map(function(k) { var v = d[k]; v._k = k; return v; })
+      .sort(function(a, b) { return (b.time || 0) - (a.time || 0); });
+    if (!items.length) {
+      area.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><p>No status interactions yet.<br>When users like or comment on statuses, they\'ll appear here in real time.</p></div>';
+      return;
+    }
+    var h = '<div style="font-size:14px;font-weight:800;color:#0b2a4a;margin-bottom:10px;letter-spacing:1px;">🔍 LIVE MONITORING — ' + items.length + ' interactions</div>';
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i];
+      var icon = it.type === 'like' ? '👍' : '💬';
+      var actionLabel = it.type === 'like' ? 'liked' : 'commented on';
+      h += '<div class="owner-interaction-card">';
+      h += '<div class="owner-interaction-header">';
+      h += '<div class="owner-interaction-avatar">' + (it.actorPhoto ? '<img src="' + esc(it.actorPhoto) + '">' : esc((it.actorName || '?').charAt(0).toUpperCase())) + '</div>';
+      h += '<div class="owner-interaction-text"><strong style="color:#0b2a4a;">@' + esc(it.actorSlug) + '</strong> <span style="color:var(--muted);">' + actionLabel + '</span> <strong style="color:#d4af37;">@' + esc(it.ownerSlug) + '</strong>\'s status</div>';
+      h += '<div class="owner-interaction-time">' + formatDateTime(it.time, 'short') + '</div>';
+      h += '</div>';
+      if (it.type === 'comment' && it.commentText) {
+        h += '<div class="owner-interaction-comment">' + icon + ' <em>"' + esc(it.commentText) + '"</em></div>';
+      }
+      if (it.statusText) {
+        h += '<div class="owner-original-block"><span class="owner-original-label">ORIGINAL POST TEXT:</span><div class="owner-original-text">"' + esc(it.statusText) + '"</div></div>';
+      }
+      if (it.statusMediaUrl) {
+        h += '<div style="margin-bottom:8px;"><span class="owner-original-label">ORIGINAL POST MEDIA:</span>';
+        if (it.statusMediaType === 'video') {
+          h += '<video src="' + esc(it.statusMediaUrl) + '" controls playsinline style="width:100%;max-height:220px;border-radius:8px;background:#000;"></video>';
+        } else {
+          h += '<img class="owner-original-media" src="' + esc(it.statusMediaUrl) + '" onclick="window.__viewAvatar(\'' + esc(it.statusMediaUrl) + '\',\'Interaction Media\')">';
+        }
+        h += '</div>';
+      }
+      if (it.statusLink) {
+        h += '<div style="font-size:13px;color:var(--accent);word-break:break-all;margin-bottom:8px;">🔗 ' + esc(it.statusLink) + '</div>';
+      }
+      h += '<div class="owner-interaction-actions">';
+      h += '<button class="owner-jump-btn" onclick="window.__ownerJumpToStatus(\'' + esc(it.statusKey) + '\')">🔍 View Full Post</button>';
+      h += '<button class="owner-delete-btn" onclick="window.__ownerDeleteInteraction(\'' + esc(it._k) + '\')">🗑</button>';
+      h += '</div>';
+      h += '</div>';
+    }
+    area.innerHTML = h;
+  }, function(err) {
+    area.innerHTML = '<div class="empty">Cannot load interactions (check DB permissions).</div>';
+  });
+}
+
+window.__ownerJumpToStatus = function(statusKey) {
+  __setOwnerTab('ownerTabStatusBtn');
+  loadOwnerStatuses();
+  toast('Find this status in the Statuses tab');
+};
+
+window.__ownerDeleteInteraction = async function(k) {
+  if (!confirm('Delete this interaction log? (Does not affect the original post)')) return;
+  try { await remove(dbRef(db, STATUS_INTERACTIONS_PATH + '/' + k)); toast('Deleted ✓'); } catch (e) { toast('Failed', true); }
+};
 
 var PROFESSIONAL_BACKGROUNDS = [ { key: 'none', label: 'Normal', type: 'filter', value: 'none' }, { key: 'blur', label: 'Blurred', type: 'filter', value: 'blur(8px)' }, { key: 'sepia', label: 'Sepia', type: 'filter', value: 'sepia(80%)' }, { key: 'office', label: 'Office', type: 'image', url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1280&q=80' }, { key: 'forest', label: 'Forest', type: 'image', url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1280&q=80' }, { key: 'beach', label: 'Beach', type: 'image', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1280&q=80' }, { key: 'city', label: 'City', type: 'image', url: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1280&q=80' }, { key: 'mountains', label: 'Mountains', type: 'image', url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1280&q=80' }, { key: 'studio', label: 'Studio', type: 'gradient' } ];
 
@@ -2187,133 +2353,46 @@ $('clearBtn').addEventListener('click', function() { if (confirm('Clear local da
 
 /* ═══════════════════════════════════════════════════════════
    SOCIAL HUB
-   ─ YouTube: plays embedded inside JARVIS (iframe player)
-   ─ TikTok, Facebook, Instagram, LinkedIn, Gmail, WhatsApp,
-     Zoom, Google Meet, Gemini, DeepSeek: open in external
-     browser but keep JARVIS UI visible via a full-screen
-     launcher so it feels like they're still inside the
-     G Communication Portal / G Jarvis.
    ═══════════════════════════════════════════════════════════ */
-
 var InAppBrowser = {
-  isOpen: false,
-  mode: 'iframe',
-  currentUrl: '',
-  platform: null,
-
-  // Regular iframe mode (used by YouTube player and available for future embeds)
-  open: function(url) {
-    this.isOpen = true;
-    this.mode = 'iframe';
-    this.currentUrl = url;
-    $('inAppBrowser').classList.add('show');
-    $('iabUrl').value = url;
-    $('iabFrame').style.display = 'block';
-    $('iabBlocked').classList.remove('show');
-    $('iabLaunching').classList.remove('show');
-    $('iabReload').style.display = 'flex';
-    try { $('iabFrame').src = url; } catch (e) {}
-  },
-
-  // Simulated external launch — opens externally, keeps JARVIS UI visible
+  isOpen: false, mode: 'iframe', currentUrl: '', platform: null,
+  open: function(url) { this.isOpen = true; this.mode = 'iframe'; this.currentUrl = url; $('inAppBrowser').classList.add('show'); $('iabUrl').value = url; $('iabFrame').style.display = 'block'; $('iabBlocked').classList.remove('show'); $('iabLaunching').classList.remove('show'); $('iabReload').style.display = 'flex'; try { $('iabFrame').src = url; } catch (e) {} },
   launchExternal: function(url, platform) {
-    var self = this;
-    var opened = false;
-
-    // Call window.open FIRST inside the user gesture so popup blockers allow it
-    try {
-      var w = window.open(url, '_blank', 'noopener');
-      opened = (w !== null) || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    } catch (e) { opened = false; }
-
-    // Show the JARVIS-styled launching overlay
-    self.isOpen = true;
-    self.mode = 'launching';
-    self.currentUrl = url;
-    self.platform = platform;
-
-    $('inAppBrowser').classList.add('show');
-    $('iabUrl').value = url;
-    $('iabFrame').style.display = 'none';
-    $('iabBlocked').classList.remove('show');
-    $('iabLaunching').classList.add('show');
-    $('iabReload').style.display = 'none';
-
+    var self = this; var opened = false;
+    try { var w = window.open(url, '_blank', 'noopener'); opened = (w !== null) || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent); } catch (e) { opened = false; }
+    self.isOpen = true; self.mode = 'launching'; self.currentUrl = url; self.platform = platform;
+    $('inAppBrowser').classList.add('show'); $('iabUrl').value = url; $('iabFrame').style.display = 'none'; $('iabBlocked').classList.remove('show'); $('iabLaunching').classList.add('show'); $('iabReload').style.display = 'none';
     $('launchIcon').textContent = platform.icon || '🌐';
     $('launchReopenBtn').textContent = '↗ Open ' + (platform.name || 'App') + ' Again';
-    $('launchSpinner').style.display = 'none';
-    $('launchActions').classList.add('show');
-
-    if (opened) {
-      $('launchTitle').textContent = platform.name + ' opened in your browser';
-      $('launchSubtitle').textContent = 'View it in your device\'s browser tab. Return to JARVIS anytime.';
-    } else {
-      $('launchTitle').textContent = 'Open ' + platform.name;
-      $('launchSubtitle').textContent = 'Your browser blocked the automatic open. Tap below to continue.';
-    }
+    $('launchSpinner').style.display = 'none'; $('launchActions').classList.add('show');
+    if (opened) { $('launchTitle').textContent = platform.name + ' opened in your browser'; $('launchSubtitle').textContent = 'View it in your device\'s browser tab. Return to JARVIS anytime.'; }
+    else { $('launchTitle').textContent = 'Open ' + platform.name; $('launchSubtitle').textContent = 'Your browser blocked the automatic open. Tap below to continue.'; }
   },
-
   reopen: function() {
     if (!this.currentUrl) return;
-    try {
-      var w = window.open(this.currentUrl, '_blank', 'noopener');
-      if (w === null && !/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-        toast('Browser blocked the popup — please allow popups for this site', true);
-      } else {
-        $('launchTitle').textContent = (this.platform ? this.platform.name : 'App') + ' opened in your browser';
-        $('launchSubtitle').textContent = 'View it in your device\'s browser tab. Return to JARVIS anytime.';
-      }
-    } catch (e) {
-      toast('Could not open — check browser settings', true);
-    }
+    try { var w = window.open(this.currentUrl, '_blank', 'noopener'); if (w === null && !/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) { toast('Browser blocked the popup — please allow popups for this site', true); } else { $('launchTitle').textContent = (this.platform ? this.platform.name : 'App') + ' opened in your browser'; $('launchSubtitle').textContent = 'View it in your device\'s browser tab. Return to JARVIS anytime.'; } } catch (e) { toast('Could not open — check browser settings', true); }
   },
-
-  close: function() {
-    this.isOpen = false;
-    $('inAppBrowser').classList.remove('show');
-    try { $('iabFrame').src = 'about:blank'; } catch (e) {}
-    $('iabLaunching').classList.remove('show');
-    $('iabBlocked').classList.remove('show');
-    $('iabReload').style.display = 'flex';
-  }
+  close: function() { this.isOpen = false; $('inAppBrowser').classList.remove('show'); try { $('iabFrame').src = 'about:blank'; } catch (e) {} $('iabLaunching').classList.remove('show'); $('iabBlocked').classList.remove('show'); $('iabReload').style.display = 'flex'; }
 };
-
 $('iabClose').addEventListener('click', function() { InAppBrowser.close(); });
 $('iabBackBtn2').addEventListener('click', function() { InAppBrowser.close(); });
-$('iabReload').addEventListener('click', function() {
-  if (InAppBrowser.mode === 'iframe' && InAppBrowser.currentUrl) {
-    try { $('iabFrame').src = InAppBrowser.currentUrl; $('iabFrame').style.display = 'block'; $('iabBlocked').classList.remove('show'); } catch (e) {}
-  }
-});
-$('iabExternal').addEventListener('click', function() {
-  if (InAppBrowser.mode === 'launching') { InAppBrowser.reopen(); return; }
-  if (InAppBrowser.currentUrl) { try { window.open(InAppBrowser.currentUrl, '_blank', 'noopener'); } catch (e) {} }
-});
+$('iabReload').addEventListener('click', function() { if (InAppBrowser.mode === 'iframe' && InAppBrowser.currentUrl) { try { $('iabFrame').src = InAppBrowser.currentUrl; $('iabFrame').style.display = 'block'; $('iabBlocked').classList.remove('show'); } catch (e) {} } });
+$('iabExternal').addEventListener('click', function() { if (InAppBrowser.mode === 'launching') { InAppBrowser.reopen(); return; } if (InAppBrowser.currentUrl) { try { window.open(InAppBrowser.currentUrl, '_blank', 'noopener'); } catch (e) {} } });
 $('iabOpenBtn').addEventListener('click', function() { if (InAppBrowser.currentUrl) { try { window.open(InAppBrowser.currentUrl, '_blank', 'noopener'); } catch (e) {} } });
 $('launchReopenBtn').addEventListener('click', function() { InAppBrowser.reopen(); });
 $('launchReturnBtn').addEventListener('click', function() { InAppBrowser.close(); });
 
-/* ── Helper: normalize pasted URL ── */
-function normalizeUrl(raw) {
-  raw = String(raw || '').trim();
-  if (!raw) return null;
-  if (!/^https?:\/\//i.test(raw)) raw = 'https://' + raw;
-  return raw;
-}
+function normalizeUrl(raw) { raw = String(raw || '').trim(); if (!raw) return null; if (!/^https?:\/\//i.test(raw)) raw = 'https://' + raw; return raw; }
 
-/* ══════════ YOUTUBE (embedded inside JARVIS) ══════════ */
 var YT_INVIDIOUS = ['https://inv.nadeko.net','https://invidious.nerdvpn.de','https://yewtu.be','https://invidious.fdn.fr'];
 var YT_PIPED = ['https://pipedapi.kavin.rocks','https://pipedapi.adminforge.de'];
-
 function ytExtractVideoId(input) { if (!input) return null; var s = String(input).trim(); if (/^[A-Za-z0-9_-]{11}$/.test(s)) return s; var m = s.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|live\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/); return m ? m[1] : null; }
 function ytFormatDuration(sec) { sec = parseInt(sec, 10); if (!sec || isNaN(sec)) return ''; var h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60; if (h > 0) return h + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0'); return m + ':' + String(s).padStart(2, '0'); }
 function ytFormatViews(n) { n = parseInt(n, 10); if (!n || isNaN(n)) return ''; if (n >= 1e9) return (n / 1e9).toFixed(1) + 'B views'; if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M views'; if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K views'; return n + ' views'; }
 function fetchJson(url, ms) { ms = ms || 6000; var tid; var t = new Promise(function(_, rej) { tid = setTimeout(function() { rej(new Error('timeout')); }, ms); }); return Promise.race([fetch(url, { headers: { 'Accept': 'application/json' } }), t]).finally(function() { clearTimeout(tid); }); }
-
 async function ytSearchInvidious(query) { for (var i = 0; i < YT_INVIDIOUS.length; i++) { try { var url = YT_INVIDIOUS[i] + '/api/v1/search?q=' + encodeURIComponent(query) + '&type=video&sort_by=relevance'; var res = await fetchJson(url, 5000); if (!res.ok) continue; var data = await res.json(); if (Array.isArray(data) && data.length) { return data.filter(function(v) { return v.videoId; }).map(function(v) { return { id: v.videoId, title: v.title || 'Untitled', author: v.author || '', thumbnail: (v.videoThumbnails && v.videoThumbnails[0] && v.videoThumbnails[0].url) || ('https://i.ytimg.com/vi/' + v.videoId + '/mqdefault.jpg'), duration: ytFormatDuration(v.lengthSeconds), views: ytFormatViews(v.viewCount) }; }); } } catch (e) {} } return null; }
 async function ytSearchPiped(query) { for (var i = 0; i < YT_PIPED.length; i++) { try { var url = YT_PIPED[i] + '/search?q=' + encodeURIComponent(query) + '&filter=videos'; var res = await fetchJson(url, 5000); if (!res.ok) continue; var data = await res.json(); if (data && Array.isArray(data.items) && data.items.length) { return data.items.filter(function(v) { return v.type === 'stream' && v.url; }).map(function(v) { var vid = String(v.url).replace('/watch?v=', ''); return { id: vid, title: v.title || 'Untitled', author: v.uploaderName || '', thumbnail: v.thumbnail || ('https://i.ytimg.com/vi/' + vid + '/mqdefault.jpg'), duration: ytFormatDuration(v.duration), views: ytFormatViews(v.views) }; }); } } catch (e) {} } return null; }
 async function ytSearchDataApi(query) { var apiKey = LS.get('youtubeApiKey', ''); if (!apiKey) return null; try { var url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=20&q=' + encodeURIComponent(query) + '&key=' + encodeURIComponent(apiKey); var res = await fetchJson(url, 6000); if (!res.ok) return null; var data = await res.json(); if (!data.items) return null; return data.items.filter(function(it) { return it.id && it.id.videoId; }).map(function(it) { var thumbs = it.snippet.thumbnails || {}; return { id: it.id.videoId, title: it.snippet.title, author: it.snippet.channelTitle, thumbnail: (thumbs.medium || thumbs.default || {}).url || ('https://i.ytimg.com/vi/' + it.id.videoId + '/mqdefault.jpg'), duration: '', views: '' }; }); } catch (e) { return null; } }
-
 async function ytDoSearch(query) {
   query = String(query || '').trim(); if (!query) return;
   var vid = ytExtractVideoId(query); if (vid) { ytPlayVideo(vid, 'YouTube Video', ''); return; }
@@ -2326,14 +2405,12 @@ async function ytDoSearch(query) {
   if (!results || !results.length) { resultsEl.innerHTML = '<div style="text-align:center;padding:24px 16px;background:#fff;border-radius:12px;border:1px solid var(--border);"><div style="font-size:44px;margin-bottom:10px;">🔍</div><div style="font-weight:700;font-size:17px;margin-bottom:6px;">Search unavailable</div><div style="font-size:15px;color:var(--muted);margin-bottom:16px;line-height:1.5;">Paste a YouTube link above to play it. Or add an API key for reliable search.</div></div>'; return; }
   ytRenderResults(results, query);
 }
-
 function ytRenderResults(results, query) {
   var el = $('ytSearchResults'); if (!el) return;
   var html = '<div style="font-size:13px;color:var(--muted);margin-bottom:8px;padding:0 4px;">' + results.length + ' results</div>';
   for (var i = 0; i < results.length; i++) { var r = results[i]; var safeTitle = esc(r.title).replace(/'/g, "\\'"); var safeAuthor = esc(r.author || '').replace(/'/g, "\\'"); html += '<div class="social-result" onclick="window.__ytPlay(\'' + r.id + '\',\'' + safeTitle + '\',\'' + safeAuthor + '\')"><div class="social-result-thumb"><img src="' + esc(r.thumbnail) + '" loading="lazy" onerror="this.style.display=\'none\'">' + (r.duration ? '<div style="position:absolute;bottom:3px;right:3px;background:rgba(0,0,0,.85);color:#fff;font-size:12px;padding:2px 5px;border-radius:3px;font-weight:700;">' + esc(r.duration) + '</div>' : '') + '</div><div class="social-result-body"><div class="social-result-title">' + esc(r.title) + '</div><div class="social-result-meta">' + esc(r.author) + (r.views ? ' · ' + esc(r.views) : '') + '</div></div></div>'; }
   el.innerHTML = html;
 }
-
 function ytPlayVideo(videoId, title, author) {
   var embed = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&playsinline=1&rel=0&modestbranding=1';
   if ($('ytPlayerFrame')) $('ytPlayerFrame').src = embed;
@@ -2348,7 +2425,6 @@ function ytPlayVideo(videoId, title, author) {
   ytRenderRecent();
 }
 window.__ytPlay = function(videoId, title, author) { ytPlayVideo(videoId, title, author); };
-
 function ytRenderRecent() {
   var el = $('ytRecentList'); if (!el) return;
   var recent = LS.get('ytRecent', []) || [];
@@ -2357,150 +2433,72 @@ function ytRenderRecent() {
   for (var i = 0; i < recent.length; i++) { var r = recent[i]; var safeTitle = esc(r.title || r.id).replace(/'/g, "\\'"); var safeAuthor = esc(r.author || '').replace(/'/g, "\\'"); html += '<div style="display:flex;gap:10px;align-items:center;padding:8px;border-bottom:1px solid #f0f0f0;cursor:pointer;" onclick="window.__ytPlay(\'' + r.id + '\',\'' + safeTitle + '\',\'' + safeAuthor + '\')"><img src="https://i.ytimg.com/vi/' + r.id + '/default.jpg" style="width:70px;height:40px;object-fit:cover;border-radius:4px;flex-shrink:0;background:#000;" onerror="this.style.display=\'none\'"><div style="flex:1;min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(r.title || r.id) + '</div></div>'; }
   el.innerHTML = html;
 }
-
-/* ══════════ TIKTOK (external, simulated inside) ══════════ */
 function ttPlayVideo() {
-  var url = normalizeUrl($('ttInput').value);
-  if (!url) return toast('Paste a TikTok link', true);
+  var url = normalizeUrl($('ttInput').value); if (!url) return toast('Paste a TikTok link', true);
   InAppBrowser.launchExternal(url, { name: 'TikTok', icon: '🎵' });
-  var recent = LS.get('ttRecent', []) || [];
-  recent = recent.filter(function(r) { return r.url !== url; });
-  recent.unshift({ url: url, time: Date.now() });
-  LS.set('ttRecent', recent.slice(0, 10));
-  ttRenderRecent();
+  var recent = LS.get('ttRecent', []) || []; recent = recent.filter(function(r) { return r.url !== url; }); recent.unshift({ url: url, time: Date.now() }); LS.set('ttRecent', recent.slice(0, 10)); ttRenderRecent();
 }
 function ttRenderRecent() {
   var el = $('ttRecentList'); if (!el) return;
   var recent = LS.get('ttRecent', []) || [];
   if (!recent.length) { el.innerHTML = '<div style="font-size:14px;color:var(--muted);padding:8px;text-align:center;">No recent TikTok videos yet.</div>'; return; }
   var html = '';
-  for (var i = 0; i < recent.length; i++) {
-    var r = recent[i], safeUrl = esc(r.url).replace(/'/g, "\\'");
-    var label = String(r.url).replace(/^https?:\/\/(www\.)?/, '').slice(0, 42);
-    html += '<div style="display:flex;gap:10px;align-items:center;padding:10px;border-bottom:1px solid #f0f0f0;"><div style="flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(label) + '</div><button style="background:#ff0050;color:#fff;border:none;padding:6px 12px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;" onclick="InAppBrowser.launchExternal(\'' + safeUrl + '\', {name:\'TikTok\', icon:\'🎵\'})">▶ Open</button></div>';
-  }
+  for (var i = 0; i < recent.length; i++) { var r = recent[i], safeUrl = esc(r.url).replace(/'/g, "\\'"); var label = String(r.url).replace(/^https?:\/\/(www\.)?/, '').slice(0, 42); html += '<div style="display:flex;gap:10px;align-items:center;padding:10px;border-bottom:1px solid #f0f0f0;"><div style="flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(label) + '</div><button style="background:#ff0050;color:#fff;border:none;padding:6px 12px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;" onclick="InAppBrowser.launchExternal(\'' + safeUrl + '\', {name:\'TikTok\', icon:\'🎵\'})">▶ Open</button></div>'; }
   el.innerHTML = html;
 }
-
-/* ══════════ FACEBOOK (external, simulated inside) ══════════ */
-function fbOpenVideo() {
-  var url = normalizeUrl($('fbInput').value);
-  if (!url) return toast('Paste a Facebook link', true);
-  InAppBrowser.launchExternal(url, { name: 'Facebook', icon: '📘' });
-}
-
-/* ══════════ INSTAGRAM (external, simulated inside) ══════════ */
-function igOpenPost() {
-  var url = normalizeUrl($('igInput').value);
-  if (!url) return toast('Paste an Instagram link', true);
-  InAppBrowser.launchExternal(url, { name: 'Instagram', icon: '📷' });
-}
-
-/* ══════════ LINKEDIN (external, simulated inside) ══════════ */
-function liOpenPost() {
-  var url = normalizeUrl($('liInput').value);
-  if (!url) return toast('Paste a LinkedIn link', true);
-  InAppBrowser.launchExternal(url, { name: 'LinkedIn', icon: '💼' });
-}
-
-/* ══════════ GMAIL (external, simulated inside) ══════════ */
+function fbOpenVideo() { var url = normalizeUrl($('fbInput').value); if (!url) return toast('Paste a Facebook link', true); InAppBrowser.launchExternal(url, { name: 'Facebook', icon: '📘' }); }
+function igOpenPost() { var url = normalizeUrl($('igInput').value); if (!url) return toast('Paste an Instagram link', true); InAppBrowser.launchExternal(url, { name: 'Instagram', icon: '📷' }); }
+function liOpenPost() { var url = normalizeUrl($('liInput').value); if (!url) return toast('Paste a LinkedIn link', true); InAppBrowser.launchExternal(url, { name: 'LinkedIn', icon: '💼' }); }
 function gmailOpen(url) { InAppBrowser.launchExternal(url, { name: 'Gmail', icon: '✉️' }); }
-
-/* ══════════ WHATSAPP (external, simulated inside) ══════════ */
 function waOpen(url) { InAppBrowser.launchExternal(url, { name: 'WhatsApp', icon: '💚' }); }
-
-/* ══════════ ZOOM (external, simulated inside) ══════════ */
 function zoomOpen(url) { InAppBrowser.launchExternal(url, { name: 'Zoom', icon: '🎥' }); }
-
-/* ══════════ GOOGLE MEET (external, simulated inside) ══════════ */
 function meetOpen(url) { InAppBrowser.launchExternal(url, { name: 'Google Meet', icon: '📹' }); }
-
-/* ══════════ GEMINI (external, simulated inside) ══════════ */
 function geminiOpen(url) { InAppBrowser.launchExternal(url, { name: 'Gemini', icon: '✨' }); }
-
-/* ══════════ DEEPSEEK (external, simulated inside) ══════════ */
 function deepseekOpen(url) { InAppBrowser.launchExternal(url, { name: 'DeepSeek', icon: '🐋' }); }
 
-/* ══════════ SOCIAL HUB INIT + BINDINGS ══════════ */
 var SocialHub = {
   init: function() {
     if (!this._bound) {
       this._bound = true;
       var tabs = document.querySelectorAll('.platform-tab');
-      for (var i = 0; i < tabs.length; i++) {
-        (function(t) {
-          t.addEventListener('click', function() {
-            var p = t.dataset.platform;
-            for (var n = 0; n < tabs.length; n++) tabs[n].classList.toggle('active', tabs[n] === t);
-            var panels = document.querySelectorAll('.platform-panel');
-            for (var k = 0; k < panels.length; k++) panels[k].style.display = (panels[k].dataset.platform === p) ? 'block' : 'none';
-          });
-        })(tabs[i]);
-      }
-      // YouTube (embedded)
+      for (var i = 0; i < tabs.length; i++) { (function(t) { t.addEventListener('click', function() { var p = t.dataset.platform; for (var n = 0; n < tabs.length; n++) tabs[n].classList.toggle('active', tabs[n] === t); var panels = document.querySelectorAll('.platform-panel'); for (var k = 0; k < panels.length; k++) panels[k].style.display = (panels[k].dataset.platform === p) ? 'block' : 'none'; }); })(tabs[i]); }
       $('ytSearchBtn').addEventListener('click', function() { ytDoSearch($('ytSearchInput').value); });
       $('ytSearchInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') ytDoSearch(e.target.value); });
       $('ytBackBtn').addEventListener('click', function() { $('ytPlayerArea').style.display = 'none'; $('ytPlayerFrame').src = ''; if ($('ytSearchResults').innerHTML.trim()) $('ytSearchResults').style.display = 'block'; });
       $('ytApiKeyInput').value = LS.get('youtubeApiKey', '') || '';
       $('ytSaveApiKeyBtn').addEventListener('click', function() { var v = $('ytApiKeyInput').value.trim(); if (v) { LS.set('youtubeApiKey', v); toast('YouTube API key saved ✓'); } else { LS.del('youtubeApiKey'); toast('API key cleared'); } });
       ytRenderRecent();
-      // TikTok (external simulated)
       $('ttPlayBtn').addEventListener('click', ttPlayVideo);
       $('ttInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') ttPlayVideo(); });
       $('ttSearchBtn').addEventListener('click', function() { InAppBrowser.launchExternal('https://www.tiktok.com/search', { name: 'TikTok', icon: '🎵' }); });
       $('ttHomeBtn').addEventListener('click', function() { InAppBrowser.launchExternal('https://www.tiktok.com/', { name: 'TikTok', icon: '🎵' }); });
       ttRenderRecent();
-      // Facebook (external simulated)
       $('fbPlayBtn').addEventListener('click', fbOpenVideo);
       $('fbInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') fbOpenVideo(); });
       $('fbSearchBtn').addEventListener('click', function() { InAppBrowser.launchExternal('https://www.facebook.com/search/top/', { name: 'Facebook', icon: '📘' }); });
       $('fbHomeBtn').addEventListener('click', function() { InAppBrowser.launchExternal('https://www.facebook.com/', { name: 'Facebook', icon: '📘' }); });
-      // Instagram (external simulated)
       $('igPlayBtn').addEventListener('click', igOpenPost);
       $('igInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') igOpenPost(); });
       $('igSearchBtn').addEventListener('click', function() { InAppBrowser.launchExternal('https://www.instagram.com/explore/search/keyword/', { name: 'Instagram', icon: '📷' }); });
       $('igHomeBtn').addEventListener('click', function() { InAppBrowser.launchExternal('https://www.instagram.com/', { name: 'Instagram', icon: '📷' }); });
-      // LinkedIn (external simulated)
       $('liPlayBtn').addEventListener('click', liOpenPost);
       $('liInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') liOpenPost(); });
       $('liSearchBtn').addEventListener('click', function() { InAppBrowser.launchExternal('https://www.linkedin.com/search/results/all/', { name: 'LinkedIn', icon: '💼' }); });
       $('liHomeBtn').addEventListener('click', function() { InAppBrowser.launchExternal('https://www.linkedin.com/feed/', { name: 'LinkedIn', icon: '💼' }); });
-      // Gmail (external simulated)
       $('gmailOpenBtn').addEventListener('click', function() { gmailOpen('https://accounts.google.com/ServiceLogin?service=mail'); });
       $('gmailInboxBtn').addEventListener('click', function() { gmailOpen('https://mail.google.com/mail/u/0/#inbox'); });
-      // WhatsApp (external simulated)
       $('waOpenBtn').addEventListener('click', function() { waOpen('https://web.whatsapp.com/'); });
       $('waHomeBtn').addEventListener('click', function() { waOpen('https://web.whatsapp.com/'); });
-      // Zoom (external simulated)
-      $('zoomOpenBtn').addEventListener('click', function() {
-        var url = normalizeUrl($('zoomInput').value);
-        if (!url) return toast('Paste a Zoom link', true);
-        zoomOpen(url);
-      });
+      $('zoomOpenBtn').addEventListener('click', function() { var url = normalizeUrl($('zoomInput').value); if (!url) return toast('Paste a Zoom link', true); zoomOpen(url); });
       $('zoomInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') $('zoomOpenBtn').click(); });
       $('zoomHomeBtn').addEventListener('click', function() { zoomOpen('https://zoom.us/'); });
-      // Google Meet (external simulated)
-      $('meetOpenBtn').addEventListener('click', function() {
-        var url = normalizeUrl($('meetInput').value);
-        if (!url) return toast('Paste a Google Meet link', true);
-        meetOpen(url);
-      });
+      $('meetOpenBtn').addEventListener('click', function() { var url = normalizeUrl($('meetInput').value); if (!url) return toast('Paste a Google Meet link', true); meetOpen(url); });
       $('meetInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') $('meetOpenBtn').click(); });
       $('meetHomeBtn').addEventListener('click', function() { meetOpen('https://meet.google.com/'); });
-      // Gemini (external simulated)
-      $('geminiOpenBtn').addEventListener('click', function() {
-        var url = normalizeUrl($('geminiInput').value);
-        if (!url) return toast('Paste a Gemini link', true);
-        geminiOpen(url);
-      });
+      $('geminiOpenBtn').addEventListener('click', function() { var url = normalizeUrl($('geminiInput').value); if (!url) return toast('Paste a Gemini link', true); geminiOpen(url); });
       $('geminiInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') $('geminiOpenBtn').click(); });
       $('geminiHomeBtn').addEventListener('click', function() { geminiOpen('https://gemini.google.com/'); });
-      // DeepSeek (external simulated)
-      $('deepseekOpenBtn').addEventListener('click', function() {
-        var url = normalizeUrl($('deepseekInput').value);
-        if (!url) return toast('Paste a DeepSeek link', true);
-        deepseekOpen(url);
-      });
+      $('deepseekOpenBtn').addEventListener('click', function() { var url = normalizeUrl($('deepseekInput').value); if (!url) return toast('Paste a DeepSeek link', true); deepseekOpen(url); });
       $('deepseekInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') $('deepseekOpenBtn').click(); });
       $('deepseekHomeBtn').addEventListener('click', function() { deepseekOpen('https://chat.deepseek.com/'); });
     }
