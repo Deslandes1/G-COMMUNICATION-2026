@@ -41,6 +41,8 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 #screen-onboard h1{font-size:36px !important;letter-spacing:3px;margin-bottom:8px;font-weight:800}
 #screen-onboard > p{font-size:17px !important;opacity:.9;line-height:1.5;max-width:340px;margin-bottom:22px}
 #pendingLiveBanner{display:none;background:linear-gradient(135deg,#ff4757,#cc2334);color:#fff;padding:14px 18px;border-radius:10px;margin-bottom:16px;text-align:center;font-size:16px;font-weight:600;max-width:340px;box-shadow:0 6px 20px rgba(255,71,87,0.4)}
+#sharedPostBanner{display:none;background:linear-gradient(135deg,#0d7a8c,#0a6474);color:#fff;padding:14px 18px;border-radius:10px;margin-bottom:16px;text-align:center;font-size:15px;font-weight:600;max-width:340px;box-shadow:0 6px 20px rgba(13,122,140,.4)}
+#sharedPostBanner.show{display:block}
 .auth-tabs{display:flex;gap:8px;width:100%;max-width:340px;margin-bottom:16px}
 .auth-tabs button{flex:1;padding:15px;border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;border-radius:10px;font-size:17px !important;font-weight:700;cursor:pointer;font-family:Calibri,sans-serif}
 .auth-tabs button.active{background:var(--gold);color:var(--navy);border-color:var(--gold)}
@@ -309,6 +311,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .wall-action-btn:hover,.wall-action-btn:active{background:#e1e7ed}
 .wall-action-btn.active{background:#d4af37;color:#0b2a4a}
 .wall-action-btn.danger{background:#fff0f0;color:#ff4757}
+.wall-action-btn.share-btn{background:#e0f7fa;color:#0d7a8c}
 .wall-comments{margin-top:10px;border-top:1px solid #f0f0f0;padding-top:10px}
 .wall-comment{display:flex;gap:8px;margin-bottom:10px;align-items:flex-start}
 .wall-comment-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;overflow:hidden;flex-shrink:0}
@@ -414,6 +417,38 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .yt-inline-card .yt-inline-play{width:68px;height:68px;border-radius:50%;background:rgba(255,0,0,0.92);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,0.6);}
 .yt-inline-card .yt-inline-triangle{width:0;height:0;border-left:24px solid #fff;border-top:14px solid transparent;border-bottom:14px solid transparent;margin-left:6px;}
 .yt-inline-card .yt-inline-label{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.82);color:#fff;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:800;}
+/* ═══════ SHARE POST MODAL ═══════ */
+.share-modal-section{background:#f7f9fb;border-radius:12px;padding:14px;margin-bottom:12px}
+.share-modal-title{font-size:13px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.share-friends-list{max-height:220px;overflow-y:auto;border-radius:8px;background:#fff;border:1px solid var(--border)}
+.share-friend-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #f0f0f0;cursor:pointer}
+.share-friend-item:active{background:#f8f9fa}
+.share-friend-item:last-child{border-bottom:none}
+.share-friend-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;overflow:hidden;flex-shrink:0}
+.share-friend-avatar img{width:100%;height:100%;object-fit:cover}
+.share-friend-name{flex:1;font-size:16px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.share-friend-action{font-size:13px;font-weight:800;color:var(--accent);flex-shrink:0}
+.share-social-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.share-social-btn{padding:14px 8px;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-family:Calibri,sans-serif;line-height:1.2}
+.share-social-btn .share-social-icon{font-size:26px;line-height:1}
+.share-social-btn.whatsapp{background:linear-gradient(135deg,#25D366,#1da851)}
+.share-social-btn.facebook{background:linear-gradient(135deg,#1877f2,#0d5dbf)}
+.share-social-btn.twitter{background:linear-gradient(135deg,#000,#333)}
+.share-social-btn.telegram{background:linear-gradient(135deg,#0088cc,#006699)}
+.share-social-btn.email{background:linear-gradient(135deg,#6b7a87,#4a5560)}
+.share-social-btn.sms{background:linear-gradient(135deg,#34A853,#1e8e3e)}
+.share-copy-row{display:flex;gap:6px}
+.share-copy-row input{flex:1;padding:14px;border:1.5px solid var(--border);border-radius:10px;font-size:12px;outline:none;background:#fff;min-width:0;font-family:'Courier New',monospace}
+.share-copy-row button{padding:14px 16px;border:none;border-radius:10px;background:linear-gradient(135deg,#0d7a8c,#0a6474);color:#fff;font-weight:800;font-size:14px;cursor:pointer;flex-shrink:0;font-family:Calibri,sans-serif}
+.share-native-btn{width:100%;padding:16px;border:none;border-radius:10px;background:linear-gradient(135deg,#f0d369 0%,#d4af37 50%,#b8912a 100%);color:var(--navy);font-weight:800;font-size:16px;cursor:pointer;margin-top:8px;font-family:Calibri,sans-serif}
+.shared-post-card{background:#f0f7ff;border-left:3px solid var(--accent);border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer}
+.shared-post-card:active{background:#e0eefc}
+.shared-post-card-header{font-size:12px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;gap:4px}
+.shared-post-card-author{color:#0b2a4a;font-size:14px;font-weight:700;margin-bottom:4px}
+.shared-post-card-text{font-size:15px;line-height:1.4;word-wrap:break-word;color:var(--text)}
+.shared-post-card-media{margin-top:6px;border-radius:6px;overflow:hidden;max-height:180px}
+.shared-post-card-media img{width:100%;height:100%;object-fit:cover;display:block}
+.shared-post-card-cta{margin-top:6px;font-size:12px;color:var(--accent);font-weight:700}
 @media (max-width: 540px){
   .live-chat-side{width:45%;min-width:150px;max-width:230px}
   .live-chat-msg{font-size:13px;padding:6px 8px}
@@ -468,11 +503,11 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 (function(){
   window.__jarvisModuleLoaded=false;
   window.__jarvisMarkLoaded=function(){window.__jarvisModuleLoaded=true};
-  try{var params=new URLSearchParams(window.location.search);var live=params.get('live');if(live)window._pendingLiveJoin=live;var wall=params.get('wall');if(wall)window._pendingWall=wall}catch(e){}
+  try{var params=new URLSearchParams(window.location.search);var live=params.get('live');if(live)window._pendingLiveJoin=live;var wall=params.get('wall');if(wall)window._pendingWall=wall;var sharePost=params.get('share_post');var shareFrom=params.get('from');if(sharePost){window._pendingSharedPost={key:sharePost,from:shareFrom||null}}}catch(e){}
   var ua=navigator.userAgent;
   window.__jarvisIsIOS=/iPad|iPhone|iPod/.test(ua)&&!window.MSStream;
   window.__jarvisIsStandalone=window.navigator.standalone===true||(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);
-  function hideLoadingNow(){var lo=document.getElementById('loadingOverlay');if(lo){lo.classList.add('hidden');setTimeout(function(){lo.style.display='none'},350)}var ob=document.getElementById('screen-onboard');if(ob)ob.classList.add('active');var pb=document.getElementById('pendingLiveBanner');if(pb&&window._pendingLiveJoin)pb.style.display='block'}
+  function hideLoadingNow(){var lo=document.getElementById('loadingOverlay');if(lo){lo.classList.add('hidden');setTimeout(function(){lo.style.display='none'},350)}var ob=document.getElementById('screen-onboard');if(ob)ob.classList.add('active');var pb=document.getElementById('pendingLiveBanner');if(pb&&window._pendingLiveJoin)pb.style.display='block';var sb=document.getElementById('sharedPostBanner');if(sb&&window._pendingSharedPost)sb.classList.add('show')}
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',hideLoadingNow)}else{setTimeout(hideLoadingNow,0)}
   setTimeout(hideLoadingNow,500);
   setTimeout(function(){if(!window.__jarvisModuleLoaded){var eb=document.getElementById('loadErrorBanner');if(eb)eb.classList.add('show')}},15000);
@@ -481,6 +516,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 <div id="app">
 <section id="screen-onboard" class="screen active">
   <div id="pendingLiveBanner">🔴 <strong>You were invited to watch a live stream!</strong><br>Sign in or create a free account below to join.</div>
+  <div id="sharedPostBanner">🎯 <strong>Someone shared a JARVIS post with you!</strong><br>Sign up or sign in below to see it.</div>
   <div class="onboard-logo">G</div>
   <h1>JARVIS</h1>
   <p>Sign in with your name and password to sync chats on any device.</p>
@@ -510,7 +546,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="logo">G</div>
     <h2 id="headerTitle">Feed</h2>
     <div class="lite-mode-badge" id="liteModeBadge">⚡ Lite</div>
-    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v26</div>
+    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v27</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabFeed" class="tab-content" style="display:block;">
@@ -636,7 +672,6 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       <div style="text-align:center;padding:20px 12px;">
         <div style="font-size:72px;margin-bottom:14px;">🎥</div>
         <h2 style="font-size:24px;font-weight:800;margin-bottom:10px;color:var(--text);">Zoom — Opens Inside JARVIS</h2>
-        <p style="font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:20px;max-width:400px;margin-left:auto;margin-right:auto;">Paste a Zoom meeting link, or use the buttons below to open Zoom directly inside the app.</p>
       </div>
       <div class="social-input-row">
         <input id="zoomInput" type="text" placeholder="Paste Zoom meeting link…" autocomplete="off">
@@ -644,14 +679,12 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       </div>
       <button id="zoomHomeBtn" class="social-action-btn" style="background:linear-gradient(135deg,#2D8CFF,#1a6dcc);"><span class="icon">🌐</span>Open Zoom Website Inside JARVIS</button>
       <button id="zoomLaunchBtn" class="social-action-btn" style="background:linear-gradient(135deg,#4D6BFE,#3a55d4);"><span class="icon">🎥</span>Launch Zoom Web App Inside JARVIS</button>
-      <div class="social-hint">Zoom opens directly in JARVIS — no external browser needed.</div>
     </div>
     <div class="platform-panel" data-platform="meet" id="panelMeet" style="display:none;">
       <div class="social-input-row">
         <input id="meetInput" type="text" placeholder="Paste Google Meet link…" autocomplete="off">
         <button id="meetOpenBtn" style="background:linear-gradient(135deg,#00897B,#00695C);">Open</button>
       </div>
-      <div class="social-hint">Paste a Google Meet link. Opens in your browser — JARVIS stays with you.</div>
       <button id="meetHomeBtn" class="social-action-btn" style="background:linear-gradient(135deg,#00897B,#00695C);"><span class="icon">🏠</span>Open Google Meet Home</button>
     </div>
     <div class="platform-panel" data-platform="gemini" id="panelGemini" style="display:none;">
@@ -659,7 +692,6 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
         <input id="geminiInput" type="text" placeholder="Paste Gemini conversation link…" autocomplete="off">
         <button id="geminiOpenBtn" style="background:linear-gradient(135deg,#4285F4,#1a73e8);">Open</button>
       </div>
-      <div class="social-hint">Paste a Gemini link. Opens in your browser — JARVIS stays with you.</div>
       <button id="geminiHomeBtn" class="social-action-btn" style="background:linear-gradient(135deg,#4285F4,#1a73e8);"><span class="icon">🏠</span>Open Gemini Home</button>
     </div>
     <div class="platform-panel" data-platform="deepseek" id="panelDeepseek" style="display:none;">
@@ -667,15 +699,9 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
         <input id="deepseekInput" type="text" placeholder="Paste DeepSeek conversation link…" autocomplete="off">
         <button id="deepseekOpenBtn" style="background:linear-gradient(135deg,#4D6BFE,#3a55d4);">Open</button>
       </div>
-      <div class="social-hint">Paste a DeepSeek link. Opens in your browser — JARVIS stays with you.</div>
       <button id="deepseekHomeBtn" class="social-action-btn" style="background:linear-gradient(135deg,#4D6BFE,#3a55d4);"><span class="icon">🏠</span>Open DeepSeek Home</button>
     </div>
     <div class="platform-panel" data-platform="google" id="panelGoogle" style="display:none;">
-      <div style="text-align:center;padding:20px 12px 0;">
-        <div style="font-size:72px;margin-bottom:14px;">🔍</div>
-        <h2 style="font-size:24px;font-weight:800;margin-bottom:6px;color:var(--text);">Google Browser</h2>
-        <p style="font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:20px;max-width:400px;margin-left:auto;margin-right:auto;">Search Google or enter any URL — opens directly inside JARVIS.</p>
-      </div>
       <div class="social-input-row">
         <input id="googleInput" type="text" placeholder="Search Google or enter URL…" autocomplete="off">
         <button id="googleOpenBtn" style="background:linear-gradient(135deg,#4285F4,#34A853);">Go</button>
@@ -683,19 +709,9 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
         <button class="social-action-btn" style="background:linear-gradient(135deg,#4285F4,#1a73e8);margin-bottom:0;" onclick="window.__googleOpen('https://www.google.com/')"><span class="icon">🔍</span>Google Home</button>
         <button class="social-action-btn" style="background:linear-gradient(135deg,#EA4335,#c5221f);margin-bottom:0;" onclick="window.__googleOpen('https://images.google.com/')"><span class="icon">🖼️</span>Images</button>
-        <button class="social-action-btn" style="background:linear-gradient(135deg,#34A853,#1e8e3e);margin-bottom:0;" onclick="window.__googleOpen('https://news.google.com/')"><span class="icon">📰</span>News</button>
-        <button class="social-action-btn" style="background:linear-gradient(135deg,#FBBC05,#d9a300);margin-bottom:0;color:#0b2a4a !important;" onclick="window.__googleOpen('https://maps.google.com/')"><span class="icon">🗺️</span>Maps</button>
-        <button class="social-action-btn" style="background:linear-gradient(135deg,#4285F4,#34A853);margin-bottom:0;" onclick="window.__googleOpen('https://translate.google.com/')"><span class="icon">🌐</span>Translate</button>
-        <button class="social-action-btn" style="background:linear-gradient(135deg,#EA4335,#c5221f);margin-bottom:0;" onclick="window.__googleOpen('https://drive.google.com/')"><span class="icon">📁</span>Drive</button>
       </div>
-      <div class="social-hint" style="margin-top:12px;">Opens inside JARVIS. JARVIS stays visible behind.</div>
     </div>
     <div class="platform-panel" data-platform="chrome" id="panelChrome" style="display:none;">
-      <div style="text-align:center;padding:20px 12px 0;">
-        <div style="font-size:72px;margin-bottom:14px;">🌐</div>
-        <h2 style="font-size:24px;font-weight:800;margin-bottom:6px;color:var(--text);">Chrome Browser</h2>
-        <p style="font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:20px;max-width:400px;margin-left:auto;margin-right:auto;">Browse any website inside JARVIS — Chrome-style experience.</p>
-      </div>
       <div class="social-input-row">
         <input id="chromeInput" type="text" placeholder="Enter website URL…" autocomplete="off">
         <button id="chromeOpenBtn" style="background:linear-gradient(135deg,#4285F4,#EA4335);">Go</button>
@@ -703,10 +719,6 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       <button class="social-action-btn" style="background:linear-gradient(135deg,#4285F4,#EA4335 50%,#FBBC05 75%,#34A853);" onclick="window.__chromeOpen('https://www.google.com/')"><span class="icon">🌐</span>Open Google in Chrome Mode</button>
     </div>
     <div class="platform-panel" data-platform="edge" id="panelEdge" style="display:none;">
-      <div style="text-align:center;padding:20px 12px 0;">
-        <div style="font-size:72px;margin-bottom:14px;">🌊</div>
-        <h2 style="font-size:24px;font-weight:800;margin-bottom:6px;color:var(--text);">Microsoft Edge Browser</h2>
-      </div>
       <div class="social-input-row">
         <input id="edgeInput" type="text" placeholder="Enter website URL…" autocomplete="off">
         <button id="edgeOpenBtn" style="background:linear-gradient(135deg,#0078D4,#00B7C3);">Go</button>
@@ -772,10 +784,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div style="padding:0 20px">
       <div style="background:#fff;padding:16px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;font-size:17px;" id="permBtn"><span>📢 Notifications</span><span id="permStatus" style="font-size:15px;font-weight:600;color:var(--gold)">checking…</span></div>
       <div class="lite-toggle-row" id="liteModeToggle">
-        <div>
-          <div style="font-weight:700;">⚡ Lite Mode</div>
-          <div style="font-size:14px;color:var(--muted);">Faster on weak internet, uses less data</div>
-        </div>
+        <div><div style="font-weight:700;">⚡ Lite Mode</div><div style="font-size:14px;color:var(--muted);">Faster on weak internet, uses less data</div></div>
         <div class="lite-toggle-switch" id="liteModeSwitch"><div class="lite-toggle-knob"></div></div>
       </div>
       <div id="ownerPortalTrigger" style="display:none;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;padding:18px;border-radius:10px;margin-bottom:10px;text-align:center;font-weight:700;cursor:pointer;font-size:17px;">🛡️ Owner Space</div>
@@ -838,11 +847,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       <video id="liveLocalVideo" autoplay playsinline muted webkit-playsinline></video>
       <div id="liveLocalAvatar" class="avatar-fallback"><div class="letter small" id="liveLocalAvatarLetter">?</div></div>
       <div id="liveConferenceGrid"></div>
-      <div class="live-pause-overlay" id="livePauseOverlay">
-        <div class="icon">⏸</div>
-        <div class="title" id="livePauseTitle">PAUSED</div>
-        <div class="sub" id="livePauseSub">Stream paused — will return soon.</div>
-      </div>
+      <div class="live-pause-overlay" id="livePauseOverlay"><div class="icon">⏸</div><div class="title" id="livePauseTitle">PAUSED</div><div class="sub" id="livePauseSub">Stream paused — will return soon.</div></div>
       <div id="liveLoadingOverlay"><div class="spinner"></div><div style="margin-top:16px;font-size:15px;">Connecting…</div></div>
     </div>
     <div class="live-chat-side">
@@ -900,8 +905,6 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       <div style="display:flex;gap:6px;">
         <input id="inCallInput" type="text" placeholder="Comment or emoji..." style="flex:1;padding:10px;border-radius:6px;border:1px solid var(--border);font-size:15px;">
         <button onclick="window.__sendInCallMsg()" style="background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:6px;font-weight:700;font-size:15px;">Send</button>
-        <button onclick="document.getElementById('inCallMediaInput').click()" style="background:var(--gold);color:var(--navy);border:none;padding:10px 12px;border-radius:6px;font-weight:700;font-size:15px;">📎</button>
-        <input type="file" id="inCallMediaInput" accept="image/*,video/*,audio/*" style="display:none;" onchange="window.__sendInCallMedia(this)">
       </div>
     </div>
     <div class="call-actions">
@@ -930,18 +933,51 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 <div class="modal-overlay" id="wallComposeModal"><div class="modal" style="max-width:520px;"><h3>📋 Post to Your Wall</h3><textarea id="wallPostText" rows="4" placeholder="What's on your mind? This will appear on your wall and in the Feed."></textarea><input id="wallPostLink" type="text" placeholder="Optional link (YouTube, website, etc.)" style="margin-top:8px;"><div style="margin-bottom:10px"><button class="btn-primary" id="wallMediaSelectBtn" style="width:100%;max-width:none;padding:14px;background:#143a5f;color:#fff;">📷 Select Photo/Video</button><div id="wallMediaName" style="font-size:14px;color:var(--accent);margin-top:4px;"></div></div><label style="font-size:14px;font-weight:700;display:block;margin-bottom:8px;color:var(--navy);">👥 Who can see this post?</label><div class="privacy-selector" id="wallPrivacySelector"><div class="privacy-option active" data-privacy="public"><span class="p-icon">🌍</span>Public<span class="p-sub">Everyone</span></div><div class="privacy-option" data-privacy="friends"><span class="p-icon">👥</span>Friends<span class="p-sub">Friends only</span></div><div class="privacy-option" data-privacy="selected"><span class="p-icon">🔒</span>Selected<span class="p-sub">Choose people</span></div></div><div id="wallSelectedFriendsWrap" style="display:none;margin-bottom:10px;"><label style="font-size:14px;font-weight:700;display:block;margin-bottom:6px;color:var(--navy);">Select friends:</label><div class="group-select-list" id="wallSelectedFriendsList" style="max-height:180px;"></div></div><div class="modal-actions"><button class="cancel" id="wallComposeCancel">Cancel</button><button class="confirm" id="wallComposePost">Post to Wall</button></div></div></div>
 <div class="modal-overlay" id="editMsgModal"><div class="modal"><h3>Edit Message</h3><input id="editMsgInput" type="text" placeholder="Edit text..."><div style="margin-bottom:12px"><label style="font-size:16px;display:block;margin-bottom:4px">Replace Media (optional):</label><input type="file" id="editMediaInput" accept="image/*,video/*,audio/*"></div><div class="modal-actions"><button class="cancel" id="editMsgCancel">Cancel</button><button class="confirm" id="editMsgConfirm">Save</button></div></div></div>
 <div class="modal-overlay" id="statusCommentsModal"><div class="modal" style="max-width:420px;"><h3>Comments & DM</h3><div id="statusCommentsList" style="max-height:220px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:8px;"></div><input id="statusCommentInput" type="text" placeholder="Comment..."><div class="modal-actions"><button class="cancel" id="statusCommentCancel">Close</button><button class="confirm" id="statusCommentSend">Send DM</button></div></div></div>
-<div class="modal-overlay" id="editPinnedStatusModal"><div class="modal"><h3>📌 Edit Pinned Status</h3><p style="font-size:15px;color:var(--muted);margin-bottom:14px;">This appears at the top of Status for everyone. Only you can edit it.</p><label style="font-size:15px;font-weight:700;display:block;margin-bottom:6px;color:var(--navy);">Text (optional)</label><textarea id="pinnedTextInput" rows="2" placeholder="Write something…" style="width:100%;padding:14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;margin-bottom:6px;outline:none;font-family:Calibri,sans-serif;"></textarea><div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;"><span style="font-size:13px;color:var(--muted);">Text background:</span><input type="color" id="pinnedBgColor" value="#0d7a8c" style="width:64px;height:36px;border:none;border-radius:6px;cursor:pointer;"></div><label style="font-size:15px;font-weight:700;display:block;margin-bottom:6px;color:var(--navy);">YouTube / video / website link (optional)</label><input id="pinnedLinkInput" type="text" placeholder="https://www.youtube.com/watch?v=…" style="width:100%;padding:14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;margin-bottom:4px;outline:none;"><div style="font-size:13px;color:var(--muted);margin-bottom:16px;">YouTube links play inline. Other links become a clickable button.</div><div class="modal-actions"><button class="cancel" onclick="document.getElementById('editPinnedStatusModal').classList.remove('show')">Cancel</button><button class="confirm" id="pinnedSaveBtn" onclick="window.__savePinnedStatus()">Save</button></div><button onclick="window.__clearPinnedStatus()" style="width:100%;margin-top:12px;padding:14px;background:#fff0f0;color:#ff4757;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:15px;font-family:Calibri,sans-serif;">Remove pinned status</button></div></div>
+<div class="modal-overlay" id="editPinnedStatusModal"><div class="modal"><h3>📌 Edit Pinned Status</h3><p style="font-size:15px;color:var(--muted);margin-bottom:14px;">This appears at the top of Status for everyone. Only you can edit it.</p><label style="font-size:15px;font-weight:700;display:block;margin-bottom:6px;color:var(--navy);">Text (optional)</label><textarea id="pinnedTextInput" rows="2" placeholder="Write something…" style="width:100%;padding:14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;margin-bottom:6px;outline:none;font-family:Calibri,sans-serif;"></textarea><div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;"><span style="font-size:13px;color:var(--muted);">Text background:</span><input type="color" id="pinnedBgColor" value="#0d7a8c" style="width:64px;height:36px;border:none;border-radius:6px;cursor:pointer;"></div><label style="font-size:15px;font-weight:700;display:block;margin-bottom:6px;color:var(--navy);">YouTube / video / website link (optional)</label><input id="pinnedLinkInput" type="text" placeholder="https://www.youtube.com/watch?v=…" style="width:100%;padding:14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;margin-bottom:4px;outline:none;"><div class="modal-actions"><button class="cancel" onclick="document.getElementById('editPinnedStatusModal').classList.remove('show')">Cancel</button><button class="confirm" id="pinnedSaveBtn" onclick="window.__savePinnedStatus()">Save</button></div><button onclick="window.__clearPinnedStatus()" style="width:100%;margin-top:12px;padding:14px;background:#fff0f0;color:#ff4757;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:15px;font-family:Calibri,sans-serif;">Remove pinned status</button></div></div>
 <div class="modal-overlay" id="ownerAuthModal"><div class="modal"><h3>Owner Auth</h3><input id="ownerPassInput" type="password" placeholder="Password"><div class="modal-actions"><button class="cancel" id="ownerAuthCancel">Cancel</button><button class="confirm" id="ownerAuthConfirm">Unlock</button></div></div></div>
 <div class="modal-overlay" id="ownerSpaceModal"><div class="modal" style="max-width:640px;max-height:90vh;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><h3 style="margin:0;">🛡️ Owner Space</h3><button id="ownerSpaceClose" style="background:none;border:none;font-size:26px;cursor:pointer;">✕</button></div><div style="display:flex;gap:6px;margin-bottom:12px;"><button class="btn-primary" id="ownerTabStatusBtn" style="flex:1;max-width:none;padding:12px;">Statuses</button><button class="btn-primary" id="ownerTabChatsBtn" style="flex:1;max-width:none;padding:12px;background:#143a5f;">P2P DMs</button><button class="btn-primary" id="ownerTabInteractionsBtn" style="flex:1;max-width:none;padding:12px;background:#143a5f;">🔍 Interactions</button></div><div id="ownerContentArea" style="max-height:55vh;overflow-y:auto;"></div></div></div>
 <div class="modal-overlay" id="bgGalleryModal"><div class="modal" style="max-width:460px;"><h3>🖼️ Backgrounds</h3><div class="bg-gallery-grid" id="bgGalleryGrid"></div><div class="modal-actions"><button class="cancel" id="bgGalleryClose" style="width:100%;max-width:none;">Close</button></div></div></div>
-<div class="modal-overlay" id="liveBgModal"><div class="modal" style="max-width:460px;"><h3>🖼️ Virtual Background</h3><div class="bg-gallery-grid" id="liveBgGallery" style="grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div><div style="margin-bottom:12px;"><input type="file" id="liveBgUploadInput" accept="image/*" style="display:none;" onchange="window.__uploadLiveBg(this)"><button onclick="document.getElementById('liveBgUploadInput').click()" style="width:100%;padding:14px;background:#143a5f;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:16px;">📷 Upload From Device</button></div><div class="modal-actions"><button class="cancel" onclick="document.getElementById('liveBgModal').classList.remove('show')" style="width:100%;max-width:none;">Close</button></div></div></div>
-<div class="modal-overlay" id="saveRecordingModal"><div class="modal" style="max-width:400px;"><h3>💾 Save Recording</h3><p style="font-size:15px;color:var(--muted);margin-bottom:14px;">Recording complete! Where to save?</p><div id="saveRecInfo" class="save-rec-info">Preparing…</div><button class="save-rec-btn device" onclick="window.__saveLiveRecordingToDevice()"><span class="icon">📱</span><span class="label">Save to Device<span class="hint">Downloads .webm file</span></span></button><button class="save-rec-btn drive" onclick="window.__saveLiveRecordingToDrive()"><span class="icon">☁️</span><span class="label">Save to Google Drive / OneDrive<span class="hint">Share sheet or upload</span></span></button><button class="save-rec-btn share" onclick="window.__shareLiveRecording()"><span class="icon">📤</span><span class="label">Share Elsewhere<span class="hint">WhatsApp, iCloud, OneDrive…</span></span></button><button class="save-rec-btn discard" onclick="window.__discardLiveRecording()"><span class="icon">❌</span><span class="label">Discard</span></button></div></div>
+<div class="modal-overlay" id="saveRecordingModal"><div class="modal" style="max-width:400px;"><h3>💾 Save Recording</h3><p style="font-size:15px;color:var(--muted);margin-bottom:14px;">Recording complete! Where to save?</p><div id="saveRecInfo" class="save-rec-info">Preparing…</div><button class="save-rec-btn device" onclick="window.__saveLiveRecordingToDevice()"><span class="icon">📱</span><span class="label">Save to Device<span class="hint">Downloads .webm file</span></span></button><button class="save-rec-btn discard" onclick="window.__discardLiveRecording()"><span class="icon">❌</span><span class="label">Discard</span></button></div></div>
 <div class="modal-overlay" id="preCallModal"><div class="modal" style="max-width:480px;"><h3 id="preCallTitle">🎥 Call Setup</h3><div id="preCallBgSection"><label style="font-size:16px;font-weight:700;display:block;margin-bottom:8px;color:var(--navy);">🖼️ Background:</label><div class="bg-gallery-grid" id="preCallBgGrid" style="grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div></div><div id="preCallInviteSection"><label style="font-size:16px;font-weight:700;display:block;margin-bottom:8px;color:var(--navy);">👥 Invite:</label><div class="group-select-list" id="preCallInviteList" style="max-height:140px;"></div></div><div class="modal-actions"><button class="cancel" id="preCallCancel">Cancel</button><button class="confirm" id="preCallStart">Start</button></div></div></div>
 <div class="modal-overlay" id="addParticipantModal"><div class="modal"><h3>🎥 Invite Users</h3><div class="group-select-list" id="participantSelectionList"></div><div class="modal-actions"><button class="cancel" id="participantCancel">Skip</button><button class="confirm" id="participantConfirm">Invite</button></div></div></div>
 <div class="modal-overlay" id="iosInstallGuide"><div class="modal" style="max-width:420px;"><h3>📱 iPhone Notifications</h3><div style="font-size:16px;line-height:1.6;margin-bottom:14px;"><p>1️⃣ Share ⬆️</p><p>2️⃣ Add to Home Screen</p><p>3️⃣ Add</p><p>4️⃣ Open from Home Screen</p><p>5️⃣ Enable notifications</p></div><div class="modal-actions"><button class="cancel" onclick="document.getElementById('iosInstallGuide').classList.remove('show')" style="width:100%;max-width:none;">Got it</button></div></div></div>
 <div class="modal-overlay" id="changePasswordModal"><div class="modal"><h3>🔑 Change Password</h3><input id="currentPasswordInput" type="password" placeholder="Current password"><input id="newPasswordInput" type="password" placeholder="New password"><input id="confirmPasswordInput" type="password" placeholder="Confirm"><div class="modal-actions"><button class="cancel" id="changePasswordCancel">Cancel</button><button class="confirm" id="changePasswordConfirm">Update</button></div></div></div>
 <div class="modal-overlay" id="forgotPasswordModal"><div class="modal"><h3>🔑 Reset Password</h3><input id="forgotName" type="text" placeholder="Your name"><input id="forgotRecovery" type="text" placeholder="Recovery phrase"><input id="forgotNewPassword" type="password" placeholder="New password"><input id="forgotConfirmPassword" type="password" placeholder="Confirm"><div id="forgotStatus" style="font-size:15px;min-height:18px;margin-bottom:8px;color:var(--muted);text-align:center;"></div><div class="modal-actions"><button class="cancel" id="forgotCancel">Cancel</button><button class="confirm" id="forgotConfirm">Reset</button></div></div></div>
 <div class="modal-overlay" id="setRecoveryModal"><div class="modal"><h3>🛡️ Recovery Phrase</h3><input id="setRecoveryCurrentPwd" type="password" placeholder="Current password"><input id="setRecoveryPhrase" type="text" placeholder="New recovery phrase"><input id="setRecoveryPhraseConfirm" type="text" placeholder="Confirm"><div class="modal-actions"><button class="cancel" id="setRecoveryCancel">Cancel</button><button class="confirm" id="setRecoveryConfirm">Save</button></div></div></div>
+<!-- ========== SHARE POST MODAL ========== -->
+<div class="modal-overlay" id="shareWallPostModal">
+  <div class="modal" style="max-width:500px;">
+    <h3>📤 Share Post</h3>
+    <div class="share-modal-section">
+      <div class="share-modal-title">📱 Send to JARVIS Friends</div>
+      <div class="share-friends-list" id="shareFriendsList">
+        <div style="text-align:center;padding:20px;color:var(--muted);font-size:15px;">Loading…</div>
+      </div>
+    </div>
+    <div class="share-modal-section">
+      <div class="share-modal-title">🌍 Share to Social Media</div>
+      <div class="share-social-grid">
+        <button class="share-social-btn whatsapp" onclick="window.__shareExternal('whatsapp')"><span class="share-social-icon">💚</span>WhatsApp</button>
+        <button class="share-social-btn facebook" onclick="window.__shareExternal('facebook')"><span class="share-social-icon">📘</span>Facebook</button>
+        <button class="share-social-btn twitter" onclick="window.__shareExternal('twitter')"><span class="share-social-icon">𝕏</span>Twitter</button>
+        <button class="share-social-btn telegram" onclick="window.__shareExternal('telegram')"><span class="share-social-icon">✈️</span>Telegram</button>
+        <button class="share-social-btn email" onclick="window.__shareExternal('email')"><span class="share-social-icon">✉️</span>Email</button>
+        <button class="share-social-btn sms" onclick="window.__shareExternal('sms')"><span class="share-social-icon">💬</span>SMS</button>
+      </div>
+    </div>
+    <div class="share-modal-section">
+      <div class="share-modal-title">🔗 Copy Link</div>
+      <div class="share-copy-row">
+        <input id="shareLinkInput" type="text" readonly onclick="this.select()">
+        <button onclick="window.__copyShareLink()">📋 Copy</button>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:8px;text-align:center;line-height:1.4;">Anyone with this link can sign up for JARVIS and see this post.</div>
+    </div>
+    <button class="share-native-btn" onclick="window.__nativeSharePost()">📱 More Options (Share Sheet)</button>
+    <button onclick="document.getElementById('shareWallPostModal').classList.remove('show')" style="width:100%;margin-top:8px;padding:16px;border:none;border-radius:10px;background:#eef2f6;color:var(--text);font-weight:700;font-size:15px;cursor:pointer;font-family:Calibri,sans-serif;">Cancel</button>
+  </div>
+</div>
+<!-- ========== END SHARE POST MODAL ========== -->
 <div id="lightbox"><button class="close-lb" id="lightboxClose">✕</button><img id="lightboxImg" alt=""><a class="dl-lb" id="lightboxDownload" download target="_blank" style="position:absolute;bottom:calc(30px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);padding:14px 28px;border-radius:20px;background:#d4af37;color:#0b2a4a;font-weight:700;text-decoration:none;font-size:17px;">⬇ Download</a></div>
 <div id="avatarViewerModal"><button class="close-lb" id="avatarViewerClose" onclick="document.getElementById('avatarViewerModal').classList.remove('show')">✕</button><img id="avatarViewerImg" src="" alt=""><div id="avatarViewerName">User</div></div>
 <div class="toast" id="toast"></div>
@@ -954,24 +990,8 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   </div>
   <div class="iab-body">
     <iframe id="iabFrame" sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox allow-forms allow-modals allow-presentation allow-top-navigation-by-user-activation" referrerpolicy="no-referrer-when-downgrade"></iframe>
-    <div class="iab-blocked" id="iabBlocked">
-      <div class="icon">🚫</div>
-      <h3 id="iabBlockedTitle">This site blocks embedding</h3>
-      <p id="iabBlockedMsg">For security reasons, this website doesn't allow being shown inside other apps. You can still use it — tap below to open it in your device's browser.</p>
-      <button id="iabOpenBtn">Open in Browser</button>
-      <button id="iabBackBtn2" class="secondary">← Go Back in JARVIS</button>
-    </div>
-    <div class="iab-launching" id="iabLaunching">
-      <div class="launch-platform-icon" id="launchIcon">🌐</div>
-      <h2 id="launchTitle">Opening…</h2>
-      <p id="launchSubtitle">Launching in your device's browser</p>
-      <div class="launch-spinner" id="launchSpinner"></div>
-      <div class="launch-actions" id="launchActions">
-        <button id="launchReopenBtn" class="launch-btn primary">↗ Open Again</button>
-        <button id="launchReturnBtn" class="launch-btn secondary">← Return to JARVIS</button>
-      </div>
-      <div class="launch-tip">💡 Content opens in a new browser tab. JARVIS stays here when you come back.</div>
-    </div>
+    <div class="iab-blocked" id="iabBlocked"><div class="icon">🚫</div><h3 id="iabBlockedTitle">This site blocks embedding</h3><p id="iabBlockedMsg">For security reasons, this website doesn't allow being shown inside other apps. You can still use it — tap below to open it in your device's browser.</p><button id="iabOpenBtn">Open in Browser</button><button id="iabBackBtn2" class="secondary">← Go Back in JARVIS</button></div>
+    <div class="iab-launching" id="iabLaunching"><div class="launch-platform-icon" id="launchIcon">🌐</div><h2 id="launchTitle">Opening…</h2><p id="launchSubtitle">Launching in your device's browser</p><div class="launch-spinner" id="launchSpinner"></div><div class="launch-actions" id="launchActions"><button id="launchReopenBtn" class="launch-btn primary">↗ Open Again</button><button id="launchReturnBtn" class="launch-btn secondary">← Return to JARVIS</button></div><div class="launch-tip">💡 Content opens in a new browser tab. JARVIS stays here when you come back.</div></div>
   </div>
 </div>
 <!-- ========== IN-APP YOUTUBE PLAYER MODAL ========== -->
@@ -985,7 +1005,6 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <iframe id="ytFeedPlayerFrame" src="" title="YouTube player" style="position:absolute;inset:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
   </div>
 </div>
-<!-- ========== END IN-APP YOUTUBE PLAYER ========== -->
 <input type="file" id="avatarInput" accept="image/*" style="display:none;">
 <input type="file" id="fileInput" style="display:none;">
 <input type="file" id="statusMediaInput" accept="image/*,video/*" style="display:none;">
@@ -1010,6 +1029,7 @@ const LIVE_STREAMS_PATH = LIVE_BASE_PATH + '/streams';
 const OWNER_SLUG = 'gesnerdeslandes';
 const OWNER_NAME = 'Gesner Deslandes';
 const FR_PATH = 'friend_requests';
+const APP_BASE_URL = (function(){ try { return window.location.origin + window.location.pathname.replace(/\/index\.html$/,'/').replace(/\/$/,'') + '/'; } catch(e) { return window.location.href.split('?')[0]; } })();
 
 let fbApp, db, auth;
 try { fbApp = initializeApp(firebaseConfig); db = getDatabase(fbApp); auth = getAuth(fbApp); }
@@ -1023,21 +1043,21 @@ const App = {
   lastMessages: {}, unreadCounts: {}, lastSeenTimes: {}, globalUnsubs: {}, deletedLocally: {},
   statusMediaFile: null, selectedMsgKey: null, selectedMsgObj: null,
   activeStatusObj: null, audioCtx: null,
-  peerConn: null, extraPeers: {}, localStream: null, activeCallId: null, isVideoCall: false,
-  currentCallTarget: null, isMuted: false,
+  isMuted: false, blockedUsers: [],
   isIOS: window.__jarvisIsIOS === true, isStandalone: window.__jarvisIsStandalone === true,
-  _cloudSynced: false, _contactsListener: null, _groupsListener: null, _activeStreamsListener: null,
+  _contactsListener: null, _groupsListener: null, _activeStreamsListener: null,
   _pinnedStatusListener: null, _presenceListener: null, _wallPostsListener: null,
   processedInvites: {},
   liveMode: null, liveStreamId: null, liveHostSlug: null, liveLocalStream: null,
-  livePeerConns: {}, liveHostPC: null, liveUnsubs: [], activeLiveStreams: {},
+  liveHostPC: null, liveUnsubs: [], activeLiveStreams: {},
   incomingRequests: {}, sentRequests: {}, publicUsers: {},
   _friendReqListener: null, _publicUsersListener: null,
   _userStatusesListener: null, _voicemailListener: null, _incomingCallsListener: null,
   _presenceConnListener: null, _ownerUsersListener: null, _allGroupsListener: null,
   networkMode: 'normal', userLiteMode: false, liteMode: false,
   pinnedStatus: null, contactPresence: {},
-  wallPostMediaFile: null, wallPosts: [], wallComposePrivacy: 'public'
+  wallPostMediaFile: null, wallPosts: [], wallComposePrivacy: 'public',
+  sharingPostKey: null, sharingPostObj: null
 };
 
 let currentAuthUser = null;
@@ -1072,8 +1092,7 @@ function fileToBase64(file) { return new Promise(function(resolve, reject) { var
 function withTimeout(promise, ms) { return new Promise(function(resolve) { var done = false; var timer = setTimeout(function() { if (!done) { done = true; resolve({ timedOut: true }); } }, ms); promise.then(function(r) { if (done) return; done = true; clearTimeout(timer); resolve({ timedOut: false, result: r }); }).catch(function(e) { if (done) return; done = true; clearTimeout(timer); resolve({ timedOut: false, error: e }); }); }); }
 function getYouTubeId(url) {
   if (!url) return null;
-  var u = String(url).trim();
-  var m = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|live\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  var m = String(url).trim().match(/(?:youtube\.com\/(?:watch\?v=|embed\/|live\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
   return m ? m[1] : null;
 }
 function frPairKey(from, to) { return from + '__to__' + to; }
@@ -1096,34 +1115,171 @@ function formatDateTime(ts, mode) {
 /* ═══════════════════════════════════════════════════════════════
    IN-APP YOUTUBE PLAYER
    ═══════════════════════════════════════════════════════════════ */
-function ytSafeOrigin() {
-  try { if (window.location.protocol === 'file:') return ''; if (!window.location.origin || window.location.origin === 'null') return ''; return window.location.origin; } catch (e) { return ''; }
-}
+function ytSafeOrigin() { try { if (window.location.protocol === 'file:') return ''; if (!window.location.origin || window.location.origin === 'null') return ''; return window.location.origin; } catch (e) { return ''; } }
 window.__openYTFeedPlayer = function (videoId, title) {
   if (!videoId) return;
   var modal = document.getElementById('ytFeedPlayerModal'), frame = document.getElementById('ytFeedPlayerFrame');
   if (!modal || !frame) return;
   try {
-    var titleEl = document.getElementById('ytFeedPlayerTitle');
-    if (titleEl) titleEl.textContent = (title || 'YouTube Video').slice(0, 80);
-    var ext = document.getElementById('ytFeedPlayerExternal');
-    if (ext) ext.href = 'https://www.youtube.com/watch?v=' + encodeURIComponent(videoId);
+    var titleEl = document.getElementById('ytFeedPlayerTitle'); if (titleEl) titleEl.textContent = (title || 'YouTube Video').slice(0, 80);
+    var ext = document.getElementById('ytFeedPlayerExternal'); if (ext) ext.href = 'https://www.youtube.com/watch?v=' + encodeURIComponent(videoId);
     var params = 'autoplay=1&playsinline=1&rel=0&modestbranding=1';
     var origin = ytSafeOrigin(); if (origin) params += '&origin=' + encodeURIComponent(origin);
     frame.src = 'https://www.youtube.com/embed/' + encodeURIComponent(videoId) + '?' + params;
     modal.style.display = 'flex'; document.body.style.overflow = 'hidden';
   } catch (e) { console.error('YT player open error:', e); }
 };
-window.__closeYTFeedPlayer = function () {
-  try { var modal = document.getElementById('ytFeedPlayerModal'), frame = document.getElementById('ytFeedPlayerFrame'); if (frame) frame.src = ''; if (modal) modal.style.display = 'none'; document.body.style.overflow = ''; } catch (e) {}
-};
-document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { try { window.__closeYTFeedPlayer && window.__closeYTFeedPlayer(); } catch (e2) {} } });
+window.__closeYTFeedPlayer = function () { try { var m = document.getElementById('ytFeedPlayerModal'), f = document.getElementById('ytFeedPlayerFrame'); if (f) f.src = ''; if (m) m.style.display = 'none'; document.body.style.overflow = ''; } catch (e) {} };
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { try { window.__closeYTFeedPlayer(); } catch (e2) {} } });
 (function bindYTFeedPlayerClose() { var c = document.getElementById('ytFeedPlayerClose'); if (c && !c._wired) { c.addEventListener('click', window.__closeYTFeedPlayer); c._wired = true; } })();
-
 function ytInlineCard(videoId, titleText) {
   if (!videoId) return '';
   var safeTitle = String(titleText || 'YouTube Video').slice(0, 60).replace(/['"\\\n\r<>]/g, ' ').trim() || 'YouTube Video';
   return '<div role="button" tabindex="0" onclick="window.__openYTFeedPlayer(\'' + videoId + '\',\'' + esc(safeTitle) + '\')" class="yt-inline-card"><img src="https://i.ytimg.com/vi/' + videoId + '/hqdefault.jpg" loading="lazy" onerror="this.style.display=\'none\'"><div class="yt-inline-overlay"><div class="yt-inline-play"><div class="yt-inline-triangle"></div></div></div><div class="yt-inline-label">▶️ YouTube</div></div>';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SHARE — Core Functions
+   ═══════════════════════════════════════════════════════════════ */
+function buildShareUrl(postKey, postObj) {
+  var fromSlug = postObj && postObj.authorSlug ? postObj.authorSlug : '';
+  return APP_BASE_URL + '?share_post=' + encodeURIComponent(postKey) + '&from=' + encodeURIComponent(fromSlug);
+}
+function buildShareText(postObj) {
+  var authorName = postObj && postObj.authorName ? postObj.authorName : 'Someone';
+  var text = postObj && postObj.text ? postObj.text.slice(0, 100) : '';
+  var preview = text ? '"' + text + '"' : 'a post';
+  return '📰 ' + authorName + ' shared ' + preview + ' on JARVIS';
+}
+
+window.__shareWallPost = function(postKey) {
+  if (!App.mySlug) return toast('Sign in first', true);
+  var p = null;
+  for (var i = 0; i < App.wallPosts.length; i++) if (App.wallPosts[i]._k === postKey) { p = App.wallPosts[i]; break; }
+  if (!p) return toast('Post not found', true);
+  App.sharingPostKey = postKey; App.sharingPostObj = p;
+  var shareUrl = buildShareUrl(postKey, p);
+  var linkInput = $('shareLinkInput'); if (linkInput) linkInput.value = shareUrl;
+  // Populate friends list
+  var list = $('shareFriendsList'); if (!list) return;
+  if (!App.contacts.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:14px;">No friends yet — add some in the ✨ New tab.</div>';
+  } else {
+    var h = '';
+    for (var j = 0; j < App.contacts.length; j++) {
+      var c = App.contacts[j];
+      h += '<div class="share-friend-item" onclick="window.__shareToJarvisFriend(\'' + esc(c.slug) + '\')">' +
+        '<div class="share-friend-avatar">' + avatarInner(c.photo, c.name) + '</div>' +
+        '<div class="share-friend-name">' + esc(c.name) + '</div>' +
+        '<div class="share-friend-action">Send →</div>' +
+      '</div>';
+    }
+    list.innerHTML = h;
+  }
+  $('shareWallPostModal').classList.add('show');
+};
+
+window.__shareToJarvisFriend = async function(friendSlug) {
+  if (!friendSlug || !App.sharingPostKey || !App.sharingPostObj) return toast('Nothing to share', true);
+  var p = App.sharingPostObj;
+  var shareUrl = buildShareUrl(App.sharingPostKey, p);
+  var preview = (p.text || '').slice(0, 200);
+  var dmText = '📤 ' + App.myName + ' shared a post with you:\n\n' +
+               (p.authorName ? '📝 By: ' + p.authorName + (p.authorSlug ? ' (@' + p.authorSlug + ')' : '') + '\n\n' : '') +
+               (preview ? preview + '\n\n' : '') +
+               '🔗 Tap to view: ' + shareUrl;
+  var dmAttachment = p.mediaUrl ? { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Shared post media' } : null;
+  try {
+    await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, friendSlug) + '/messages'), {
+      from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment,
+      sharedPost: {
+        postKey: App.sharingPostKey, url: shareUrl,
+        authorSlug: p.authorSlug || null, authorName: p.authorName || null, authorPhoto: p.authorPhoto || null,
+        text: (p.text || '').slice(0, 500), mediaUrl: p.mediaUrl || null, mediaType: p.mediaType || null, link: p.link || null
+      },
+      time: Date.now()
+    });
+    $('shareWallPostModal').classList.remove('show');
+    toast('✓ Shared with @' + friendSlug);
+  } catch (e) { console.error(e); toast('Share failed', true); }
+};
+
+window.__shareExternal = function(platform) {
+  if (!App.sharingPostKey || !App.sharingPostObj) return;
+  var p = App.sharingPostObj;
+  var url = buildShareUrl(App.sharingPostKey, p);
+  var text = buildShareText(p);
+  var enc = encodeURIComponent;
+  var target = null;
+  if (platform === 'whatsapp') target = 'https://wa.me/?text=' + enc(text + ' ' + url);
+  else if (platform === 'facebook') target = 'https://www.facebook.com/sharer/sharer.php?u=' + enc(url);
+  else if (platform === 'twitter') target = 'https://twitter.com/intent/tweet?url=' + enc(url) + '&text=' + enc(text);
+  else if (platform === 'telegram') target = 'https://t.me/share/url?url=' + enc(url) + '&text=' + enc(text);
+  else if (platform === 'email') target = 'mailto:?subject=' + enc('JARVIS Post') + '&body=' + enc(text + '\n\n' + url);
+  else if (platform === 'sms') target = 'sms:?&body=' + enc(text + ' ' + url);
+  if (!target) return;
+  try { window.open(target, '_blank', 'noopener'); toast('Opening ' + platform + '…'); } catch (e) { toast('Could not open', true); }
+};
+
+window.__copyShareLink = function() {
+  var inp = $('shareLinkInput'); if (!inp) return;
+  var val = inp.value;
+  if (!val) return toast('No link', true);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(val).then(function() { toast('✓ Link copied'); }).catch(function() { inp.select(); document.execCommand('copy'); toast('✓ Link copied'); });
+  } else { inp.select(); document.execCommand('copy'); toast('✓ Link copied'); }
+};
+
+window.__nativeSharePost = async function() {
+  if (!App.sharingPostKey || !App.sharingPostObj) return;
+  var p = App.sharingPostObj;
+  var url = buildShareUrl(App.sharingPostKey, p);
+  var text = buildShareText(p);
+  if (navigator.share) {
+    try {
+      var shareData = { title: 'JARVIS Post', text: text, url: url };
+      if (p.mediaUrl && p.mediaType === 'image') {
+        try {
+          var resp = await fetch(p.mediaUrl);
+          var blob = await resp.blob();
+          var file = new File([blob], 'jarvis-post.jpg', { type: blob.type || 'image/jpeg' });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) shareData.files = [file];
+        } catch (e) {}
+      }
+      await navigator.share(shareData);
+      toast('✓ Shared');
+    } catch (e) { if (e.name !== 'AbortError') toast('Share cancelled', true); }
+  } else { window.__copyShareLink(); }
+};
+
+window.__viewSharedPost = function(postKey, fromSlug) {
+  if (!postKey) return;
+  // Navigate to feed and scroll to the post
+  try {
+    var feedTab = document.querySelector('.nav-item[data-tab="feed"]');
+    if (feedTab) feedTab.click();
+    setTimeout(function() {
+      var el = document.getElementById('wall_' + postKey);
+      if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.style.transition = 'background 0.5s'; el.style.background = '#fffbea'; setTimeout(function() { el.style.background = ''; }, 2000); }
+      else toast('Post not available', true);
+    }, 300);
+  } catch (e) { console.error(e); }
+};
+
+function renderSharedPostCard(sp) {
+  if (!sp) return '';
+  var author = sp.authorName || sp.authorSlug || 'Someone';
+  var preview = (sp.text || '').slice(0, 180);
+  var media = '';
+  if (sp.mediaUrl && sp.mediaType === 'image') media = '<div class="shared-post-card-media"><img src="' + esc(sp.mediaUrl) + '" loading="lazy"></div>';
+  var linkPreview = sp.link ? '<div style="font-size:12px;color:var(--accent);margin-top:4px;word-break:break-all;">🔗 ' + esc(sp.link.slice(0, 80)) + '</div>' : '';
+  return '<div class="shared-post-card" onclick="window.__viewSharedPost(\'' + esc(sp.postKey || '') + '\',\'' + esc(sp.authorSlug || '') + '\')">' +
+    '<div class="shared-post-card-header"><span>📤 Shared Post</span><span>by @' + esc(sp.authorSlug || '?') + '</span></div>' +
+    '<div class="shared-post-card-author">' + esc(author) + '</div>' +
+    (preview ? '<div class="shared-post-card-text">"' + esc(preview) + (sp.text && sp.text.length > 180 ? '…' : '') + '"</div>' : '') +
+    media + linkPreview +
+    '<div class="shared-post-card-cta">👆 Tap to view full post</div>' +
+  '</div>';
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1197,15 +1353,15 @@ window.__savePinnedStatus = async function() {
   if (!text && !link) return toast('Add text or a link', true);
   var btn = $('pinnedSaveBtn'); if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
   try { await set(dbRef(db, PINNED_STATUS_PATH), { text: text, link: link, bgColor: bgColor, mediaUrl: null, mediaType: null, updatedAt: Date.now(), updatedBy: App.mySlug }); $('editPinnedStatusModal').classList.remove('show'); toast('✓ Pinned status updated'); }
-  catch (e) { toast('Failed to save: ' + (e.message || 'unknown'), true); }
+  catch (e) { toast('Failed to save', true); }
   finally { if (btn) { btn.disabled = false; btn.textContent = 'Save'; } }
 };
-window.__clearPinnedStatus = async function() { if (!isOwner()) return toast('Only the owner can remove this', true); if (!confirm('Remove the pinned status?')) return; try { await remove(dbRef(db, PINNED_STATUS_PATH)); toast('✓ Pinned status removed'); $('editPinnedStatusModal').classList.remove('show'); } catch (e) { toast('Failed to remove', true); } };
+window.__clearPinnedStatus = async function() { if (!isOwner()) return toast('Only the owner can remove this', true); if (!confirm('Remove the pinned status?')) return; try { await remove(dbRef(db, PINNED_STATUS_PATH)); toast('✓ Removed'); $('editPinnedStatusModal').classList.remove('show'); } catch (e) { toast('Failed', true); } };
 
 function detectNetworkMode() { if (!navigator.onLine) return 'offline'; var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection; if (!conn) return 'normal'; if (conn.saveData) return 'lite'; var type = conn.effectiveType || ''; if (type === 'slow-2g' || type === '2g' || type === '3g') return 'lite'; return 'normal'; }
 function updateNetworkMode() { App.networkMode = detectNetworkMode(); App.liteMode = App.userLiteMode || (App.networkMode === 'lite'); var badge = $('liteModeBadge'); if (badge) { if (App.liteMode) { badge.style.display = 'inline-flex'; if (App.networkMode === 'offline') { badge.textContent = '📵 Offline'; badge.classList.add('offline'); } else { badge.textContent = '⚡ Lite'; badge.classList.remove('offline'); } } else { badge.style.display = 'none'; } } }
 function updateLiteModeUI() { var sw = $('liteModeSwitch'); if (!sw) return; if (App.userLiteMode) sw.classList.add('active'); else sw.classList.remove('active'); }
-function toggleUserLiteMode() { App.userLiteMode = !App.userLiteMode; LS.set('userLiteMode', App.userLiteMode); updateNetworkMode(); updateLiteModeUI(); toast(App.userLiteMode ? '⚡ Lite Mode ON' : 'Lite Mode OFF'); }
+function toggleUserLiteMode() { App.userLiteMode = !App.userLiteMode; LS.set('userLiteMode', App.userLiteMode); updateNetworkMode(); updateLiteModeUI(); toast(App.userLiteMode ? '⚡ Lite ON' : 'Lite OFF'); }
 function loadCachedData() {
   var c = LS.get('contacts', []); if (c && c.length && !App.contacts.length) App.contacts = c;
   var g = LS.get('groups', []); if (g && g.length && !App.groups.length) App.groups = g;
@@ -1227,7 +1383,7 @@ $('authTabSignUp').addEventListener('click', function() { $('authTabSignUp').cla
 async function ensureBootstrap() {
   if (!App.mySlug) return;
   try { var pubSnap = await get(dbRef(db, 'public_users/' + App.mySlug)); if (!pubSnap.exists()) { await set(dbRef(db, 'public_users/' + App.mySlug), { slug: App.mySlug, name: App.myName, photo: App.myPhoto || null, created: Date.now() }); } } catch (e) {}
-  if (!isOwner()) { try { var ownerSnap = await get(dbRef(db, 'users/' + App.mySlug + '/contacts/' + OWNER_SLUG)); if (!ownerSnap.exists()) { await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + OWNER_SLUG), { slug: OWNER_SLUG, name: OWNER_NAME, time: Date.now(), autoFriend: true }); } } catch (e) {} }
+  if (!isOwner()) { try { var oSnap = await get(dbRef(db, 'users/' + App.mySlug + '/contacts/' + OWNER_SLUG)); if (!oSnap.exists()) { await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + OWNER_SLUG), { slug: OWNER_SLUG, name: OWNER_NAME, time: Date.now(), autoFriend: true }); } } catch (e) {} }
 }
 
 function listenFriendRequests() {
@@ -1236,7 +1392,8 @@ function listenFriendRequests() {
   try {
     App._friendReqListener = onValue(dbRef(db, FR_PATH), function(snap) {
       var all = snap.val() || {}; var incoming = {}, sent = {};
-      Object.keys(all).forEach(function(key) { var req = all[key]; if (!req) return; var p = frParseKey(key); if (!p) return;
+      Object.keys(all).forEach(function(key) {
+        var req = all[key]; if (!req) return; var p = frParseKey(key); if (!p) return;
         if (p.to === App.mySlug && req.status === 'pending') incoming[p.from] = req;
         if (p.from === App.mySlug) { sent[p.to] = req; if (req.status === 'accepted' && !findContact(p.to)) { set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + p.to), { slug: p.to, name: req.toName || p.to, photo: req.toPhoto || null, time: Date.now() }).then(function() { setupMessageListener(p.to, false); saveContacts(); if (debouncedBuildUI) debouncedBuildUI(); renderNewUsersTab(); }).catch(function(){}); } }
       });
@@ -1244,24 +1401,23 @@ function listenFriendRequests() {
     }, function(err) {});
   } catch (e) {}
 }
-
 window.__sendFriendRequest = async function(targetSlug) {
   if (!targetSlug || targetSlug === App.mySlug) return;
   if (findContact(targetSlug)) return toast('Already friends', true);
   if (App.sentRequests[targetSlug] && App.sentRequests[targetSlug].status === 'pending') return toast('Request already sent', true);
-  if (App.incomingRequests[targetSlug]) return toast('They already sent you a request — accept it above', true);
+  if (App.incomingRequests[targetSlug]) return toast('They already sent a request — accept it', true);
   if (App.blockedUsers.indexOf(targetSlug) !== -1) return toast('Unblock this user first', true);
   var key = frPairKey(App.mySlug, targetSlug); var tInfo = (App.publicUsers || {})[targetSlug] || {};
-  try { await set(dbRef(db, FR_PATH + '/' + key), { from: App.mySlug, to: targetSlug, fromName: App.myName, toName: tInfo.name || targetSlug, photo: App.myPhoto || null, toPhoto: tInfo.photo || null, status: 'pending', time: Date.now() }); toast('Friend request sent to @' + targetSlug + ' ✓'); }
-  catch (e) { toast('Failed to send: ' + ((e && e.message) || 'unknown'), true); }
+  try { await set(dbRef(db, FR_PATH + '/' + key), { from: App.mySlug, to: targetSlug, fromName: App.myName, toName: tInfo.name || targetSlug, photo: App.myPhoto || null, toPhoto: tInfo.photo || null, status: 'pending', time: Date.now() }); toast('Friend request sent ✓'); }
+  catch (e) { toast('Failed to send', true); }
 };
 window.__acceptFriendRequest = async function(fromSlug) {
-  var req = App.incomingRequests[fromSlug]; if (!req) return toast('Request not found', true);
+  var req = App.incomingRequests[fromSlug]; if (!req) return toast('Not found', true);
   var key = frPairKey(fromSlug, App.mySlug);
-  try { await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + fromSlug), { slug: fromSlug, name: req.fromName || fromSlug, photo: req.photo || null, time: Date.now() }); await set(dbRef(db, FR_PATH + '/' + key + '/status'), 'accepted'); setupMessageListener(fromSlug, false); saveContacts(); if (debouncedBuildUI) debouncedBuildUI(); renderNewUsersTab(); toast('✓ Now friends with @' + fromSlug); } catch (e) { toast('Accept failed: ' + (e.message || 'unknown'), true); }
+  try { await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + fromSlug), { slug: fromSlug, name: req.fromName || fromSlug, photo: req.photo || null, time: Date.now() }); await set(dbRef(db, FR_PATH + '/' + key + '/status'), 'accepted'); setupMessageListener(fromSlug, false); saveContacts(); if (debouncedBuildUI) debouncedBuildUI(); renderNewUsersTab(); toast('✓ Now friends with @' + fromSlug); } catch (e) { toast('Accept failed', true); }
 };
-window.__rejectFriendRequest = async function(fromSlug) { var key = frPairKey(fromSlug, App.mySlug); try { await set(dbRef(db, FR_PATH + '/' + key + '/status'), 'rejected'); toast('Request rejected'); } catch (e) { toast('Failed', true); } };
-window.__cancelFriendRequest = async function(toSlug) { var key = frPairKey(App.mySlug, toSlug); try { await remove(dbRef(db, FR_PATH + '/' + key)); toast('Request cancelled'); } catch (e) { toast('Failed', true); } };
+window.__rejectFriendRequest = async function(fromSlug) { var key = frPairKey(fromSlug, App.mySlug); try { await set(dbRef(db, FR_PATH + '/' + key + '/status'), 'rejected'); toast('Rejected'); } catch (e) { toast('Failed', true); } };
+window.__cancelFriendRequest = async function(toSlug) { var key = frPairKey(App.mySlug, toSlug); try { await remove(dbRef(db, FR_PATH + '/' + key)); toast('Cancelled'); } catch (e) { toast('Failed', true); } };
 
 function listenPublicUsers() {
   if (App._publicUsersListener) { try { App._publicUsersListener(); } catch (e) {} App._publicUsersListener = null; }
@@ -1296,8 +1452,8 @@ function renderNewUsersTab() {
     if (isBlocked) actionHtml = '<button class="blocked-badge" onclick="window.unblockUser(\'' + esc(slug) + '\')" style="cursor:pointer;">🚫 Unblock</button>';
     else if (isFriend) actionHtml = '<span class="friend-badge">✓ Friends</span>';
     else if (isIncoming) actionHtml = '<span class="pending-badge">📩 Check requests above</span>';
-    else if (isOutgoing) actionHtml = '<button class="req-btn-sent" onclick="window.__cancelFriendRequest(\'' + esc(slug) + '\')">Request Sent · Cancel</button>';
-    else actionHtml = '<button class="req-btn-add" onclick="window.__sendFriendRequest(\'' + esc(slug) + '\')">+ Add Friend</button>';
+    else if (isOutgoing) actionHtml = '<button class="req-btn-sent" onclick="window.__cancelFriendRequest(\'' + esc(slug) + '\')">Sent · Cancel</button>';
+    else actionHtml = '<button class="req-btn-add" onclick="window.__sendFriendRequest(\'' + esc(slug) + '\')">+ Add</button>';
     h2 += '<div class="list-item"><div class="avatar" onclick="window.__viewAvatar(\'' + (u.photo || '') + '\',\'' + esc(u.name || slug) + '\')">' + avatarInner(u.photo, u.name) + '</div><div class="list-item-body"><div class="list-item-title">' + esc(u.name || slug) + '</div><div class="list-item-sub"><span data-presence="' + slug + '">' + getPresenceHtml(slug) + '</span></div></div><div style="flex-shrink:0;">' + actionHtml + '</div></div>';
   });
   newUsersList.innerHTML = h2;
@@ -1307,9 +1463,9 @@ async function handleSignUp() {
   var nameVal = $('signUpName').value.trim(), password = $('signUpPassword').value, confirmPwd = $('signUpPasswordConfirm').value, recoveryPhrase = $('signUpRecovery').value.trim();
   var status = $('signUpStatus'), slug = slugify(nameVal);
   if (!slug) { status.textContent = 'Enter a valid name'; status.className = 'name-status bad'; return; }
-  if (!password || password.length < 6) { status.textContent = 'Password needs 6+ characters'; status.className = 'name-status bad'; return; }
+  if (!password || password.length < 6) { status.textContent = 'Password needs 6+ chars'; status.className = 'name-status bad'; return; }
   if (password !== confirmPwd) { status.textContent = 'Passwords do not match'; status.className = 'name-status bad'; return; }
-  if (!recoveryPhrase || recoveryPhrase.length < 4) { status.textContent = 'Recovery phrase needs 4+ characters'; status.className = 'name-status bad'; return; }
+  if (!recoveryPhrase || recoveryPhrase.length < 4) { status.textContent = 'Recovery phrase needs 4+ chars'; status.className = 'name-status bad'; return; }
   status.textContent = 'Creating account…'; status.className = 'name-status';
   try {
     var userCred = await createUserWithEmailAndPassword(auth, slugToEmail(slug), password); currentAuthUser = userCred.user;
@@ -1321,7 +1477,7 @@ async function handleSignUp() {
     App.mySlug = slug; App.myName = nameVal; LS.set('mySlug', slug); LS.set('myName', nameVal);
     status.textContent = 'Account created ✓'; status.className = 'name-status ok'; safeStartMainApp();
   } catch (err) {
-    if (err.code === 'auth/email-already-in-use') status.textContent = 'This name is already registered. Sign in instead.';
+    if (err.code === 'auth/email-already-in-use') status.textContent = 'Name already registered. Sign in instead.';
     else if (err.code === 'auth/weak-password') status.textContent = 'Password too weak (min 6 chars).';
     else status.textContent = 'Error: ' + (err.message || 'unknown');
     status.className = 'name-status bad';
@@ -1343,14 +1499,14 @@ async function handleSignIn() {
       status.textContent = 'Welcome back ✓'; status.className = 'name-status ok'; safeStartMainApp(); return;
     } catch (err) { lastErr = err; }
   }
-  if (lastErr) { if (lastErr.code === 'auth/too-many-requests') status.textContent = 'Too many attempts. Wait 5 minutes.'; else if (lastErr.code === 'auth/user-not-found') status.textContent = 'No account with this name.'; else if (lastErr.code === 'auth/wrong-password' || lastErr.code === 'auth/invalid-credential') status.textContent = 'Password does not match.'; else status.textContent = 'Error: ' + (lastErr.message || 'unknown'); }
+  if (lastErr) { if (lastErr.code === 'auth/too-many-requests') status.textContent = 'Too many attempts. Wait 5 min.'; else if (lastErr.code === 'auth/user-not-found') status.textContent = 'No account with this name.'; else if (lastErr.code === 'auth/wrong-password' || lastErr.code === 'auth/invalid-credential') status.textContent = 'Password does not match.'; else status.textContent = 'Error: ' + (lastErr.message || 'unknown'); }
   status.className = 'name-status bad';
 }
 
 async function handleSignOut() {
   if (!confirm('Sign out of JARVIS?')) return;
   if (App.liveMode) cleanupLive();
-  try { if (typeof window.__closeYTFeedPlayer === 'function') window.__closeYTFeedPlayer(); } catch (e) {}
+  try { window.__closeYTFeedPlayer(); } catch (e) {}
   if (App.mySlug) { try { await set(dbRef(db, PRESENCE_PATH + '/' + App.mySlug), { online: false, lastSeen: Date.now(), name: App.myName }); } catch(e) {} }
   try { await firebaseSignOut(auth); } catch (e) {}
   currentAuthUser = null; window._mainAppStarted = false;
@@ -1378,9 +1534,9 @@ async function handleForgotPassword() {
   status.textContent = 'Verifying…'; status.style.color = '#d4af37';
   try {
     var hashSnap = await get(dbRef(db, 'users/' + slug + '/recoveryHash'));
-    if (!hashSnap.exists() || !hashSnap.val()) { status.textContent = 'No account or no recovery phrase set'; status.style.color = '#ff4757'; return; }
+    if (!hashSnap.exists() || !hashSnap.val()) { status.textContent = 'No account or no recovery set'; status.style.color = '#ff4757'; return; }
     var inputHash = await sha256Hex(recovery);
-    if (inputHash !== hashSnap.val()) { status.textContent = 'Recovery phrase is incorrect'; status.style.color = '#ff4757'; return; }
+    if (inputHash !== hashSnap.val()) { status.textContent = 'Recovery phrase incorrect'; status.style.color = '#ff4757'; return; }
     var newEmail = slug + '-v' + Date.now() + '@jarvis-app.local'; var userCred = await createUserWithEmailAndPassword(auth, newEmail, newPwd);
     await set(dbRef(db, 'users/' + slug + '/activeAuthEmail'), newEmail);
     await set(dbRef(db, 'users/' + slug + '/authUid'), userCred.user.uid);
@@ -1395,7 +1551,7 @@ async function handleSetRecovery() {
   if (!currentPwd) return toast('Enter current password', true);
   if (!newPhrase || newPhrase.length < 4) return toast('Recovery phrase needs 4+ chars', true);
   if (newPhrase !== confirmPhrase) return toast('Phrases do not match', true);
-  try { var credential = EmailAuthProvider.credential(currentAuthUser.email, currentPwd); await reauthenticateWithCredential(currentAuthUser, credential); var hash = await sha256Hex(newPhrase); await set(dbRef(db, 'users/' + App.mySlug + '/recoveryHash'), hash); $('setRecoveryModal').classList.remove('show'); toast('Recovery phrase saved ✓'); }
+  try { var credential = EmailAuthProvider.credential(currentAuthUser.email, currentPwd); await reauthenticateWithCredential(currentAuthUser, credential); var hash = await sha256Hex(newPhrase); await set(dbRef(db, 'users/' + App.mySlug + '/recoveryHash'), hash); $('setRecoveryModal').classList.remove('show'); toast('Recovery saved ✓'); }
   catch (err) { toast('Could not save', true); }
 }
 
@@ -1416,8 +1572,20 @@ onAuthStateChanged(auth, async function(user) {
     try { var snapResult = await withTimeout(get(dbRef(db, 'users/' + slug)), 5000); if (snapResult && snapResult.result && snapResult.result.exists && snapResult.result.exists()) { var d = snapResult.result.val(); if (d.displayName) App.myName = d.displayName; if (d.photo) App.myPhoto = d.photo; } } catch (err) {}
     try { await set(dbRef(db, PRESENCE_PATH + '/' + slug), { online: true, lastSeen: serverTimestamp(), name: App.myName }); } catch (e) {}
     safeStartMainApp();
+    if (window._pendingLiveJoin) setTimeout(attemptJoinPendingLive, 1500);
+    if (window._pendingSharedPost) setTimeout(function() {
+      var sp = window._pendingSharedPost; window._pendingSharedPost = null;
+      try { window.history.replaceState({}, document.title, window.location.pathname); } catch (e) {}
+      var sb = $('sharedPostBanner'); if (sb) sb.classList.remove('show');
+      setTimeout(function() { window.__viewSharedPost(sp.key, sp.from); }, 800);
+    }, 2000);
   } else { currentAuthUser = null; }
 });
+
+async function attemptJoinPendingLive() {
+  var slug = window._pendingLiveJoin; if (!slug) return;
+  try { var snap = await get(dbRef(db, LIVE_ACTIVE_PATH + '/' + slug)); if (!snap.exists()) { toast('Live stream ended', true); window._pendingLiveJoin = null; return; } var data = snap.val(); window._pendingLiveJoin = null; try { window.history.replaceState({}, document.title, window.location.pathname); } catch (e) {} setTimeout(function() { window.__watchLiveStream(slug, data.streamId); }, 500); } catch (e) {}
+}
 
 function getAudioCtx() { if (!App.audioCtx) { try { App.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } return App.audioCtx; }
 function unlockAudio() { var ctx = getAudioCtx(); if (ctx && ctx.state === 'suspended') ctx.resume().catch(function() {}); }
@@ -1427,8 +1595,8 @@ function updateAppBadge() { var total = 0, keys = Object.keys(App.unreadCounts);
 function updateSyncIndicator(state) { var dot = document.querySelector('.app-header .online-dot'); if (!dot) return; if (state === 'cached') dot.style.background = '#8a9baa'; else if (state === 'syncing') dot.style.background = '#d4af37'; else if (state === 'error') dot.style.background = '#ff4757'; else dot.style.background = '#4aff7a'; }
 function notificationState() { if (!('Notification' in window)) return 'unsupported'; if (App.isIOS && !App.isStandalone) return 'ios-not-installed'; if (Notification.permission === 'granted') return 'granted'; if (Notification.permission === 'denied') return 'denied'; return 'default'; }
 function updateNotifPermStatus() { var el = $('permStatus'); if (!el) return; var state = notificationState(); var map = { 'unsupported': { text: 'not supported', color: '#6b7a87' }, 'ios-not-installed': { text: 'install first', color: '#d4af37' }, 'granted': { text: 'enabled ✓', color: '#4aff7a' }, 'denied': { text: 'blocked', color: '#ff4757' }, 'default': { text: 'tap to enable', color: '#d4af37' } }; var info = map[state] || map['default']; el.textContent = info.text; el.style.color = info.color; }
-function setupNotificationButton() { var btn = $('permBtn'); if (!btn) return; btn.addEventListener('click', async function() { var state = notificationState(); if (state === 'unsupported') return toast('Notifications not supported', true); if (state === 'ios-not-installed') { $('iosInstallGuide').classList.add('show'); return; } if (state === 'granted') return toast('Notifications already enabled ✓'); if (state === 'denied') return toast('Blocked in browser settings', true); try { var res = await Notification.requestPermission(); updateNotifPermStatus(); toast(res === 'granted' ? 'Notifications enabled ✓' : 'Not enabled', res !== 'granted'); } catch (e) { toast('Could not enable', true); } }); }
-function handleMediaError(err) { console.error('[Media]', err); var name = (err && err.name) || ''; var msg; if (name === 'NotAllowedError' || name === 'PermissionDeniedError') { msg = '📱 Camera/mic blocked. Check permissions and reload.'; } else if (name === 'NotFoundError') msg = '📷 No camera found.'; else if (name === 'NotReadableError') msg = '🔒 Camera in use by another app.'; else msg = 'Media error: ' + (name || (err && err.message) || 'unknown'); toast(msg, true); }
+function setupNotificationButton() { var btn = $('permBtn'); if (!btn) return; btn.addEventListener('click', async function() { var state = notificationState(); if (state === 'unsupported') return toast('Not supported', true); if (state === 'ios-not-installed') { $('iosInstallGuide').classList.add('show'); return; } if (state === 'granted') return toast('Already enabled ✓'); if (state === 'denied') return toast('Blocked in settings', true); try { var res = await Notification.requestPermission(); updateNotifPermStatus(); toast(res === 'granted' ? 'Enabled ✓' : 'Not enabled', res !== 'granted'); } catch (e) { toast('Could not enable', true); } }); }
+function handleMediaError(err) { var name = (err && err.name) || ''; var msg; if (name === 'NotAllowedError' || name === 'PermissionDeniedError') msg = '📱 Camera/mic blocked.'; else if (name === 'NotFoundError') msg = '📷 No camera found.'; else if (name === 'NotReadableError') msg = '🔒 Camera in use.'; else msg = 'Media error: ' + (name || 'unknown'); toast(msg, true); }
 
 $('signInBtn').addEventListener('click', handleSignIn); $('signUpBtn').addEventListener('click', handleSignUp);
 $('signInPassword').addEventListener('keydown', function(e) { if (e.key === 'Enter') handleSignIn(); });
@@ -1451,9 +1619,7 @@ $('setRecoveryConfirm').addEventListener('click', handleSetRecovery);
 $('liteModeToggle').addEventListener('click', toggleUserLiteMode);
 setupNotificationButton(); updateNotifPermStatus();
 
-window.addEventListener('beforeunload', function() {
-  if (App.liveMode === 'host' && App.mySlug) { try { set(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug), null); if (App.liveStreamId) set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/status'), 'ended'); } catch (e) {} }
-});
+window.addEventListener('beforeunload', function() { if (App.liveMode === 'host' && App.mySlug) { try { set(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug), null); if (App.liveStreamId) set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/status'), 'ended'); } catch (e) {} } });
 
 /* ═══════════════════════════════════════════════════════════════
    MAIN APP START
@@ -1538,7 +1704,7 @@ function listenIncomingCalls() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   WALL POSTS
+   WALL POSTS (with share button + DM notifications)
    ═══════════════════════════════════════════════════════════════ */
 function listenWallPosts() {
   if (App._wallPostsListener) { try { App._wallPostsListener(); } catch (e) {} App._wallPostsListener = null; }
@@ -1590,7 +1756,10 @@ function renderWallCard(p, isOwnWallView) {
   h += '<div class="wall-emoji-quick">';
   ['👍','❤️','😂','😮','😢','🔥','🎉'].forEach(function(e) { h += '<button onclick="window.__reactToWallPost(\'' + p._k + '\',\'' + e + '\')">' + e + '</button>'; });
   h += '</div>';
-  h += '<div class="wall-actions"><button class="wall-action-btn' + (myReaction === '👍' ? ' active' : '') + '" onclick="window.__reactToWallPost(\'' + p._k + '\',\'👍\')">👍 Like' + (likeCount > 0 ? ' (' + likeCount + ')' : '') + '</button><button class="wall-action-btn" onclick="window.__toggleWallComments(\'' + p._k + '\')">💬 Comments (' + commentKeys.length + ')</button>';
+  h += '<div class="wall-actions">';
+  h += '<button class="wall-action-btn' + (myReaction === '👍' ? ' active' : '') + '" onclick="window.__reactToWallPost(\'' + p._k + '\',\'👍\')">👍 Like' + (likeCount > 0 ? ' (' + likeCount + ')' : '') + '</button>';
+  h += '<button class="wall-action-btn" onclick="window.__toggleWallComments(\'' + p._k + '\')">💬 Comments (' + commentKeys.length + ')</button>';
+  h += '<button class="wall-action-btn share-btn" onclick="window.__shareWallPost(\'' + p._k + '\')">📤 Share</button>';
   if (isOwner()) h += '<button class="wall-action-btn danger" onclick="window.__deleteWallPost(\'' + p._k + '\')">🗑 Owner</button>';
   h += '</div>';
   h += '<div class="wall-comments" id="comments_' + p._k + '" style="display:none;">';
@@ -1649,11 +1818,11 @@ $('wallComposePost').addEventListener('click', async function() {
     await push(dbRef(db, WALL_POSTS_PATH), { authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto || null, text: text, link: link, mediaUrl: mediaUrl, mediaType: mediaType, privacy: privacy, time: Date.now() });
     $('wallComposeModal').classList.remove('show'); App.wallPostMediaFile = null;
     toast('✓ Posted'); var wallTab = document.querySelector('.nav-item[data-tab="wall"]'); if (wallTab) setTimeout(function() { wallTab.click(); }, 300);
-  } catch (e) { toast('Failed: ' + (e.message || 'unknown'), true); }
+  } catch (e) { toast('Failed', true); }
   finally { btn.disabled = false; btn.textContent = 'Post to Wall'; }
 });
 
-/* ─── WALL REACTION + DM NOTIFICATION ─── */
+/* WALL REACTION + DM NOTIFICATION */
 window.__reactToWallPost = async function(postKey, emoji) {
   var p = null; for (var i = 0; i < App.wallPosts.length; i++) if (App.wallPosts[i]._k === postKey) { p = App.wallPosts[i]; break; }
   if (!p) return;
@@ -1668,8 +1837,8 @@ window.__reactToWallPost = async function(postKey, emoji) {
     if (p.authorSlug && p.authorSlug !== App.mySlug) {
       try {
         var dmAttachment = p.mediaUrl ? { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Wall post media' } : null;
-        var dmText = emoji + ' ' + App.myName + ' reacted to your wall post.' + (p.text ? '\n\n📝 "' + p.text + '"' : '') + (p.link ? '\n\n🔗 ' + p.link : '') + (dmAttachment ? '\n\n📎 Original media is attached below.' : '');
-        await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, statusInteraction: { type: 'reaction', emoji: emoji, statusKey: postKey, statusText: p.text || '', statusMediaUrl: p.mediaUrl || null, statusMediaType: p.mediaType || null }, time: Date.now() });
+        var dmText = emoji + ' ' + App.myName + ' reacted to your wall post.' + (p.text ? '\n\n📝 "' + p.text + '"' : '') + (p.link ? '\n\n🔗 ' + p.link : '');
+        await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, statusInteraction: { type: 'reaction', emoji: emoji, statusKey: postKey, statusText: p.text || '' }, time: Date.now() });
       } catch (e) { console.warn('Reaction DM failed:', e); }
     }
   } catch (e) { toast('Reaction failed', true); }
@@ -1677,7 +1846,7 @@ window.__reactToWallPost = async function(postKey, emoji) {
 
 window.__toggleWallComments = function(postKey) { var el = $('comments_' + postKey); if (!el) return; el.style.display = el.style.display === 'none' ? 'block' : 'none'; };
 
-/* ─── WALL COMMENT + DM NOTIFICATION ─── */
+/* WALL COMMENT + DM NOTIFICATION */
 window.__postWallComment = async function(postKey) {
   var inp = $('cmt_' + postKey); if (!inp) return;
   var text = inp.value.trim(); if (!text) return;
@@ -1689,8 +1858,8 @@ window.__postWallComment = async function(postKey) {
     if (p && p.authorSlug && p.authorSlug !== App.mySlug) {
       try {
         var dmAttachment = p.mediaUrl ? { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Wall post media' } : null;
-        var dmText = '💬 ' + App.myName + ' (@' + App.mySlug + ') commented on your wall post:\n\n💭 "' + text + '"' + (p.text ? '\n\n📝 Original post: "' + p.text + '"' : '') + (dmAttachment ? '\n\n📎 Original media is attached below.' : '');
-        await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, statusInteraction: { type: 'wall_comment', commentText: text, statusKey: postKey, statusText: p.text || '', statusMediaUrl: p.mediaUrl || null, statusMediaType: p.mediaType || null }, time: Date.now() });
+        var dmText = '💬 ' + App.myName + ' (@' + App.mySlug + ') commented on your wall post:\n\n💭 "' + text + '"' + (p.text ? '\n\n📝 Original post: "' + p.text + '"' : '');
+        await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, statusInteraction: { type: 'wall_comment', commentText: text, statusKey: postKey, statusText: p.text || '' }, time: Date.now() });
       } catch (e) { console.warn('Comment DM failed:', e); }
     }
   } catch (e) { toast('Failed', true); }
@@ -1740,7 +1909,7 @@ function buildUI() {
     }
   }
   if (cl) cl.innerHTML = html;
-  if (ccl) { var callHtml = ''; for (var k = 0; k < App.contacts.length; k++) { var cc = App.contacts[k]; callHtml += '<div class="list-item"><div class="avatar accent">' + avatarInner(cc.photo, cc.name) + '</div><div class="list-item-body"><div class="list-item-title">' + esc(cc.name) + '</div><div class="list-item-sub">' + getPresenceHtml(cc.slug) + '</div></div><div style="display:flex;gap:6px;"><button style="background:#e0f2fe;color:#0b2a4a;padding:10px 14px;border-radius:14px;font-size:14px;font-weight:600;border:none;cursor:pointer;" onclick="window.startCall(\'' + cc.slug + '\', false)">📞 Voice</button><button style="background:#dcfce7;color:#0b2a4a;padding:10px 14px;border-radius:14px;font-size:14px;font-weight:600;border:none;cursor:pointer;" onclick="window.startCall(\'' + cc.slug + '\', true)">📹 Video</button></div></div>'; } ccl.innerHTML = callHtml || '<div class="empty"><p>No contacts yet.</p></div>'; }
+  if (ccl) { var callHtml = ''; for (var k = 0; k < App.contacts.length; k++) { var cc = App.contacts[k]; callHtml += '<div class="list-item"><div class="avatar accent">' + avatarInner(cc.photo, cc.name) + '</div><div class="list-item-body"><div class="list-item-title">' + esc(cc.name) + '</div><div class="list-item-sub">' + getPresenceHtml(cc.slug) + '</div></div><div style="display:flex;gap:6px;"><button style="background:#e0f2fe;color:#0b2a4a;padding:10px 14px;border-radius:14px;font-size:14px;font-weight:600;border:none;cursor:pointer;" onclick="window.startCall(\'' + cc.slug + '\', false)">📞</button><button style="background:#dcfce7;color:#0b2a4a;padding:10px 14px;border-radius:14px;font-size:14px;font-weight:600;border:none;cursor:pointer;" onclick="window.startCall(\'' + cc.slug + '\', true)">📹</button></div></div>'; } ccl.innerHTML = callHtml || '<div class="empty"><p>No contacts yet.</p></div>'; }
   if (vmSel) { var cur = vmSel.value, o = '<option value="">Select recipient</option>'; for (var m = 0; m < App.contacts.length; m++) o += '<option value="' + App.contacts[m].slug + '">' + esc(App.contacts[m].name) + '</option>'; vmSel.innerHTML = o; if (cur && findContact(cur)) vmSel.value = cur; }
   updateWallHeader();
 }
@@ -1777,9 +1946,10 @@ function renderMessages(id, msgs, isGroup) {
     var st = (isGroup && !out) ? '<span class="sender-tag">@' + esc(m.fromName || m.from) + '</span>' : '';
     var et = m.edited ? '<span class="edited-tag">(edited)</span>' : '';
     var interactionBadge = '';
-    if (m.statusInteraction) interactionBadge = '<div class="status-interaction-badge">STATUS ' + (m.statusInteraction.type === 'like' ? '👍 LIKE' : m.statusInteraction.type === 'comment' ? '💬 COMMENT' : m.statusInteraction.type === 'reaction' ? (m.statusInteraction.emoji || '😀') + ' REACTION' : m.statusInteraction.type === 'wall_comment' ? '📋 WALL COMMENT' : m.statusInteraction.type === 'wall_reaction' ? '📋 WALL REACTION' : 'INTERACTION') + '</div>';
+    if (m.statusInteraction) interactionBadge = '<div class="status-interaction-badge">' + (m.statusInteraction.type === 'like' ? '👍 LIKE' : m.statusInteraction.type === 'comment' ? '💬 COMMENT' : m.statusInteraction.type === 'reaction' ? (m.statusInteraction.emoji || '😀') + ' REACTION' : m.statusInteraction.type === 'wall_comment' ? '📋 WALL COMMENT' : m.statusInteraction.type === 'wall_reaction' ? '📋 WALL REACTION' : 'INTERACTION') + '</div>';
+    var sharedCard = m.sharedPost ? renderSharedPostCard(m.sharedPost) : '';
     var mainText = m.text ? '<div style="white-space:pre-wrap;">' + esc(m.text) + et + '</div>' : '';
-    html += '<div class="msg ' + (out ? 'out' : 'in') + '" onclick="window.__openActionSheet(\'' + m._k + '\', ' + out + ')">' + st + interactionBadge + (m.attachment ? renderAttachment(m.attachment) : '') + mainText + '<span class="time">' + t + '</span></div>';
+    html += '<div class="msg ' + (out ? 'out' : 'in') + '" onclick="window.__openActionSheet(\'' + m._k + '\', ' + out + ')">' + st + interactionBadge + sharedCard + (m.attachment ? renderAttachment(m.attachment) : '') + mainText + '<span class="time">' + t + '</span></div>';
   }
   area.innerHTML = html;
   setTimeout(function() { area.scrollTop = area.scrollHeight; }, 10);
@@ -1788,7 +1958,7 @@ function renderMessages(id, msgs, isGroup) {
 window.__openActionSheet = function(k, mine) { App.selectedMsgKey = k; var ms = App.lastMessages[App.activeChat] || []; for (var i = 0; i < ms.length; i++) if (ms[i]._k === k) { App.selectedMsgObj = ms[i]; break; } $('actEditBtn').style.display = mine ? 'flex' : 'none'; $('actDeleteEveryoneBtn').style.display = mine ? 'flex' : 'none'; $('actionSheet').classList.add('show'); };
 $('actCancelBtn').addEventListener('click', function() { $('actionSheet').classList.remove('show'); });
 $('actDeleteForMeBtn').addEventListener('click', function() { if (!App.selectedMsgKey) return; if (!App.deletedLocally[App.activeChat]) App.deletedLocally[App.activeChat] = []; App.deletedLocally[App.activeChat].push(App.selectedMsgKey); renderMessages(App.activeChat, App.lastMessages[App.activeChat] || [], App.activeIsGroup); $('actionSheet').classList.remove('show'); toast('Deleted for you'); });
-$('actDeleteEveryoneBtn').addEventListener('click', async function() { if (!App.selectedMsgKey) return; var p = App.activeIsGroup ? 'group_chats/' + App.activeChat + '/messages/' + App.selectedMsgKey : 'chats/' + chatIdFor(App.mySlug, App.activeChat) + '/messages/' + App.selectedMsgKey; await remove(dbRef(db, p)); $('actionSheet').classList.remove('show'); toast('Deleted for everyone ✓'); });
+$('actDeleteEveryoneBtn').addEventListener('click', async function() { if (!App.selectedMsgKey) return; var p = App.activeIsGroup ? 'group_chats/' + App.activeChat + '/messages/' + App.selectedMsgKey : 'chats/' + chatIdFor(App.mySlug, App.activeChat) + '/messages/' + App.selectedMsgKey; await remove(dbRef(db, p)); $('actionSheet').classList.remove('show'); toast('Deleted ✓'); });
 $('actEditBtn').addEventListener('click', function() { $('actionSheet').classList.remove('show'); if (App.selectedMsgObj) { $('editMsgInput').value = App.selectedMsgObj.text || ''; $('editMsgModal').classList.add('show'); } });
 $('editMsgCancel').addEventListener('click', function() { $('editMsgModal').classList.remove('show'); });
 $('editMsgConfirm').addEventListener('click', async function() { var nt = $('editMsgInput').value.trim(); if (!App.selectedMsgKey) return; var p = App.activeIsGroup ? 'group_chats/' + App.activeChat + '/messages/' + App.selectedMsgKey : 'chats/' + chatIdFor(App.mySlug, App.activeChat) + '/messages/' + App.selectedMsgKey; await set(dbRef(db, p + '/text'), nt); await set(dbRef(db, p + '/edited'), true); $('editMsgModal').classList.remove('show'); toast('Updated ✓'); });
@@ -1807,7 +1977,7 @@ function listenVoicemails() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   STATUS FEED (with ytInlineCard + DM notification)
+   STATUS FEED + LIKE/COMMENT DM NOTIFICATIONS
    ═══════════════════════════════════════════════════════════════ */
 function listenUserStatuses() {
   if (App._userStatusesListener) { try { App._userStatusesListener(); } catch (e) {} App._userStatusesListener = null; }
@@ -1839,7 +2009,7 @@ function renderStatusFeedList(posts) {
   sf.innerHTML = html; window._cachedPosts = posts;
 }
 
-/* ─── STATUS LIKE + DM NOTIFICATION ─── */
+/* STATUS LIKE + DM NOTIFICATION */
 window.__toggleStatusLike = async function(k) {
   var posts = window._cachedPosts || [], p = null;
   for (var i = 0; i < posts.length; i++) if (posts[i]._k === k) { p = posts[i]; break; }
@@ -1852,8 +2022,8 @@ window.__toggleStatusLike = async function(k) {
   try {
     var dmAttachment = null;
     if (p.mediaUrl) dmAttachment = { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Original status media' };
-    var dmText = '👍 ' + App.myName + ' (@' + App.mySlug + ') liked your status.' + (p.text ? '\n\n📝 Original post: "' + p.text + '"' : '') + (p.link ? '\n\n🔗 ' + p.link : '') + (dmAttachment ? '\n\n📎 Original media is attached below.' : '');
-    await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, statusInteraction: { type: 'like', statusKey: k, statusText: p.text || '', statusMediaUrl: p.mediaUrl || null, statusMediaType: p.mediaType || null, statusLink: p.link || '' }, time: Date.now() });
+    var dmText = '👍 ' + App.myName + ' (@' + App.mySlug + ') liked your status.' + (p.text ? '\n\n📝 Original post: "' + p.text + '"' : '') + (p.link ? '\n\n🔗 ' + p.link : '');
+    await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, statusInteraction: { type: 'like', statusKey: k, statusText: p.text || '' }, time: Date.now() });
   } catch (e) { console.warn('Like DM failed:', e); }
 };
 window.__delStatus = async function(k) { if (!confirm('Delete this status permanently?')) return; try { await remove(dbRef(db, STATUS_FEED_PATH + '/' + k)); toast('Deleted ✓'); } catch (e) { toast('Failed', true); } };
@@ -1861,7 +2031,7 @@ window.__openStatusComments = function(k) { var posts = window._cachedPosts || [
 function renderStatusCommentsLocal() { if (!App.activeStatusObj) return; var d = App.activeStatusObj.comments || {}; var c = Object.keys(d).map(function(k) { return d[k]; }).sort(function(a, b) { return a.time - b.time; }); var list = $('statusCommentsList'); if (!c.length) { list.innerHTML = '<div style="font-size:16px;color:var(--muted);text-align:center;padding:8px;">No comments yet.</div>'; return; } var h = ''; for (var i = 0; i < c.length; i++) h += '<div style="background:#f7f9fb;padding:10px 12px;border-radius:8px;font-size:16px;"><strong style="color:var(--accent);">@' + esc(c[i].author) + ':</strong> ' + esc(c[i].text) + '</div>'; list.innerHTML = h; }
 $('statusCommentCancel').addEventListener('click', function() { $('statusCommentsModal').classList.remove('show'); });
 
-/* ─── STATUS COMMENT + DM NOTIFICATION ─── */
+/* STATUS COMMENT + DM NOTIFICATION */
 $('statusCommentSend').addEventListener('click', async function() {
   var text = $('statusCommentInput').value.trim();
   if (!text || !App.activeStatusObj) return;
@@ -1871,8 +2041,8 @@ $('statusCommentSend').addEventListener('click', async function() {
     try {
       var dmAttachment = null;
       if (p.mediaUrl) dmAttachment = { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Original status media' };
-      var dmText = '💬 ' + App.myName + ' (@' + App.mySlug + ') commented on your status:\n\n💭 "' + text + '"' + (p.text ? '\n\n📝 Original post: "' + p.text + '"' : '') + (p.link ? '\n\n🔗 ' + p.link : '') + (dmAttachment ? '\n\n📎 Original media is attached below.' : '');
-      await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, statusInteraction: { type: 'comment', statusKey: p._k, commentText: text, statusText: p.text || '', statusMediaUrl: p.mediaUrl || null, statusMediaType: p.mediaType || null, statusLink: p.link || '' }, time: Date.now() });
+      var dmText = '💬 ' + App.myName + ' (@' + App.mySlug + ') commented on your status:\n\n💭 "' + text + '"' + (p.text ? '\n\n📝 Original post: "' + p.text + '"' : '');
+      await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, statusInteraction: { type: 'comment', statusKey: p._k, commentText: text, statusText: p.text || '' }, time: Date.now() });
     } catch (e) { console.warn('Comment DM failed:', e); }
   }
   $('statusCommentInput').value = '';
@@ -1939,13 +2109,13 @@ function renderActiveLiveStreams() {
   for (var i = 0; i < slugs.length; i++) { var slug = slugs[i], s = App.activeLiveStreams[slug]; var isMine = slug === App.mySlug; html += '<div class="status-card live-now-card"><div class="status-card-header"><div class="avatar" style="width:50px;height:50px;font-size:20px;border:2px solid #ff4757;">' + avatarInner(s.photo, s.name) + '</div><div style="flex:1"><div style="font-weight:700;font-size:17px;">' + esc(s.name || slug) + ' <span style="color:#ff4757;font-weight:800;">● LIVE</span></div><small style="color:var(--muted);font-size:14px;">Started ' + formatDateTime(s.startedAt) + '</small></div>' + (isMine ? '<button style="background:#ff4757;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;" onclick="window.__returnToLiveHost()">Back</button>' : '<button style="background:#ff4757;color:#fff;border:none;padding:12px 20px;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;" onclick="window.__watchLiveStream(\'' + slug + '\',\'' + s.streamId + '\')">▶ Watch</button>') + '</div></div>'; }
   list.innerHTML = html;
 }
-window.__returnToLiveHost = function() { if (App.liveMode === 'host') showScreen('screen-live'); else toast('Not currently streaming', true); };
+window.__returnToLiveHost = function() { if (App.liveMode === 'host') showScreen('screen-live'); else toast('Not streaming', true); };
 
 async function getLiveStreamRobust() { if (!navigator.mediaDevices) throw new Error('Camera not supported'); var attempts = [ { audio: true, video: { facingMode: 'user' } }, { audio: true, video: true }, { audio: true, video: false } ]; var lastErr = null; for (var i = 0; i < attempts.length; i++) { try { return await navigator.mediaDevices.getUserMedia(attempts[i]); } catch (err) { lastErr = err; if (err.name === 'NotAllowedError') throw err; } } throw lastErr || new Error('Camera failed'); }
 
 window.__startGoLive = async function() {
   if (App.liveMode) return toast('Already active', true);
-  try { toast('Requesting camera & microphone…'); var stream = await getLiveStreamRobust(); App.liveLocalStream = stream; var streamId = 'live_' + App.mySlug + '_' + Date.now(); App.liveStreamId = streamId; App.liveMode = 'host'; App.liveHostSlug = App.mySlug; await set(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId), { hostSlug: App.mySlug, hostName: App.myName, hostPhoto: App.myPhoto || null, startedAt: Date.now(), status: 'live' }); await set(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug), { streamId: streamId, name: App.myName, photo: App.myPhoto || null, startedAt: Date.now() }); showScreen('screen-live'); $('liveTitle').textContent = 'Your Live Stream'; $('liveRemoteVideo').classList.add('visible'); $('liveRemoteVideo').srcObject = stream; $('liveRemoteVideo').muted = true; $('liveRemoteVideo').play().catch(function() {}); $('liveLoadingOverlay').classList.add('hidden'); toast('You are LIVE 🔴'); setupLiveChatListener(streamId); } catch (err) { handleMediaError(err); cleanupLive(); }
+  try { toast('Requesting camera…'); var stream = await getLiveStreamRobust(); App.liveLocalStream = stream; var streamId = 'live_' + App.mySlug + '_' + Date.now(); App.liveStreamId = streamId; App.liveMode = 'host'; App.liveHostSlug = App.mySlug; await set(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId), { hostSlug: App.mySlug, hostName: App.myName, hostPhoto: App.myPhoto || null, startedAt: Date.now(), status: 'live' }); await set(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug), { streamId: streamId, name: App.myName, photo: App.myPhoto || null, startedAt: Date.now() }); showScreen('screen-live'); $('liveTitle').textContent = 'Your Live Stream'; $('liveRemoteVideo').classList.add('visible'); $('liveRemoteVideo').srcObject = stream; $('liveRemoteVideo').muted = true; $('liveRemoteVideo').play().catch(function() {}); $('liveLoadingOverlay').classList.add('hidden'); toast('You are LIVE 🔴'); setupLiveChatListener(streamId); } catch (err) { handleMediaError(err); cleanupLive(); }
 };
 window.__endGoLive = async function() { if (App.liveMode !== 'host') return; if (App.liveStreamId) { try { await set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/status'), 'ended'); } catch (e) {} try { await remove(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug)); } catch (e) {} } cleanupLive(); toast('Stream ended'); };
 window.__watchLiveStream = async function(hostSlug, streamId) { if (App.liveMode) return toast('Already watching', true); App.liveMode = 'viewer'; App.liveStreamId = streamId; App.liveHostSlug = hostSlug; showScreen('screen-live'); $('liveTitle').textContent = 'Watching ' + hostSlug; $('liveRemoteVideo').classList.add('visible'); $('liveLoadingOverlay').classList.remove('hidden'); try { await set(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + App.mySlug), { joinedAt: Date.now(), name: App.myName }); setupLiveChatListener(streamId); } catch (err) { toast('Could not join', true); cleanupLive(); } };
@@ -1965,17 +2135,16 @@ function cleanupLive() {
 window.__toggleLiveMute = function() { var target = App.liveLocalStream; if (!target) return; var tracks = target.getAudioTracks(); if (!tracks.length) return; var wasEnabled = tracks[0].enabled; tracks.forEach(function(t) { t.enabled = !wasEnabled; }); $('liveMuteBtn').classList.toggle('active', wasEnabled); toast(wasEnabled ? 'Muted' : 'Unmuted'); };
 
 $('startGoLiveBtn').addEventListener('click', function() { window.__startGoLive(); });
-$('liveBackBtn').addEventListener('click', function() { if (App.liveMode === 'host') { if (confirm('End your live stream?')) window.__endGoLive(); } else if (App.liveMode === 'viewer') { window.__leaveLiveStream(); } else showScreen('screen-main'); });
+$('liveBackBtn').addEventListener('click', function() { if (App.liveMode === 'host') { if (confirm('End stream?')) window.__endGoLive(); } else if (App.liveMode === 'viewer') { window.__leaveLiveStream(); } else showScreen('screen-main'); });
 $('liveEndBtn').addEventListener('click', function() { if (App.liveMode === 'host') window.__endGoLive(); else if (App.liveMode === 'viewer') window.__leaveLiveStream(); });
 $('liveMuteBtn').addEventListener('click', function() { window.__toggleLiveMute(); });
-$('liveShareBtn').addEventListener('click', function() { var slug = App.liveHostSlug || App.mySlug; if (!slug) return; var url = window.location.origin + window.location.pathname + '?live=' + encodeURIComponent(slug); if (navigator.share) { navigator.share({ title: 'JARVIS Live', text: "I'm LIVE on JARVIS", url: url }).catch(function() {}); } else { prompt('Share this link:', url); } });
+$('liveShareBtn').addEventListener('click', function() { var slug = App.liveHostSlug || App.mySlug; if (!slug) return; var url = APP_BASE_URL + '?live=' + encodeURIComponent(slug); if (navigator.share) { navigator.share({ title: 'JARVIS Live', text: "I'm LIVE on JARVIS", url: url }).catch(function() {}); } else { prompt('Share this link:', url); } });
 
-/* Social Hub handlers */
-window.startCall = function(slug, v) { if (!slug || slug === App.mySlug) return toast('Invalid contact', true); if (App.blockedUsers.indexOf(slug) !== -1) return toast('Unblock this user first', true); toast('📞 Calling @' + slug + '…'); };
+/* Call + Social stub */
+window.startCall = function(slug, v) { if (!slug || slug === App.mySlug) return toast('Invalid contact', true); if (App.blockedUsers.indexOf(slug) !== -1) return toast('Unblock first', true); toast('📞 Calling @' + slug + '…'); };
 window.__googleOpen = function(url) { window.open(url, '_blank', 'noopener'); };
 window.__chromeOpen = function(url) { window.open(url, '_blank', 'noopener'); };
 window.__edgeOpen = function(url) { window.open(url, '_blank', 'noopener'); };
-window.__zoomOpen = function(url) { if (!url) return toast('Enter a Zoom URL', true); window.open(url, '_blank', 'noopener'); };
 
 $('iabClose').addEventListener('click', function() { $('inAppBrowser').classList.remove('show'); });
 $('iabBackBtn2').addEventListener('click', function() { $('inAppBrowser').classList.remove('show'); });
@@ -2001,16 +2170,14 @@ bindSocialClick('deepseekHomeBtn', 'https://chat.deepseek.com/');
 
 document.querySelectorAll('.platform-tab').forEach(function(t) { t.addEventListener('click', function() { var p = t.dataset.platform; document.querySelectorAll('.platform-tab').forEach(function(x) { x.classList.toggle('active', x === t); }); document.querySelectorAll('.platform-panel').forEach(function(x) { x.style.display = (x.dataset.platform === p) ? 'block' : 'none'; }); }); });
 
-/* YouTube search */
 $('ytSearchBtn').addEventListener('click', function() { var q = $('ytSearchInput').value.trim(); if (!q) return; var vid = getYouTubeId(q); if (vid) { window.__openYTFeedPlayer(vid, 'YouTube Video'); return; } window.open('https://www.youtube.com/results?search_query=' + encodeURIComponent(q), '_blank', 'noopener'); });
 
-/* Browser open buttons */
 $('zoomOpenBtn').addEventListener('click', function() { var url = $('zoomInput').value.trim(); if (!url) return toast('Paste a Zoom link', true); window.open(url.startsWith('http') ? url : 'https://' + url, '_blank', 'noopener'); });
 $('googleOpenBtn').addEventListener('click', function() { var q = $('googleInput').value.trim(); if (!q) return; if (/^https?:\/\//i.test(q)) window.open(q, '_blank', 'noopener'); else window.open('https://www.google.com/search?q=' + encodeURIComponent(q), '_blank', 'noopener'); });
 $('chromeOpenBtn').addEventListener('click', function() { var q = $('chromeInput').value.trim(); if (!q) return; if (/^https?:\/\//i.test(q)) window.open(q, '_blank', 'noopener'); else if (/^[\w-]+\.[\w.-]+/.test(q)) window.open('https://' + q, '_blank', 'noopener'); else window.open('https://www.google.com/search?q=' + encodeURIComponent(q), '_blank', 'noopener'); });
 $('edgeOpenBtn').addEventListener('click', function() { var q = $('edgeInput').value.trim(); if (!q) return; if (/^https?:\/\//i.test(q)) window.open(q, '_blank', 'noopener'); else if (/^[\w-]+\.[\w.-]+/.test(q)) window.open('https://' + q, '_blank', 'noopener'); else window.open('https://www.bing.com/search?q=' + encodeURIComponent(q), '_blank', 'noopener'); });
 
-console.log('%c✅ JARVIS v26 loaded','background:#d4af37;color:#0b2a4a;padding:6px 12px;border-radius:6px;font-weight:bold;font-size:14px;');
+console.log('%c✅ JARVIS v27 loaded (with Share)', 'background:#d4af37;color:#0b2a4a;padding:6px 12px;border-radius:6px;font-weight:bold;font-size:14px;');
 </script>
 </body>
 </html>
