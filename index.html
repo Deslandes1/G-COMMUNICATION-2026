@@ -1035,8 +1035,6 @@ let fbApp, db, auth;
 try { fbApp = initializeApp(firebaseConfig); db = getDatabase(fbApp); auth = getAuth(fbApp); }
 catch (e) { console.error('Firebase init failed:', e); var eb = document.getElementById('loadErrorBanner'); if (eb) eb.classList.add('show'); throw e; }
 
-const ICE_SERVERS = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] };
-
 const App = {
   mySlug: null, myName: '', myPhoto: null,
   contacts: [], groups: [], activeChat: null, activeIsGroup: false,
@@ -1112,9 +1110,7 @@ function formatDateTime(ts, mode) {
   return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + ' at ' + timeStr;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   IN-APP YOUTUBE PLAYER
-   ═══════════════════════════════════════════════════════════════ */
+/* ═══════ IN-APP YOUTUBE PLAYER ═══════ */
 function ytSafeOrigin() { try { if (window.location.protocol === 'file:') return ''; if (!window.location.origin || window.location.origin === 'null') return ''; return window.location.origin; } catch (e) { return ''; } }
 window.__openYTFeedPlayer = function (videoId, title) {
   if (!videoId) return;
@@ -1138,79 +1134,41 @@ function ytInlineCard(videoId, titleText) {
   return '<div role="button" tabindex="0" onclick="window.__openYTFeedPlayer(\'' + videoId + '\',\'' + esc(safeTitle) + '\')" class="yt-inline-card"><img src="https://i.ytimg.com/vi/' + videoId + '/hqdefault.jpg" loading="lazy" onerror="this.style.display=\'none\'"><div class="yt-inline-overlay"><div class="yt-inline-play"><div class="yt-inline-triangle"></div></div></div><div class="yt-inline-label">▶️ YouTube</div></div>';
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   SHARE — Core Functions
-   ═══════════════════════════════════════════════════════════════ */
-function buildShareUrl(postKey, postObj) {
-  var fromSlug = postObj && postObj.authorSlug ? postObj.authorSlug : '';
-  return APP_BASE_URL + '?share_post=' + encodeURIComponent(postKey) + '&from=' + encodeURIComponent(fromSlug);
-}
-function buildShareText(postObj) {
-  var authorName = postObj && postObj.authorName ? postObj.authorName : 'Someone';
-  var text = postObj && postObj.text ? postObj.text.slice(0, 100) : '';
-  var preview = text ? '"' + text + '"' : 'a post';
-  return '📰 ' + authorName + ' shared ' + preview + ' on JARVIS';
-}
-
+/* ═══════ SHARE SYSTEM ═══════ */
+function buildShareUrl(postKey, postObj) { var fromSlug = postObj && postObj.authorSlug ? postObj.authorSlug : ''; return APP_BASE_URL + '?share_post=' + encodeURIComponent(postKey) + '&from=' + encodeURIComponent(fromSlug); }
+function buildShareText(postObj) { var authorName = postObj && postObj.authorName ? postObj.authorName : 'Someone'; var text = postObj && postObj.text ? postObj.text.slice(0, 100) : ''; var preview = text ? '"' + text + '"' : 'a post'; return '📰 ' + authorName + ' shared ' + preview + ' on JARVIS'; }
 window.__shareWallPost = function(postKey) {
   if (!App.mySlug) return toast('Sign in first', true);
-  var p = null;
-  for (var i = 0; i < App.wallPosts.length; i++) if (App.wallPosts[i]._k === postKey) { p = App.wallPosts[i]; break; }
+  var p = null; for (var i = 0; i < App.wallPosts.length; i++) if (App.wallPosts[i]._k === postKey) { p = App.wallPosts[i]; break; }
   if (!p) return toast('Post not found', true);
   App.sharingPostKey = postKey; App.sharingPostObj = p;
   var shareUrl = buildShareUrl(postKey, p);
   var linkInput = $('shareLinkInput'); if (linkInput) linkInput.value = shareUrl;
-  // Populate friends list
   var list = $('shareFriendsList'); if (!list) return;
-  if (!App.contacts.length) {
-    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:14px;">No friends yet — add some in the ✨ New tab.</div>';
-  } else {
+  if (!App.contacts.length) { list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:14px;">No friends yet — add some in the ✨ New tab.</div>'; }
+  else {
     var h = '';
-    for (var j = 0; j < App.contacts.length; j++) {
-      var c = App.contacts[j];
-      h += '<div class="share-friend-item" onclick="window.__shareToJarvisFriend(\'' + esc(c.slug) + '\')">' +
-        '<div class="share-friend-avatar">' + avatarInner(c.photo, c.name) + '</div>' +
-        '<div class="share-friend-name">' + esc(c.name) + '</div>' +
-        '<div class="share-friend-action">Send →</div>' +
-      '</div>';
-    }
+    for (var j = 0; j < App.contacts.length; j++) { var c = App.contacts[j]; h += '<div class="share-friend-item" onclick="window.__shareToJarvisFriend(\'' + esc(c.slug) + '\')"><div class="share-friend-avatar">' + avatarInner(c.photo, c.name) + '</div><div class="share-friend-name">' + esc(c.name) + '</div><div class="share-friend-action">Send →</div></div>'; }
     list.innerHTML = h;
   }
   $('shareWallPostModal').classList.add('show');
 };
-
 window.__shareToJarvisFriend = async function(friendSlug) {
   if (!friendSlug || !App.sharingPostKey || !App.sharingPostObj) return toast('Nothing to share', true);
   var p = App.sharingPostObj;
   var shareUrl = buildShareUrl(App.sharingPostKey, p);
   var preview = (p.text || '').slice(0, 200);
-  var dmText = '📤 ' + App.myName + ' shared a post with you:\n\n' +
-               (p.authorName ? '📝 By: ' + p.authorName + (p.authorSlug ? ' (@' + p.authorSlug + ')' : '') + '\n\n' : '') +
-               (preview ? preview + '\n\n' : '') +
-               '🔗 Tap to view: ' + shareUrl;
+  var dmText = '📤 ' + App.myName + ' shared a post with you:\n\n' + (p.authorName ? '📝 By: ' + p.authorName + (p.authorSlug ? ' (@' + p.authorSlug + ')' : '') + '\n\n' : '') + (preview ? preview + '\n\n' : '') + '🔗 Tap to view: ' + shareUrl;
   var dmAttachment = p.mediaUrl ? { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Shared post media' } : null;
   try {
-    await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, friendSlug) + '/messages'), {
-      from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment,
-      sharedPost: {
-        postKey: App.sharingPostKey, url: shareUrl,
-        authorSlug: p.authorSlug || null, authorName: p.authorName || null, authorPhoto: p.authorPhoto || null,
-        text: (p.text || '').slice(0, 500), mediaUrl: p.mediaUrl || null, mediaType: p.mediaType || null, link: p.link || null
-      },
-      time: Date.now()
-    });
+    await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, friendSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, sharedPost: { postKey: App.sharingPostKey, url: shareUrl, authorSlug: p.authorSlug || null, authorName: p.authorName || null, authorPhoto: p.authorPhoto || null, text: (p.text || '').slice(0, 500), mediaUrl: p.mediaUrl || null, mediaType: p.mediaType || null, link: p.link || null }, time: Date.now() });
     $('shareWallPostModal').classList.remove('show');
     toast('✓ Shared with @' + friendSlug);
-  } catch (e) { console.error(e); toast('Share failed', true); }
+  } catch (e) { toast('Share failed', true); }
 };
-
 window.__shareExternal = function(platform) {
   if (!App.sharingPostKey || !App.sharingPostObj) return;
-  var p = App.sharingPostObj;
-  var url = buildShareUrl(App.sharingPostKey, p);
-  var text = buildShareText(p);
-  var enc = encodeURIComponent;
-  var target = null;
+  var p = App.sharingPostObj, url = buildShareUrl(App.sharingPostKey, p), text = buildShareText(p), enc = encodeURIComponent, target = null;
   if (platform === 'whatsapp') target = 'https://wa.me/?text=' + enc(text + ' ' + url);
   else if (platform === 'facebook') target = 'https://www.facebook.com/sharer/sharer.php?u=' + enc(url);
   else if (platform === 'twitter') target = 'https://twitter.com/intent/tweet?url=' + enc(url) + '&text=' + enc(text);
@@ -1220,44 +1178,22 @@ window.__shareExternal = function(platform) {
   if (!target) return;
   try { window.open(target, '_blank', 'noopener'); toast('Opening ' + platform + '…'); } catch (e) { toast('Could not open', true); }
 };
-
 window.__copyShareLink = function() {
   var inp = $('shareLinkInput'); if (!inp) return;
-  var val = inp.value;
-  if (!val) return toast('No link', true);
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(val).then(function() { toast('✓ Link copied'); }).catch(function() { inp.select(); document.execCommand('copy'); toast('✓ Link copied'); });
-  } else { inp.select(); document.execCommand('copy'); toast('✓ Link copied'); }
+  var val = inp.value; if (!val) return toast('No link', true);
+  if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(val).then(function() { toast('✓ Link copied'); }).catch(function() { inp.select(); document.execCommand('copy'); toast('✓ Link copied'); }); }
+  else { inp.select(); document.execCommand('copy'); toast('✓ Link copied'); }
 };
-
 window.__nativeSharePost = async function() {
   if (!App.sharingPostKey || !App.sharingPostObj) return;
-  var p = App.sharingPostObj;
-  var url = buildShareUrl(App.sharingPostKey, p);
-  var text = buildShareText(p);
-  if (navigator.share) {
-    try {
-      var shareData = { title: 'JARVIS Post', text: text, url: url };
-      if (p.mediaUrl && p.mediaType === 'image') {
-        try {
-          var resp = await fetch(p.mediaUrl);
-          var blob = await resp.blob();
-          var file = new File([blob], 'jarvis-post.jpg', { type: blob.type || 'image/jpeg' });
-          if (navigator.canShare && navigator.canShare({ files: [file] })) shareData.files = [file];
-        } catch (e) {}
-      }
-      await navigator.share(shareData);
-      toast('✓ Shared');
-    } catch (e) { if (e.name !== 'AbortError') toast('Share cancelled', true); }
-  } else { window.__copyShareLink(); }
+  var p = App.sharingPostObj, url = buildShareUrl(App.sharingPostKey, p), text = buildShareText(p);
+  if (navigator.share) { try { await navigator.share({ title: 'JARVIS Post', text: text, url: url }); toast('✓ Shared'); } catch (e) { if (e.name !== 'AbortError') toast('Share cancelled', true); } }
+  else { window.__copyShareLink(); }
 };
-
 window.__viewSharedPost = function(postKey, fromSlug) {
   if (!postKey) return;
-  // Navigate to feed and scroll to the post
   try {
-    var feedTab = document.querySelector('.nav-item[data-tab="feed"]');
-    if (feedTab) feedTab.click();
+    var feedTab = document.querySelector('.nav-item[data-tab="feed"]'); if (feedTab) feedTab.click();
     setTimeout(function() {
       var el = document.getElementById('wall_' + postKey);
       if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.style.transition = 'background 0.5s'; el.style.background = '#fffbea'; setTimeout(function() { el.style.background = ''; }, 2000); }
@@ -1265,7 +1201,6 @@ window.__viewSharedPost = function(postKey, fromSlug) {
     }, 300);
   } catch (e) { console.error(e); }
 };
-
 function renderSharedPostCard(sp) {
   if (!sp) return '';
   var author = sp.authorName || sp.authorSlug || 'Someone';
@@ -1273,30 +1208,17 @@ function renderSharedPostCard(sp) {
   var media = '';
   if (sp.mediaUrl && sp.mediaType === 'image') media = '<div class="shared-post-card-media"><img src="' + esc(sp.mediaUrl) + '" loading="lazy"></div>';
   var linkPreview = sp.link ? '<div style="font-size:12px;color:var(--accent);margin-top:4px;word-break:break-all;">🔗 ' + esc(sp.link.slice(0, 80)) + '</div>' : '';
-  return '<div class="shared-post-card" onclick="window.__viewSharedPost(\'' + esc(sp.postKey || '') + '\',\'' + esc(sp.authorSlug || '') + '\')">' +
-    '<div class="shared-post-card-header"><span>📤 Shared Post</span><span>by @' + esc(sp.authorSlug || '?') + '</span></div>' +
-    '<div class="shared-post-card-author">' + esc(author) + '</div>' +
-    (preview ? '<div class="shared-post-card-text">"' + esc(preview) + (sp.text && sp.text.length > 180 ? '…' : '') + '"</div>' : '') +
-    media + linkPreview +
-    '<div class="shared-post-card-cta">👆 Tap to view full post</div>' +
-  '</div>';
+  return '<div class="shared-post-card" onclick="window.__viewSharedPost(\'' + esc(sp.postKey || '') + '\',\'' + esc(sp.authorSlug || '') + '\')"><div class="shared-post-card-header"><span>📤 Shared Post</span><span>by @' + esc(sp.authorSlug || '?') + '</span></div><div class="shared-post-card-author">' + esc(author) + '</div>' + (preview ? '<div class="shared-post-card-text">"' + esc(preview) + (sp.text && sp.text.length > 180 ? '…' : '') + '"</div>' : '') + media + linkPreview + '<div class="shared-post-card-cta">👆 Tap to view full post</div></div>';
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   PRESENCE
-   ═══════════════════════════════════════════════════════════════ */
+/* ═══════ PRESENCE ═══════ */
 function setupPresence() {
   if (!App.mySlug) return;
   if (App._presenceConnListener) { try { App._presenceConnListener(); } catch (e) {} App._presenceConnListener = null; }
-  var myPresence = dbRef(db, PRESENCE_PATH + '/' + App.mySlug);
-  var connectedRef = dbRef(db, '.info/connected');
+  var myPresence = dbRef(db, PRESENCE_PATH + '/' + App.mySlug), connectedRef = dbRef(db, '.info/connected');
   try {
     App._presenceConnListener = onValue(connectedRef, function(snap) {
-      if (snap.val() === true) {
-        onDisconnect(myPresence).set({ online: false, lastSeen: serverTimestamp() }).then(function() {
-          set(myPresence, { online: true, lastSeen: serverTimestamp(), name: App.myName }).catch(function() {});
-        }).catch(function() {});
-      }
+      if (snap.val() === true) { onDisconnect(myPresence).set({ online: false, lastSeen: serverTimestamp() }).then(function() { set(myPresence, { online: true, lastSeen: serverTimestamp(), name: App.myName }).catch(function() {}); }).catch(function() {}); }
     });
   } catch (e) {}
 }
@@ -1347,16 +1269,13 @@ window.__openEditPinnedStatus = function() {
 };
 window.__savePinnedStatus = async function() {
   if (!isOwner()) return toast('Only the owner can post this', true);
-  var text = $('pinnedTextInput') ? $('pinnedTextInput').value.trim() : '';
-  var link = $('pinnedLinkInput') ? $('pinnedLinkInput').value.trim() : '';
-  var bgColor = $('pinnedBgColor') ? $('pinnedBgColor').value : '#0d7a8c';
+  var text = $('pinnedTextInput') ? $('pinnedTextInput').value.trim() : '', link = $('pinnedLinkInput') ? $('pinnedLinkInput').value.trim() : '', bgColor = $('pinnedBgColor') ? $('pinnedBgColor').value : '#0d7a8c';
   if (!text && !link) return toast('Add text or a link', true);
   var btn = $('pinnedSaveBtn'); if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
-  try { await set(dbRef(db, PINNED_STATUS_PATH), { text: text, link: link, bgColor: bgColor, mediaUrl: null, mediaType: null, updatedAt: Date.now(), updatedBy: App.mySlug }); $('editPinnedStatusModal').classList.remove('show'); toast('✓ Pinned status updated'); }
-  catch (e) { toast('Failed to save', true); }
-  finally { if (btn) { btn.disabled = false; btn.textContent = 'Save'; } }
+  try { await set(dbRef(db, PINNED_STATUS_PATH), { text: text, link: link, bgColor: bgColor, mediaUrl: null, mediaType: null, updatedAt: Date.now(), updatedBy: App.mySlug }); $('editPinnedStatusModal').classList.remove('show'); toast('✓ Pinned updated'); }
+  catch (e) { toast('Failed', true); } finally { if (btn) { btn.disabled = false; btn.textContent = 'Save'; } }
 };
-window.__clearPinnedStatus = async function() { if (!isOwner()) return toast('Only the owner can remove this', true); if (!confirm('Remove the pinned status?')) return; try { await remove(dbRef(db, PINNED_STATUS_PATH)); toast('✓ Removed'); $('editPinnedStatusModal').classList.remove('show'); } catch (e) { toast('Failed', true); } };
+window.__clearPinnedStatus = async function() { if (!isOwner()) return toast('Only the owner', true); if (!confirm('Remove pinned?')) return; try { await remove(dbRef(db, PINNED_STATUS_PATH)); toast('✓ Removed'); $('editPinnedStatusModal').classList.remove('show'); } catch (e) { toast('Failed', true); } };
 
 function detectNetworkMode() { if (!navigator.onLine) return 'offline'; var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection; if (!conn) return 'normal'; if (conn.saveData) return 'lite'; var type = conn.effectiveType || ''; if (type === 'slow-2g' || type === '2g' || type === '3g') return 'lite'; return 'normal'; }
 function updateNetworkMode() { App.networkMode = detectNetworkMode(); App.liteMode = App.userLiteMode || (App.networkMode === 'lite'); var badge = $('liteModeBadge'); if (badge) { if (App.liteMode) { badge.style.display = 'inline-flex'; if (App.networkMode === 'offline') { badge.textContent = '📵 Offline'; badge.classList.add('offline'); } else { badge.textContent = '⚡ Lite'; badge.classList.remove('offline'); } } else { badge.style.display = 'none'; } } }
@@ -1374,9 +1293,7 @@ function loadCachedData() {
 if (navigator.connection) { try { navigator.connection.addEventListener('change', updateNetworkMode); } catch (e) {} }
 window.addEventListener('online', updateNetworkMode); window.addEventListener('offline', updateNetworkMode);
 
-/* ═══════════════════════════════════════════════════════════════
-   AUTH
-   ═══════════════════════════════════════════════════════════════ */
+/* ═══════ AUTH ═══════ */
 $('authTabSignIn').addEventListener('click', function() { $('authTabSignIn').classList.add('active'); $('authTabSignUp').classList.remove('active'); $('authSignInForm').style.display = 'flex'; $('authSignUpForm').style.display = 'none'; });
 $('authTabSignUp').addEventListener('click', function() { $('authTabSignUp').classList.add('active'); $('authTabSignIn').classList.remove('active'); $('authSignUpForm').style.display = 'flex'; $('authSignInForm').style.display = 'none'; });
 
@@ -1385,7 +1302,6 @@ async function ensureBootstrap() {
   try { var pubSnap = await get(dbRef(db, 'public_users/' + App.mySlug)); if (!pubSnap.exists()) { await set(dbRef(db, 'public_users/' + App.mySlug), { slug: App.mySlug, name: App.myName, photo: App.myPhoto || null, created: Date.now() }); } } catch (e) {}
   if (!isOwner()) { try { var oSnap = await get(dbRef(db, 'users/' + App.mySlug + '/contacts/' + OWNER_SLUG)); if (!oSnap.exists()) { await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + OWNER_SLUG), { slug: OWNER_SLUG, name: OWNER_NAME, time: Date.now(), autoFriend: true }); } } catch (e) {} }
 }
-
 function listenFriendRequests() {
   if (!App.mySlug) return;
   if (App._friendReqListener) { try { App._friendReqListener(); } catch (e) {} App._friendReqListener = null; }
@@ -1404,17 +1320,17 @@ function listenFriendRequests() {
 window.__sendFriendRequest = async function(targetSlug) {
   if (!targetSlug || targetSlug === App.mySlug) return;
   if (findContact(targetSlug)) return toast('Already friends', true);
-  if (App.sentRequests[targetSlug] && App.sentRequests[targetSlug].status === 'pending') return toast('Request already sent', true);
-  if (App.incomingRequests[targetSlug]) return toast('They already sent a request — accept it', true);
-  if (App.blockedUsers.indexOf(targetSlug) !== -1) return toast('Unblock this user first', true);
+  if (App.sentRequests[targetSlug] && App.sentRequests[targetSlug].status === 'pending') return toast('Already sent', true);
+  if (App.incomingRequests[targetSlug]) return toast('They already sent a request', true);
+  if (App.blockedUsers.indexOf(targetSlug) !== -1) return toast('Unblock first', true);
   var key = frPairKey(App.mySlug, targetSlug); var tInfo = (App.publicUsers || {})[targetSlug] || {};
-  try { await set(dbRef(db, FR_PATH + '/' + key), { from: App.mySlug, to: targetSlug, fromName: App.myName, toName: tInfo.name || targetSlug, photo: App.myPhoto || null, toPhoto: tInfo.photo || null, status: 'pending', time: Date.now() }); toast('Friend request sent ✓'); }
-  catch (e) { toast('Failed to send', true); }
+  try { await set(dbRef(db, FR_PATH + '/' + key), { from: App.mySlug, to: targetSlug, fromName: App.myName, toName: tInfo.name || targetSlug, photo: App.myPhoto || null, toPhoto: tInfo.photo || null, status: 'pending', time: Date.now() }); toast('Request sent ✓'); }
+  catch (e) { toast('Failed', true); }
 };
 window.__acceptFriendRequest = async function(fromSlug) {
   var req = App.incomingRequests[fromSlug]; if (!req) return toast('Not found', true);
   var key = frPairKey(fromSlug, App.mySlug);
-  try { await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + fromSlug), { slug: fromSlug, name: req.fromName || fromSlug, photo: req.photo || null, time: Date.now() }); await set(dbRef(db, FR_PATH + '/' + key + '/status'), 'accepted'); setupMessageListener(fromSlug, false); saveContacts(); if (debouncedBuildUI) debouncedBuildUI(); renderNewUsersTab(); toast('✓ Now friends with @' + fromSlug); } catch (e) { toast('Accept failed', true); }
+  try { await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + fromSlug), { slug: fromSlug, name: req.fromName || fromSlug, photo: req.photo || null, time: Date.now() }); await set(dbRef(db, FR_PATH + '/' + key + '/status'), 'accepted'); setupMessageListener(fromSlug, false); saveContacts(); if (debouncedBuildUI) debouncedBuildUI(); renderNewUsersTab(); toast('✓ Friends with @' + fromSlug); } catch (e) { toast('Failed', true); }
 };
 window.__rejectFriendRequest = async function(fromSlug) { var key = frPairKey(fromSlug, App.mySlug); try { await set(dbRef(db, FR_PATH + '/' + key + '/status'), 'rejected'); toast('Rejected'); } catch (e) { toast('Failed', true); } };
 window.__cancelFriendRequest = async function(toSlug) { var key = frPairKey(App.mySlug, toSlug); try { await remove(dbRef(db, FR_PATH + '/' + key)); toast('Cancelled'); } catch (e) { toast('Failed', true); } };
@@ -1430,7 +1346,7 @@ function updateNewUsersBadge() {
   if (count > 0) { var badge = document.createElement('span'); badge.className = 'req-badge'; badge.textContent = count > 9 ? '9+' : count; btn.appendChild(badge); }
 }
 function renderNewUsersTab() {
-  var incomingList = $('incomingRequestsList'); var newUsersList = $('newUsersList'); var incomingHeader = $('incomingReqHeader');
+  var incomingList = $('incomingRequestsList'), newUsersList = $('newUsersList'), incomingHeader = $('incomingReqHeader');
   if (!incomingList || !newUsersList) return;
   var incKeys = Object.keys(App.incomingRequests);
   if (incKeys.length) {
@@ -1446,12 +1362,12 @@ function renderNewUsersTab() {
   var h2 = '';
   keys.forEach(function(slug) {
     var u = users[slug] || {};
-    var isFriend = !!findContact(slug); var isBlocked = App.blockedUsers.indexOf(slug) !== -1;
-    var isIncoming = !!App.incomingRequests[slug]; var sentReq = App.sentRequests[slug]; var isOutgoing = sentReq && sentReq.status === 'pending';
+    var isFriend = !!findContact(slug), isBlocked = App.blockedUsers.indexOf(slug) !== -1;
+    var isIncoming = !!App.incomingRequests[slug], sentReq = App.sentRequests[slug], isOutgoing = sentReq && sentReq.status === 'pending';
     var actionHtml;
     if (isBlocked) actionHtml = '<button class="blocked-badge" onclick="window.unblockUser(\'' + esc(slug) + '\')" style="cursor:pointer;">🚫 Unblock</button>';
     else if (isFriend) actionHtml = '<span class="friend-badge">✓ Friends</span>';
-    else if (isIncoming) actionHtml = '<span class="pending-badge">📩 Check requests above</span>';
+    else if (isIncoming) actionHtml = '<span class="pending-badge">📩 Request above</span>';
     else if (isOutgoing) actionHtml = '<button class="req-btn-sent" onclick="window.__cancelFriendRequest(\'' + esc(slug) + '\')">Sent · Cancel</button>';
     else actionHtml = '<button class="req-btn-add" onclick="window.__sendFriendRequest(\'' + esc(slug) + '\')">+ Add</button>';
     h2 += '<div class="list-item"><div class="avatar" onclick="window.__viewAvatar(\'' + (u.photo || '') + '\',\'' + esc(u.name || slug) + '\')">' + avatarInner(u.photo, u.name) + '</div><div class="list-item-body"><div class="list-item-title">' + esc(u.name || slug) + '</div><div class="list-item-sub"><span data-presence="' + slug + '">' + getPresenceHtml(slug) + '</span></div></div><div style="flex-shrink:0;">' + actionHtml + '</div></div>';
@@ -1477,34 +1393,29 @@ async function handleSignUp() {
     App.mySlug = slug; App.myName = nameVal; LS.set('mySlug', slug); LS.set('myName', nameVal);
     status.textContent = 'Account created ✓'; status.className = 'name-status ok'; safeStartMainApp();
   } catch (err) {
-    if (err.code === 'auth/email-already-in-use') status.textContent = 'Name already registered. Sign in instead.';
-    else if (err.code === 'auth/weak-password') status.textContent = 'Password too weak (min 6 chars).';
+    if (err.code === 'auth/email-already-in-use') status.textContent = 'Name registered. Sign in instead.';
+    else if (err.code === 'auth/weak-password') status.textContent = 'Password too weak (min 6).';
     else status.textContent = 'Error: ' + (err.message || 'unknown');
     status.className = 'name-status bad';
   }
 }
-
 async function handleSignIn() {
   var nameVal = $('signInName').value.trim(), password = $('signInPassword').value, status = $('signInStatus'), slug = slugify(nameVal);
   if (!slug) { status.textContent = 'Enter your name'; status.className = 'name-status bad'; return; }
-  if (!password) { status.textContent = 'Enter your password'; status.className = 'name-status bad'; return; }
+  if (!password) { status.textContent = 'Enter password'; status.className = 'name-status bad'; return; }
   status.textContent = 'Signing in…'; status.className = 'name-status';
   var emailsToTry = []; try { var snap = await get(dbRef(db, 'users/' + slug + '/activeAuthEmail')); if (snap.exists() && snap.val()) emailsToTry.push(snap.val()); } catch (e) {}
   var defaultEmail = slug + '@jarvis-app.local'; if (emailsToTry.indexOf(defaultEmail) === -1) emailsToTry.push(defaultEmail);
   var lastErr = null;
   for (var i = 0; i < emailsToTry.length; i++) {
-    try { var cred = await signInWithEmailAndPassword(auth, emailsToTry[i], password); currentAuthUser = cred.user;
-      App.mySlug = slug; App.myName = nameVal; LS.set('mySlug', slug); LS.set('myName', nameVal);
-      try { await set(dbRef(db, PRESENCE_PATH + '/' + slug), { online: true, lastSeen: serverTimestamp(), name: nameVal }); } catch (e) {}
-      status.textContent = 'Welcome back ✓'; status.className = 'name-status ok'; safeStartMainApp(); return;
-    } catch (err) { lastErr = err; }
+    try { var cred = await signInWithEmailAndPassword(auth, emailsToTry[i], password); currentAuthUser = cred.user; App.mySlug = slug; App.myName = nameVal; LS.set('mySlug', slug); LS.set('myName', nameVal); try { await set(dbRef(db, PRESENCE_PATH + '/' + slug), { online: true, lastSeen: serverTimestamp(), name: nameVal }); } catch (e) {} status.textContent = 'Welcome back ✓'; status.className = 'name-status ok'; safeStartMainApp(); return; }
+    catch (err) { lastErr = err; }
   }
   if (lastErr) { if (lastErr.code === 'auth/too-many-requests') status.textContent = 'Too many attempts. Wait 5 min.'; else if (lastErr.code === 'auth/user-not-found') status.textContent = 'No account with this name.'; else if (lastErr.code === 'auth/wrong-password' || lastErr.code === 'auth/invalid-credential') status.textContent = 'Password does not match.'; else status.textContent = 'Error: ' + (lastErr.message || 'unknown'); }
   status.className = 'name-status bad';
 }
-
 async function handleSignOut() {
-  if (!confirm('Sign out of JARVIS?')) return;
+  if (!confirm('Sign out?')) return;
   if (App.liveMode) cleanupLive();
   try { window.__closeYTFeedPlayer(); } catch (e) {}
   if (App.mySlug) { try { await set(dbRef(db, PRESENCE_PATH + '/' + App.mySlug), { online: false, lastSeen: Date.now(), name: App.myName }); } catch(e) {} }
@@ -1517,51 +1428,42 @@ async function handleSignOut() {
   $('authSignInForm').style.display = 'flex'; $('authSignUpForm').style.display = 'none';
   showScreen('screen-onboard'); toast('Signed out ✓');
 }
-
 async function handleChangePassword() {
   var current = $('currentPasswordInput').value, newPwd = $('newPasswordInput').value, confirmPwd = $('confirmPasswordInput').value;
   if (!current) return toast('Enter current password', true);
   if (!newPwd || newPwd.length < 6) return toast('New password needs 6+ chars', true);
   if (newPwd !== confirmPwd) return toast('Passwords do not match', true);
-  try { var credential = EmailAuthProvider.credential(currentAuthUser.email, current); await reauthenticateWithCredential(currentAuthUser, credential); await updatePassword(currentAuthUser, newPwd); $('changePasswordModal').classList.remove('show'); $('currentPasswordInput').value = ''; $('newPasswordInput').value = ''; $('confirmPasswordInput').value = ''; toast('Password updated ✓'); }
-  catch (err) { toast('Could not change password', true); }
+  try { var credential = EmailAuthProvider.credential(currentAuthUser.email, current); await reauthenticateWithCredential(currentAuthUser, credential); await updatePassword(currentAuthUser, newPwd); $('changePasswordModal').classList.remove('show'); toast('Password updated ✓'); } catch (err) { toast('Could not change', true); }
 }
-
 async function handleForgotPassword() {
   var name = $('forgotName').value.trim(), recovery = $('forgotRecovery').value.trim(), newPwd = $('forgotNewPassword').value, confirmPwd = $('forgotConfirmPassword').value;
   var status = $('forgotStatus'), slug = slugify(name);
-  if (!slug || !recovery || !newPwd || newPwd !== confirmPwd) { status.textContent = 'Fill in all fields correctly'; status.style.color = '#ff4757'; return; }
+  if (!slug || !recovery || !newPwd || newPwd !== confirmPwd) { status.textContent = 'Fill all fields correctly'; status.style.color = '#ff4757'; return; }
   status.textContent = 'Verifying…'; status.style.color = '#d4af37';
   try {
     var hashSnap = await get(dbRef(db, 'users/' + slug + '/recoveryHash'));
-    if (!hashSnap.exists() || !hashSnap.val()) { status.textContent = 'No account or no recovery set'; status.style.color = '#ff4757'; return; }
+    if (!hashSnap.exists() || !hashSnap.val()) { status.textContent = 'No recovery set'; status.style.color = '#ff4757'; return; }
     var inputHash = await sha256Hex(recovery);
-    if (inputHash !== hashSnap.val()) { status.textContent = 'Recovery phrase incorrect'; status.style.color = '#ff4757'; return; }
+    if (inputHash !== hashSnap.val()) { status.textContent = 'Recovery incorrect'; status.style.color = '#ff4757'; return; }
     var newEmail = slug + '-v' + Date.now() + '@jarvis-app.local'; var userCred = await createUserWithEmailAndPassword(auth, newEmail, newPwd);
-    await set(dbRef(db, 'users/' + slug + '/activeAuthEmail'), newEmail);
-    await set(dbRef(db, 'users/' + slug + '/authUid'), userCred.user.uid);
+    await set(dbRef(db, 'users/' + slug + '/activeAuthEmail'), newEmail); await set(dbRef(db, 'users/' + slug + '/authUid'), userCred.user.uid);
     currentAuthUser = userCred.user; App.mySlug = slug; App.myName = name;
     status.textContent = 'Success!'; status.style.color = '#4aff7a';
-    setTimeout(function() { $('forgotPasswordModal').classList.remove('show'); safeStartMainApp(); toast('Password reset ✓'); }, 600);
+    setTimeout(function() { $('forgotPasswordModal').classList.remove('show'); safeStartMainApp(); toast('Reset ✓'); }, 600);
   } catch (err) { status.textContent = 'Reset failed'; status.style.color = '#ff4757'; }
 }
-
 async function handleSetRecovery() {
   var currentPwd = $('setRecoveryCurrentPwd').value, newPhrase = $('setRecoveryPhrase').value.trim(), confirmPhrase = $('setRecoveryPhraseConfirm').value.trim();
-  if (!currentPwd) return toast('Enter current password', true);
-  if (!newPhrase || newPhrase.length < 4) return toast('Recovery phrase needs 4+ chars', true);
+  if (!currentPwd) return toast('Enter password', true);
+  if (!newPhrase || newPhrase.length < 4) return toast('Phrase needs 4+ chars', true);
   if (newPhrase !== confirmPhrase) return toast('Phrases do not match', true);
-  try { var credential = EmailAuthProvider.credential(currentAuthUser.email, currentPwd); await reauthenticateWithCredential(currentAuthUser, credential); var hash = await sha256Hex(newPhrase); await set(dbRef(db, 'users/' + App.mySlug + '/recoveryHash'), hash); $('setRecoveryModal').classList.remove('show'); toast('Recovery saved ✓'); }
-  catch (err) { toast('Could not save', true); }
+  try { var credential = EmailAuthProvider.credential(currentAuthUser.email, currentPwd); await reauthenticateWithCredential(currentAuthUser, credential); var hash = await sha256Hex(newPhrase); await set(dbRef(db, 'users/' + App.mySlug + '/recoveryHash'), hash); $('setRecoveryModal').classList.remove('show'); toast('Recovery saved ✓'); } catch (err) { toast('Could not save', true); }
 }
-
 async function openOwnerSpaceWithAuth() {
   if (!isOwner()) return toast('Access denied', true);
   var inputPwd = $('ownerPassInput').value; if (!inputPwd) return toast('Enter password', true);
-  try { var credential = EmailAuthProvider.credential(currentAuthUser.email, inputPwd); await reauthenticateWithCredential(currentAuthUser, credential); $('ownerAuthModal').classList.remove('show'); $('ownerPassInput').value = ''; $('ownerSpaceModal').classList.add('show'); }
-  catch (err) { toast('Invalid owner password', true); }
+  try { var credential = EmailAuthProvider.credential(currentAuthUser.email, inputPwd); await reauthenticateWithCredential(currentAuthUser, credential); $('ownerAuthModal').classList.remove('show'); $('ownerPassInput').value = ''; $('ownerSpaceModal').classList.add('show'); } catch (err) { toast('Invalid password', true); }
 }
-
 window._mainAppStarted = false;
 function safeStartMainApp() { if (window._mainAppStarted) return; window._mainAppStarted = true; try { startMainApp(); } catch (err) { console.error('startMainApp failed:', err); showScreen('screen-main'); toast('Some features may not load', true); } }
 
@@ -1573,19 +1475,11 @@ onAuthStateChanged(auth, async function(user) {
     try { await set(dbRef(db, PRESENCE_PATH + '/' + slug), { online: true, lastSeen: serverTimestamp(), name: App.myName }); } catch (e) {}
     safeStartMainApp();
     if (window._pendingLiveJoin) setTimeout(attemptJoinPendingLive, 1500);
-    if (window._pendingSharedPost) setTimeout(function() {
-      var sp = window._pendingSharedPost; window._pendingSharedPost = null;
-      try { window.history.replaceState({}, document.title, window.location.pathname); } catch (e) {}
-      var sb = $('sharedPostBanner'); if (sb) sb.classList.remove('show');
-      setTimeout(function() { window.__viewSharedPost(sp.key, sp.from); }, 800);
-    }, 2000);
+    if (window._pendingSharedPost) setTimeout(function() { var sp = window._pendingSharedPost; window._pendingSharedPost = null; try { window.history.replaceState({}, document.title, window.location.pathname); } catch (e) {} var sb = $('sharedPostBanner'); if (sb) sb.classList.remove('show'); setTimeout(function() { window.__viewSharedPost(sp.key, sp.from); }, 800); }, 2000);
   } else { currentAuthUser = null; }
 });
 
-async function attemptJoinPendingLive() {
-  var slug = window._pendingLiveJoin; if (!slug) return;
-  try { var snap = await get(dbRef(db, LIVE_ACTIVE_PATH + '/' + slug)); if (!snap.exists()) { toast('Live stream ended', true); window._pendingLiveJoin = null; return; } var data = snap.val(); window._pendingLiveJoin = null; try { window.history.replaceState({}, document.title, window.location.pathname); } catch (e) {} setTimeout(function() { window.__watchLiveStream(slug, data.streamId); }, 500); } catch (e) {}
-}
+async function attemptJoinPendingLive() { var slug = window._pendingLiveJoin; if (!slug) return; try { var snap = await get(dbRef(db, LIVE_ACTIVE_PATH + '/' + slug)); if (!snap.exists()) { toast('Live ended', true); window._pendingLiveJoin = null; return; } var data = snap.val(); window._pendingLiveJoin = null; try { window.history.replaceState({}, document.title, window.location.pathname); } catch (e) {} setTimeout(function() { window.__watchLiveStream(slug, data.streamId); }, 500); } catch (e) {} }
 
 function getAudioCtx() { if (!App.audioCtx) { try { App.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } return App.audioCtx; }
 function unlockAudio() { var ctx = getAudioCtx(); if (ctx && ctx.state === 'suspended') ctx.resume().catch(function() {}); }
@@ -1619,11 +1513,16 @@ $('setRecoveryConfirm').addEventListener('click', handleSetRecovery);
 $('liteModeToggle').addEventListener('click', toggleUserLiteMode);
 setupNotificationButton(); updateNotifPermStatus();
 
+/* OWNER SPACE TABS (Patch 1 integrated) */
+function __setOwnerTab(activeId) { ['ownerTabStatusBtn','ownerTabChatsBtn','ownerTabInteractionsBtn'].forEach(function(id) { var b = $(id); if (!b) return; if (id === activeId) { b.style.background = 'linear-gradient(135deg,#f0d369,#d4af37)'; b.style.color = 'var(--navy)'; } else { b.style.background = '#143a5f'; b.style.color = '#fff'; } }); }
+$('ownerTabStatusBtn').addEventListener('click', function() { __setOwnerTab('ownerTabStatusBtn'); var posts = window._cachedPosts || [], area = $('ownerContentArea'); if (!area) return; if (!posts.length) { area.innerHTML = '<div class="empty"><p>No statuses yet.</p></div>'; return; } var h = ''; for (var i = 0; i < posts.length; i++) { var p = posts[i]; h += '<div style="background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;"><div style="font-size:15px;font-weight:700;margin-bottom:6px;">@' + esc(p.authorSlug) + ' (' + esc(p.authorName) + ')</div><div style="font-size:16px;margin-bottom:8px;">' + esc(p.text || '') + '</div><button class="btn-primary" style="max-width:none;padding:10px 14px;font-size:15px;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus(\'' + p._k + '\')">🗑 Delete</button></div>'; } area.innerHTML = h; });
+$('ownerTabChatsBtn').addEventListener('click', function() { __setOwnerTab('ownerTabChatsBtn'); var area = $('ownerContentArea'); if (!area) return; area.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">Loading…</div>'; onValue(dbRef(db, 'users'), function(snap) { var ud = snap.val() || {}, uks = Object.keys(ud); var h = '<div style="font-size:16px;font-weight:700;margin-bottom:8px;">👥 Users (' + uks.length + ')</div>'; for (var i = 0; i < uks.length; i++) { var u = ud[uks[i]]; h += '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:6px;font-size:16px;"><strong>' + esc(u.displayName || uks[i]) + '</strong> (@' + esc(u.slug || uks[i]) + ')</div>'; } area.innerHTML = h; }, function(err) { area.innerHTML = '<div class="empty">Cannot load users.</div>'; }, { onlyOnce: true }); });
+$('ownerTabInteractionsBtn').addEventListener('click', function() { __setOwnerTab('ownerTabInteractionsBtn'); var area = $('ownerContentArea'); if (!area) return; area.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">Loading…</div>'; onValue(query(dbRef(db, 'status_interactions'), limitToLast(100)), function(snap) { var d = snap.val() || {}; var items = Object.keys(d).map(function(k) { var v = d[k]; v._k = k; return v; }).sort(function(a, b) { return (b.time || 0) - (a.time || 0); }); if (!items.length) { area.innerHTML = '<div class="empty"><p>No interactions logged yet.</p></div>'; return; } var h = ''; for (var i = 0; i < items.length; i++) { var it = items[i]; h += '<div class="owner-interaction-card"><div class="owner-interaction-header"><div class="owner-interaction-avatar">' + esc((it.actorName || '?').charAt(0).toUpperCase()) + '</div><div class="owner-interaction-text"><strong>@' + esc(it.actorSlug) + '</strong> <span style="color:var(--muted);">' + (it.type || 'interaction') + ' on</span> <strong style="color:#d4af37;">@' + esc(it.ownerSlug) + '</strong></div><div class="owner-interaction-time">' + formatDateTime(it.time, 'short') + '</div></div>' + (it.statusText ? '<div class="owner-original-block"><span class="owner-original-label">ORIGINAL POST:</span><div class="owner-original-text">"' + esc(it.statusText) + '"</div></div>' : '') + '</div>'; } area.innerHTML = h; }, function(err) { area.innerHTML = '<div class="empty">Cannot load.</div>'; }); });
+window.__ownerDeleteStatus = async function(k) { if (!confirm('Delete this status?')) return; try { await remove(dbRef(db, STATUS_FEED_PATH + '/' + k)); toast('Deleted ✓'); } catch(e) { toast('Failed', true); } };
+
 window.addEventListener('beforeunload', function() { if (App.liveMode === 'host' && App.mySlug) { try { set(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug), null); if (App.liveStreamId) set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/status'), 'ended'); } catch (e) {} } });
 
-/* ═══════════════════════════════════════════════════════════════
-   MAIN APP START
-   ═══════════════════════════════════════════════════════════════ */
+/* ═══════ MAIN APP START ═══════ */
 function startMainApp() {
   App.userLiteMode = LS.get('userLiteMode', false);
   updateNetworkMode(); updateLiteModeUI(); loadCachedData();
@@ -1634,32 +1533,23 @@ function startMainApp() {
   ensureBootstrap(); updateNewUsersBadge();
   for (var k = 0; k < App.contacts.length; k++) setupMessageListener(App.contacts[k].slug, false);
   for (var l = 0; l < App.groups.length; l++) setupGroupMessageListener(App.groups[l].id);
-  if (isOwner()) {
-    setTimeout(function() {
-      if (App._ownerUsersListener) { try { App._ownerUsersListener(); } catch (e) {} }
-      try { App._ownerUsersListener = onValue(dbRef(db, 'users'), function(snap) { var users = snap.val() || {}, slugs = Object.keys(users), uiChanged = false; for (var x = 0; x < slugs.length; x++) { var u = users[slugs[x]]; if (u && u.slug && u.slug !== App.mySlug && !findContact(u.slug)) { App.contacts.push({ slug: u.slug, name: u.displayName || u.slug, photo: u.photo || null }); App.lastSeenTimes[u.slug] = Date.now(); setupMessageListener(u.slug, false); uiChanged = true; } } if (uiChanged) { saveContacts(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); } }, function() {}); } catch (e) {}
-    }, 5000);
-  }
+  if (isOwner()) { setTimeout(function() { if (App._ownerUsersListener) { try { App._ownerUsersListener(); } catch (e) {} } try { App._ownerUsersListener = onValue(dbRef(db, 'users'), function(snap) { var users = snap.val() || {}, slugs = Object.keys(users), uiChanged = false; for (var x = 0; x < slugs.length; x++) { var u = users[slugs[x]]; if (u && u.slug && u.slug !== App.mySlug && !findContact(u.slug)) { App.contacts.push({ slug: u.slug, name: u.displayName || u.slug, photo: u.photo || null }); App.lastSeenTimes[u.slug] = Date.now(); setupMessageListener(u.slug, false); uiChanged = true; } } if (uiChanged) { saveContacts(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); } }, function() {}); } catch (e) {} }, 5000); }
   if (App._allGroupsListener) { try { App._allGroupsListener(); } catch (e) {} }
   try { App._allGroupsListener = onValue(dbRef(db, 'group_chats'), function(snap) { var rg = snap.val() || {}, ids = Object.keys(rg), uiChanged = false; for (var x = 0; x < ids.length; x++) { var g = rg[ids[x]]; if (g && g.id && g.members && g.members.indexOf(App.mySlug) !== -1 && !findGroup(g.id)) { App.groups.push(g); App.lastSeenTimes[g.id] = Date.now(); setupGroupMessageListener(g.id); uiChanged = true; } } if (uiChanged) { saveGroups(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); } }, function(err) {}); } catch (e) {}
   updateAppBadge(); updateWallHeader();
 }
-
 function listenSelfGroups() {
   if (!App.mySlug) return;
   if (App._groupsListener) { try { App._groupsListener(); } catch (e) {} App._groupsListener = null; }
   try { App._groupsListener = onValue(dbRef(db, 'users/' + App.mySlug + '/groups'), function(snap) { var gs = snap.val() || {}, ids = Object.keys(gs); for (var i = 0; i < ids.length; i++) { var id = ids[i]; if (findGroup(id)) continue; get(dbRef(db, 'group_chats/' + id)).then(function(gs2) { if (gs2.exists()) { var g = gs2.val(); if (!findGroup(g.id)) { App.groups.push(g); App.lastSeenTimes[g.id] = Date.now(); setupGroupMessageListener(g.id); saveGroups(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); } } }).catch(function(e) {}); } }, function(err) {}); } catch (e) {}
 }
-
 function findContact(slug) { for (var i = 0; i < App.contacts.length; i++) if (App.contacts[i].slug === slug) return App.contacts[i]; return null; }
 function findGroup(id) { for (var i = 0; i < App.groups.length; i++) if (App.groups[i].id === id) return App.groups[i]; return null; }
-
 function updateProfileHeader() {
   var pName = $('profileName'), pUser = $('profileUsername'), pImg = $('profileAvatarImg'), pLetter = $('profileAvatarLetter');
   if (pName) pName.textContent = App.myName || 'JARVIS User';
   if (pUser) pUser.textContent = '@' + (App.mySlug || 'user');
-  if (App.myPhoto) { if (pImg) { pImg.src = App.myPhoto; pImg.style.display = 'block'; } if (pLetter) pLetter.style.display = 'none'; }
-  else { if (pImg) pImg.style.display = 'none'; if (pLetter) { pLetter.textContent = (App.myName || 'G').charAt(0).toUpperCase(); pLetter.style.display = 'inline'; } }
+  if (App.myPhoto) { if (pImg) { pImg.src = App.myPhoto; pImg.style.display = 'block'; } if (pLetter) pLetter.style.display = 'none'; } else { if (pImg) pImg.style.display = 'none'; if (pLetter) { pLetter.textContent = (App.myName || 'G').charAt(0).toUpperCase(); pLetter.style.display = 'inline'; } }
   var ownerTrigger = $('ownerPortalTrigger'); if (ownerTrigger) ownerTrigger.style.display = isOwner() ? 'block' : 'none';
   var editPinnedBtn = $('editPinnedStatusBtn'); if (editPinnedBtn) editPinnedBtn.style.display = isOwner() ? 'inline-block' : 'none';
   updateWallHeader();
@@ -1689,23 +1579,10 @@ window.unblockUser = function(slug) { if (!slug) return; App.blockedUsers = App.
 function listenIncomingCalls() {
   if (!App.mySlug) return;
   if (App._incomingCallsListener) { try { App._incomingCallsListener(); } catch (e) {} App._incomingCallsListener = null; }
-  try {
-    App._incomingCallsListener = onChildAdded(dbRef(db, 'calls/' + App.mySlug), function(snap) {
-      var c = snap.val(); if (!c || c.status !== 'calling') return;
-      if (App.blockedUsers.indexOf(c.caller) !== -1) return;
-      App.activeCallId = snap.key; App.currentCallTarget = c.caller; App.isVideoCall = c.type === 'video';
-      $('incomingName').textContent = c.callerName || c.caller;
-      $('incomingAvatar').innerHTML = avatarInner(null, c.callerName || c.caller);
-      $('incomingType').textContent = 'Incoming ' + (c.type === 'video' ? '📹 Video' : '📞 Voice') + ' Call…';
-      $('incoming-call').classList.add('show');
-      window._incomingCallData = c;
-    });
-  } catch (e) {}
+  try { App._incomingCallsListener = onChildAdded(dbRef(db, 'calls/' + App.mySlug), function(snap) { var c = snap.val(); if (!c || c.status !== 'calling') return; if (App.blockedUsers.indexOf(c.caller) !== -1) return; App.activeCallId = snap.key; App.currentCallTarget = c.caller; App.isVideoCall = c.type === 'video'; $('incomingName').textContent = c.callerName || c.caller; $('incomingAvatar').innerHTML = avatarInner(null, c.callerName || c.caller); $('incomingType').textContent = 'Incoming ' + (c.type === 'video' ? '📹 Video' : '📞 Voice') + ' Call…'; $('incoming-call').classList.add('show'); window._incomingCallData = c; }); } catch (e) {}
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   WALL POSTS (with share button + DM notifications)
-   ═══════════════════════════════════════════════════════════════ */
+/* ═══════ WALL POSTS ═══════ */
 function listenWallPosts() {
   if (App._wallPostsListener) { try { App._wallPostsListener(); } catch (e) {} App._wallPostsListener = null; }
   try {
@@ -1732,21 +1609,13 @@ function canSeeWallPost(p) {
   return false;
 }
 function renderWallCard(p, isOwnWallView) {
-  var mine = p.authorSlug === App.mySlug;
-  var reactions = p.reactions || {};
-  var emojisUsed = Object.keys(reactions);
-  var totalReactions = 0;
+  var mine = p.authorSlug === App.mySlug, reactions = p.reactions || {}, emojisUsed = Object.keys(reactions), totalReactions = 0;
   emojisUsed.forEach(function(e) { totalReactions += Object.keys(reactions[e] || {}).length; });
   var likeCount = 0, myReaction = null;
   emojisUsed.forEach(function(e) { var users = Object.keys(reactions[e] || {}); likeCount += users.length; if (users.indexOf(App.mySlug) !== -1) myReaction = e; });
-  var comments = p.comments || {};
-  var commentKeys = Object.keys(comments).sort(function(a,b) { return (comments[a].time||0) - (comments[b].time||0); });
+  var comments = p.comments || {}, commentKeys = Object.keys(comments).sort(function(a,b) { return (comments[a].time||0) - (comments[b].time||0); });
   var privacyBadge = p.privacy === 'friends' ? '<span class="wall-post-privacy friends">👥 Friends</span>' : p.privacy === 'selected' ? '<span class="wall-post-privacy selected">🔒 Selected</span>' : '<span class="wall-post-privacy">🌍 Public</span>';
-  var h = '<div class="wall-post" id="wall_' + p._k + '">';
-  h += '<div class="wall-post-header">';
-  h += '<div class="wall-post-avatar" onclick="window.__viewAvatar(\'' + (p.authorPhoto || '') + '\',\'' + esc(p.authorName) + '\')">' + avatarInner(p.authorPhoto, p.authorName) + '</div>';
-  h += '<div class="wall-post-meta"><div class="wall-post-author">' + esc(p.authorName) + '<small>@' + esc(p.authorSlug) + '</small></div><div class="wall-post-time">' + formatDateTime(p.time) + '</div></div>';
-  h += privacyBadge;
+  var h = '<div class="wall-post" id="wall_' + p._k + '"><div class="wall-post-header"><div class="wall-post-avatar" onclick="window.__viewAvatar(\'' + (p.authorPhoto || '') + '\',\'' + esc(p.authorName) + '\')">' + avatarInner(p.authorPhoto, p.authorName) + '</div><div class="wall-post-meta"><div class="wall-post-author">' + esc(p.authorName) + '<small>@' + esc(p.authorSlug) + '</small></div><div class="wall-post-time">' + formatDateTime(p.time) + '</div></div>' + privacyBadge;
   if (mine || isOwner()) h += '<button onclick="window.__deleteWallPost(\'' + p._k + '\')" style="background:none;border:none;color:#ff4757;font-size:20px;cursor:pointer;margin-left:4px;">🗑</button>';
   h += '</div>';
   if (p.text) h += '<div class="wall-post-text">' + esc(p.text) + '</div>';
@@ -1755,17 +1624,11 @@ function renderWallCard(p, isOwnWallView) {
   if (totalReactions > 0) { h += '<div class="wall-reactions-bar">'; emojisUsed.forEach(function(e) { var users = Object.keys(reactions[e] || {}); if (!users.length) return; var mine2 = users.indexOf(App.mySlug) !== -1; h += '<div class="wall-reaction-chip' + (mine2 ? ' mine' : '') + '" onclick="window.__reactToWallPost(\'' + p._k + '\',\'' + e + '\')">' + e + ' ' + users.length + '</div>'; }); h += '</div>'; }
   h += '<div class="wall-emoji-quick">';
   ['👍','❤️','😂','😮','😢','🔥','🎉'].forEach(function(e) { h += '<button onclick="window.__reactToWallPost(\'' + p._k + '\',\'' + e + '\')">' + e + '</button>'; });
-  h += '</div>';
-  h += '<div class="wall-actions">';
-  h += '<button class="wall-action-btn' + (myReaction === '👍' ? ' active' : '') + '" onclick="window.__reactToWallPost(\'' + p._k + '\',\'👍\')">👍 Like' + (likeCount > 0 ? ' (' + likeCount + ')' : '') + '</button>';
-  h += '<button class="wall-action-btn" onclick="window.__toggleWallComments(\'' + p._k + '\')">💬 Comments (' + commentKeys.length + ')</button>';
-  h += '<button class="wall-action-btn share-btn" onclick="window.__shareWallPost(\'' + p._k + '\')">📤 Share</button>';
+  h += '</div><div class="wall-actions"><button class="wall-action-btn' + (myReaction === '👍' ? ' active' : '') + '" onclick="window.__reactToWallPost(\'' + p._k + '\',\'👍\')">👍 Like' + (likeCount > 0 ? ' (' + likeCount + ')' : '') + '</button><button class="wall-action-btn" onclick="window.__toggleWallComments(\'' + p._k + '\')">💬 Comments (' + commentKeys.length + ')</button><button class="wall-action-btn share-btn" onclick="window.__shareWallPost(\'' + p._k + '\')">📤 Share</button>';
   if (isOwner()) h += '<button class="wall-action-btn danger" onclick="window.__deleteWallPost(\'' + p._k + '\')">🗑 Owner</button>';
-  h += '</div>';
-  h += '<div class="wall-comments" id="comments_' + p._k + '" style="display:none;">';
+  h += '</div><div class="wall-comments" id="comments_' + p._k + '" style="display:none;">';
   commentKeys.forEach(function(k) { var c = comments[k]; h += '<div class="wall-comment"><div class="wall-comment-avatar">' + avatarInner(c.authorPhoto, c.authorName) + '</div><div class="wall-comment-body"><div class="wall-comment-author">@' + esc(c.authorSlug) + '</div><div class="wall-comment-text">' + esc(c.text) + '</div><div class="wall-comment-time">' + formatDateTime(c.time, 'short') + '</div></div></div>'; });
-  h += '<div class="wall-comment-input-row"><input type="text" id="cmt_' + p._k + '" placeholder="Write a comment..." onkeydown="if(event.key===\'Enter\')window.__postWallComment(\'' + p._k + '\')"><button onclick="window.__postWallComment(\'' + p._k + '\')">Send</button></div>';
-  h += '</div></div>';
+  h += '<div class="wall-comment-input-row"><input type="text" id="cmt_' + p._k + '" placeholder="Write a comment..." onkeydown="if(event.key===\'Enter\')window.__postWallComment(\'' + p._k + '\')"><button onclick="window.__postWallComment(\'' + p._k + '\')">Send</button></div></div></div>';
   return h;
 }
 function renderWallFeed() {
@@ -1773,8 +1636,8 @@ function renderWallFeed() {
   try {
     var visible = App.wallPosts.filter(function(p) { return canSeeWallPost(p); });
     if (!visible.length) { container.innerHTML = '<div class="empty"><div class="empty-icon">📰</div><p>No posts yet.<br>Be the first to share something!</p></div>'; return; }
-    var h = ''; visible.forEach(function(p) { try { h += renderWallCard(p, false); } catch (e) { console.error('card render:', e); } }); container.innerHTML = h;
-  } catch (e) { console.error('renderWallFeed:', e); }
+    var h = ''; visible.forEach(function(p) { try { h += renderWallCard(p, false); } catch (e) {} }); container.innerHTML = h;
+  } catch (e) {}
 }
 function renderMyWall() {
   var container = $('myWallPostsList'); if (!container) return;
@@ -1782,29 +1645,19 @@ function renderMyWall() {
     if (!App.mySlug) { container.innerHTML = ''; return; }
     var mine = App.wallPosts.filter(function(p) { return p.authorSlug === App.mySlug; });
     if (!mine.length) { container.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><p>Your wall is empty.<br>Tap "New Wall Post" above!</p></div>'; return; }
-    var h = ''; mine.forEach(function(p) { try { h += renderWallCard(p, true); } catch (e) { console.error('card render:', e); } }); container.innerHTML = h;
-  } catch (e) { console.error('renderMyWall:', e); }
+    var h = ''; mine.forEach(function(p) { try { h += renderWallCard(p, true); } catch (e) {} }); container.innerHTML = h;
+  } catch (e) {}
 }
-
 window.__openWallCompose = function() {
   if (!App.mySlug) return toast('Sign in first', true);
-  $('wallPostText').value = ''; $('wallPostLink').value = ''; $('wallMediaName').textContent = ''; App.wallPostMediaFile = null;
-  App.wallComposePrivacy = 'public';
+  $('wallPostText').value = ''; $('wallPostLink').value = ''; $('wallMediaName').textContent = ''; App.wallPostMediaFile = null; App.wallComposePrivacy = 'public';
   document.querySelectorAll('#wallPrivacySelector .privacy-option').forEach(function(o) { o.classList.toggle('active', o.dataset.privacy === 'public'); });
   $('wallSelectedFriendsWrap').style.display = 'none';
   $('wallComposeModal').classList.add('show');
 };
 window.__openFeedRefresh = function() { listenWallPosts(); toast('Refreshed ✓'); };
 window.__openMyProfileFromWall = function() { var t = document.querySelector('.nav-item[data-tab="profile"]'); if (t) t.click(); };
-
-document.querySelectorAll('#wallPrivacySelector .privacy-option').forEach(function(o) {
-  o.addEventListener('click', function() {
-    document.querySelectorAll('#wallPrivacySelector .privacy-option').forEach(function(x) { x.classList.remove('active'); });
-    o.classList.add('active'); App.wallComposePrivacy = o.dataset.privacy;
-    $('wallSelectedFriendsWrap').style.display = o.dataset.privacy === 'selected' ? 'block' : 'none';
-  });
-});
-
+document.querySelectorAll('#wallPrivacySelector .privacy-option').forEach(function(o) { o.addEventListener('click', function() { document.querySelectorAll('#wallPrivacySelector .privacy-option').forEach(function(x) { x.classList.remove('active'); }); o.classList.add('active'); App.wallComposePrivacy = o.dataset.privacy; $('wallSelectedFriendsWrap').style.display = o.dataset.privacy === 'selected' ? 'block' : 'none'; }); });
 $('wallMediaSelectBtn').addEventListener('click', function() { $('wallMediaInput').click(); });
 $('wallMediaInput').addEventListener('change', function(e) { var f = e.target.files && e.target.files[0]; if (f) { App.wallPostMediaFile = f; $('wallMediaName').textContent = 'Selected: ' + f.name; } });
 $('wallComposeCancel').addEventListener('click', function() { $('wallComposeModal').classList.remove('show'); });
@@ -1812,17 +1665,8 @@ $('wallComposePost').addEventListener('click', async function() {
   var text = $('wallPostText').value.trim(), link = $('wallPostLink').value.trim(), privacy = App.wallComposePrivacy, mediaFile = App.wallPostMediaFile;
   if (!text && !link && !mediaFile) return toast('Add text, link, or media', true);
   var btn = $('wallComposePost'); btn.disabled = true; btn.textContent = 'Posting…';
-  try {
-    var mediaUrl = null, mediaType = null;
-    if (mediaFile) { if (mediaFile.size > 800 * 1024) { toast('Media too large (max 800KB)', true); btn.disabled = false; btn.textContent = 'Post to Wall'; return; } toast('Processing media…'); mediaUrl = await fileToBase64(mediaFile); mediaType = detectFileType(mediaFile); }
-    await push(dbRef(db, WALL_POSTS_PATH), { authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto || null, text: text, link: link, mediaUrl: mediaUrl, mediaType: mediaType, privacy: privacy, time: Date.now() });
-    $('wallComposeModal').classList.remove('show'); App.wallPostMediaFile = null;
-    toast('✓ Posted'); var wallTab = document.querySelector('.nav-item[data-tab="wall"]'); if (wallTab) setTimeout(function() { wallTab.click(); }, 300);
-  } catch (e) { toast('Failed', true); }
-  finally { btn.disabled = false; btn.textContent = 'Post to Wall'; }
+  try { var mediaUrl = null, mediaType = null; if (mediaFile) { if (mediaFile.size > 800 * 1024) { toast('Media too large (max 800KB)', true); btn.disabled = false; btn.textContent = 'Post to Wall'; return; } toast('Processing…'); mediaUrl = await fileToBase64(mediaFile); mediaType = detectFileType(mediaFile); } await push(dbRef(db, WALL_POSTS_PATH), { authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto || null, text: text, link: link, mediaUrl: mediaUrl, mediaType: mediaType, privacy: privacy, time: Date.now() }); $('wallComposeModal').classList.remove('show'); App.wallPostMediaFile = null; toast('✓ Posted'); var wallTab = document.querySelector('.nav-item[data-tab="wall"]'); if (wallTab) setTimeout(function() { wallTab.click(); }, 300); } catch (e) { toast('Failed', true); } finally { btn.disabled = false; btn.textContent = 'Post to Wall'; }
 });
-
-/* WALL REACTION + DM NOTIFICATION */
 window.__reactToWallPost = async function(postKey, emoji) {
   var p = null; for (var i = 0; i < App.wallPosts.length; i++) if (App.wallPosts[i]._k === postKey) { p = App.wallPosts[i]; break; }
   if (!p) return;
@@ -1832,25 +1676,19 @@ window.__reactToWallPost = async function(postKey, emoji) {
     if (mySnap.exists()) { await remove(myPath); toast('Reaction removed'); return; }
     var allEmoji = Object.keys(p.reactions || {});
     for (var j = 0; j < allEmoji.length; j++) { try { await remove(dbRef(db, WALL_POSTS_PATH + '/' + postKey + '/reactions/' + allEmoji[j] + '/' + App.mySlug)); } catch (e) {} }
-    await set(myPath, { time: Date.now() });
-    toast('Reacted ' + emoji);
+    await set(myPath, { time: Date.now() }); toast('Reacted ' + emoji);
     if (p.authorSlug && p.authorSlug !== App.mySlug) {
       try {
         var dmAttachment = p.mediaUrl ? { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Wall post media' } : null;
         var dmText = emoji + ' ' + App.myName + ' reacted to your wall post.' + (p.text ? '\n\n📝 "' + p.text + '"' : '') + (p.link ? '\n\n🔗 ' + p.link : '');
         await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, statusInteraction: { type: 'reaction', emoji: emoji, statusKey: postKey, statusText: p.text || '' }, time: Date.now() });
-      } catch (e) { console.warn('Reaction DM failed:', e); }
+      } catch (e) {}
     }
   } catch (e) { toast('Reaction failed', true); }
 };
-
 window.__toggleWallComments = function(postKey) { var el = $('comments_' + postKey); if (!el) return; el.style.display = el.style.display === 'none' ? 'block' : 'none'; };
-
-/* WALL COMMENT + DM NOTIFICATION */
 window.__postWallComment = async function(postKey) {
-  var inp = $('cmt_' + postKey); if (!inp) return;
-  var text = inp.value.trim(); if (!text) return;
-  inp.value = '';
+  var inp = $('cmt_' + postKey); if (!inp) return; var text = inp.value.trim(); if (!text) return; inp.value = '';
   try {
     var p = null; for (var i = 0; i < App.wallPosts.length; i++) if (App.wallPosts[i]._k === postKey) { p = App.wallPosts[i]; break; }
     await push(dbRef(db, WALL_POSTS_PATH + '/' + postKey + '/comments'), { authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto || null, text: text, time: Date.now() });
@@ -1858,23 +1696,20 @@ window.__postWallComment = async function(postKey) {
     if (p && p.authorSlug && p.authorSlug !== App.mySlug) {
       try {
         var dmAttachment = p.mediaUrl ? { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Wall post media' } : null;
-        var dmText = '💬 ' + App.myName + ' (@' + App.mySlug + ') commented on your wall post:\n\n💭 "' + text + '"' + (p.text ? '\n\n📝 Original post: "' + p.text + '"' : '');
+        var dmText = '💬 ' + App.myName + ' (@' + App.mySlug + ') commented on your wall post:\n\n💭 "' + text + '"' + (p.text ? '\n\n📝 Original: "' + p.text + '"' : '');
         await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, statusInteraction: { type: 'wall_comment', commentText: text, statusKey: postKey, statusText: p.text || '' }, time: Date.now() });
-      } catch (e) { console.warn('Comment DM failed:', e); }
+      } catch (e) {}
     }
   } catch (e) { toast('Failed', true); }
 };
-
 window.__deleteWallPost = async function(postKey) {
   var p = null; for (var i = 0; i < App.wallPosts.length; i++) if (App.wallPosts[i]._k === postKey) { p = App.wallPosts[i]; break; }
-  if (!p) return; if (p.authorSlug !== App.mySlug && !isOwner()) return toast('Only the author can delete', true);
-  if (!confirm('Delete this post permanently?')) return;
+  if (!p) return; if (p.authorSlug !== App.mySlug && !isOwner()) return toast('Only author can delete', true);
+  if (!confirm('Delete this post?')) return;
   try { await remove(dbRef(db, WALL_POSTS_PATH + '/' + postKey)); toast('Deleted ✓'); } catch (e) { toast('Delete failed', true); }
 };
 
-/* ═══════════════════════════════════════════════════════════════
-   MESSAGES + GROUPS
-   ═══════════════════════════════════════════════════════════════ */
+/* ═══════ MESSAGES + GROUPS ═══════ */
 function setupMessageListener(id, isGroup) {
   var path = isGroup ? 'group_chats/' + id + '/messages' : 'chats/' + chatIdFor(App.mySlug, id) + '/messages';
   if (App.globalUnsubs[id]) { try { App.globalUnsubs[id](); } catch (e) {} delete App.globalUnsubs[id]; }
@@ -1895,30 +1730,21 @@ function setupMessageListener(id, isGroup) {
   App.globalUnsubs[id] = function() { try { unsubAdded(); } catch (e) {} try { unsubChanged(); } catch (e) {} try { unsubRemoved(); } catch (e) {} };
 }
 function setupGroupMessageListener(id) { setupMessageListener(id, true); }
-
 function buildUI() {
-  var cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient');
-  var html = '';
+  var cl = $('contactsList'), ccl = $('callContactsList'), vmSel = $('vmRecipient'), html = '';
   if (App.groups.length) { html += '<div class="section-title">Groups</div>'; for (var i = 0; i < App.groups.length; i++) { var g = App.groups[i], ur = App.unreadCounts[g.id] || 0; html += '<div class="list-item" onclick="window.__openChat(\'' + g.id + '\', true)"><div class="avatar group">👥</div><div class="list-item-body"><div class="list-item-header"><div class="list-item-title">' + esc(g.name) + '</div>' + (ur > 0 ? '<div class="badge-unread">' + ur + '</div>' : '') + '</div><div class="list-item-sub">' + g.members.length + ' members</div></div><div class="list-item-action">›</div></div>'; } }
   html += '<div class="section-title">Friend List</div>';
   if (!App.contacts.length) html += '<div class="empty"><div class="empty-icon">💬</div><p>No contacts yet.<br>Tap <strong>✨ New</strong> to send a friend request.</p></div>';
-  else {
-    for (var j = 0; j < App.contacts.length; j++) {
-      var c = App.contacts[j], uc = App.unreadCounts[c.slug] || 0;
-      html += '<div class="list-item" onclick="window.__openChat(\'' + c.slug + '\', false)"><div class="avatar" onclick="event.stopPropagation(); window.__viewAvatar(\'' + (c.photo || '') + '\',\'' + esc(c.name) + '\')">' + avatarInner(c.photo, c.name) + '</div><div class="list-item-body"><div class="list-item-header"><div class="list-item-title">' + esc(c.name) + '</div>' + (uc > 0 ? '<div class="badge-unread">' + uc + '</div>' : '') + '</div><div class="list-item-sub" data-presence="' + c.slug + '">' + getPresenceHtml(c.slug) + '</div></div><div class="friend-actions"><button class="fa-chat" onclick="event.stopPropagation(); window.__openChat(\'' + c.slug + '\', false)">💬</button><button class="fa-call" onclick="event.stopPropagation(); window.startCall(\'' + c.slug + '\', false)">📞</button><button class="fa-video" onclick="event.stopPropagation(); window.startCall(\'' + c.slug + '\', true)">📹</button><button class="fa-block" onclick="event.stopPropagation(); window.blockUser(\'' + c.slug + '\')">🚫</button></div></div>';
-    }
-  }
+  else { for (var j = 0; j < App.contacts.length; j++) { var c = App.contacts[j], uc = App.unreadCounts[c.slug] || 0; html += '<div class="list-item" onclick="window.__openChat(\'' + c.slug + '\', false)"><div class="avatar" onclick="event.stopPropagation(); window.__viewAvatar(\'' + (c.photo || '') + '\',\'' + esc(c.name) + '\')">' + avatarInner(c.photo, c.name) + '</div><div class="list-item-body"><div class="list-item-header"><div class="list-item-title">' + esc(c.name) + '</div>' + (uc > 0 ? '<div class="badge-unread">' + uc + '</div>' : '') + '</div><div class="list-item-sub" data-presence="' + c.slug + '">' + getPresenceHtml(c.slug) + '</div></div><div class="friend-actions"><button class="fa-chat" onclick="event.stopPropagation(); window.__openChat(\'' + c.slug + '\', false)">💬</button><button class="fa-call" onclick="event.stopPropagation(); window.startCall(\'' + c.slug + '\', false)">📞</button><button class="fa-video" onclick="event.stopPropagation(); window.startCall(\'' + c.slug + '\', true)">📹</button><button class="fa-block" onclick="event.stopPropagation(); window.blockUser(\'' + c.slug + '\')">🚫</button></div></div>'; } }
   if (cl) cl.innerHTML = html;
   if (ccl) { var callHtml = ''; for (var k = 0; k < App.contacts.length; k++) { var cc = App.contacts[k]; callHtml += '<div class="list-item"><div class="avatar accent">' + avatarInner(cc.photo, cc.name) + '</div><div class="list-item-body"><div class="list-item-title">' + esc(cc.name) + '</div><div class="list-item-sub">' + getPresenceHtml(cc.slug) + '</div></div><div style="display:flex;gap:6px;"><button style="background:#e0f2fe;color:#0b2a4a;padding:10px 14px;border-radius:14px;font-size:14px;font-weight:600;border:none;cursor:pointer;" onclick="window.startCall(\'' + cc.slug + '\', false)">📞</button><button style="background:#dcfce7;color:#0b2a4a;padding:10px 14px;border-radius:14px;font-size:14px;font-weight:600;border:none;cursor:pointer;" onclick="window.startCall(\'' + cc.slug + '\', true)">📹</button></div></div>'; } ccl.innerHTML = callHtml || '<div class="empty"><p>No contacts yet.</p></div>'; }
   if (vmSel) { var cur = vmSel.value, o = '<option value="">Select recipient</option>'; for (var m = 0; m < App.contacts.length; m++) o += '<option value="' + App.contacts[m].slug + '">' + esc(App.contacts[m].name) + '</option>'; vmSel.innerHTML = o; if (cur && findContact(cur)) vmSel.value = cur; }
   updateWallHeader();
 }
 debouncedBuildUI = debounce(buildUI, 250);
-
 window.__openChat = function(id, isGroup) {
   if (!isGroup && !isOwner() && id !== App.mySlug && !findContact(id)) return toast('Add this user to DM them', true);
-  App.activeChat = id; App.activeIsGroup = isGroup; App.unreadCounts[id] = 0; App.lastSeenTimes[id] = Date.now();
-  saveUnreadCounts(); saveLastSeenTimes();
+  App.activeChat = id; App.activeIsGroup = isGroup; App.unreadCounts[id] = 0; App.lastSeenTimes[id] = Date.now(); saveUnreadCounts(); saveLastSeenTimes();
   var t = isGroup ? findGroup(id) : findContact(id);
   $('chatName').textContent = t ? t.name : id;
   $('chatAvatar').innerHTML = isGroup ? '👥' : avatarInner(t ? t.photo : null, t ? t.name : '');
@@ -1927,22 +1753,18 @@ window.__openChat = function(id, isGroup) {
   $('blockUserFromChatBtn').style.display = isGroup ? 'none' : 'block';
   if (!isGroup) { var p = App.contactPresence[id]; if (p && p.online === true) { $('chatStatus').textContent = '● Online'; $('chatStatus').style.color = '#22c55e'; } else if (p && p.lastSeen) { $('chatStatus').textContent = 'Last seen ' + formatDateTime(p.lastSeen); $('chatStatus').style.color = '#ef4444'; } else { $('chatStatus').textContent = 'Offline'; $('chatStatus').style.color = '#ef4444'; } }
   else { $('chatStatus').textContent = 'Group chat'; $('chatStatus').style.color = '#22c55e'; }
-  showScreen('screen-chat');
-  renderMessages(id, App.lastMessages[id] || [], isGroup);
+  showScreen('screen-chat'); renderMessages(id, App.lastMessages[id] || [], isGroup);
   if (!App.globalUnsubs[id]) setupMessageListener(id, isGroup);
 };
 $('blockUserFromChatBtn').addEventListener('click', function() { if (App.activeChat && !App.activeIsGroup) window.blockUser(App.activeChat); });
-
 function renderAttachment(a) { if (!a || !a.url) return ''; var u = esc(a.url); if (a.type === 'image') return '<img class="attach-img" src="' + u + '" loading="lazy" onclick="window.__lb(\'' + u + '\')">'; if (a.type === 'video') return '<video class="attach-video" controls playsinline src="' + u + '" preload="none"></video>'; if (a.type === 'audio') return '<audio class="attach-audio" controls preload="none" src="' + u + '"></audio>'; return '<a class="attach-file" href="' + u + '" target="_blank" download="' + esc(a.name || 'file') + '">📄 ' + esc(a.name || 'File') + '</a>'; }
-
 function renderMessages(id, msgs, isGroup) {
   var area = $('messagesArea'), del = App.deletedLocally[id] || [];
   var vis = msgs.filter(function(m) { return del.indexOf(m._k) === -1; });
   if (!vis.length) { area.innerHTML = '<div class="empty"><p>No messages yet 👋</p></div>'; return; }
   var html = '';
   for (var i = 0; i < vis.length; i++) {
-    var m = vis[i], out = m.from === App.mySlug;
-    var t = m.time ? formatDateTime(m.time, 'short') : '';
+    var m = vis[i], out = m.from === App.mySlug, t = m.time ? formatDateTime(m.time, 'short') : '';
     var st = (isGroup && !out) ? '<span class="sender-tag">@' + esc(m.fromName || m.from) + '</span>' : '';
     var et = m.edited ? '<span class="edited-tag">(edited)</span>' : '';
     var interactionBadge = '';
@@ -1951,10 +1773,8 @@ function renderMessages(id, msgs, isGroup) {
     var mainText = m.text ? '<div style="white-space:pre-wrap;">' + esc(m.text) + et + '</div>' : '';
     html += '<div class="msg ' + (out ? 'out' : 'in') + '" onclick="window.__openActionSheet(\'' + m._k + '\', ' + out + ')">' + st + interactionBadge + sharedCard + (m.attachment ? renderAttachment(m.attachment) : '') + mainText + '<span class="time">' + t + '</span></div>';
   }
-  area.innerHTML = html;
-  setTimeout(function() { area.scrollTop = area.scrollHeight; }, 10);
+  area.innerHTML = html; setTimeout(function() { area.scrollTop = area.scrollHeight; }, 10);
 }
-
 window.__openActionSheet = function(k, mine) { App.selectedMsgKey = k; var ms = App.lastMessages[App.activeChat] || []; for (var i = 0; i < ms.length; i++) if (ms[i]._k === k) { App.selectedMsgObj = ms[i]; break; } $('actEditBtn').style.display = mine ? 'flex' : 'none'; $('actDeleteEveryoneBtn').style.display = mine ? 'flex' : 'none'; $('actionSheet').classList.add('show'); };
 $('actCancelBtn').addEventListener('click', function() { $('actionSheet').classList.remove('show'); });
 $('actDeleteForMeBtn').addEventListener('click', function() { if (!App.selectedMsgKey) return; if (!App.deletedLocally[App.activeChat]) App.deletedLocally[App.activeChat] = []; App.deletedLocally[App.activeChat].push(App.selectedMsgKey); renderMessages(App.activeChat, App.lastMessages[App.activeChat] || [], App.activeIsGroup); $('actionSheet').classList.remove('show'); toast('Deleted for you'); });
@@ -1962,42 +1782,29 @@ $('actDeleteEveryoneBtn').addEventListener('click', async function() { if (!App.
 $('actEditBtn').addEventListener('click', function() { $('actionSheet').classList.remove('show'); if (App.selectedMsgObj) { $('editMsgInput').value = App.selectedMsgObj.text || ''; $('editMsgModal').classList.add('show'); } });
 $('editMsgCancel').addEventListener('click', function() { $('editMsgModal').classList.remove('show'); });
 $('editMsgConfirm').addEventListener('click', async function() { var nt = $('editMsgInput').value.trim(); if (!App.selectedMsgKey) return; var p = App.activeIsGroup ? 'group_chats/' + App.activeChat + '/messages/' + App.selectedMsgKey : 'chats/' + chatIdFor(App.mySlug, App.activeChat) + '/messages/' + App.selectedMsgKey; await set(dbRef(db, p + '/text'), nt); await set(dbRef(db, p + '/edited'), true); $('editMsgModal').classList.remove('show'); toast('Updated ✓'); });
-
 async function sendMessage(att) { var inp = $('chatInput'), text = inp.value.trim(); if (!att) att = null; if ((!text && !att) || !App.activeChat) return; inp.value = ''; $('sendBtn').disabled = true; var p = App.activeIsGroup ? 'group_chats/' + App.activeChat + '/messages' : 'chats/' + chatIdFor(App.mySlug, App.activeChat) + '/messages'; try { await push(dbRef(db, p), { from: App.mySlug, fromName: App.myName, text: text, attachment: att, time: Date.now() }); playSentSound(); } catch (e) { toast('Send failed', true); } }
 $('sendBtn').addEventListener('click', function() { sendMessage(null); });
 $('chatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') sendMessage(null); });
 $('chatInput').addEventListener('input', function() { $('sendBtn').disabled = !$('chatInput').value.trim(); });
 $('attachBtn').addEventListener('click', function() { $('fileInput').click(); });
-$('fileInput').addEventListener('change', async function(e) { var f = e.target.files[0]; if (!f || !App.activeChat) return; toast('Processing…'); try { var url = await fileToBase64(f); await sendMessage({ type: detectFileType(f), url: url, name: f.name, size: f.size }); toast('Media sent ✓'); } catch (err) { toast('Failed', true); } e.target.value = ''; });
-
+$('fileInput').addEventListener('change', async function(e) { var f = e.target.files[0]; if (!f || !App.activeChat) return; toast('Processing…'); try { var url = await fileToBase64(f); await sendMessage({ type: detectFileType(f), url: url, name: f.name, size: f.size }); toast('Sent ✓'); } catch (err) { toast('Failed', true); } e.target.value = ''; });
 function listenVoicemails() {
   var list = $('voicemailList'); if (!list) return;
   if (App._voicemailListener) { try { App._voicemailListener(); } catch (e) {} App._voicemailListener = null; }
   try { App._voicemailListener = onValue(query(dbRef(db, 'voicemails/' + App.mySlug), limitToLast(20)), function(snap) { var d = snap.val() || {}; var items = Object.keys(d).map(function(k) { var v = d[k]; v._k = k; return v; }).sort(function(a, b) { return b.time - a.time; }); if (!items.length) { list.innerHTML = '<div class="empty"><p>No voicemails.</p></div>'; return; } var html = ''; for (var i = 0; i < items.length; i++) html += '<div style="background:#fff;margin:8px 16px;padding:14px;border-radius:10px;border:1px solid var(--border);"><div style="font-size:16px;font-weight:700;">From: @' + esc(items[i].fromName || items[i].from) + '</div><div style="font-size:13px;color:var(--muted);margin-bottom:6px;">' + formatDateTime(items[i].time) + '</div><audio controls preload="none" src="' + items[i].url + '" style="width:100%;"></audio></div>'; list.innerHTML = html; }, function(err) {}); } catch (e) {}
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   STATUS FEED + LIKE/COMMENT DM NOTIFICATIONS
-   ═══════════════════════════════════════════════════════════════ */
+/* ═══════ STATUS FEED ═══════ */
 function listenUserStatuses() {
   if (App._userStatusesListener) { try { App._userStatusesListener(); } catch (e) {} App._userStatusesListener = null; }
-  try {
-    App._userStatusesListener = onValue(query(dbRef(db, STATUS_FEED_PATH), limitToLast(100)), function(snap) {
-      var d = snap.val() || {}; var fs = App.contacts.map(function(c) { return c.slug; });
-      var posts = Object.keys(d).map(function(k) { var v = d[k]; v._k = k; return v; }).filter(function(p) { return isOwner() || p.authorSlug === App.mySlug || fs.indexOf(p.authorSlug) !== -1; }).sort(function(a, b) { return (b.time || 0) - (a.time || 0); });
-      try { LS.set('cached_statuses', posts); } catch (e) {}
-      try { renderStatusFeedList(posts); } catch (e) { console.error(e); }
-    }, function(err) { var cached = LS.get('cached_statuses', []); if (cached.length) { try { renderStatusFeedList(cached); } catch (e) {} } });
-  } catch (e) {}
+  try { App._userStatusesListener = onValue(query(dbRef(db, STATUS_FEED_PATH), limitToLast(100)), function(snap) { var d = snap.val() || {}; var fs = App.contacts.map(function(c) { return c.slug; }); var posts = Object.keys(d).map(function(k) { var v = d[k]; v._k = k; return v; }).filter(function(p) { return isOwner() || p.authorSlug === App.mySlug || fs.indexOf(p.authorSlug) !== -1; }).sort(function(a, b) { return (b.time || 0) - (a.time || 0); }); try { LS.set('cached_statuses', posts); } catch (e) {} try { renderStatusFeedList(posts); } catch (e) {} }, function(err) { var cached = LS.get('cached_statuses', []); if (cached.length) { try { renderStatusFeedList(cached); } catch (e) {} } }); } catch (e) {}
 }
-
 function renderStatusFeedList(posts) {
   var sf = $('statusFeedList'); if (!sf) return;
   if (!posts || !posts.length) { sf.innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No status updates yet.</p></div>'; window._cachedPosts = []; return; }
   var html = '';
   for (var i = 0; i < posts.length; i++) {
-    var p = posts[i], mine = p.authorSlug === App.mySlug;
-    var media = '';
+    var p = posts[i], mine = p.authorSlug === App.mySlug, media = '';
     if (p.mediaUrl) { if (p.mediaType === 'image') media = '<img src="' + p.mediaUrl + '" class="status-media" loading="lazy" onclick="window.__viewAvatar(\'' + p.mediaUrl + '\',\'' + esc(p.authorName) + '\')">'; else media = '<video src="' + p.mediaUrl + '" controls playsinline class="status-media" preload="none"></video>'; }
     var link = '';
     if (p.link) { var _ytId = getYouTubeId(p.link); if (_ytId) link = ytInlineCard(_ytId, p.text || 'YouTube Video'); else link = '<a href="' + esc(p.link) + '" target="_blank" rel="noopener" class="status-link">🔗 ' + esc(p.link) + '</a>'; }
@@ -2008,8 +1815,6 @@ function renderStatusFeedList(posts) {
   }
   sf.innerHTML = html; window._cachedPosts = posts;
 }
-
-/* STATUS LIKE + DM NOTIFICATION */
 window.__toggleStatusLike = async function(k) {
   var posts = window._cachedPosts || [], p = null;
   for (var i = 0; i < posts.length; i++) if (posts[i]._k === k) { p = posts[i]; break; }
@@ -2020,34 +1825,27 @@ window.__toggleStatusLike = async function(k) {
   await set(lr, { time: Date.now() }); toast('Liked 👍');
   if (p.authorSlug === App.mySlug) return;
   try {
-    var dmAttachment = null;
-    if (p.mediaUrl) dmAttachment = { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Original status media' };
-    var dmText = '👍 ' + App.myName + ' (@' + App.mySlug + ') liked your status.' + (p.text ? '\n\n📝 Original post: "' + p.text + '"' : '') + (p.link ? '\n\n🔗 ' + p.link : '');
+    var dmAttachment = null; if (p.mediaUrl) dmAttachment = { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Original status media' };
+    var dmText = '👍 ' + App.myName + ' (@' + App.mySlug + ') liked your status.' + (p.text ? '\n\n📝 Original: "' + p.text + '"' : '') + (p.link ? '\n\n🔗 ' + p.link : '');
     await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, statusInteraction: { type: 'like', statusKey: k, statusText: p.text || '' }, time: Date.now() });
-  } catch (e) { console.warn('Like DM failed:', e); }
+  } catch (e) {}
 };
-window.__delStatus = async function(k) { if (!confirm('Delete this status permanently?')) return; try { await remove(dbRef(db, STATUS_FEED_PATH + '/' + k)); toast('Deleted ✓'); } catch (e) { toast('Failed', true); } };
+window.__delStatus = async function(k) { if (!confirm('Delete this status?')) return; try { await remove(dbRef(db, STATUS_FEED_PATH + '/' + k)); toast('Deleted ✓'); } catch (e) { toast('Failed', true); } };
 window.__openStatusComments = function(k) { var posts = window._cachedPosts || [], p = null; for (var i = 0; i < posts.length; i++) if (posts[i]._k === k) { p = posts[i]; break; } if (!p) return; App.activeStatusObj = p; $('statusCommentInput').value = ''; renderStatusCommentsLocal(); $('statusCommentsModal').classList.add('show'); };
 function renderStatusCommentsLocal() { if (!App.activeStatusObj) return; var d = App.activeStatusObj.comments || {}; var c = Object.keys(d).map(function(k) { return d[k]; }).sort(function(a, b) { return a.time - b.time; }); var list = $('statusCommentsList'); if (!c.length) { list.innerHTML = '<div style="font-size:16px;color:var(--muted);text-align:center;padding:8px;">No comments yet.</div>'; return; } var h = ''; for (var i = 0; i < c.length; i++) h += '<div style="background:#f7f9fb;padding:10px 12px;border-radius:8px;font-size:16px;"><strong style="color:var(--accent);">@' + esc(c[i].author) + ':</strong> ' + esc(c[i].text) + '</div>'; list.innerHTML = h; }
 $('statusCommentCancel').addEventListener('click', function() { $('statusCommentsModal').classList.remove('show'); });
-
-/* STATUS COMMENT + DM NOTIFICATION */
 $('statusCommentSend').addEventListener('click', async function() {
-  var text = $('statusCommentInput').value.trim();
-  if (!text || !App.activeStatusObj) return;
+  var text = $('statusCommentInput').value.trim(); if (!text || !App.activeStatusObj) return;
   var p = App.activeStatusObj;
   await push(dbRef(db, STATUS_FEED_PATH + '/' + p._k + '/comments'), { author: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto || null, text: text, time: Date.now() });
   if (p.authorSlug && p.authorSlug !== App.mySlug) {
     try {
-      var dmAttachment = null;
-      if (p.mediaUrl) dmAttachment = { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Original status media' };
-      var dmText = '💬 ' + App.myName + ' (@' + App.mySlug + ') commented on your status:\n\n💭 "' + text + '"' + (p.text ? '\n\n📝 Original post: "' + p.text + '"' : '');
+      var dmAttachment = null; if (p.mediaUrl) dmAttachment = { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Original status media' };
+      var dmText = '💬 ' + App.myName + ' (@' + App.mySlug + ') commented on your status:\n\n💭 "' + text + '"' + (p.text ? '\n\n📝 Original: "' + p.text + '"' : '');
       await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, statusInteraction: { type: 'comment', statusKey: p._k, commentText: text, statusText: p.text || '' }, time: Date.now() });
-    } catch (e) { console.warn('Comment DM failed:', e); }
+    } catch (e) {}
   }
-  $('statusCommentInput').value = '';
-  $('statusCommentsModal').classList.remove('show');
-  toast('Sent ✓');
+  $('statusCommentInput').value = ''; $('statusCommentsModal').classList.remove('show'); toast('Sent ✓');
 });
 
 /* Emoji + quick reactions */
@@ -2062,7 +1860,7 @@ $('modalName').addEventListener('input', function() { $('modalConfirm').disabled
 $('modalConfirm').addEventListener('click', async function() { var slug = slugify($('modalName').value); if (!slug || slug === App.mySlug) return; await window.__sendFriendRequest(slug); $('addModal').classList.remove('show'); });
 $('addGroupFab').addEventListener('click', function() { var list = $('groupMembersSelection'); if (App.contacts.length) { var h = ''; for (var i = 0; i < App.contacts.length; i++) h += '<div class="group-select-item"><input type="checkbox" value="' + App.contacts[i].slug + '" id="chk_' + App.contacts[i].slug + '" style="width:22px;height:22px;"><label for="chk_' + App.contacts[i].slug + '">' + esc(App.contacts[i].name) + '</label></div>'; list.innerHTML = h; } else list.innerHTML = '<div style="font-size:17px;color:var(--muted)">Add contacts first.</div>'; $('groupNameInput').value = ''; $('groupModal').classList.add('show'); });
 $('groupModalCancel').addEventListener('click', function() { $('groupModal').classList.remove('show'); });
-$('groupModalConfirm').addEventListener('click', async function() { var name = $('groupNameInput').value.trim(); var checked = Array.prototype.slice.call(document.querySelectorAll('#groupMembersSelection input:checked')).map(function(i) { return i.value; }); if (!name || !checked.length) return toast('Set name & members', true); var id = 'group_' + Date.now(), members = [App.mySlug].concat(checked); try { await set(dbRef(db, 'group_chats/' + id), { id: id, name: name, members: members, createdBy: App.mySlug }); } catch (e) { toast('Group create failed', true); return; } try { await set(dbRef(db, 'users/' + App.mySlug + '/groups/' + id), { id: id, name: name, time: Date.now() }); } catch (e) {} App.groups.push({ id: id, name: name, members: members }); App.lastSeenTimes[id] = Date.now(); saveGroups(); saveLastSeenTimes(); setupGroupMessageListener(id); buildUI(); $('groupModal').classList.remove('show'); toast('Group created ✓'); });
+$('groupModalConfirm').addEventListener('click', async function() { var name = $('groupNameInput').value.trim(); var checked = Array.prototype.slice.call(document.querySelectorAll('#groupMembersSelection input:checked')).map(function(i) { return i.value; }); if (!name || !checked.length) return toast('Set name & members', true); var id = 'group_' + Date.now(), members = [App.mySlug].concat(checked); try { await set(dbRef(db, 'group_chats/' + id), { id: id, name: name, members: members, createdBy: App.mySlug }); } catch (e) { toast('Failed', true); return; } try { await set(dbRef(db, 'users/' + App.mySlug + '/groups/' + id), { id: id, name: name, time: Date.now() }); } catch (e) {} App.groups.push({ id: id, name: name, members: members }); App.lastSeenTimes[id] = Date.now(); saveGroups(); saveLastSeenTimes(); setupGroupMessageListener(id); buildUI(); $('groupModal').classList.remove('show'); toast('Group created ✓'); });
 
 /* Profile avatar */
 $('profileAvatar').addEventListener('click', function() { $('avatarInput').click(); });
@@ -2091,7 +1889,6 @@ for (var i = 0; i < nb.length; i++) (function(b) {
     if (t === 'feed') { renderWallFeed(); }
   });
 })(nb[i]);
-
 $('chatBackBtn').addEventListener('click', function() { App.activeChat = null; showScreen('screen-main'); });
 window.__lb = function(u) { $('lightboxImg').src = u; $('lightboxDownload').href = u; $('lightbox').classList.add('show'); };
 $('lightboxClose').addEventListener('click', function() { $('lightbox').classList.remove('show'); });
@@ -2101,83 +1898,102 @@ $('clearBtn').addEventListener('click', function() { if (confirm('Clear local da
 function listenActiveLiveStreams() { if (App._activeStreamsListener) { try { App._activeStreamsListener(); } catch (e) {} App._activeStreamsListener = null; } try { App._activeStreamsListener = onValue(dbRef(db, LIVE_ACTIVE_PATH), function(snap) { App.activeLiveStreams = snap.val() || {}; renderActiveLiveStreams(); if (debouncedBuildUI) debouncedBuildUI(); }, function(err) {}); } catch (e) {} }
 function renderActiveLiveStreams() {
   var list = $('liveStreamsList'), header = $('liveNowHeader'); if (!list) return;
-  var now = Date.now(); var myContacts = App.contacts.map(function(c) { return c.slug; });
+  var now = Date.now(), myContacts = App.contacts.map(function(c) { return c.slug; });
   var slugs = Object.keys(App.activeLiveStreams).filter(function(slug) { var s = App.activeLiveStreams[slug]; if (!s || !s.streamId || !s.startedAt) return false; if ((now - s.startedAt) >= 4 * 60 * 60 * 1000) return false; return isOwner() || slug === App.mySlug || myContacts.indexOf(slug) !== -1; });
   if (!slugs.length) { if (header) header.style.display = 'none'; list.innerHTML = ''; return; }
   if (header) header.style.display = 'block';
   var html = '';
-  for (var i = 0; i < slugs.length; i++) { var slug = slugs[i], s = App.activeLiveStreams[slug]; var isMine = slug === App.mySlug; html += '<div class="status-card live-now-card"><div class="status-card-header"><div class="avatar" style="width:50px;height:50px;font-size:20px;border:2px solid #ff4757;">' + avatarInner(s.photo, s.name) + '</div><div style="flex:1"><div style="font-weight:700;font-size:17px;">' + esc(s.name || slug) + ' <span style="color:#ff4757;font-weight:800;">● LIVE</span></div><small style="color:var(--muted);font-size:14px;">Started ' + formatDateTime(s.startedAt) + '</small></div>' + (isMine ? '<button style="background:#ff4757;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;" onclick="window.__returnToLiveHost()">Back</button>' : '<button style="background:#ff4757;color:#fff;border:none;padding:12px 20px;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;" onclick="window.__watchLiveStream(\'' + slug + '\',\'' + s.streamId + '\')">▶ Watch</button>') + '</div></div>'; }
+  for (var i = 0; i < slugs.length; i++) { var slug = slugs[i], s = App.activeLiveStreams[slug], isMine = slug === App.mySlug; html += '<div class="status-card live-now-card"><div class="status-card-header"><div class="avatar" style="width:50px;height:50px;font-size:20px;border:2px solid #ff4757;">' + avatarInner(s.photo, s.name) + '</div><div style="flex:1"><div style="font-weight:700;font-size:17px;">' + esc(s.name || slug) + ' <span style="color:#ff4757;font-weight:800;">● LIVE</span></div><small style="color:var(--muted);font-size:14px;">Started ' + formatDateTime(s.startedAt) + '</small></div>' + (isMine ? '<button style="background:#ff4757;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;" onclick="window.__returnToLiveHost()">Back</button>' : '<button style="background:#ff4757;color:#fff;border:none;padding:12px 20px;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;" onclick="window.__watchLiveStream(\'' + slug + '\',\'' + s.streamId + '\')">▶ Watch</button>') + '</div></div>'; }
   list.innerHTML = html;
 }
 window.__returnToLiveHost = function() { if (App.liveMode === 'host') showScreen('screen-live'); else toast('Not streaming', true); };
-
-async function getLiveStreamRobust() { if (!navigator.mediaDevices) throw new Error('Camera not supported'); var attempts = [ { audio: true, video: { facingMode: 'user' } }, { audio: true, video: true }, { audio: true, video: false } ]; var lastErr = null; for (var i = 0; i < attempts.length; i++) { try { return await navigator.mediaDevices.getUserMedia(attempts[i]); } catch (err) { lastErr = err; if (err.name === 'NotAllowedError') throw err; } } throw lastErr || new Error('Camera failed'); }
-
+async function getLiveStreamRobust() { if (!navigator.mediaDevices) throw new Error('Camera not supported'); var attempts = [{ audio: true, video: { facingMode: 'user' } }, { audio: true, video: true }, { audio: true, video: false }]; var lastErr = null; for (var i = 0; i < attempts.length; i++) { try { return await navigator.mediaDevices.getUserMedia(attempts[i]); } catch (err) { lastErr = err; if (err.name === 'NotAllowedError') throw err; } } throw lastErr || new Error('Camera failed'); }
 window.__startGoLive = async function() {
   if (App.liveMode) return toast('Already active', true);
-  try { toast('Requesting camera…'); var stream = await getLiveStreamRobust(); App.liveLocalStream = stream; var streamId = 'live_' + App.mySlug + '_' + Date.now(); App.liveStreamId = streamId; App.liveMode = 'host'; App.liveHostSlug = App.mySlug; await set(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId), { hostSlug: App.mySlug, hostName: App.myName, hostPhoto: App.myPhoto || null, startedAt: Date.now(), status: 'live' }); await set(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug), { streamId: streamId, name: App.myName, photo: App.myPhoto || null, startedAt: Date.now() }); showScreen('screen-live'); $('liveTitle').textContent = 'Your Live Stream'; $('liveRemoteVideo').classList.add('visible'); $('liveRemoteVideo').srcObject = stream; $('liveRemoteVideo').muted = true; $('liveRemoteVideo').play().catch(function() {}); $('liveLoadingOverlay').classList.add('hidden'); toast('You are LIVE 🔴'); setupLiveChatListener(streamId); } catch (err) { handleMediaError(err); cleanupLive(); }
+  try {
+    toast('Requesting camera…'); var stream = await getLiveStreamRobust(); App.liveLocalStream = stream;
+    var streamId = 'live_' + App.mySlug + '_' + Date.now(); App.liveStreamId = streamId; App.liveMode = 'host'; App.liveHostSlug = App.mySlug;
+    await set(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId), { hostSlug: App.mySlug, hostName: App.myName, hostPhoto: App.myPhoto || null, startedAt: Date.now(), status: 'live' });
+    await set(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug), { streamId: streamId, name: App.myName, photo: App.myPhoto || null, startedAt: Date.now() });
+    showScreen('screen-live');
+    $('liveTitle').textContent = 'Your Live Stream'; $('liveStatus').textContent = '● Live';
+    $('liveRemoteVideo').classList.add('visible'); $('liveRemoteVideo').srcObject = stream; $('liveRemoteVideo').muted = true; $('liveRemoteVideo').play().catch(function() {});
+    $('liveLoadingOverlay').classList.add('hidden');
+    $('liveMuteBtn').style.display = 'flex'; $('liveCameraBtn').style.display = 'flex'; $('liveShareBtn').style.display = 'flex';
+    $('liveJoinBtn').style.display = 'none'; $('livePauseBtn').style.display = 'none'; $('liveBgBtn').style.display = 'none'; $('liveScreenBtn').style.display = 'none'; $('liveRecordBtn').style.display = 'none';
+    toast('You are LIVE 🔴'); setupLiveChatListener(streamId);
+  } catch (err) { handleMediaError(err); cleanupLive(); }
 };
-window.__endGoLive = async function() { if (App.liveMode !== 'host') return; if (App.liveStreamId) { try { await set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/status'), 'ended'); } catch (e) {} try { await remove(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug)); } catch (e) {} } cleanupLive(); toast('Stream ended'); };
+window.__endGoLive = async function() { if (App.liveMode !== 'host') return; if (App.liveStreamId) { try { await set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/status'), 'ended'); } catch (e) {} try { await remove(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug)); } catch (e) {} } cleanupLive(); toast('Ended'); };
 window.__watchLiveStream = async function(hostSlug, streamId) { if (App.liveMode) return toast('Already watching', true); App.liveMode = 'viewer'; App.liveStreamId = streamId; App.liveHostSlug = hostSlug; showScreen('screen-live'); $('liveTitle').textContent = 'Watching ' + hostSlug; $('liveRemoteVideo').classList.add('visible'); $('liveLoadingOverlay').classList.remove('hidden'); try { await set(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/viewers/' + App.mySlug), { joinedAt: Date.now(), name: App.myName }); setupLiveChatListener(streamId); } catch (err) { toast('Could not join', true); cleanupLive(); } };
 window.__leaveLiveStream = async function() { if (App.liveMode !== 'viewer') return; if (App.liveStreamId && App.mySlug) { try { await remove(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/viewers/' + App.mySlug)); } catch (e) {} } cleanupLive(); };
 function setupLiveChatListener(streamId) { var unsub = onValue(query(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/chat'), limitToLast(80)), function(snap) { var data = snap.val() || {}; var msgs = Object.keys(data).map(function(k) { var v = data[k]; v._k = k; return v; }).sort(function(a, b) { return (a.time || 0) - (b.time || 0); }); var el = $('liveChatMessages'); if (!el) return; if (!msgs.length) { el.innerHTML = '<div style="color:rgba(255,255,255,0.4);font-size:14px;text-align:center;padding:12px;">No messages yet 👋</div>'; return; } var html = ''; for (var i = 0; i < msgs.length; i++) { var m = msgs[i], isMine = m.from === App.mySlug; var t = m.time ? formatDateTime(m.time, 'short') : ''; html += '<div class="live-chat-msg' + (isMine ? ' out' : '') + '"><div class="live-chat-msg-header"><strong>' + esc(m.name || m.from) + '</strong><small>' + t + '</small></div>'; if (m.text) html += '<div class="live-chat-msg-text">' + esc(m.text) + '</div>'; html += '</div>'; } el.innerHTML = html; el.scrollTop = el.scrollHeight; }); App.liveUnsubs.push(unsub); }
 window.__sendLiveChat = async function() { var inp = $('liveChatInput'), t = inp.value.trim(); if (!t || !App.liveStreamId) return; inp.value = ''; try { await push(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/chat'), { from: App.mySlug, name: App.myName, text: t, time: Date.now() }); } catch (e) { toast('Send failed', true); } };
 $('liveChatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') window.__sendLiveChat(); });
-
-function cleanupLive() {
-  if (App.liveLocalStream) { App.liveLocalStream.getTracks().forEach(function(t) { t.stop(); }); App.liveLocalStream = null; }
-  App.liveUnsubs.forEach(function(u) { try { if (typeof u === 'function') u(); } catch (e) {} }); App.liveUnsubs = [];
-  App.liveMode = null; App.liveStreamId = null; App.liveHostSlug = null;
-  var lv = $('liveLocalVideo'); if (lv) { lv.srcObject = null; lv.classList.remove('visible'); }
-  var rv = $('liveRemoteVideo'); if (rv) { rv.srcObject = null; rv.classList.remove('visible'); }
-  showScreen('screen-main');
-}
+function cleanupLive() { if (App.liveLocalStream) { App.liveLocalStream.getTracks().forEach(function(t) { t.stop(); }); App.liveLocalStream = null; } App.liveUnsubs.forEach(function(u) { try { if (typeof u === 'function') u(); } catch (e) {} }); App.liveUnsubs = []; App.liveMode = null; App.liveStreamId = null; App.liveHostSlug = null; var lv = $('liveLocalVideo'); if (lv) { lv.srcObject = null; lv.classList.remove('visible'); } var rv = $('liveRemoteVideo'); if (rv) { rv.srcObject = null; rv.classList.remove('visible'); } showScreen('screen-main'); }
 window.__toggleLiveMute = function() { var target = App.liveLocalStream; if (!target) return; var tracks = target.getAudioTracks(); if (!tracks.length) return; var wasEnabled = tracks[0].enabled; tracks.forEach(function(t) { t.enabled = !wasEnabled; }); $('liveMuteBtn').classList.toggle('active', wasEnabled); toast(wasEnabled ? 'Muted' : 'Unmuted'); };
-
 $('startGoLiveBtn').addEventListener('click', function() { window.__startGoLive(); });
 $('liveBackBtn').addEventListener('click', function() { if (App.liveMode === 'host') { if (confirm('End stream?')) window.__endGoLive(); } else if (App.liveMode === 'viewer') { window.__leaveLiveStream(); } else showScreen('screen-main'); });
 $('liveEndBtn').addEventListener('click', function() { if (App.liveMode === 'host') window.__endGoLive(); else if (App.liveMode === 'viewer') window.__leaveLiveStream(); });
 $('liveMuteBtn').addEventListener('click', function() { window.__toggleLiveMute(); });
-$('liveShareBtn').addEventListener('click', function() { var slug = App.liveHostSlug || App.mySlug; if (!slug) return; var url = APP_BASE_URL + '?live=' + encodeURIComponent(slug); if (navigator.share) { navigator.share({ title: 'JARVIS Live', text: "I'm LIVE on JARVIS", url: url }).catch(function() {}); } else { prompt('Share this link:', url); } });
+$('liveShareBtn').addEventListener('click', function() { var slug = App.liveHostSlug || App.mySlug; if (!slug) return; var url = APP_BASE_URL + '?live=' + encodeURIComponent(slug); if (navigator.share) { navigator.share({ title: 'JARVIS Live', text: "I'm LIVE on JARVIS", url: url }).catch(function() {}); } else { prompt('Share:', url); } });
 
-/* Call + Social stub */
+/* Call stub */
 window.startCall = function(slug, v) { if (!slug || slug === App.mySlug) return toast('Invalid contact', true); if (App.blockedUsers.indexOf(slug) !== -1) return toast('Unblock first', true); toast('📞 Calling @' + slug + '…'); };
 window.__googleOpen = function(url) { window.open(url, '_blank', 'noopener'); };
 window.__chromeOpen = function(url) { window.open(url, '_blank', 'noopener'); };
 window.__edgeOpen = function(url) { window.open(url, '_blank', 'noopener'); };
-
+window.__zoomOpen = function(url) { window.open(url, '_blank', 'noopener'); };
 $('iabClose').addEventListener('click', function() { $('inAppBrowser').classList.remove('show'); });
 $('iabBackBtn2').addEventListener('click', function() { $('inAppBrowser').classList.remove('show'); });
-
 function bindSocialClick(id, url) { var el = $(id); if (el) el.addEventListener('click', function() { window.open(url, '_blank', 'noopener'); }); }
-bindSocialClick('ttSearchBtn', 'https://www.tiktok.com/search');
-bindSocialClick('ttHomeBtn', 'https://www.tiktok.com/');
-bindSocialClick('fbSearchBtn', 'https://www.facebook.com/search/top/');
-bindSocialClick('fbHomeBtn', 'https://www.facebook.com/');
-bindSocialClick('igSearchBtn', 'https://www.instagram.com/');
-bindSocialClick('igHomeBtn', 'https://www.instagram.com/');
-bindSocialClick('liSearchBtn', 'https://www.linkedin.com/feed/');
-bindSocialClick('liHomeBtn', 'https://www.linkedin.com/feed/');
-bindSocialClick('gmailOpenBtn', 'https://accounts.google.com/ServiceLogin?service=mail');
-bindSocialClick('gmailInboxBtn', 'https://mail.google.com/mail/u/0/#inbox');
-bindSocialClick('waOpenBtn', 'https://web.whatsapp.com/');
-bindSocialClick('waHomeBtn', 'https://web.whatsapp.com/');
-bindSocialClick('zoomHomeBtn', 'https://zoom.us/');
-bindSocialClick('zoomLaunchBtn', 'https://zoom.us/wc/join');
-bindSocialClick('meetHomeBtn', 'https://meet.google.com/');
-bindSocialClick('geminiHomeBtn', 'https://gemini.google.com/');
-bindSocialClick('deepseekHomeBtn', 'https://chat.deepseek.com/');
-
+bindSocialClick('ttSearchBtn', 'https://www.tiktok.com/search'); bindSocialClick('ttHomeBtn', 'https://www.tiktok.com/');
+bindSocialClick('fbSearchBtn', 'https://www.facebook.com/search/top/'); bindSocialClick('fbHomeBtn', 'https://www.facebook.com/');
+bindSocialClick('igSearchBtn', 'https://www.instagram.com/'); bindSocialClick('igHomeBtn', 'https://www.instagram.com/');
+bindSocialClick('liSearchBtn', 'https://www.linkedin.com/feed/'); bindSocialClick('liHomeBtn', 'https://www.linkedin.com/feed/');
+bindSocialClick('gmailOpenBtn', 'https://accounts.google.com/ServiceLogin?service=mail'); bindSocialClick('gmailInboxBtn', 'https://mail.google.com/mail/u/0/#inbox');
+bindSocialClick('waOpenBtn', 'https://web.whatsapp.com/'); bindSocialClick('waHomeBtn', 'https://web.whatsapp.com/');
+bindSocialClick('zoomHomeBtn', 'https://zoom.us/'); bindSocialClick('zoomLaunchBtn', 'https://zoom.us/wc/join');
+bindSocialClick('meetHomeBtn', 'https://meet.google.com/'); bindSocialClick('geminiHomeBtn', 'https://gemini.google.com/'); bindSocialClick('deepseekHomeBtn', 'https://chat.deepseek.com/');
 document.querySelectorAll('.platform-tab').forEach(function(t) { t.addEventListener('click', function() { var p = t.dataset.platform; document.querySelectorAll('.platform-tab').forEach(function(x) { x.classList.toggle('active', x === t); }); document.querySelectorAll('.platform-panel').forEach(function(x) { x.style.display = (x.dataset.platform === p) ? 'block' : 'none'; }); }); });
-
 $('ytSearchBtn').addEventListener('click', function() { var q = $('ytSearchInput').value.trim(); if (!q) return; var vid = getYouTubeId(q); if (vid) { window.__openYTFeedPlayer(vid, 'YouTube Video'); return; } window.open('https://www.youtube.com/results?search_query=' + encodeURIComponent(q), '_blank', 'noopener'); });
-
-$('zoomOpenBtn').addEventListener('click', function() { var url = $('zoomInput').value.trim(); if (!url) return toast('Paste a Zoom link', true); window.open(url.startsWith('http') ? url : 'https://' + url, '_blank', 'noopener'); });
+$('zoomOpenBtn').addEventListener('click', function() { var url = $('zoomInput').value.trim(); if (!url) return toast('Paste link', true); window.open(url.startsWith('http') ? url : 'https://' + url, '_blank', 'noopener'); });
 $('googleOpenBtn').addEventListener('click', function() { var q = $('googleInput').value.trim(); if (!q) return; if (/^https?:\/\//i.test(q)) window.open(q, '_blank', 'noopener'); else window.open('https://www.google.com/search?q=' + encodeURIComponent(q), '_blank', 'noopener'); });
 $('chromeOpenBtn').addEventListener('click', function() { var q = $('chromeInput').value.trim(); if (!q) return; if (/^https?:\/\//i.test(q)) window.open(q, '_blank', 'noopener'); else if (/^[\w-]+\.[\w.-]+/.test(q)) window.open('https://' + q, '_blank', 'noopener'); else window.open('https://www.google.com/search?q=' + encodeURIComponent(q), '_blank', 'noopener'); });
 $('edgeOpenBtn').addEventListener('click', function() { var q = $('edgeInput').value.trim(); if (!q) return; if (/^https?:\/\//i.test(q)) window.open(q, '_blank', 'noopener'); else if (/^[\w-]+\.[\w.-]+/.test(q)) window.open('https://' + q, '_blank', 'noopener'); else window.open('https://www.bing.com/search?q=' + encodeURIComponent(q), '_blank', 'noopener'); });
 
-console.log('%c✅ JARVIS v27 loaded (with Share)', 'background:#d4af37;color:#0b2a4a;padding:6px 12px;border-radius:6px;font-weight:bold;font-size:14px;');
+/* COMING SOON buttons (Patch 2 integrated) */
+(function wireComingSoonButtons() {
+  var ids = ['preCallStart','addParticipantBtn','participantConfirm','recordBtn','bgGalleryClose','liveBgBtn','liveScreenBtn','liveRecordBtn','livePauseBtn','liveCameraBtn','liveJoinBtn','muteBtn','screenShareBtn','filterBtn','inCallChatBtn','recordCallBtn'];
+  ids.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && !el._comingWired) {
+      el.addEventListener('click', function() {
+        if (id === 'preCallStart') { try { document.getElementById('preCallModal').classList.remove('show'); } catch(e){} toast('🚧 Voice / Video calls coming soon'); return; }
+        if (id === 'participantConfirm') { try { document.getElementById('addParticipantModal').classList.remove('show'); } catch(e){} toast('🚧 Group calls coming soon'); return; }
+        if (id === 'bgGalleryClose') { try { document.getElementById('bgGalleryModal').classList.remove('show'); } catch(e){} return; }
+        toast('🚧 Advanced call features coming soon');
+      });
+      el._comingWired = true;
+    }
+  });
+  ['preCallCancel','participantCancel'].forEach(function(id) { var el = document.getElementById(id); if (el && !el._cancelWired) { el.addEventListener('click', function() { try { document.getElementById('preCallModal').classList.remove('show'); } catch(e){} try { document.getElementById('addParticipantModal').classList.remove('show'); } catch(e){} }); el._cancelWired = true; } });
+  ['endCallBtn','rejectCallBtn'].forEach(function(id) { var el = document.getElementById(id); if (el && !el._endWired) { el.addEventListener('click', function() { try { document.getElementById('incoming-call').classList.remove('show'); } catch(e){} try { showScreen('screen-main'); } catch(e){} }); el._endWired = true; } });
+})();
+window.__sendInCallMsg = function() { toast('🚧 In-call chat coming soon'); };
+window.__sendInCallEmoji = function() { toast('🚧 In-call emoji coming soon'); };
+window.__sendInCallMedia = function() { toast('🚧 In-call media coming soon'); };
+window.__sendLiveChatImage = function() { toast('🚧 Live chat images coming soon'); };
+window.__uploadLiveBg = function() { toast('🚧 Custom backgrounds coming soon'); };
+window.__toggleLivePause = function() { toast('🚧 Pause coming soon'); };
+window.__toggleLiveRecord = function() { toast('🚧 Recording coming soon'); };
+window.__toggleLiveScreenShare = function() { toast('🚧 Screen share coming soon'); };
+window.__openLiveBg = function() { toast('🚧 Backgrounds coming soon'); };
+window.__applyLiveBg = function() { toast('🚧 Backgrounds coming soon'); };
+window.__saveLiveRecordingToDevice = function() { toast('🚧 Recording save coming soon'); };
+window.__discardLiveRecording = function() { toast('🚧 Recording coming soon'); };
+
+console.log('%c✅ JARVIS v27 FINAL loaded — All features active', 'background:#d4af37;color:#0b2a4a;padding:8px 14px;border-radius:6px;font-weight:bold;font-size:14px;');
 </script>
 </body>
 </html>
