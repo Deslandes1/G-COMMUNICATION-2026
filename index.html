@@ -410,14 +410,12 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .owner-interaction-actions button{flex:1;padding:9px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;border:none}
 .owner-jump-btn{background:#eef2f6;color:#0b2a4a}
 .owner-delete-btn{background:#fff0f0;color:#ff4757;flex:0 0 auto !important;padding:9px 14px !important}
-/* ===== IN-APP YOUTUBE PLAYER STYLES ===== */
 .yt-inline-card{position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:12px;overflow:hidden;margin-bottom:10px;cursor:pointer;}
 .yt-inline-card img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;background:#000;}
 .yt-inline-card .yt-inline-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.18);}
 .yt-inline-card .yt-inline-play{width:68px;height:68px;border-radius:50%;background:rgba(255,0,0,0.92);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,0.6);}
 .yt-inline-card .yt-inline-triangle{width:0;height:0;border-left:24px solid #fff;border-top:14px solid transparent;border-bottom:14px solid transparent;margin-left:6px;}
 .yt-inline-card .yt-inline-label{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.82);color:#fff;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:800;}
-/* ═══════ SHARE POST MODAL ═══════ */
 .share-modal-section{background:#f7f9fb;border-radius:12px;padding:14px;margin-bottom:12px}
 .share-modal-title{font-size:13px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
 .share-friends-list{max-height:220px;overflow-y:auto;border-radius:8px;background:#fff;border:1px solid var(--border)}
@@ -546,7 +544,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="logo">G</div>
     <h2 id="headerTitle">Feed</h2>
     <div class="lite-mode-badge" id="liteModeBadge">⚡ Lite</div>
-    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v28</div>
+    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v29</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabFeed" class="tab-content" style="display:block;">
@@ -764,6 +762,9 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div id="statusFeedList" class="status-feed"></div>
   </div>
   <div id="tabCalls" class="tab-content" style="display:none;">
+    <div style="padding:14px 16px 0;">
+      <button id="openVoicemailBtn" style="width:100%;padding:16px;border:none;border-radius:12px;background:linear-gradient(135deg,#ff4757,#cc2334);color:#fff;font-weight:800;font-size:17px;cursor:pointer;font-family:Calibri,sans-serif;">🎙️ Open Voicemail</button>
+    </div>
     <div class="section-title">Peer-to-Peer & Conference Calling</div>
     <div id="callContactsList"></div>
   </div>
@@ -1093,8 +1094,7 @@ function compressImage(file, maxWidth, quality) {
         if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
         canvas.width = w; canvas.height = h;
         var ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
         ctx.drawImage(img, 0, 0, w, h);
         resolve(canvas.toDataURL('image/jpeg', quality));
       };
@@ -1137,7 +1137,7 @@ window.__openYTFeedPlayer = function (videoId, title) {
     var origin = ytSafeOrigin(); if (origin) params += '&origin=' + encodeURIComponent(origin);
     frame.src = 'https://www.youtube.com/embed/' + encodeURIComponent(videoId) + '?' + params;
     modal.style.display = 'flex'; document.body.style.overflow = 'hidden';
-  } catch (e) { console.error(e); }
+  } catch (e) {}
 };
 window.__closeYTFeedPlayer = function () { try { var m = document.getElementById('ytFeedPlayerModal'), f = document.getElementById('ytFeedPlayerFrame'); if (f) f.src = ''; if (m) m.style.display = 'none'; document.body.style.overflow = ''; } catch (e) {} };
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { try { window.__closeYTFeedPlayer(); } catch (e2) {} } });
@@ -1183,7 +1183,7 @@ window.__shareExternal = function(platform) {
 };
 window.__copyShareLink = function() { var inp = $('shareLinkInput'); if (!inp) return; var val = inp.value; if (!val) return toast('No link', true); if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(val).then(function() { toast('✓ Link copied'); }).catch(function() { inp.select(); document.execCommand('copy'); toast('✓ Link copied'); }); } else { inp.select(); document.execCommand('copy'); toast('✓ Link copied'); } };
 window.__nativeSharePost = async function() { if (!App.sharingPostKey || !App.sharingPostObj) return; var p = App.sharingPostObj, url = buildShareUrl(App.sharingPostKey, p), text = buildShareText(p); if (navigator.share) { try { await navigator.share({ title: 'JARVIS Post', text: text, url: url }); toast('✓ Shared'); } catch (e) { if (e.name !== 'AbortError') toast('Share cancelled', true); } } else { window.__copyShareLink(); } };
-window.__viewSharedPost = function(postKey, fromSlug) { if (!postKey) return; try { var feedTab = document.querySelector('.nav-item[data-tab="feed"]'); if (feedTab) feedTab.click(); setTimeout(function() { var el = document.getElementById('wall_' + postKey); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.style.transition = 'background 0.5s'; el.style.background = '#fffbea'; setTimeout(function() { el.style.background = ''; }, 2000); } else toast('Post not available', true); }, 300); } catch (e) { console.error(e); } };
+window.__viewSharedPost = function(postKey, fromSlug) { if (!postKey) return; try { var feedTab = document.querySelector('.nav-item[data-tab="feed"]'); if (feedTab) feedTab.click(); setTimeout(function() { var el = document.getElementById('wall_' + postKey); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.style.transition = 'background 0.5s'; el.style.background = '#fffbea'; setTimeout(function() { el.style.background = ''; }, 2000); } else toast('Post not available', true); }, 300); } catch (e) {} };
 function renderSharedPostCard(sp) {
   if (!sp) return '';
   var author = sp.authorName || sp.authorSlug || 'Someone', preview = (sp.text || '').slice(0, 180), media = '';
@@ -1391,8 +1391,8 @@ function listenWallPosts() {
       App.wallPosts = arr;
       LS.set('cached_wallPosts', arr.slice(0, 30));
       updateWallHeader();
-      try { renderMyWall(); } catch (e) { console.error(e); }
-      try { renderWallFeed(); } catch (e) { console.error(e); }
+      try { renderMyWall(); } catch (e) {}
+      try { renderWallFeed(); } catch (e) {}
     }, function(err) { var cached = LS.get('cached_wallPosts', []); if (cached.length) { App.wallPosts = cached; try { renderWallFeed(); renderMyWall(); } catch (e) {} } });
   } catch (e) {}
 }
@@ -1408,7 +1408,7 @@ function renderWallCard(p, isOwnWallView) {
   if (mine || isOwner()) h += '<button onclick="window.__deleteWallPost(\'' + p._k + '\')" style="background:none;border:none;color:#ff4757;font-size:20px;cursor:pointer;margin-left:4px;">🗑</button>';
   h += '</div>';
   if (p.text) h += '<div class="wall-post-text">' + esc(p.text) + '</div>';
-  if (p.mediaUrl) { if (p.mediaType === 'video') h += '<video class="wall-post-media" src="' + esc(p.mediaUrl) + '" controls playsinline preload="metadata"></video>'; else h += '<img class="wall-post-media" src="' + esc(p.mediaUrl) + '" onclick="window.__lb(\'' + esc(p.mediaUrl) + '\')">'; }
+  if (p.mediaUrl) { if (p.mediaType === 'video') h += '<video class="wall-post-media" src="' + esc(p.mediaUrl) + '" controls playsinline preload="metadata"></video>'; else if (p.mediaType === 'audio') h += '<audio class="wall-post-media" src="' + esc(p.mediaUrl) + '" controls preload="metadata" style="max-height:60px;"></audio>'; else h += '<img class="wall-post-media" src="' + esc(p.mediaUrl) + '" onclick="window.__lb(\'' + esc(p.mediaUrl) + '\')">'; }
   if (p.link) { var yt = getYouTubeId(p.link); if (yt) h += ytInlineCard(yt, p.text || 'YouTube Video'); else h += '<a href="' + esc(p.link) + '" target="_blank" rel="noopener" class="wall-post-link">🔗 ' + esc(p.link) + '</a>'; }
   if (totalReactions > 0) { h += '<div class="wall-reactions-bar">'; emojisUsed.forEach(function(e) { var users = Object.keys(reactions[e] || {}); if (!users.length) return; var mine2 = users.indexOf(App.mySlug) !== -1; h += '<div class="wall-reaction-chip' + (mine2 ? ' mine' : '') + '" onclick="window.__reactToWallPost(\'' + p._k + '\',\'' + e + '\')">' + e + ' ' + users.length + '</div>'; }); h += '</div>'; }
   h += '<div class="wall-emoji-quick">';
@@ -1428,8 +1428,6 @@ window.__openMyProfileFromWall = function() { var t = document.querySelector('.n
 document.querySelectorAll('#wallPrivacySelector .privacy-option').forEach(function(o) { o.addEventListener('click', function() { document.querySelectorAll('#wallPrivacySelector .privacy-option').forEach(function(x) { x.classList.remove('active'); }); o.classList.add('active'); App.wallComposePrivacy = o.dataset.privacy; $('wallSelectedFriendsWrap').style.display = o.dataset.privacy === 'selected' ? 'block' : 'none'; }); });
 $('wallMediaSelectBtn').addEventListener('click', function() { $('wallMediaInput').click(); });
 $('wallMediaInput').addEventListener('change', function(e) { var f = e.target.files && e.target.files[0]; if (f) { App.wallPostMediaFile = f; $('wallMediaName').textContent = 'Selected: ' + f.name + ' (' + (f.size / (1024*1024)).toFixed(1) + ' MB)'; } });
-
-/* UPDATED WALL COMPOSE with compressImage + larger limits */
 $('wallComposeCancel').addEventListener('click', function() { $('wallComposeModal').classList.remove('show'); });
 $('wallComposePost').addEventListener('click', async function() {
   var text = $('wallPostText').value.trim(), link = $('wallPostLink').value.trim(), privacy = App.wallComposePrivacy, mediaFile = App.wallPostMediaFile;
@@ -1448,7 +1446,7 @@ $('wallComposePost').addEventListener('click', async function() {
         if (mediaUrl.length > 3.5 * 1024 * 1024) { mediaUrl = await compressImage(mediaFile, 900, 0.6); }
         mediaType = 'image';
       } else if (ftype === 'video') {
-        if (sizeMB > 4) { toast('Video too large (max 4 MB). Post a YouTube link instead — it plays in-app!', true); btn.disabled = false; btn.textContent = 'Post to Wall'; return; }
+        if (sizeMB > 4) { toast('Video too large (max 4 MB). Post a YouTube link instead!', true); btn.disabled = false; btn.textContent = 'Post to Wall'; return; }
         toast('Uploading video (' + sizeMB.toFixed(1) + ' MB)…');
         mediaUrl = await fileToBase64(mediaFile);
         mediaType = 'video';
@@ -1567,7 +1565,7 @@ function renderStatusFeedList(posts) {
   var sf = $('statusFeedList'); if (!sf) return;
   if (!posts || !posts.length) { sf.innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No status updates yet.</p></div>'; window._cachedPosts = []; return; }
   var html = '';
-  for (var i = 0; i < posts.length; i++) { var p = posts[i], mine = p.authorSlug === App.mySlug, media = ''; if (p.mediaUrl) { if (p.mediaType === 'image') media = '<img src="' + p.mediaUrl + '" class="status-media" loading="lazy" onclick="window.__viewAvatar(\'' + p.mediaUrl + '\',\'' + esc(p.authorName) + '\')">'; else media = '<video src="' + p.mediaUrl + '" controls playsinline class="status-media" preload="none"></video>'; } var link = ''; if (p.link) { var _ytId = getYouTubeId(p.link); if (_ytId) link = ytInlineCard(_ytId, p.text || 'YouTube Video'); else link = '<a href="' + esc(p.link) + '" target="_blank" rel="noopener" class="status-link">🔗 ' + esc(p.link) + '</a>'; } var txt = p.text ? '<div class="status-content-box" style="background:' + (p.bgColor || '#0d7a8c') + '">' + esc(p.text) + '</div>' : ''; var cm = p.comments || {}, cc = Object.keys(cm).length; var lk = p.likes || {}, lc = Object.keys(lk).length, ml = !!lk[App.mySlug]; html += '<div class="status-card"><div class="status-card-header"><div class="avatar" style="width:50px;height:50px;font-size:20px" onclick="window.__viewAvatar(\'' + (p.authorPhoto || '') + '\',\'' + esc(p.authorName) + '\')">' + avatarInner(p.authorPhoto, p.authorName) + '</div><div style="flex:1"><div style="font-weight:700;font-size:17px;">' + esc(p.authorName) + ' <small style="color:var(--accent);font-size:14px;">(@' + esc(p.authorSlug) + ')</small></div><small style="color:var(--muted);font-size:14px;">' + formatDateTime(p.time) + '</small></div>' + (mine || isOwner() ? '<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:22px" onclick="window.__delStatus(\'' + p._k + '\')">🗑</button>' : '') + '</div>' + txt + media + link + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;border-top:1px solid #f0f0f0;padding-top:8px;"><button style="background:' + (ml ? '#d4af37' : '#eef2f6') + ';color:' + (ml ? '#0b2a4a' : 'var(--text)') + ';border:none;padding:10px 14px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__toggleStatusLike(\'' + p._k + '\')">👍 (' + lc + ')</button><button style="background:#eef2f6;border:none;padding:10px 14px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__openStatusComments(\'' + p._k + '\')">💬 (' + cc + ')</button></div></div>'; }
+  for (var i = 0; i < posts.length; i++) { var p = posts[i], mine = p.authorSlug === App.mySlug, media = ''; if (p.mediaUrl) { if (p.mediaType === 'image') media = '<img src="' + p.mediaUrl + '" class="status-media" loading="lazy" onclick="window.__viewAvatar(\'' + p.mediaUrl + '\',\'' + esc(p.authorName) + '\')">'; else if (p.mediaType === 'audio') media = '<audio src="' + p.mediaUrl + '" controls preload="none" style="width:100%;max-width:280px;margin:8px 0;"></audio>'; else media = '<video src="' + p.mediaUrl + '" controls playsinline class="status-media" preload="none"></video>'; } var link = ''; if (p.link) { var _ytId = getYouTubeId(p.link); if (_ytId) link = ytInlineCard(_ytId, p.text || 'YouTube Video'); else link = '<a href="' + esc(p.link) + '" target="_blank" rel="noopener" class="status-link">🔗 ' + esc(p.link) + '</a>'; } var txt = p.text ? '<div class="status-content-box" style="background:' + (p.bgColor || '#0d7a8c') + '">' + esc(p.text) + '</div>' : ''; var cm = p.comments || {}, cc = Object.keys(cm).length; var lk = p.likes || {}, lc = Object.keys(lk).length, ml = !!lk[App.mySlug]; html += '<div class="status-card"><div class="status-card-header"><div class="avatar" style="width:50px;height:50px;font-size:20px" onclick="window.__viewAvatar(\'' + (p.authorPhoto || '') + '\',\'' + esc(p.authorName) + '\')">' + avatarInner(p.authorPhoto, p.authorName) + '</div><div style="flex:1"><div style="font-weight:700;font-size:17px;">' + esc(p.authorName) + ' <small style="color:var(--accent);font-size:14px;">(@' + esc(p.authorSlug) + ')</small></div><small style="color:var(--muted);font-size:14px;">' + formatDateTime(p.time) + '</small></div>' + (mine || isOwner() ? '<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:22px" onclick="window.__delStatus(\'' + p._k + '\')">🗑</button>' : '') + '</div>' + txt + media + link + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;border-top:1px solid #f0f0f0;padding-top:8px;"><button style="background:' + (ml ? '#d4af37' : '#eef2f6') + ';color:' + (ml ? '#0b2a4a' : 'var(--text)') + ';border:none;padding:10px 14px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__toggleStatusLike(\'' + p._k + '\')">👍 (' + lc + ')</button><button style="background:#eef2f6;border:none;padding:10px 14px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__openStatusComments(\'' + p._k + '\')">💬 (' + cc + ')</button></div></div>'; }
   sf.innerHTML = html; window._cachedPosts = posts;
 }
 window.__toggleStatusLike = async function(k) { var posts = window._cachedPosts || [], p = null; for (var i = 0; i < posts.length; i++) if (posts[i]._k === k) { p = posts[i]; break; } if (!p) return; var lr = dbRef(db, STATUS_FEED_PATH + '/' + k + '/likes/' + App.mySlug); var sn = await get(lr); if (sn.exists()) { await remove(lr); toast('Unliked'); return; } await set(lr, { time: Date.now() }); toast('Liked 👍'); if (p.authorSlug === App.mySlug) return; try { var dmAttachment = null; if (p.mediaUrl) dmAttachment = { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Original status media' }; var dmText = '👍 ' + App.myName + ' (@' + App.mySlug + ') liked your status.' + (p.text ? '\n\n📝 Original: "' + p.text + '"' : '') + (p.link ? '\n\n🔗 ' + p.link : ''); await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, statusInteraction: { type: 'like', statusKey: k, statusText: p.text || '' }, time: Date.now() }); } catch (e) {} };
@@ -1659,7 +1657,7 @@ $('googleOpenBtn').addEventListener('click', function() { var q = $('googleInput
 $('chromeOpenBtn').addEventListener('click', function() { var q = $('chromeInput').value.trim(); if (!q) return; if (/^https?:\/\//i.test(q)) window.open(q, '_blank', 'noopener'); else if (/^[\w-]+\.[\w.-]+/.test(q)) window.open('https://' + q, '_blank', 'noopener'); else window.open('https://www.google.com/search?q=' + encodeURIComponent(q), '_blank', 'noopener'); });
 $('edgeOpenBtn').addEventListener('click', function() { var q = $('edgeInput').value.trim(); if (!q) return; if (/^https?:\/\//i.test(q)) window.open(q, '_blank', 'noopener'); else if (/^[\w-]+\.[\w.-]+/.test(q)) window.open('https://' + q, '_blank', 'noopener'); else window.open('https://www.bing.com/search?q=' + encodeURIComponent(q), '_blank', 'noopener'); });
 
-/* COMING SOON buttons (recordBtn removed) */
+/* COMING SOON buttons (recordBtn excluded — it works now) */
 (function wireComingSoonButtons() {
   var ids = ['preCallStart','addParticipantBtn','participantConfirm','bgGalleryClose','liveBgBtn','liveScreenBtn','liveRecordBtn','livePauseBtn','liveCameraBtn','liveJoinBtn','muteBtn','screenShareBtn','filterBtn','inCallChatBtn','recordCallBtn'];
   ids.forEach(function(id) { var el = document.getElementById(id); if (el && !el._comingWired) { el.addEventListener('click', function() { if (id === 'preCallStart') { try { document.getElementById('preCallModal').classList.remove('show'); } catch(e){} toast('🚧 Voice / Video calls coming soon'); return; } if (id === 'participantConfirm') { try { document.getElementById('addParticipantModal').classList.remove('show'); } catch(e){} toast('🚧 Group calls coming soon'); return; } if (id === 'bgGalleryClose') { try { document.getElementById('bgGalleryModal').classList.remove('show'); } catch(e){} return; } toast('🚧 Advanced call features coming soon'); }); el._comingWired = true; } });
@@ -1679,11 +1677,26 @@ window.__applyLiveBg = function() { toast('🚧 Backgrounds coming soon'); };
 window.__saveLiveRecordingToDevice = function() { toast('🚧 Recording save coming soon'); };
 window.__discardLiveRecording = function() { toast('🚧 Recording coming soon'); };
 
-/* ═══════ VOICEMAIL RECORDER — REAL (30s max) ═══════ */
+/* ═══════════════════════════════════════════════════════════════
+   VOICE SYSTEM — ALL FIXES (v29)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* FIX 1 — Open Voicemail button in Calls tab */
+$('openVoicemailBtn').addEventListener('click', function() {
+  document.querySelectorAll('.tab-content').forEach(function(t) { t.style.display = 'none'; });
+  var vt = $('tabVoicemail'); if (vt) vt.style.display = 'block';
+  $('headerTitle').textContent = 'Voicemail';
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  var callsNav = document.querySelector('.nav-item[data-tab="calls"]'); if (callsNav) callsNav.classList.add('active');
+  buildUI(); listenVoicemails();
+  if (!App.contacts.length) toast('Add friends first to send voicemail', true);
+});
+
+/* FIX 2 — Voicemail recorder (30s, real) */
 var vmMR = null, vmAC = [], vmTimer = null, vmStartTime = 0;
 $('recordBtn').addEventListener('click', async function() {
   var r = $('vmRecipient').value;
-  if (!r) return toast('Select a recipient first', true);
+  if (!r) { buildUI(); var r2 = $('vmRecipient').value; if (!r2) return toast('Select a recipient first', true); r = r2; }
   if (typeof MediaRecorder === 'undefined') return toast('Voice recording not supported on this browser', true);
   var btn = $('recordBtn');
   if (!vmMR || vmMR.state === 'inactive') {
@@ -1725,12 +1738,151 @@ $('recordBtn').addEventListener('click', async function() {
       else if (err.name === 'NotFoundError') toast('🎙️ No microphone found', true);
       else toast('Mic error: ' + (err.message || err.name || 'unknown'), true);
     }
-  } else if (vmMR && vmMR.state === 'recording') {
-    clearTimeout(vmTimer); vmMR.stop();
+  } else if (vmMR && vmMR.state === 'recording') { clearTimeout(vmTimer); vmMR.stop(); }
+});
+
+/* FIX 3 — Chat voice note recorder (🎙️ in chat input bar) */
+var chatVMR = null, chatVAC = [], chatVTimer = null, chatVStart = 0;
+$('chatRecordBtn').addEventListener('click', async function() {
+  if (!App.activeChat) return toast('Open a chat first', true);
+  if (typeof MediaRecorder === 'undefined') return toast('Voice recording not supported on this browser', true);
+  var btn = $('chatRecordBtn');
+  if (chatVMR && chatVMR.state === 'recording') { clearTimeout(chatVTimer); chatVMR.stop(); return; }
+  try {
+    var s = await navigator.mediaDevices.getUserMedia({ audio: true });
+    chatVAC = [];
+    var mt = 'audio/webm';
+    if (MediaRecorder.isTypeSupported('audio/mp4')) mt = 'audio/mp4';
+    else if (MediaRecorder.isTypeSupported('audio/aac')) mt = 'audio/aac';
+    else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) mt = 'audio/webm;codecs=opus';
+    else if (!MediaRecorder.isTypeSupported('audio/webm')) mt = '';
+    chatVMR = new MediaRecorder(s, mt ? { mimeType: mt } : {});
+    chatVMR.ondataavailable = function(e) { if (e.data.size > 0) chatVAC.push(e.data); };
+    chatVMR.onstop = async function() {
+      var mime = chatVMR.mimeType || mt || 'audio/webm';
+      var blob = new Blob(chatVAC, { type: mime });
+      var durationSec = Math.round((Date.now() - chatVStart) / 1000);
+      s.getTracks().forEach(function(t) { t.stop(); });
+      btn.style.color = '#ff4757'; btn.style.transform = 'scale(1)';
+      if (blob.size < 300) { toast('Recording too short — try again', true); return; }
+      toast('Sending voice note (' + durationSec + 's)…');
+      try {
+        var url = await fileToBase64(blob);
+        await sendMessage({ type: 'audio', url: url, name: 'Voice Note (' + durationSec + 's)', size: blob.size });
+        toast('✓ Voice note sent');
+      } catch (e) { toast('Send failed: ' + (e.message || 'unknown'), true); }
+    };
+    chatVStart = Date.now();
+    chatVMR.start(200);
+    btn.style.color = '#0d7a8c'; btn.style.transform = 'scale(1.3)';
+    toast('🎙️ Recording… tap again to send (max 30s)');
+    clearTimeout(chatVTimer);
+    chatVTimer = setTimeout(function() { if (chatVMR && chatVMR.state === 'recording') { toast('30s limit — sending now'); chatVMR.stop(); } }, 30000);
+  } catch (err) {
+    if (err.name === 'NotAllowedError') toast('📱 Microphone blocked — allow mic in browser settings', true);
+    else if (err.name === 'NotFoundError') toast('🎙️ No microphone found', true);
+    else if (err.name === 'NotReadableError') toast('🎙️ Microphone busy — close other apps', true);
+    else toast('Mic error: ' + (err.message || err.name || 'unknown'), true);
   }
 });
 
-console.log('%c✅ JARVIS v28 FINAL — Video compression + Voicemail fixed', 'background:#d4af37;color:#0b2a4a;padding:8px 14px;border-radius:6px;font-weight:bold;font-size:14px;');
+/* FIX 4 — Status voice note button (in Post Status modal) */
+(function addStatusVoiceBtn() {
+  var mediaWrap = document.getElementById('statusMediaSelectBtn');
+  if (!mediaWrap || mediaWrap._voiceAdded) return;
+  var voiceBtn = document.createElement('button');
+  voiceBtn.type = 'button'; voiceBtn.id = 'statusVoiceRecordBtn'; voiceBtn.className = 'btn-primary';
+  voiceBtn.style.cssText = 'width:100%;max-width:none;padding:14px;background:#0d7a8c;color:#fff;margin-top:8px;';
+  voiceBtn.textContent = '🎙️ Record Voice Note';
+  mediaWrap.parentNode.insertBefore(voiceBtn, mediaWrap.nextSibling);
+  mediaWrap._voiceAdded = true;
+  var svMR = null, svAC = [], svTimer = null, svStart = 0;
+  voiceBtn.addEventListener('click', async function() {
+    if (svMR && svMR.state === 'recording') { clearTimeout(svTimer); svMR.stop(); return; }
+    try {
+      var s = await navigator.mediaDevices.getUserMedia({ audio: true });
+      svAC = [];
+      var mt = 'audio/webm';
+      if (MediaRecorder.isTypeSupported('audio/mp4')) mt = 'audio/mp4';
+      else if (MediaRecorder.isTypeSupported('audio/aac')) mt = 'audio/aac';
+      else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) mt = 'audio/webm;codecs=opus';
+      else if (!MediaRecorder.isTypeSupported('audio/webm')) mt = '';
+      svMR = new MediaRecorder(s, mt ? { mimeType: mt } : {});
+      svMR.ondataavailable = function(e) { if (e.data.size > 0) svAC.push(e.data); };
+      svMR.onstop = async function() {
+        var mime = svMR.mimeType || mt || 'audio/webm';
+        var blob = new Blob(svAC, { type: mime });
+        var dur = Math.round((Date.now() - svStart) / 1000);
+        s.getTracks().forEach(function(t) { t.stop(); });
+        voiceBtn.textContent = '🎙️ Record Voice Note'; voiceBtn.style.background = '#0d7a8c';
+        if (blob.size < 300) { toast('Recording too short', true); return; }
+        App.statusMediaFile = new File([blob], 'voice-note.webm', { type: mime });
+        $('statusMediaName').textContent = '🎙️ Voice note recorded (' + dur + 's)';
+        toast('✓ Voice note ready — tap Post');
+      };
+      svStart = Date.now();
+      svMR.start(200);
+      voiceBtn.textContent = '■ Stop Recording (max 30s)'; voiceBtn.style.background = '#ff4757';
+      toast('🎙️ Recording status voice note…');
+      clearTimeout(svTimer);
+      svTimer = setTimeout(function() { if (svMR && svMR.state === 'recording') { toast('30s — stopping'); svMR.stop(); } }, 30000);
+    } catch (err) {
+      if (err.name === 'NotAllowedError') toast('📱 Mic blocked', true);
+      else if (err.name === 'NotFoundError') toast('🎙️ No mic found', true);
+      else toast('Mic error: ' + (err.name || 'unknown'), true);
+    }
+  });
+})();
+
+/* FIX 5 — Wall voice note button (in Post to Wall modal) */
+(function addWallVoiceBtn() {
+  var mediaWrap = document.getElementById('wallMediaSelectBtn');
+  if (!mediaWrap || mediaWrap._voiceAdded) return;
+  var voiceBtn = document.createElement('button');
+  voiceBtn.type = 'button'; voiceBtn.id = 'wallVoiceRecordBtn'; voiceBtn.className = 'btn-primary';
+  voiceBtn.style.cssText = 'width:100%;max-width:none;padding:14px;background:#0d7a8c;color:#fff;margin-top:8px;';
+  voiceBtn.textContent = '🎙️ Record Voice Note';
+  mediaWrap.parentNode.insertBefore(voiceBtn, mediaWrap.nextSibling);
+  mediaWrap._voiceAdded = true;
+  var wvMR = null, wvAC = [], wvTimer = null, wvStart = 0;
+  voiceBtn.addEventListener('click', async function() {
+    if (wvMR && wvMR.state === 'recording') { clearTimeout(wvTimer); wvMR.stop(); return; }
+    try {
+      var s = await navigator.mediaDevices.getUserMedia({ audio: true });
+      wvAC = [];
+      var mt = 'audio/webm';
+      if (MediaRecorder.isTypeSupported('audio/mp4')) mt = 'audio/mp4';
+      else if (MediaRecorder.isTypeSupported('audio/aac')) mt = 'audio/aac';
+      else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) mt = 'audio/webm;codecs=opus';
+      else if (!MediaRecorder.isTypeSupported('audio/webm')) mt = '';
+      wvMR = new MediaRecorder(s, mt ? { mimeType: mt } : {});
+      wvMR.ondataavailable = function(e) { if (e.data.size > 0) wvAC.push(e.data); };
+      wvMR.onstop = async function() {
+        var mime = wvMR.mimeType || mt || 'audio/webm';
+        var blob = new Blob(wvAC, { type: mime });
+        var dur = Math.round((Date.now() - wvStart) / 1000);
+        s.getTracks().forEach(function(t) { t.stop(); });
+        voiceBtn.textContent = '🎙️ Record Voice Note'; voiceBtn.style.background = '#0d7a8c';
+        if (blob.size < 300) { toast('Recording too short', true); return; }
+        App.wallPostMediaFile = new File([blob], 'voice-note.webm', { type: mime });
+        $('wallMediaName').textContent = '🎙️ Voice note recorded (' + dur + 's)';
+        toast('✓ Voice note ready — tap Post to Wall');
+      };
+      wvStart = Date.now();
+      wvMR.start(200);
+      voiceBtn.textContent = '■ Stop Recording (max 30s)'; voiceBtn.style.background = '#ff4757';
+      toast('🎙️ Recording wall voice note…');
+      clearTimeout(wvTimer);
+      wvTimer = setTimeout(function() { if (wvMR && wvMR.state === 'recording') { toast('30s — stopping'); wvMR.stop(); } }, 30000);
+    } catch (err) {
+      if (err.name === 'NotAllowedError') toast('📱 Mic blocked', true);
+      else if (err.name === 'NotFoundError') toast('🎙️ No mic found', true);
+      else toast('Mic error: ' + (err.name || 'unknown'), true);
+    }
+  });
+})();
+
+console.log('%c✅ JARVIS v29 — ALL voice fixed (chat + voicemail + status + wall)', 'background:#d4af37;color:#0b2a4a;padding:8px 14px;border-radius:6px;font-weight:bold;font-size:14px;');
 </script>
 </body>
 </html>
