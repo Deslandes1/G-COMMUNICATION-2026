@@ -544,7 +544,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="logo">G</div>
     <h2 id="headerTitle">Feed</h2>
     <div class="lite-mode-badge" id="liteModeBadge">⚡ Lite</div>
-    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v29</div>
+    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v30</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabFeed" class="tab-content" style="display:block;">
@@ -1048,6 +1048,7 @@ const App = {
   _friendReqListener: null, _publicUsersListener: null,
   _userStatusesListener: null, _voicemailListener: null, _incomingCallsListener: null,
   _presenceConnListener: null, _ownerUsersListener: null, _allGroupsListener: null,
+  _voicemailBadgeListener: null,
   networkMode: 'normal', userLiteMode: false, liteMode: false,
   pinnedStatus: null, contactPresence: {},
   wallPostMediaFile: null, wallPosts: [], wallComposePrivacy: 'public',
@@ -1066,152 +1067,51 @@ let debouncedBuildUI = null;
 function isOwner() { return App.mySlug === OWNER_SLUG || App.mySlug === 'gesner'; }
 function showScreen(id) { var ss = document.querySelectorAll('.screen'); for (var i = 0; i < ss.length; i++) ss[i].classList.toggle('active', ss[i].id === id); }
 let toastTimer;
-function toast(msg, isError) {
-  var t = $('toast'); if(!t) return; t.textContent = msg;
-  t.style.borderColor = isError ? '#ff4757' : '#d4af37';
-  t.classList.add('show'); clearTimeout(toastTimer);
-  toastTimer = setTimeout(function() { t.classList.remove('show'); }, 4000);
-}
+function toast(msg, isError) { var t = $('toast'); if(!t) return; t.textContent = msg; t.style.borderColor = isError ? '#ff4757' : '#d4af37'; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(function() { t.classList.remove('show'); }, 4000); }
 function esc(s) { return String(s || '').replace(/[&<>"']/g, function(c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
 function slugify(name) { return String(name).toLowerCase().trim().replace(/[^a-z0-9]/g, '').slice(0, 20); }
 function chatIdFor(a, b) { var x = a < b ? a : b; var y = a < b ? b : a; return x + '__' + y; }
 function avatarInner(photo, name) { return photo ? '<img src="' + photo + '" loading="lazy">' : esc((name || '?').charAt(0).toUpperCase()); }
 function slugToEmail(slug) { return slug + '@jarvis-app.local'; }
-async function sha256Hex(text) {
-  try { if (!window.crypto || !window.crypto.subtle) return 'nc_' + String(text).toLowerCase().trim(); var enc = new TextEncoder(); var buf = await crypto.subtle.digest('SHA-256', enc.encode(String(text).toLowerCase().trim())); var arr = Array.prototype.slice.call(new Uint8Array(buf)); return arr.map(function(b) { return b.toString(16).padStart(2, '0'); }).join(''); } catch (e) { return 'nc_' + String(text).toLowerCase().trim(); }
-}
+async function sha256Hex(text) { try { if (!window.crypto || !window.crypto.subtle) return 'nc_' + String(text).toLowerCase().trim(); var enc = new TextEncoder(); var buf = await crypto.subtle.digest('SHA-256', enc.encode(String(text).toLowerCase().trim())); var arr = Array.prototype.slice.call(new Uint8Array(buf)); return arr.map(function(b) { return b.toString(16).padStart(2, '0'); }).join(''); } catch (e) { return 'nc_' + String(text).toLowerCase().trim(); } }
 function emailToSlug(email) { if (!email) return null; return email.split('@')[0].replace(/-v\d+$/, ''); }
 function detectFileType(file) { var mime = (file.type || '').toLowerCase(); if (mime.indexOf('image/') === 0) return 'image'; if (mime.indexOf('video/') === 0) return 'video'; if (mime.indexOf('audio/') === 0) return 'audio'; return 'file'; }
 function fileToBase64(file) { return new Promise(function(resolve, reject) { var reader = new FileReader(); reader.onload = function() { resolve(reader.result); }; reader.onerror = reject; reader.readAsDataURL(file); }); }
-function compressImage(file, maxWidth, quality) {
-  return new Promise(function(resolve, reject) {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var img = new Image();
-      img.onload = function() {
-        var canvas = document.createElement('canvas');
-        var w = img.width, h = img.height;
-        if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
-        canvas.width = w; canvas.height = h;
-        var ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
-        ctx.drawImage(img, 0, 0, w, h);
-        resolve(canvas.toDataURL('image/jpeg', quality));
-      };
-      img.onerror = reject;
-      img.src = e.target.result;
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
+function compressImage(file, maxWidth, quality) { return new Promise(function(resolve, reject) { var reader = new FileReader(); reader.onload = function(e) { var img = new Image(); img.onload = function() { var canvas = document.createElement('canvas'); var w = img.width, h = img.height; if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; } canvas.width = w; canvas.height = h; var ctx = canvas.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.drawImage(img, 0, 0, w, h); resolve(canvas.toDataURL('image/jpeg', quality)); }; img.onerror = reject; img.src = e.target.result; }; reader.onerror = reject; reader.readAsDataURL(file); }); }
 function withTimeout(promise, ms) { return new Promise(function(resolve) { var done = false; var timer = setTimeout(function() { if (!done) { done = true; resolve({ timedOut: true }); } }, ms); promise.then(function(r) { if (done) return; done = true; clearTimeout(timer); resolve({ timedOut: false, result: r }); }).catch(function(e) { if (done) return; done = true; clearTimeout(timer); resolve({ timedOut: false, error: e }); }); }); }
 function getYouTubeId(url) { if (!url) return null; var m = String(url).trim().match(/(?:youtube\.com\/(?:watch\?v=|embed\/|live\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/); return m ? m[1] : null; }
 function frPairKey(from, to) { return from + '__to__' + to; }
 function frParseKey(key) { var parts = String(key).split('__to__'); if (parts.length !== 2) return null; return { from: parts[0], to: parts[1] }; }
-function formatDateTime(ts, mode) {
-  if (!ts) return '—';
-  var d = new Date(ts); if (isNaN(d.getTime())) return '—';
-  var now = new Date();
-  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  var sameDay = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
-  var yest = new Date(now); yest.setDate(yest.getDate() - 1);
-  var isYesterday = d.getFullYear() === yest.getFullYear() && d.getMonth() === yest.getMonth() && d.getDate() === yest.getDate();
-  if (mode === 'short') { if (sameDay) return timeStr; if (isYesterday) return 'Yesterday ' + timeStr; return months[d.getMonth()] + ' ' + d.getDate() + ' ' + timeStr; }
-  if (sameDay) return 'Today at ' + timeStr;
-  if (isYesterday) return 'Yesterday at ' + timeStr;
-  return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + ' at ' + timeStr;
-}
+function formatDateTime(ts, mode) { if (!ts) return '—'; var d = new Date(ts); if (isNaN(d.getTime())) return '—'; var now = new Date(); var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; var timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); var sameDay = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate(); var yest = new Date(now); yest.setDate(yest.getDate() - 1); var isYesterday = d.getFullYear() === yest.getFullYear() && d.getMonth() === yest.getMonth() && d.getDate() === yest.getDate(); if (mode === 'short') { if (sameDay) return timeStr; if (isYesterday) return 'Yesterday ' + timeStr; return months[d.getMonth()] + ' ' + d.getDate() + ' ' + timeStr; } if (sameDay) return 'Today at ' + timeStr; if (isYesterday) return 'Yesterday at ' + timeStr; return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + ' at ' + timeStr; }
 
-/* ═══════ YOUTUBE PLAYER ═══════ */
+/* YOUTUBE PLAYER */
 function ytSafeOrigin() { try { if (window.location.protocol === 'file:') return ''; if (!window.location.origin || window.location.origin === 'null') return ''; return window.location.origin; } catch (e) { return ''; } }
-window.__openYTFeedPlayer = function (videoId, title) {
-  if (!videoId) return;
-  var modal = document.getElementById('ytFeedPlayerModal'), frame = document.getElementById('ytFeedPlayerFrame');
-  if (!modal || !frame) return;
-  try {
-    var titleEl = document.getElementById('ytFeedPlayerTitle'); if (titleEl) titleEl.textContent = (title || 'YouTube Video').slice(0, 80);
-    var ext = document.getElementById('ytFeedPlayerExternal'); if (ext) ext.href = 'https://www.youtube.com/watch?v=' + encodeURIComponent(videoId);
-    var params = 'autoplay=1&playsinline=1&rel=0&modestbranding=1';
-    var origin = ytSafeOrigin(); if (origin) params += '&origin=' + encodeURIComponent(origin);
-    frame.src = 'https://www.youtube.com/embed/' + encodeURIComponent(videoId) + '?' + params;
-    modal.style.display = 'flex'; document.body.style.overflow = 'hidden';
-  } catch (e) {}
-};
+window.__openYTFeedPlayer = function (videoId, title) { if (!videoId) return; var modal = document.getElementById('ytFeedPlayerModal'), frame = document.getElementById('ytFeedPlayerFrame'); if (!modal || !frame) return; try { var titleEl = document.getElementById('ytFeedPlayerTitle'); if (titleEl) titleEl.textContent = (title || 'YouTube Video').slice(0, 80); var ext = document.getElementById('ytFeedPlayerExternal'); if (ext) ext.href = 'https://www.youtube.com/watch?v=' + encodeURIComponent(videoId); var params = 'autoplay=1&playsinline=1&rel=0&modestbranding=1'; var origin = ytSafeOrigin(); if (origin) params += '&origin=' + encodeURIComponent(origin); frame.src = 'https://www.youtube.com/embed/' + encodeURIComponent(videoId) + '?' + params; modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; } catch (e) {} };
 window.__closeYTFeedPlayer = function () { try { var m = document.getElementById('ytFeedPlayerModal'), f = document.getElementById('ytFeedPlayerFrame'); if (f) f.src = ''; if (m) m.style.display = 'none'; document.body.style.overflow = ''; } catch (e) {} };
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { try { window.__closeYTFeedPlayer(); } catch (e2) {} } });
 (function bindYTFeedPlayerClose() { var c = document.getElementById('ytFeedPlayerClose'); if (c && !c._wired) { c.addEventListener('click', window.__closeYTFeedPlayer); c._wired = true; } })();
-function ytInlineCard(videoId, titleText) {
-  if (!videoId) return '';
-  var safeTitle = String(titleText || 'YouTube Video').slice(0, 60).replace(/['"\\\n\r<>]/g, ' ').trim() || 'YouTube Video';
-  return '<div role="button" tabindex="0" onclick="window.__openYTFeedPlayer(\'' + videoId + '\',\'' + esc(safeTitle) + '\')" class="yt-inline-card"><img src="https://i.ytimg.com/vi/' + videoId + '/hqdefault.jpg" loading="lazy" onerror="this.style.display=\'none\'"><div class="yt-inline-overlay"><div class="yt-inline-play"><div class="yt-inline-triangle"></div></div></div><div class="yt-inline-label">▶️ YouTube</div></div>';
-}
+function ytInlineCard(videoId, titleText) { if (!videoId) return ''; var safeTitle = String(titleText || 'YouTube Video').slice(0, 60).replace(/['"\\\n\r<>]/g, ' ').trim() || 'YouTube Video'; return '<div role="button" tabindex="0" onclick="window.__openYTFeedPlayer(\'' + videoId + '\',\'' + esc(safeTitle) + '\')" class="yt-inline-card"><img src="https://i.ytimg.com/vi/' + videoId + '/hqdefault.jpg" loading="lazy" onerror="this.style.display=\'none\'"><div class="yt-inline-overlay"><div class="yt-inline-play"><div class="yt-inline-triangle"></div></div></div><div class="yt-inline-label">▶️ YouTube</div></div>'; }
 
-/* ═══════ SHARE ═══════ */
+/* SHARE */
 function buildShareUrl(postKey, postObj) { var fromSlug = postObj && postObj.authorSlug ? postObj.authorSlug : ''; return APP_BASE_URL + '?share_post=' + encodeURIComponent(postKey) + '&from=' + encodeURIComponent(fromSlug); }
 function buildShareText(postObj) { var authorName = postObj && postObj.authorName ? postObj.authorName : 'Someone'; var text = postObj && postObj.text ? postObj.text.slice(0, 100) : ''; var preview = text ? '"' + text + '"' : 'a post'; return '📰 ' + authorName + ' shared ' + preview + ' on JARVIS'; }
-window.__shareWallPost = function(postKey) {
-  if (!App.mySlug) return toast('Sign in first', true);
-  var p = null; for (var i = 0; i < App.wallPosts.length; i++) if (App.wallPosts[i]._k === postKey) { p = App.wallPosts[i]; break; }
-  if (!p) return toast('Post not found', true);
-  App.sharingPostKey = postKey; App.sharingPostObj = p;
-  var linkInput = $('shareLinkInput'); if (linkInput) linkInput.value = buildShareUrl(postKey, p);
-  var list = $('shareFriendsList'); if (!list) return;
-  if (!App.contacts.length) { list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:14px;">No friends yet — add some in the ✨ New tab.</div>'; }
-  else { var h = ''; for (var j = 0; j < App.contacts.length; j++) { var c = App.contacts[j]; h += '<div class="share-friend-item" onclick="window.__shareToJarvisFriend(\'' + esc(c.slug) + '\')"><div class="share-friend-avatar">' + avatarInner(c.photo, c.name) + '</div><div class="share-friend-name">' + esc(c.name) + '</div><div class="share-friend-action">Send →</div></div>'; } list.innerHTML = h; }
-  $('shareWallPostModal').classList.add('show');
-};
-window.__shareToJarvisFriend = async function(friendSlug) {
-  if (!friendSlug || !App.sharingPostKey || !App.sharingPostObj) return toast('Nothing to share', true);
-  var p = App.sharingPostObj, shareUrl = buildShareUrl(App.sharingPostKey, p), preview = (p.text || '').slice(0, 200);
-  var dmText = '📤 ' + App.myName + ' shared a post with you:\n\n' + (p.authorName ? '📝 By: ' + p.authorName + (p.authorSlug ? ' (@' + p.authorSlug + ')' : '') + '\n\n' : '') + (preview ? preview + '\n\n' : '') + '🔗 Tap to view: ' + shareUrl;
-  var dmAttachment = p.mediaUrl ? { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Shared post media' } : null;
-  try { await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, friendSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, sharedPost: { postKey: App.sharingPostKey, url: shareUrl, authorSlug: p.authorSlug || null, authorName: p.authorName || null, authorPhoto: p.authorPhoto || null, text: (p.text || '').slice(0, 500), mediaUrl: p.mediaUrl || null, mediaType: p.mediaType || null, link: p.link || null }, time: Date.now() }); $('shareWallPostModal').classList.remove('show'); toast('✓ Shared with @' + friendSlug); } catch (e) { toast('Share failed', true); }
-};
-window.__shareExternal = function(platform) {
-  if (!App.sharingPostKey || !App.sharingPostObj) return;
-  var p = App.sharingPostObj, url = buildShareUrl(App.sharingPostKey, p), text = buildShareText(p), enc = encodeURIComponent, target = null;
-  if (platform === 'whatsapp') target = 'https://wa.me/?text=' + enc(text + ' ' + url);
-  else if (platform === 'facebook') target = 'https://www.facebook.com/sharer/sharer.php?u=' + enc(url);
-  else if (platform === 'twitter') target = 'https://twitter.com/intent/tweet?url=' + enc(url) + '&text=' + enc(text);
-  else if (platform === 'telegram') target = 'https://t.me/share/url?url=' + enc(url) + '&text=' + enc(text);
-  else if (platform === 'email') target = 'mailto:?subject=' + enc('JARVIS Post') + '&body=' + enc(text + '\n\n' + url);
-  else if (platform === 'sms') target = 'sms:?&body=' + enc(text + ' ' + url);
-  if (!target) return;
-  try { window.open(target, '_blank', 'noopener'); toast('Opening ' + platform + '…'); } catch (e) { toast('Could not open', true); }
-};
+window.__shareWallPost = function(postKey) { if (!App.mySlug) return toast('Sign in first', true); var p = null; for (var i = 0; i < App.wallPosts.length; i++) if (App.wallPosts[i]._k === postKey) { p = App.wallPosts[i]; break; } if (!p) return toast('Post not found', true); App.sharingPostKey = postKey; App.sharingPostObj = p; var linkInput = $('shareLinkInput'); if (linkInput) linkInput.value = buildShareUrl(postKey, p); var list = $('shareFriendsList'); if (!list) return; if (!App.contacts.length) { list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:14px;">No friends yet — add some in the ✨ New tab.</div>'; } else { var h = ''; for (var j = 0; j < App.contacts.length; j++) { var c = App.contacts[j]; h += '<div class="share-friend-item" onclick="window.__shareToJarvisFriend(\'' + esc(c.slug) + '\')"><div class="share-friend-avatar">' + avatarInner(c.photo, c.name) + '</div><div class="share-friend-name">' + esc(c.name) + '</div><div class="share-friend-action">Send →</div></div>'; } list.innerHTML = h; } $('shareWallPostModal').classList.add('show'); };
+window.__shareToJarvisFriend = async function(friendSlug) { if (!friendSlug || !App.sharingPostKey || !App.sharingPostObj) return toast('Nothing to share', true); var p = App.sharingPostObj, shareUrl = buildShareUrl(App.sharingPostKey, p), preview = (p.text || '').slice(0, 200); var dmText = '📤 ' + App.myName + ' shared a post with you:\n\n' + (p.authorName ? '📝 By: ' + p.authorName + (p.authorSlug ? ' (@' + p.authorSlug + ')' : '') + '\n\n' : '') + (preview ? preview + '\n\n' : '') + '🔗 Tap to view: ' + shareUrl; var dmAttachment = p.mediaUrl ? { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Shared post media' } : null; try { await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, friendSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, sharedPost: { postKey: App.sharingPostKey, url: shareUrl, authorSlug: p.authorSlug || null, authorName: p.authorName || null, authorPhoto: p.authorPhoto || null, text: (p.text || '').slice(0, 500), mediaUrl: p.mediaUrl || null, mediaType: p.mediaType || null, link: p.link || null }, time: Date.now() }); $('shareWallPostModal').classList.remove('show'); toast('✓ Shared with @' + friendSlug); } catch (e) { toast('Share failed', true); } };
+window.__shareExternal = function(platform) { if (!App.sharingPostKey || !App.sharingPostObj) return; var p = App.sharingPostObj, url = buildShareUrl(App.sharingPostKey, p), text = buildShareText(p), enc = encodeURIComponent, target = null; if (platform === 'whatsapp') target = 'https://wa.me/?text=' + enc(text + ' ' + url); else if (platform === 'facebook') target = 'https://www.facebook.com/sharer/sharer.php?u=' + enc(url); else if (platform === 'twitter') target = 'https://twitter.com/intent/tweet?url=' + enc(url) + '&text=' + enc(text); else if (platform === 'telegram') target = 'https://t.me/share/url?url=' + enc(url) + '&text=' + enc(text); else if (platform === 'email') target = 'mailto:?subject=' + enc('JARVIS Post') + '&body=' + enc(text + '\n\n' + url); else if (platform === 'sms') target = 'sms:?&body=' + enc(text + ' ' + url); if (!target) return; try { window.open(target, '_blank', 'noopener'); toast('Opening ' + platform + '…'); } catch (e) { toast('Could not open', true); } };
 window.__copyShareLink = function() { var inp = $('shareLinkInput'); if (!inp) return; var val = inp.value; if (!val) return toast('No link', true); if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(val).then(function() { toast('✓ Link copied'); }).catch(function() { inp.select(); document.execCommand('copy'); toast('✓ Link copied'); }); } else { inp.select(); document.execCommand('copy'); toast('✓ Link copied'); } };
 window.__nativeSharePost = async function() { if (!App.sharingPostKey || !App.sharingPostObj) return; var p = App.sharingPostObj, url = buildShareUrl(App.sharingPostKey, p), text = buildShareText(p); if (navigator.share) { try { await navigator.share({ title: 'JARVIS Post', text: text, url: url }); toast('✓ Shared'); } catch (e) { if (e.name !== 'AbortError') toast('Share cancelled', true); } } else { window.__copyShareLink(); } };
 window.__viewSharedPost = function(postKey, fromSlug) { if (!postKey) return; try { var feedTab = document.querySelector('.nav-item[data-tab="feed"]'); if (feedTab) feedTab.click(); setTimeout(function() { var el = document.getElementById('wall_' + postKey); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.style.transition = 'background 0.5s'; el.style.background = '#fffbea'; setTimeout(function() { el.style.background = ''; }, 2000); } else toast('Post not available', true); }, 300); } catch (e) {} };
-function renderSharedPostCard(sp) {
-  if (!sp) return '';
-  var author = sp.authorName || sp.authorSlug || 'Someone', preview = (sp.text || '').slice(0, 180), media = '';
-  if (sp.mediaUrl && sp.mediaType === 'image') media = '<div class="shared-post-card-media"><img src="' + esc(sp.mediaUrl) + '" loading="lazy"></div>';
-  var linkPreview = sp.link ? '<div style="font-size:12px;color:var(--accent);margin-top:4px;word-break:break-all;">🔗 ' + esc(sp.link.slice(0, 80)) + '</div>' : '';
-  return '<div class="shared-post-card" onclick="window.__viewSharedPost(\'' + esc(sp.postKey || '') + '\',\'' + esc(sp.authorSlug || '') + '\')"><div class="shared-post-card-header"><span>📤 Shared Post</span><span>by @' + esc(sp.authorSlug || '?') + '</span></div><div class="shared-post-card-author">' + esc(author) + '</div>' + (preview ? '<div class="shared-post-card-text">"' + esc(preview) + (sp.text && sp.text.length > 180 ? '…' : '') + '"</div>' : '') + media + linkPreview + '<div class="shared-post-card-cta">👆 Tap to view full post</div></div>';
-}
+function renderSharedPostCard(sp) { if (!sp) return ''; var author = sp.authorName || sp.authorSlug || 'Someone', preview = (sp.text || '').slice(0, 180), media = ''; if (sp.mediaUrl && sp.mediaType === 'image') media = '<div class="shared-post-card-media"><img src="' + esc(sp.mediaUrl) + '" loading="lazy"></div>'; var linkPreview = sp.link ? '<div style="font-size:12px;color:var(--accent);margin-top:4px;word-break:break-all;">🔗 ' + esc(sp.link.slice(0, 80)) + '</div>' : ''; return '<div class="shared-post-card" onclick="window.__viewSharedPost(\'' + esc(sp.postKey || '') + '\',\'' + esc(sp.authorSlug || '') + '\')"><div class="shared-post-card-header"><span>📤 Shared Post</span><span>by @' + esc(sp.authorSlug || '?') + '</span></div><div class="shared-post-card-author">' + esc(author) + '</div>' + (preview ? '<div class="shared-post-card-text">"' + esc(preview) + (sp.text && sp.text.length > 180 ? '…' : '') + '"</div>' : '') + media + linkPreview + '<div class="shared-post-card-cta">👆 Tap to view full post</div></div>'; }
 
-/* ═══════ PRESENCE ═══════ */
+/* PRESENCE */
 function setupPresence() { if (!App.mySlug) return; if (App._presenceConnListener) { try { App._presenceConnListener(); } catch (e) {} App._presenceConnListener = null; } var myPresence = dbRef(db, PRESENCE_PATH + '/' + App.mySlug), connectedRef = dbRef(db, '.info/connected'); try { App._presenceConnListener = onValue(connectedRef, function(snap) { if (snap.val() === true) { onDisconnect(myPresence).set({ online: false, lastSeen: serverTimestamp() }).then(function() { set(myPresence, { online: true, lastSeen: serverTimestamp(), name: App.myName }).catch(function() {}); }).catch(function() {}); } }); } catch (e) {} }
 function listenAllPresence() { if (App._presenceListener) { try { App._presenceListener(); } catch (e) {} App._presenceListener = null; } try { App._presenceListener = onValue(dbRef(db, PRESENCE_PATH), function(snap) { App.contactPresence = snap.val() || {}; try { LS.set('presence', App.contactPresence); } catch (e) {} updateAllPresenceUI(); }, function(err) {}); } catch (e) {} }
 function getPresenceHtml(slug) { if (!slug) return '<span class="presence-offline">Offline</span>'; if (slug === App.mySlug) return '<span class="presence-online">● Online now</span>'; var p = App.contactPresence[slug]; if (!p) return '<span class="presence-offline">Offline</span>'; if (p.online === true) return '<span class="presence-online">● Online</span>'; if (p.lastSeen) return '<span class="presence-offline">Last seen ' + esc(formatDateTime(p.lastSeen)) + '</span>'; return '<span class="presence-offline">Offline</span>'; }
 function updateAllPresenceUI() { var items = document.querySelectorAll('[data-presence]'); for (var i = 0; i < items.length; i++) { var slug = items[i].getAttribute('data-presence'); items[i].innerHTML = getPresenceHtml(slug); } var profOnline = $('profileOnlineStatus'); if (profOnline && App.mySlug) profOnline.innerHTML = '<span class="presence-online">● Online now</span>'; }
+
 function normalizePinnedData(d) { if (!d) return null; return { text: d.text || '', link: d.link || '', mediaUrl: d.mediaUrl || null, mediaType: d.mediaType || null, bgColor: d.bgColor || '#0d7a8c', updatedAt: d.updatedAt || null }; }
 function listenPinnedStatus() { if (App._pinnedStatusListener) { try { App._pinnedStatusListener(); } catch (e) {} App._pinnedStatusListener = null; } try { App._pinnedStatusListener = onValue(dbRef(db, PINNED_STATUS_PATH), function(snap) { var data = normalizePinnedData(snap.val()); App.pinnedStatus = data; try { LS.set('pinnedStatus', data); } catch (e) {} renderPinnedStatus(data); }, function(err) { var cached = LS.get('pinnedStatus', null); App.pinnedStatus = cached; renderPinnedStatus(cached); }); } catch (e) {} }
-function renderPinnedStatus(data) {
-  var wrap = $('pinnedStatusWrap'), editBtn = $('editPinnedStatusBtn');
-  if (editBtn) editBtn.style.display = isOwner() ? 'inline-block' : 'none';
-  if (!wrap) return;
-  var hasContent = data && (data.text || data.link || data.mediaUrl);
-  if (!hasContent) { wrap.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;color:#8899a8;font-size:16px;text-align:center;"><div style="font-size:40px;margin-bottom:8px;opacity:.6;">📌</div><div>Nothing pinned yet</div>' + (isOwner() ? '<div style="font-size:14px;opacity:.7;margin-top:6px;">Tap "✏️ Edit" above to post a pinned status</div>' : '') + '</div>'; return; }
-  var html = '';
-  if (data.mediaUrl) { if (data.mediaType === 'image') html += '<img src="' + esc(data.mediaUrl) + '" class="status-media" loading="lazy" onclick="window.__viewAvatar(\'' + esc(data.mediaUrl) + '\',\'Pinned\')">'; else html += '<video src="' + esc(data.mediaUrl) + '" controls playsinline class="status-media" preload="metadata"></video>'; }
-  if (data.text) html += '<div class="status-content-box" style="background:' + (data.bgColor || '#0d7a8c') + '">' + esc(data.text) + '</div>';
-  if (data.link) { var ytId = getYouTubeId(data.link); if (ytId) html += ytInlineCard(ytId, data.text || 'Pinned YouTube'); else html += '<a href="' + esc(data.link) + '" target="_blank" rel="noopener" class="status-link">🔗 ' + esc(data.link) + '</a>'; }
-  if (data.updatedAt) html += '<div style="font-size:13px;color:var(--muted);margin-top:8px;text-align:right;">Pinned ' + formatDateTime(data.updatedAt) + '</div>';
-  wrap.innerHTML = html;
-}
+function renderPinnedStatus(data) { var wrap = $('pinnedStatusWrap'), editBtn = $('editPinnedStatusBtn'); if (editBtn) editBtn.style.display = isOwner() ? 'inline-block' : 'none'; if (!wrap) return; var hasContent = data && (data.text || data.link || data.mediaUrl); if (!hasContent) { wrap.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 20px;color:#8899a8;font-size:16px;text-align:center;"><div style="font-size:40px;margin-bottom:8px;opacity:.6;">📌</div><div>Nothing pinned yet</div>' + (isOwner() ? '<div style="font-size:14px;opacity:.7;margin-top:6px;">Tap "✏️ Edit" above to post a pinned status</div>' : '') + '</div>'; return; } var html = ''; if (data.mediaUrl) { if (data.mediaType === 'image') html += '<img src="' + esc(data.mediaUrl) + '" class="status-media" loading="lazy" onclick="window.__viewAvatar(\'' + esc(data.mediaUrl) + '\',\'Pinned\')">'; else html += '<video src="' + esc(data.mediaUrl) + '" controls playsinline class="status-media" preload="metadata"></video>'; } if (data.text) html += '<div class="status-content-box" style="background:' + (data.bgColor || '#0d7a8c') + '">' + esc(data.text) + '</div>'; if (data.link) { var ytId = getYouTubeId(data.link); if (ytId) html += ytInlineCard(ytId, data.text || 'Pinned YouTube'); else html += '<a href="' + esc(data.link) + '" target="_blank" rel="noopener" class="status-link">🔗 ' + esc(data.link) + '</a>'; } if (data.updatedAt) html += '<div style="font-size:13px;color:var(--muted);margin-top:8px;text-align:right;">Pinned ' + formatDateTime(data.updatedAt) + '</div>'; wrap.innerHTML = html; }
 window.__openEditPinnedStatus = function() { if (!isOwner()) return toast('Only the owner', true); var d = App.pinnedStatus || {}; if ($('pinnedTextInput')) $('pinnedTextInput').value = d.text || ''; if ($('pinnedLinkInput')) $('pinnedLinkInput').value = d.link || ''; if ($('pinnedBgColor')) $('pinnedBgColor').value = d.bgColor || '#0d7a8c'; $('editPinnedStatusModal').classList.add('show'); };
 window.__savePinnedStatus = async function() { if (!isOwner()) return toast('Only the owner', true); var text = $('pinnedTextInput') ? $('pinnedTextInput').value.trim() : '', link = $('pinnedLinkInput') ? $('pinnedLinkInput').value.trim() : '', bgColor = $('pinnedBgColor') ? $('pinnedBgColor').value : '#0d7a8c'; if (!text && !link) return toast('Add text or a link', true); var btn = $('pinnedSaveBtn'); if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; } try { await set(dbRef(db, PINNED_STATUS_PATH), { text: text, link: link, bgColor: bgColor, mediaUrl: null, mediaType: null, updatedAt: Date.now(), updatedBy: App.mySlug }); $('editPinnedStatusModal').classList.remove('show'); toast('✓ Pinned updated'); } catch (e) { toast('Failed', true); } finally { if (btn) { btn.disabled = false; btn.textContent = 'Save'; } } };
 window.__clearPinnedStatus = async function() { if (!isOwner()) return toast('Only the owner', true); if (!confirm('Remove pinned?')) return; try { await remove(dbRef(db, PINNED_STATUS_PATH)); toast('✓ Removed'); $('editPinnedStatusModal').classList.remove('show'); } catch (e) { toast('Failed', true); } };
@@ -1224,7 +1124,7 @@ function loadCachedData() { var c = LS.get('contacts', []); if (c && c.length &&
 if (navigator.connection) { try { navigator.connection.addEventListener('change', updateNetworkMode); } catch (e) {} }
 window.addEventListener('online', updateNetworkMode); window.addEventListener('offline', updateNetworkMode);
 
-/* ═══════ AUTH ═══════ */
+/* AUTH */
 $('authTabSignIn').addEventListener('click', function() { $('authTabSignIn').classList.add('active'); $('authTabSignUp').classList.remove('active'); $('authSignInForm').style.display = 'flex'; $('authSignUpForm').style.display = 'none'; });
 $('authTabSignUp').addEventListener('click', function() { $('authTabSignUp').classList.add('active'); $('authTabSignIn').classList.remove('active'); $('authSignUpForm').style.display = 'flex'; $('authSignInForm').style.display = 'none'; });
 async function ensureBootstrap() { if (!App.mySlug) return; try { var pubSnap = await get(dbRef(db, 'public_users/' + App.mySlug)); if (!pubSnap.exists()) { await set(dbRef(db, 'public_users/' + App.mySlug), { slug: App.mySlug, name: App.myName, photo: App.myPhoto || null, created: Date.now() }); } } catch (e) {} if (!isOwner()) { try { var oSnap = await get(dbRef(db, 'users/' + App.mySlug + '/contacts/' + OWNER_SLUG)); if (!oSnap.exists()) { await set(dbRef(db, 'users/' + App.mySlug + '/contacts/' + OWNER_SLUG), { slug: OWNER_SLUG, name: OWNER_NAME, time: Date.now(), autoFriend: true }); } } catch (e) {} } }
@@ -1235,19 +1135,7 @@ window.__rejectFriendRequest = async function(fromSlug) { var key = frPairKey(fr
 window.__cancelFriendRequest = async function(toSlug) { var key = frPairKey(App.mySlug, toSlug); try { await remove(dbRef(db, FR_PATH + '/' + key)); toast('Cancelled'); } catch (e) { toast('Failed', true); } };
 function listenPublicUsers() { if (App._publicUsersListener) { try { App._publicUsersListener(); } catch (e) {} App._publicUsersListener = null; } try { App._publicUsersListener = onValue(dbRef(db, 'public_users'), function(snap) { App.publicUsers = snap.val() || {}; renderNewUsersTab(); updateNewUsersBadge(); }, function(err) {}); } catch (e) {} }
 function updateNewUsersBadge() { var btn = document.querySelector('.nav-item[data-tab="newusers"]'); if (!btn) return; var existing = btn.querySelector('.req-badge'); if (existing) existing.remove(); var count = Object.keys(App.incomingRequests).length; if (count > 0) { var badge = document.createElement('span'); badge.className = 'req-badge'; badge.textContent = count > 9 ? '9+' : count; btn.appendChild(badge); } }
-function renderNewUsersTab() {
-  var incomingList = $('incomingRequestsList'), newUsersList = $('newUsersList'), incomingHeader = $('incomingReqHeader');
-  if (!incomingList || !newUsersList) return;
-  var incKeys = Object.keys(App.incomingRequests);
-  if (incKeys.length) { if (incomingHeader) incomingHeader.style.display = 'block'; var h = ''; incKeys.forEach(function(fromSlug) { var r = App.incomingRequests[fromSlug]; if (!r) return; h += '<div class="list-item req-item"><div class="avatar" onclick="window.__viewAvatar(\'' + (r.photo || '') + '\',\'' + esc(r.fromName || fromSlug) + '\')">' + avatarInner(r.photo, r.fromName) + '</div><div class="list-item-body"><div class="list-item-title">' + esc(r.fromName || fromSlug) + '</div><div class="list-item-sub">@' + esc(fromSlug) + ' · wants to be friends</div></div><div style="display:flex;gap:6px;flex-shrink:0;"><button class="req-btn-accept" onclick="window.__acceptFriendRequest(\'' + esc(fromSlug) + '\')">✓ Accept</button><button class="req-btn-reject" onclick="window.__rejectFriendRequest(\'' + esc(fromSlug) + '\')">✕</button></div></div>'; }); incomingList.innerHTML = h; }
-  else { if (incomingHeader) incomingHeader.style.display = 'none'; incomingList.innerHTML = ''; }
-  var users = App.publicUsers || {}, keys = Object.keys(users).filter(function(slug) { return slug !== App.mySlug; });
-  keys.sort(function(a, b) { return ((users[b] && users[b].created) || 0) - ((users[a] && users[a].created) || 0); });
-  if (!keys.length) { newUsersList.innerHTML = '<div class="empty"><div class="empty-icon">✨</div><p>No other users yet.<br>Invite someone to join JARVIS!</p></div>'; return; }
-  var h2 = '';
-  keys.forEach(function(slug) { var u = users[slug] || {}; var isFriend = !!findContact(slug), isBlocked = App.blockedUsers.indexOf(slug) !== -1; var isIncoming = !!App.incomingRequests[slug], sentReq = App.sentRequests[slug], isOutgoing = sentReq && sentReq.status === 'pending'; var actionHtml; if (isBlocked) actionHtml = '<button class="blocked-badge" onclick="window.unblockUser(\'' + esc(slug) + '\')" style="cursor:pointer;">🚫 Unblock</button>'; else if (isFriend) actionHtml = '<span class="friend-badge">✓ Friends</span>'; else if (isIncoming) actionHtml = '<span class="pending-badge">📩 Request above</span>'; else if (isOutgoing) actionHtml = '<button class="req-btn-sent" onclick="window.__cancelFriendRequest(\'' + esc(slug) + '\')">Sent · Cancel</button>'; else actionHtml = '<button class="req-btn-add" onclick="window.__sendFriendRequest(\'' + esc(slug) + '\')">+ Add</button>'; h2 += '<div class="list-item"><div class="avatar" onclick="window.__viewAvatar(\'' + (u.photo || '') + '\',\'' + esc(u.name || slug) + '\')">' + avatarInner(u.photo, u.name) + '</div><div class="list-item-body"><div class="list-item-title">' + esc(u.name || slug) + '</div><div class="list-item-sub"><span data-presence="' + slug + '">' + getPresenceHtml(slug) + '</span></div></div><div style="flex-shrink:0;">' + actionHtml + '</div></div>'; });
-  newUsersList.innerHTML = h2;
-}
+function renderNewUsersTab() { var incomingList = $('incomingRequestsList'), newUsersList = $('newUsersList'), incomingHeader = $('incomingReqHeader'); if (!incomingList || !newUsersList) return; var incKeys = Object.keys(App.incomingRequests); if (incKeys.length) { if (incomingHeader) incomingHeader.style.display = 'block'; var h = ''; incKeys.forEach(function(fromSlug) { var r = App.incomingRequests[fromSlug]; if (!r) return; h += '<div class="list-item req-item"><div class="avatar" onclick="window.__viewAvatar(\'' + (r.photo || '') + '\',\'' + esc(r.fromName || fromSlug) + '\')">' + avatarInner(r.photo, r.fromName) + '</div><div class="list-item-body"><div class="list-item-title">' + esc(r.fromName || fromSlug) + '</div><div class="list-item-sub">@' + esc(fromSlug) + ' · wants to be friends</div></div><div style="display:flex;gap:6px;flex-shrink:0;"><button class="req-btn-accept" onclick="window.__acceptFriendRequest(\'' + esc(fromSlug) + '\')">✓ Accept</button><button class="req-btn-reject" onclick="window.__rejectFriendRequest(\'' + esc(fromSlug) + '\')">✕</button></div></div>'; }); incomingList.innerHTML = h; } else { if (incomingHeader) incomingHeader.style.display = 'none'; incomingList.innerHTML = ''; } var users = App.publicUsers || {}, keys = Object.keys(users).filter(function(slug) { return slug !== App.mySlug; }); keys.sort(function(a, b) { return ((users[b] && users[b].created) || 0) - ((users[a] && users[a].created) || 0); }); if (!keys.length) { newUsersList.innerHTML = '<div class="empty"><div class="empty-icon">✨</div><p>No other users yet.<br>Invite someone to join JARVIS!</p></div>'; return; } var h2 = ''; keys.forEach(function(slug) { var u = users[slug] || {}; var isFriend = !!findContact(slug), isBlocked = App.blockedUsers.indexOf(slug) !== -1; var isIncoming = !!App.incomingRequests[slug], sentReq = App.sentRequests[slug], isOutgoing = sentReq && sentReq.status === 'pending'; var actionHtml; if (isBlocked) actionHtml = '<button class="blocked-badge" onclick="window.unblockUser(\'' + esc(slug) + '\')" style="cursor:pointer;">🚫 Unblock</button>'; else if (isFriend) actionHtml = '<span class="friend-badge">✓ Friends</span>'; else if (isIncoming) actionHtml = '<span class="pending-badge">📩 Request above</span>'; else if (isOutgoing) actionHtml = '<button class="req-btn-sent" onclick="window.__cancelFriendRequest(\'' + esc(slug) + '\')">Sent · Cancel</button>'; else actionHtml = '<button class="req-btn-add" onclick="window.__sendFriendRequest(\'' + esc(slug) + '\')">+ Add</button>'; h2 += '<div class="list-item"><div class="avatar" onclick="window.__viewAvatar(\'' + (u.photo || '') + '\',\'' + esc(u.name || slug) + '\')">' + avatarInner(u.photo, u.name) + '</div><div class="list-item-body"><div class="list-item-title">' + esc(u.name || slug) + '</div><div class="list-item-sub"><span data-presence="' + slug + '">' + getPresenceHtml(slug) + '</span></div></div><div style="flex-shrink:0;">' + actionHtml + '</div></div>'; }); newUsersList.innerHTML = h2; }
 
 async function handleSignUp() {
   var nameVal = $('signUpName').value.trim(), password = $('signUpPassword').value, confirmPwd = $('signUpPasswordConfirm').value, recoveryPhrase = $('signUpRecovery').value.trim();
@@ -1346,13 +1234,13 @@ window.__ownerDeleteStatus = async function(k) { if (!confirm('Delete?')) return
 
 window.addEventListener('beforeunload', function() { if (App.liveMode === 'host' && App.mySlug) { try { set(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug), null); if (App.liveStreamId) set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/status'), 'ended'); } catch (e) {} } });
 
-/* ═══════ MAIN APP START ═══════ */
+/* MAIN APP START */
 function startMainApp() {
   App.userLiteMode = LS.get('userLiteMode', false);
   updateNetworkMode(); updateLiteModeUI(); loadCachedData();
   showScreen('screen-main'); updateSyncIndicator('cached'); updateProfileHeader(); renderBlockedUsersList(); renderPinnedStatus(App.pinnedStatus);
   buildUI(); listenUserStatuses(); listenIncomingCalls(); listenSelfGroups(); listenActiveLiveStreams(); listenFriendRequests(); listenPublicUsers(); listenPinnedStatus(); listenAllPresence();
-  listenWallPosts(); listenVoicemails();
+  listenWallPosts(); listenVoicemails(); listenVoicemailBadge();
   try { setupPresence(); } catch (e) {}
   ensureBootstrap(); updateNewUsersBadge();
   for (var k = 0; k < App.contacts.length; k++) setupMessageListener(App.contacts[k].slug, false);
@@ -1380,7 +1268,7 @@ window.blockUser = function(slug) { if (!slug || slug === App.mySlug) return; if
 window.unblockUser = function(slug) { if (!slug) return; App.blockedUsers = App.blockedUsers.filter(function(s) { return s !== slug; }); saveBlockedUsers(); renderBlockedUsersList(); buildUI(); renderNewUsersTab(); toast('✓ Unblocked'); };
 function listenIncomingCalls() { if (!App.mySlug) return; if (App._incomingCallsListener) { try { App._incomingCallsListener(); } catch (e) {} App._incomingCallsListener = null; } try { App._incomingCallsListener = onChildAdded(dbRef(db, 'calls/' + App.mySlug), function(snap) { var c = snap.val(); if (!c || c.status !== 'calling') return; if (App.blockedUsers.indexOf(c.caller) !== -1) return; App.activeCallId = snap.key; App.currentCallTarget = c.caller; App.isVideoCall = c.type === 'video'; $('incomingName').textContent = c.callerName || c.caller; $('incomingAvatar').innerHTML = avatarInner(null, c.callerName || c.caller); $('incomingType').textContent = 'Incoming ' + (c.type === 'video' ? '📹 Video' : '📞 Voice') + ' Call…'; $('incoming-call').classList.add('show'); window._incomingCallData = c; }); } catch (e) {} }
 
-/* ═══════ WALL POSTS ═══════ */
+/* WALL POSTS */
 function listenWallPosts() {
   if (App._wallPostsListener) { try { App._wallPostsListener(); } catch (e) {} App._wallPostsListener = null; }
   try {
@@ -1464,30 +1352,12 @@ $('wallComposePost').addEventListener('click', async function() {
   } catch (e) { toast('Upload failed: ' + (e.message || 'unknown'), true); }
   finally { btn.disabled = false; btn.textContent = 'Post to Wall'; }
 });
-
-window.__reactToWallPost = async function(postKey, emoji) {
-  var p = null; for (var i = 0; i < App.wallPosts.length; i++) if (App.wallPosts[i]._k === postKey) { p = App.wallPosts[i]; break; }
-  if (!p) return;
-  var myPath = dbRef(db, WALL_POSTS_PATH + '/' + postKey + '/reactions/' + emoji + '/' + App.mySlug);
-  try {
-    var mySnap = await get(myPath);
-    if (mySnap.exists()) { await remove(myPath); toast('Reaction removed'); return; }
-    var allEmoji = Object.keys(p.reactions || {});
-    for (var j = 0; j < allEmoji.length; j++) { try { await remove(dbRef(db, WALL_POSTS_PATH + '/' + postKey + '/reactions/' + allEmoji[j] + '/' + App.mySlug)); } catch (e) {} }
-    await set(myPath, { time: Date.now() }); toast('Reacted ' + emoji);
-    if (p.authorSlug && p.authorSlug !== App.mySlug) {
-      try { var dmAttachment = p.mediaUrl ? { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Wall post media' } : null; var dmText = emoji + ' ' + App.myName + ' reacted to your wall post.' + (p.text ? '\n\n📝 "' + p.text + '"' : '') + (p.link ? '\n\n🔗 ' + p.link : ''); await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, statusInteraction: { type: 'reaction', emoji: emoji, statusKey: postKey, statusText: p.text || '' }, time: Date.now() }); } catch (e) {}
-    }
-  } catch (e) { toast('Reaction failed', true); }
-};
+window.__reactToWallPost = async function(postKey, emoji) { var p = null; for (var i = 0; i < App.wallPosts.length; i++) if (App.wallPosts[i]._k === postKey) { p = App.wallPosts[i]; break; } if (!p) return; var myPath = dbRef(db, WALL_POSTS_PATH + '/' + postKey + '/reactions/' + emoji + '/' + App.mySlug); try { var mySnap = await get(myPath); if (mySnap.exists()) { await remove(myPath); toast('Reaction removed'); return; } var allEmoji = Object.keys(p.reactions || {}); for (var j = 0; j < allEmoji.length; j++) { try { await remove(dbRef(db, WALL_POSTS_PATH + '/' + postKey + '/reactions/' + allEmoji[j] + '/' + App.mySlug)); } catch (e) {} } await set(myPath, { time: Date.now() }); toast('Reacted ' + emoji); if (p.authorSlug && p.authorSlug !== App.mySlug) { try { var dmAttachment = p.mediaUrl ? { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Wall post media' } : null; var dmText = emoji + ' ' + App.myName + ' reacted to your wall post.' + (p.text ? '\n\n📝 "' + p.text + '"' : '') + (p.link ? '\n\n🔗 ' + p.link : ''); await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, statusInteraction: { type: 'reaction', emoji: emoji, statusKey: postKey, statusText: p.text || '' }, time: Date.now() }); } catch (e) {} } } catch (e) { toast('Reaction failed', true); } };
 window.__toggleWallComments = function(postKey) { var el = $('comments_' + postKey); if (!el) return; el.style.display = el.style.display === 'none' ? 'block' : 'none'; };
-window.__postWallComment = async function(postKey) {
-  var inp = $('cmt_' + postKey); if (!inp) return; var text = inp.value.trim(); if (!text) return; inp.value = '';
-  try { var p = null; for (var i = 0; i < App.wallPosts.length; i++) if (App.wallPosts[i]._k === postKey) { p = App.wallPosts[i]; break; } await push(dbRef(db, WALL_POSTS_PATH + '/' + postKey + '/comments'), { authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto || null, text: text, time: Date.now() }); toast('Comment posted ✓'); if (p && p.authorSlug && p.authorSlug !== App.mySlug) { try { var dmAttachment = p.mediaUrl ? { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Wall post media' } : null; var dmText = '💬 ' + App.myName + ' (@' + App.mySlug + ') commented on your wall post:\n\n💭 "' + text + '"' + (p.text ? '\n\n📝 Original: "' + p.text + '"' : ''); await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, statusInteraction: { type: 'wall_comment', commentText: text, statusKey: postKey, statusText: p.text || '' }, time: Date.now() }); } catch (e) {} } } catch (e) { toast('Failed', true); }
-};
+window.__postWallComment = async function(postKey) { var inp = $('cmt_' + postKey); if (!inp) return; var text = inp.value.trim(); if (!text) return; inp.value = ''; try { var p = null; for (var i = 0; i < App.wallPosts.length; i++) if (App.wallPosts[i]._k === postKey) { p = App.wallPosts[i]; break; } await push(dbRef(db, WALL_POSTS_PATH + '/' + postKey + '/comments'), { authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto || null, text: text, time: Date.now() }); toast('Comment posted ✓'); if (p && p.authorSlug && p.authorSlug !== App.mySlug) { try { var dmAttachment = p.mediaUrl ? { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Wall post media' } : null; var dmText = '💬 ' + App.myName + ' (@' + App.mySlug + ') commented on your wall post:\n\n💭 "' + text + '"' + (p.text ? '\n\n📝 Original: "' + p.text + '"' : ''); await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, statusInteraction: { type: 'wall_comment', commentText: text, statusKey: postKey, statusText: p.text || '' }, time: Date.now() }); } catch (e) {} } } catch (e) { toast('Failed', true); } };
 window.__deleteWallPost = async function(postKey) { var p = null; for (var i = 0; i < App.wallPosts.length; i++) if (App.wallPosts[i]._k === postKey) { p = App.wallPosts[i]; break; } if (!p) return; if (p.authorSlug !== App.mySlug && !isOwner()) return toast('Only author can delete', true); if (!confirm('Delete?')) return; try { await remove(dbRef(db, WALL_POSTS_PATH + '/' + postKey)); toast('Deleted ✓'); } catch (e) { toast('Delete failed', true); } };
 
-/* ═══════ MESSAGES + GROUPS ═══════ */
+/* MESSAGES + GROUPS */
 function setupMessageListener(id, isGroup) {
   var path = isGroup ? 'group_chats/' + id + '/messages' : 'chats/' + chatIdFor(App.mySlug, id) + '/messages';
   if (App.globalUnsubs[id]) { try { App.globalUnsubs[id](); } catch (e) {} delete App.globalUnsubs[id]; }
@@ -1520,20 +1390,7 @@ function buildUI() {
   updateWallHeader();
 }
 debouncedBuildUI = debounce(buildUI, 250);
-window.__openChat = function(id, isGroup) {
-  if (!isGroup && !isOwner() && id !== App.mySlug && !findContact(id)) return toast('Add this user to DM them', true);
-  App.activeChat = id; App.activeIsGroup = isGroup; App.unreadCounts[id] = 0; App.lastSeenTimes[id] = Date.now(); saveUnreadCounts(); saveLastSeenTimes();
-  var t = isGroup ? findGroup(id) : findContact(id);
-  $('chatName').textContent = t ? t.name : id;
-  $('chatAvatar').innerHTML = isGroup ? '👥' : avatarInner(t ? t.photo : null, t ? t.name : '');
-  $('voiceCallFromChatBtn').style.display = isGroup ? 'none' : 'block';
-  $('videoCallFromChatBtn').style.display = isGroup ? 'none' : 'block';
-  $('blockUserFromChatBtn').style.display = isGroup ? 'none' : 'block';
-  if (!isGroup) { var p = App.contactPresence[id]; if (p && p.online === true) { $('chatStatus').textContent = '● Online'; $('chatStatus').style.color = '#22c55e'; } else if (p && p.lastSeen) { $('chatStatus').textContent = 'Last seen ' + formatDateTime(p.lastSeen); $('chatStatus').style.color = '#ef4444'; } else { $('chatStatus').textContent = 'Offline'; $('chatStatus').style.color = '#ef4444'; } }
-  else { $('chatStatus').textContent = 'Group chat'; $('chatStatus').style.color = '#22c55e'; }
-  showScreen('screen-chat'); renderMessages(id, App.lastMessages[id] || [], isGroup);
-  if (!App.globalUnsubs[id]) setupMessageListener(id, isGroup);
-};
+window.__openChat = function(id, isGroup) { if (!isGroup && !isOwner() && id !== App.mySlug && !findContact(id)) return toast('Add this user to DM them', true); App.activeChat = id; App.activeIsGroup = isGroup; App.unreadCounts[id] = 0; App.lastSeenTimes[id] = Date.now(); saveUnreadCounts(); saveLastSeenTimes(); var t = isGroup ? findGroup(id) : findContact(id); $('chatName').textContent = t ? t.name : id; $('chatAvatar').innerHTML = isGroup ? '👥' : avatarInner(t ? t.photo : null, t ? t.name : ''); $('voiceCallFromChatBtn').style.display = isGroup ? 'none' : 'block'; $('videoCallFromChatBtn').style.display = isGroup ? 'none' : 'block'; $('blockUserFromChatBtn').style.display = isGroup ? 'none' : 'block'; if (!isGroup) { var p = App.contactPresence[id]; if (p && p.online === true) { $('chatStatus').textContent = '● Online'; $('chatStatus').style.color = '#22c55e'; } else if (p && p.lastSeen) { $('chatStatus').textContent = 'Last seen ' + formatDateTime(p.lastSeen); $('chatStatus').style.color = '#ef4444'; } else { $('chatStatus').textContent = 'Offline'; $('chatStatus').style.color = '#ef4444'; } } else { $('chatStatus').textContent = 'Group chat'; $('chatStatus').style.color = '#22c55e'; } showScreen('screen-chat'); renderMessages(id, App.lastMessages[id] || [], isGroup); if (!App.globalUnsubs[id]) setupMessageListener(id, isGroup); };
 $('blockUserFromChatBtn').addEventListener('click', function() { if (App.activeChat && !App.activeIsGroup) window.blockUser(App.activeChat); });
 function renderAttachment(a) { if (!a || !a.url) return ''; var u = esc(a.url); if (a.type === 'image') return '<img class="attach-img" src="' + u + '" loading="lazy" onclick="window.__lb(\'' + u + '\')">'; if (a.type === 'video') return '<video class="attach-video" controls playsinline src="' + u + '" preload="none"></video>'; if (a.type === 'audio') return '<audio class="attach-audio" controls preload="none" src="' + u + '"></audio>'; return '<a class="attach-file" href="' + u + '" target="_blank" download="' + esc(a.name || 'file') + '">📄 ' + esc(a.name || 'File') + '</a>'; }
 function renderMessages(id, msgs, isGroup) {
@@ -1557,9 +1414,33 @@ $('chatInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') 
 $('chatInput').addEventListener('input', function() { $('sendBtn').disabled = !$('chatInput').value.trim(); });
 $('attachBtn').addEventListener('click', function() { $('fileInput').click(); });
 $('fileInput').addEventListener('change', async function(e) { var f = e.target.files[0]; if (!f || !App.activeChat) return; toast('Processing…'); try { var url = await fileToBase64(f); await sendMessage({ type: detectFileType(f), url: url, name: f.name, size: f.size }); toast('Sent ✓'); } catch (err) { toast('Failed', true); } e.target.value = ''; });
-function listenVoicemails() { var list = $('voicemailList'); if (!list) return; if (App._voicemailListener) { try { App._voicemailListener(); } catch (e) {} App._voicemailListener = null; } try { App._voicemailListener = onValue(query(dbRef(db, 'voicemails/' + App.mySlug), limitToLast(20)), function(snap) { var d = snap.val() || {}; var items = Object.keys(d).map(function(k) { var v = d[k]; v._k = k; return v; }).sort(function(a, b) { return b.time - a.time; }); if (!items.length) { list.innerHTML = '<div class="empty"><p>No voicemails.</p></div>'; return; } var html = ''; for (var i = 0; i < items.length; i++) html += '<div style="background:#fff;margin:8px 16px;padding:14px;border-radius:10px;border:1px solid var(--border);"><div style="font-size:16px;font-weight:700;">From: @' + esc(items[i].fromName || items[i].from) + '</div><div style="font-size:13px;color:var(--muted);margin-bottom:6px;">' + formatDateTime(items[i].time) + (items[i].duration ? ' · ' + items[i].duration + 's' : '') + '</div><audio controls preload="none" src="' + items[i].url + '" style="width:100%;"></audio></div>'; list.innerHTML = html; }, function(err) {}); } catch (e) {} }
 
-/* ═══════ STATUS FEED ═══════ */
+/* VOICEMAIL — with badge + read tracking */
+function listenVoicemails() { var list = $('voicemailList'); if (!list) return; if (App._voicemailListener) { try { App._voicemailListener(); } catch (e) {} App._voicemailListener = null; } try { App._voicemailListener = onValue(query(dbRef(db, 'voicemails/' + App.mySlug), limitToLast(20)), function(snap) { var d = snap.val() || {}; var items = Object.keys(d).map(function(k) { var v = d[k]; v._k = k; return v; }).sort(function(a, b) { return b.time - a.time; }); if (!items.length) { list.innerHTML = '<div class="empty"><p>No voicemails.</p></div>'; return; } var html = ''; for (var i = 0; i < items.length; i++) { var readBadge = !items[i].read ? '<span style="display:inline-block;background:#ff4757;color:#fff;font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;margin-left:6px;">NEW</span>' : ''; html += '<div style="background:#fff;margin:8px 16px;padding:14px;border-radius:10px;border:1px solid var(--border);' + (!items[i].read ? 'border-left:4px solid #ff4757;' : '') + '"><div style="font-size:16px;font-weight:700;">From: @' + esc(items[i].fromName || items[i].from) + readBadge + '</div><div style="font-size:13px;color:var(--muted);margin-bottom:6px;">' + formatDateTime(items[i].time) + (items[i].duration ? ' · ' + items[i].duration + 's' : '') + '</div><audio controls preload="none" src="' + items[i].url + '" style="width:100%;"></audio></div>'; } list.innerHTML = html; }, function(err) {}); } catch (e) {} }
+function listenVoicemailBadge() {
+  if (!App.mySlug) return;
+  if (App._voicemailBadgeListener) { try { App._voicemailBadgeListener(); } catch (e) {} App._voicemailBadgeListener = null; }
+  try {
+    App._voicemailBadgeListener = onValue(dbRef(db, 'voicemails/' + App.mySlug), function(snap) {
+      var d = snap.val() || {};
+      var unread = Object.keys(d).filter(function(k) { return !d[k].read; }).length;
+      var btn = document.querySelector('.nav-item[data-tab="calls"]');
+      if (!btn) return;
+      var existing = btn.querySelector('.req-badge');
+      if (existing) existing.remove();
+      if (unread > 0) { var badge = document.createElement('span'); badge.className = 'req-badge'; badge.textContent = unread > 9 ? '9+' : unread; badge.style.background = '#ff4757'; btn.appendChild(badge); }
+    }, function() {});
+  } catch (e) {}
+}
+function markVoicemailsAsRead() {
+  if (!App.mySlug) return;
+  get(dbRef(db, 'voicemails/' + App.mySlug)).then(function(snap) {
+    var d = snap.val() || {};
+    Object.keys(d).forEach(function(k) { if (!d[k].read) { set(dbRef(db, 'voicemails/' + App.mySlug + '/' + k + '/read'), true).catch(function(){}); } });
+  }).catch(function(){});
+}
+
+/* STATUS FEED */
 function listenUserStatuses() { if (App._userStatusesListener) { try { App._userStatusesListener(); } catch (e) {} App._userStatusesListener = null; } try { App._userStatusesListener = onValue(query(dbRef(db, STATUS_FEED_PATH), limitToLast(100)), function(snap) { var d = snap.val() || {}; var fs = App.contacts.map(function(c) { return c.slug; }); var posts = Object.keys(d).map(function(k) { var v = d[k]; v._k = k; return v; }).filter(function(p) { return isOwner() || p.authorSlug === App.mySlug || fs.indexOf(p.authorSlug) !== -1; }).sort(function(a, b) { return (b.time || 0) - (a.time || 0); }); try { LS.set('cached_statuses', posts); } catch (e) {} try { renderStatusFeedList(posts); } catch (e) {} }, function(err) { var cached = LS.get('cached_statuses', []); if (cached.length) { try { renderStatusFeedList(cached); } catch (e) {} } }); } catch (e) {} }
 function renderStatusFeedList(posts) {
   var sf = $('statusFeedList'); if (!sf) return;
@@ -1575,7 +1456,7 @@ function renderStatusCommentsLocal() { if (!App.activeStatusObj) return; var d =
 $('statusCommentCancel').addEventListener('click', function() { $('statusCommentsModal').classList.remove('show'); });
 $('statusCommentSend').addEventListener('click', async function() { var text = $('statusCommentInput').value.trim(); if (!text || !App.activeStatusObj) return; var p = App.activeStatusObj; await push(dbRef(db, STATUS_FEED_PATH + '/' + p._k + '/comments'), { author: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto || null, text: text, time: Date.now() }); if (p.authorSlug && p.authorSlug !== App.mySlug) { try { var dmAttachment = null; if (p.mediaUrl) dmAttachment = { type: p.mediaType || 'image', url: p.mediaUrl, name: 'Original status media' }; var dmText = '💬 ' + App.myName + ' (@' + App.mySlug + ') commented on your status:\n\n💭 "' + text + '"' + (p.text ? '\n\n📝 Original: "' + p.text + '"' : ''); await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: dmText, attachment: dmAttachment, statusInteraction: { type: 'comment', statusKey: p._k, commentText: text, statusText: p.text || '' }, time: Date.now() }); } catch (e) {} } $('statusCommentInput').value = ''; $('statusCommentsModal').classList.remove('show'); toast('Sent ✓'); });
 
-/* ═══════ EMOJI + FABs + PROFILE + STATUS POST + NAV ═══════ */
+/* EMOJI + FABs + PROFILE + STATUS POST + NAV */
 $('emojiBtn').addEventListener('click', function() { $('emojiPalette').classList.toggle('show'); });
 document.querySelectorAll('.emoji-item').forEach(function(b) { b.addEventListener('click', function() { $('chatInput').value += b.textContent; $('sendBtn').disabled = false; }); });
 document.querySelectorAll('.quick-reaction').forEach(function(b) { b.addEventListener('click', function() { $('chatInput').value = b.dataset.emoji; sendMessage(null); }); });
@@ -1600,8 +1481,8 @@ for (var i = 0; i < nb.length; i++) (function(b) {
     for (var n = 0; n < nb.length; n++) nb[n].classList.toggle('active', nb[n] === b);
     var tabs = document.querySelectorAll('.tab-content'); for (var k = 0; k < tabs.length; k++) tabs[k].style.display = 'none';
     var tab = $('tab' + t.charAt(0).toUpperCase() + t.slice(1)); if (tab) tab.style.display = 'block';
-    $('headerTitle').textContent = t === 'feed' ? 'Feed' : t === 'chats' ? 'Friend List' : t === 'wall' ? 'My Wall' : t === 'status' ? 'Status' : t === 'newusers' ? 'All Users' : t === 'social' ? 'Social Hub' : t === 'calls' ? 'Calls' : t === 'profile' ? 'My Profile' : t.charAt(0).toUpperCase() + t.slice(1);
-    if (t === 'voicemail') listenVoicemails();
+    $('headerTitle').textContent = t === 'feed' ? 'Feed' : t === 'chats' ? 'Friend List' : t === 'wall' ? 'My Wall' : t === 'status' ? 'Status' : t === 'newusers' ? 'All Users' : t === 'social' ? 'Social Hub' : t === 'calls' ? 'Calls' : t === 'profile' ? 'My Profile' : t === 'voicemail' ? 'Voicemail' : t.charAt(0).toUpperCase() + t.slice(1);
+    if (t === 'voicemail') { listenVoicemails(); markVoicemailsAsRead(); }
     if (t === 'status') { renderPinnedStatus(App.pinnedStatus); renderActiveLiveStreams(); }
     if (t === 'newusers') { renderNewUsersTab(); updateNewUsersBadge(); }
     if (t === 'wall') { renderMyWall(); updateWallHeader(); }
@@ -1613,7 +1494,7 @@ window.__lb = function(u) { $('lightboxImg').src = u; $('lightboxDownload').href
 $('lightboxClose').addEventListener('click', function() { $('lightbox').classList.remove('show'); });
 $('clearBtn').addEventListener('click', function() { if (confirm('Clear local data?')) { LS.del('mySlug'); LS.del('contacts'); LS.del('groups'); LS.del('cached_chats'); LS.del('cached_statuses'); LS.del('cached_wallPosts'); location.reload(); } });
 
-/* ═══════ LIVE STREAMS ═══════ */
+/* LIVE STREAMS */
 function listenActiveLiveStreams() { if (App._activeStreamsListener) { try { App._activeStreamsListener(); } catch (e) {} App._activeStreamsListener = null; } try { App._activeStreamsListener = onValue(dbRef(db, LIVE_ACTIVE_PATH), function(snap) { App.activeLiveStreams = snap.val() || {}; renderActiveLiveStreams(); if (debouncedBuildUI) debouncedBuildUI(); }, function(err) {}); } catch (e) {} }
 function renderActiveLiveStreams() { var list = $('liveStreamsList'), header = $('liveNowHeader'); if (!list) return; var now = Date.now(), myContacts = App.contacts.map(function(c) { return c.slug; }); var slugs = Object.keys(App.activeLiveStreams).filter(function(slug) { var s = App.activeLiveStreams[slug]; if (!s || !s.streamId || !s.startedAt) return false; if ((now - s.startedAt) >= 4 * 60 * 60 * 1000) return false; return isOwner() || slug === App.mySlug || myContacts.indexOf(slug) !== -1; }); if (!slugs.length) { if (header) header.style.display = 'none'; list.innerHTML = ''; return; } if (header) header.style.display = 'block'; var html = ''; for (var i = 0; i < slugs.length; i++) { var slug = slugs[i], s = App.activeLiveStreams[slug], isMine = slug === App.mySlug; html += '<div class="status-card live-now-card"><div class="status-card-header"><div class="avatar" style="width:50px;height:50px;font-size:20px;border:2px solid #ff4757;">' + avatarInner(s.photo, s.name) + '</div><div style="flex:1"><div style="font-weight:700;font-size:17px;">' + esc(s.name || slug) + ' <span style="color:#ff4757;font-weight:800;">● LIVE</span></div><small style="color:var(--muted);font-size:14px;">Started ' + formatDateTime(s.startedAt) + '</small></div>' + (isMine ? '<button style="background:#ff4757;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;" onclick="window.__returnToLiveHost()">Back</button>' : '<button style="background:#ff4757;color:#fff;border:none;padding:12px 20px;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;" onclick="window.__watchLiveStream(\'' + slug + '\',\'' + s.streamId + '\')">▶ Watch</button>') + '</div></div>'; } list.innerHTML = html; }
 window.__returnToLiveHost = function() { if (App.liveMode === 'host') showScreen('screen-live'); else toast('Not streaming', true); };
@@ -1633,7 +1514,7 @@ $('liveEndBtn').addEventListener('click', function() { if (App.liveMode === 'hos
 $('liveMuteBtn').addEventListener('click', function() { window.__toggleLiveMute(); });
 $('liveShareBtn').addEventListener('click', function() { var slug = App.liveHostSlug || App.mySlug; if (!slug) return; var url = APP_BASE_URL + '?live=' + encodeURIComponent(slug); if (navigator.share) { navigator.share({ title: 'JARVIS Live', text: "I'm LIVE on JARVIS", url: url }).catch(function() {}); } else { prompt('Share:', url); } });
 
-/* ═══════ CALL STUB + SOCIAL + BROWSER ═══════ */
+/* CALL STUB + SOCIAL */
 window.startCall = function(slug, v) { if (!slug || slug === App.mySlug) return toast('Invalid contact', true); if (App.blockedUsers.indexOf(slug) !== -1) return toast('Unblock first', true); toast('📞 Calling @' + slug + '…'); };
 window.__googleOpen = function(url) { window.open(url, '_blank', 'noopener'); };
 window.__chromeOpen = function(url) { window.open(url, '_blank', 'noopener'); };
@@ -1657,7 +1538,7 @@ $('googleOpenBtn').addEventListener('click', function() { var q = $('googleInput
 $('chromeOpenBtn').addEventListener('click', function() { var q = $('chromeInput').value.trim(); if (!q) return; if (/^https?:\/\//i.test(q)) window.open(q, '_blank', 'noopener'); else if (/^[\w-]+\.[\w.-]+/.test(q)) window.open('https://' + q, '_blank', 'noopener'); else window.open('https://www.google.com/search?q=' + encodeURIComponent(q), '_blank', 'noopener'); });
 $('edgeOpenBtn').addEventListener('click', function() { var q = $('edgeInput').value.trim(); if (!q) return; if (/^https?:\/\//i.test(q)) window.open(q, '_blank', 'noopener'); else if (/^[\w-]+\.[\w.-]+/.test(q)) window.open('https://' + q, '_blank', 'noopener'); else window.open('https://www.bing.com/search?q=' + encodeURIComponent(q), '_blank', 'noopener'); });
 
-/* COMING SOON buttons (recordBtn excluded — it works now) */
+/* COMING SOON */
 (function wireComingSoonButtons() {
   var ids = ['preCallStart','addParticipantBtn','participantConfirm','bgGalleryClose','liveBgBtn','liveScreenBtn','liveRecordBtn','livePauseBtn','liveCameraBtn','liveJoinBtn','muteBtn','screenShareBtn','filterBtn','inCallChatBtn','recordCallBtn'];
   ids.forEach(function(id) { var el = document.getElementById(id); if (el && !el._comingWired) { el.addEventListener('click', function() { if (id === 'preCallStart') { try { document.getElementById('preCallModal').classList.remove('show'); } catch(e){} toast('🚧 Voice / Video calls coming soon'); return; } if (id === 'participantConfirm') { try { document.getElementById('addParticipantModal').classList.remove('show'); } catch(e){} toast('🚧 Group calls coming soon'); return; } if (id === 'bgGalleryClose') { try { document.getElementById('bgGalleryModal').classList.remove('show'); } catch(e){} return; } toast('🚧 Advanced call features coming soon'); }); el._comingWired = true; } });
@@ -1677,22 +1558,17 @@ window.__applyLiveBg = function() { toast('🚧 Backgrounds coming soon'); };
 window.__saveLiveRecordingToDevice = function() { toast('🚧 Recording save coming soon'); };
 window.__discardLiveRecording = function() { toast('🚧 Recording coming soon'); };
 
-/* ═══════════════════════════════════════════════════════════════
-   VOICE SYSTEM — ALL FIXES (v29)
-   ═══════════════════════════════════════════════════════════════ */
-
-/* FIX 1 — Open Voicemail button in Calls tab */
+/* VOICE SYSTEM — v30 with voicemail badge */
 $('openVoicemailBtn').addEventListener('click', function() {
   document.querySelectorAll('.tab-content').forEach(function(t) { t.style.display = 'none'; });
   var vt = $('tabVoicemail'); if (vt) vt.style.display = 'block';
   $('headerTitle').textContent = 'Voicemail';
   document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
   var callsNav = document.querySelector('.nav-item[data-tab="calls"]'); if (callsNav) callsNav.classList.add('active');
-  buildUI(); listenVoicemails();
+  buildUI(); listenVoicemails(); markVoicemailsAsRead();
   if (!App.contacts.length) toast('Add friends first to send voicemail', true);
 });
 
-/* FIX 2 — Voicemail recorder (30s, real) */
 var vmMR = null, vmAC = [], vmTimer = null, vmStartTime = 0;
 $('recordBtn').addEventListener('click', async function() {
   var r = $('vmRecipient').value;
@@ -1720,7 +1596,7 @@ $('recordBtn').addEventListener('click', async function() {
         toast('Uploading voicemail…');
         try {
           var url = await fileToBase64(blob);
-          await push(dbRef(db, 'voicemails/' + r), { from: App.mySlug, fromName: App.myName, url: url, duration: durationSec, time: Date.now() });
+          await push(dbRef(db, 'voicemails/' + r), { from: App.mySlug, fromName: App.myName, url: url, duration: durationSec, read: false, time: Date.now() });
           toast('✓ Voicemail sent (' + durationSec + 's)');
           try { await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, r) + '/messages'), { from: App.mySlug, fromName: App.myName, text: '🎙️ Sent you a voicemail (' + durationSec + 's) — check your Voicemail tab', attachment: { type: 'audio', url: url, name: 'Voicemail' }, time: Date.now() }); } catch (e) {}
           listenVoicemails();
@@ -1741,7 +1617,6 @@ $('recordBtn').addEventListener('click', async function() {
   } else if (vmMR && vmMR.state === 'recording') { clearTimeout(vmTimer); vmMR.stop(); }
 });
 
-/* FIX 3 — Chat voice note recorder (🎙️ in chat input bar) */
 var chatVMR = null, chatVAC = [], chatVTimer = null, chatVStart = 0;
 $('chatRecordBtn').addEventListener('click', async function() {
   if (!App.activeChat) return toast('Open a chat first', true);
@@ -1786,7 +1661,6 @@ $('chatRecordBtn').addEventListener('click', async function() {
   }
 });
 
-/* FIX 4 — Status voice note button (in Post Status modal) */
 (function addStatusVoiceBtn() {
   var mediaWrap = document.getElementById('statusMediaSelectBtn');
   if (!mediaWrap || mediaWrap._voiceAdded) return;
@@ -1834,7 +1708,6 @@ $('chatRecordBtn').addEventListener('click', async function() {
   });
 })();
 
-/* FIX 5 — Wall voice note button (in Post to Wall modal) */
 (function addWallVoiceBtn() {
   var mediaWrap = document.getElementById('wallMediaSelectBtn');
   if (!mediaWrap || mediaWrap._voiceAdded) return;
@@ -1882,7 +1755,7 @@ $('chatRecordBtn').addEventListener('click', async function() {
   });
 })();
 
-console.log('%c✅ JARVIS v29 — ALL voice fixed (chat + voicemail + status + wall)', 'background:#d4af37;color:#0b2a4a;padding:8px 14px;border-radius:6px;font-weight:bold;font-size:14px;');
+console.log('%c✅ JARVIS v30 — All voice + voicemail badge working', 'background:#d4af37;color:#0b2a4a;padding:8px 14px;border-radius:6px;font-weight:bold;font-size:14px;');
 </script>
 </body>
 </html>
