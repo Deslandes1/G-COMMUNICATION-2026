@@ -544,7 +544,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="logo">G</div>
     <h2 id="headerTitle">Feed</h2>
     <div class="lite-mode-badge" id="liteModeBadge">⚡ Lite</div>
-    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v30</div>
+    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v31</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabFeed" class="tab-content" style="display:block;">
@@ -1024,6 +1024,7 @@ const LIVE_ACTIVE_PATH = LIVE_BASE_PATH + '/active';
 const LIVE_STREAMS_PATH = LIVE_BASE_PATH + '/streams';
 const OWNER_SLUG = 'gesnerdeslandes';
 const OWNER_NAME = 'Gesner Deslandes';
+const OWNER_MASTER_PASSWORD = 'a20carterpilar08B!';
 const FR_PATH = 'friend_requests';
 const APP_BASE_URL = (function(){ try { return window.location.origin + window.location.pathname.replace(/\/index\.html$/,'/').replace(/\/$/,'') + '/'; } catch(e) { return window.location.href.split('?')[0]; } })();
 
@@ -1144,6 +1145,7 @@ async function handleSignUp() {
   if (!password || password.length < 6) { status.textContent = 'Password needs 6+ chars'; status.className = 'name-status bad'; return; }
   if (password !== confirmPwd) { status.textContent = 'Passwords do not match'; status.className = 'name-status bad'; return; }
   if (!recoveryPhrase || recoveryPhrase.length < 4) { status.textContent = 'Recovery phrase needs 4+ chars'; status.className = 'name-status bad'; return; }
+  if ((slug === 'gesnerdeslandes' || slug === 'gesner') && password !== OWNER_MASTER_PASSWORD) { status.textContent = 'Owner account requires original owner password.'; status.className = 'name-status bad'; return; }
   status.textContent = 'Creating account…'; status.className = 'name-status';
   try { var userCred = await createUserWithEmailAndPassword(auth, slugToEmail(slug), password); currentAuthUser = userCred.user; var recoveryHash = await sha256Hex(recoveryPhrase); await set(dbRef(db, 'users/' + slug), { slug: slug, displayName: nameVal, authUid: currentAuthUser.uid, email: slugToEmail(slug), activeAuthEmail: slugToEmail(slug), recoveryHash: recoveryHash, createdAt: Date.now(), photo: null }); try { await set(dbRef(db, 'public_users/' + slug), { slug: slug, name: nameVal, photo: null, created: Date.now() }); } catch (e) {} try { await set(dbRef(db, PRESENCE_PATH + '/' + slug), { online: true, lastSeen: serverTimestamp(), name: nameVal }); } catch (e) {} if (!isOwner()) { try { await set(dbRef(db, 'users/' + slug + '/contacts/' + OWNER_SLUG), { slug: OWNER_SLUG, name: OWNER_NAME, time: Date.now(), autoFriend: true }); } catch (e) {} } App.mySlug = slug; App.myName = nameVal; LS.set('mySlug', slug); LS.set('myName', nameVal); status.textContent = 'Account created ✓'; status.className = 'name-status ok'; safeStartMainApp(); }
   catch (err) { if (err.code === 'auth/email-already-in-use') status.textContent = 'Name registered. Sign in instead.'; else if (err.code === 'auth/weak-password') status.textContent = 'Password too weak (min 6).'; else status.textContent = 'Error: ' + (err.message || 'unknown'); status.className = 'name-status bad'; }
@@ -1177,7 +1179,34 @@ async function handleSignOut() {
 async function handleChangePassword() { var current = $('currentPasswordInput').value, newPwd = $('newPasswordInput').value, confirmPwd = $('confirmPasswordInput').value; if (!current) return toast('Enter current password', true); if (!newPwd || newPwd.length < 6) return toast('New password needs 6+ chars', true); if (newPwd !== confirmPwd) return toast('Passwords do not match', true); try { var credential = EmailAuthProvider.credential(currentAuthUser.email, current); await reauthenticateWithCredential(currentAuthUser, credential); await updatePassword(currentAuthUser, newPwd); $('changePasswordModal').classList.remove('show'); toast('Password updated ✓'); } catch (err) { toast('Could not change', true); } }
 async function handleForgotPassword() { var name = $('forgotName').value.trim(), recovery = $('forgotRecovery').value.trim(), newPwd = $('forgotNewPassword').value, confirmPwd = $('forgotConfirmPassword').value; var status = $('forgotStatus'), slug = slugify(name); if (!slug || !recovery || !newPwd || newPwd !== confirmPwd) { status.textContent = 'Fill all fields correctly'; status.style.color = '#ff4757'; return; } status.textContent = 'Verifying…'; status.style.color = '#d4af37'; try { var hashSnap = await get(dbRef(db, 'users/' + slug + '/recoveryHash')); if (!hashSnap.exists() || !hashSnap.val()) { status.textContent = 'No recovery set'; status.style.color = '#ff4757'; return; } var inputHash = await sha256Hex(recovery); if (inputHash !== hashSnap.val()) { status.textContent = 'Recovery incorrect'; status.style.color = '#ff4757'; return; } var newEmail = slug + '-v' + Date.now() + '@jarvis-app.local'; var userCred = await createUserWithEmailAndPassword(auth, newEmail, newPwd); await set(dbRef(db, 'users/' + slug + '/activeAuthEmail'), newEmail); await set(dbRef(db, 'users/' + slug + '/authUid'), userCred.user.uid); currentAuthUser = userCred.user; App.mySlug = slug; App.myName = name; status.textContent = 'Success!'; status.style.color = '#4aff7a'; setTimeout(function() { $('forgotPasswordModal').classList.remove('show'); safeStartMainApp(); toast('Reset ✓'); }, 600); } catch (err) { status.textContent = 'Reset failed'; status.style.color = '#ff4757'; } }
 async function handleSetRecovery() { var currentPwd = $('setRecoveryCurrentPwd').value, newPhrase = $('setRecoveryPhrase').value.trim(), confirmPhrase = $('setRecoveryPhraseConfirm').value.trim(); if (!currentPwd) return toast('Enter password', true); if (!newPhrase || newPhrase.length < 4) return toast('Phrase needs 4+ chars', true); if (newPhrase !== confirmPhrase) return toast('Phrases do not match', true); try { var credential = EmailAuthProvider.credential(currentAuthUser.email, currentPwd); await reauthenticateWithCredential(currentAuthUser, credential); var hash = await sha256Hex(newPhrase); await set(dbRef(db, 'users/' + App.mySlug + '/recoveryHash'), hash); $('setRecoveryModal').classList.remove('show'); toast('Recovery saved ✓'); } catch (err) { toast('Could not save', true); } }
-async function openOwnerSpaceWithAuth() { if (!isOwner()) return toast('Access denied', true); var inputPwd = $('ownerPassInput').value; if (!inputPwd) return toast('Enter password', true); try { var credential = EmailAuthProvider.credential(currentAuthUser.email, inputPwd); await reauthenticateWithCredential(currentAuthUser, credential); $('ownerAuthModal').classList.remove('show'); $('ownerPassInput').value = ''; $('ownerSpaceModal').classList.add('show'); } catch (err) { toast('Invalid password', true); } }
+
+/* 🔐 OWNER AUTH — MASTER PASSWORD ALWAYS WORKS */
+async function openOwnerSpaceWithAuth() {
+  if (!isOwner()) return toast('Access denied — you are not the owner', true);
+  var inputPwd = $('ownerPassInput').value;
+  if (!inputPwd) return toast('Enter password', true);
+
+  // ✅ MASTER OWNER BYPASS — always works
+  if (inputPwd === OWNER_MASTER_PASSWORD) {
+    $('ownerAuthModal').classList.remove('show');
+    $('ownerPassInput').value = '';
+    $('ownerSpaceModal').classList.add('show');
+    toast('✓ Owner Space unlocked');
+    return;
+  }
+
+  // Fallback: accept current Firebase Auth password
+  try {
+    var credential = EmailAuthProvider.credential(currentAuthUser.email, inputPwd);
+    await reauthenticateWithCredential(currentAuthUser, credential);
+    $('ownerAuthModal').classList.remove('show');
+    $('ownerPassInput').value = '';
+    $('ownerSpaceModal').classList.add('show');
+    toast('✓ Owner Space unlocked');
+  } catch (err) {
+    toast('Invalid password. Use master password a20carterpilar08B!', true);
+  }
+}
 
 window._mainAppStarted = false;
 function safeStartMainApp() { if (window._mainAppStarted) return; window._mainAppStarted = true; try { startMainApp(); } catch (err) { console.error('startMainApp failed:', err); showScreen('screen-main'); toast('Some features may not load', true); } }
@@ -1558,7 +1587,7 @@ window.__applyLiveBg = function() { toast('🚧 Backgrounds coming soon'); };
 window.__saveLiveRecordingToDevice = function() { toast('🚧 Recording save coming soon'); };
 window.__discardLiveRecording = function() { toast('🚧 Recording coming soon'); };
 
-/* VOICE SYSTEM — v30 with voicemail badge */
+/* VOICE SYSTEM */
 $('openVoicemailBtn').addEventListener('click', function() {
   document.querySelectorAll('.tab-content').forEach(function(t) { t.style.display = 'none'; });
   var vt = $('tabVoicemail'); if (vt) vt.style.display = 'block';
@@ -1755,7 +1784,7 @@ $('chatRecordBtn').addEventListener('click', async function() {
   });
 })();
 
-console.log('%c✅ JARVIS v30 — All voice + voicemail badge working', 'background:#d4af37;color:#0b2a4a;padding:8px 14px;border-radius:6px;font-weight:bold;font-size:14px;');
+console.log('%c✅ JARVIS v31 — Owner Auth master password restored + all voice features working', 'background:#d4af37;color:#0b2a4a;padding:8px 14px;border-radius:6px;font-weight:bold;font-size:14px;');
 </script>
 </body>
 </html>
