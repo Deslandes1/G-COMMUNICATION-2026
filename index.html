@@ -323,7 +323,6 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .post-input-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:12px}
 .post-input-row > input, .post-input-row > textarea{flex:1;margin-bottom:0 !important}
 #statusCommentsList .comment-row{background:#f7f9fb;padding:10px 12px;border-radius:8px;font-size:16px;white-space:pre-wrap;word-break:break-word}
-/* Visibility selector */
 .vis-selector{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
 .vis-option{flex:1;min-width:120px;padding:14px 10px;border:2px solid var(--border);background:#f7f9fb;border-radius:10px;cursor:pointer;text-align:center;font-family:Calibri,sans-serif;font-size:15px;font-weight:700;color:var(--text);transition:all .15s}
 .vis-option .vis-icon{display:block;font-size:24px;margin-bottom:4px;line-height:1}
@@ -331,6 +330,32 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .vis-option.active.vis-private{border-color:#6b7a87;background:#eef2f6;color:#0b2a4a}
 .vis-option.active.vis-selective{border-color:#d4af37;background:#fff8e1;color:#8b6914}
 #selectiveFriendsWrap{display:none;margin-bottom:12px}
+/* Reaction bar */
+.reaction-bar{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;border-top:1px solid #f0f0f0;padding-top:8px}
+.reaction-btn{display:inline-flex;align-items:center;gap:5px;background:#eef2f6;color:var(--text);border:none;padding:9px 12px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s,color .15s;font-family:Calibri,sans-serif}
+.reaction-btn.active{background:var(--gold);color:var(--navy)}
+.reaction-btn:active{transform:scale(.95)}
+.reaction-btn .r-emoji{font-size:16px}
+.reaction-btn .r-count{font-size:13px;font-weight:700;opacity:.85}
+.share-btn{background:#e0f2fe;color:#0b4f66;border:none;padding:9px 12px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:Calibri,sans-serif;display:inline-flex;align-items:center;gap:5px}
+.share-btn:active{transform:scale(.95)}
+.comment-btn{background:#f2f5f8;color:var(--text);border:none;padding:9px 12px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:Calibri,sans-serif;display:inline-flex;align-items:center;gap:5px}
+.comment-btn:active{transform:scale(.95)}
+.friend-nudge{background:#fff8e1;border:1px solid #d4af37;border-radius:10px;padding:12px 14px;margin-top:12px;display:flex;align-items:center;gap:10px;font-size:14px;color:#8b6914;line-height:1.4}
+.friend-nudge button{background:linear-gradient(135deg,#0d7a8c,#0a6474);color:#fff;border:none;padding:9px 14px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:Calibri,sans-serif}
+.emoji-picker-inline{display:none;background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px;margin-top:8px;grid-template-columns:repeat(8,1fr);gap:4px}
+.emoji-picker-inline.show{display:grid}
+.emoji-pick{font-size:26px;height:44px;border-radius:8px;border:none;background:#f7f9fb;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:Calibri,sans-serif}
+.emoji-pick:active{background:#e1e7ed}
+.comment-form{display:flex;gap:6px;margin-top:10px;align-items:center}
+.comment-form input{flex:1;padding:12px 14px;border:1.5px solid var(--border);border-radius:22px;font-size:16px;outline:none;font-family:Calibri,sans-serif;background:#f7f9fb;min-width:0}
+.comment-form button.emoji-toggle{background:#eef2f6;border:none;font-size:22px;width:44px;height:44px;border-radius:50%;cursor:pointer;flex-shrink:0}
+.comment-form button.send-comment{background:linear-gradient(135deg,#0d7a8c,#0a6474);color:#fff;border:none;padding:0 14px;height:44px;border-radius:22px;font-weight:700;cursor:pointer;font-size:14px;flex-shrink:0;font-family:Calibri,sans-serif}
+.comments-panel{background:#f7f9fb;border-radius:12px;padding:12px;margin-top:10px;max-height:400px;overflow-y:auto}
+.comments-panel .comment-row{background:#fff;padding:10px 12px;border-radius:8px;font-size:15px;margin-bottom:6px;white-space:pre-wrap;word-break:break-word;border:1px solid #eef2f6}
+.comments-panel .comment-author{font-weight:700;color:var(--accent);font-size:14px}
+.comments-panel .comment-time{font-size:12px;color:var(--muted);margin-left:4px}
+.comments-empty{text-align:center;color:var(--muted);font-size:15px;padding:14px}
 @media (max-width: 540px){
   .live-chat-side{width:45%;min-width:150px;max-width:230px}
   .live-chat-msg{font-size:13px;padding:6px 8px}
@@ -354,6 +379,10 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   .social-result-meta{font-size:12px}
   .post-emoji-btn{padding:0 10px;font-size:20px}
   .vis-option{font-size:13px;padding:12px 8px}
+  .reaction-btn{padding:8px 10px;font-size:13px}
+  .reaction-btn .r-emoji{font-size:15px}
+  .reaction-btn .r-count{font-size:12px}
+  .emoji-picker-inline{grid-template-columns:repeat(6,1fr)}
 }
 @media (min-width: 640px){
   body{padding:16px;background:#e4e9ef}
@@ -383,7 +412,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   window.__jarvisModuleLoaded=false;
   window.__jarvisMarkLoaded=function(){window.__jarvisModuleLoaded=true};
   window.__jarvisMarkStarted=function(){};
-  try{var params=new URLSearchParams(window.location.search);var live=params.get('live');if(live)window._pendingLiveJoin=live}catch(e){}
+  try{var params=new URLSearchParams(window.location.search);var live=params.get('live');if(live)window._pendingLiveJoin=live;var post=params.get('post');if(post)window._pendingPostView=post;var wall=params.get('wall');if(wall)window._pendingWallView=true}catch(e){}
   var ua=navigator.userAgent;
   var iOSMatch=ua.match(/OS (\d+)_(\d+)/);
   var iOSMajor=iOSMatch?parseInt(iOSMatch[1],10):0;
@@ -428,7 +457,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
     <div class="lite-mode-badge" id="liteModeBadge">⚡ Lite</div>
-    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v23</div>
+    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v24</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content">
@@ -807,6 +836,15 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 <div class="modal-overlay" id="changePasswordModal"><div class="modal"><h3>🔑 Change Password</h3><input id="currentPasswordInput" type="password" placeholder="Current password"><input id="newPasswordInput" type="password" placeholder="New password"><input id="confirmPasswordInput" type="password" placeholder="Confirm"><div class="modal-actions"><button class="cancel" id="changePasswordCancel">Cancel</button><button class="confirm" id="changePasswordConfirm">Update</button></div></div></div>
 <div class="modal-overlay" id="forgotPasswordModal"><div class="modal"><h3>🔑 Reset Password</h3><input id="forgotName" type="text" placeholder="Your name"><input id="forgotRecovery" type="text" placeholder="Recovery phrase"><input id="forgotNewPassword" type="password" placeholder="New password"><input id="forgotConfirmPassword" type="password" placeholder="Confirm"><div id="forgotStatus" style="font-size:15px;min-height:18px;margin-bottom:8px;color:var(--muted);text-align:center;"></div><div class="modal-actions"><button class="cancel" id="forgotCancel">Cancel</button><button class="confirm" id="forgotConfirm">Reset</button></div></div></div>
 <div class="modal-overlay" id="setRecoveryModal"><div class="modal"><h3>🛡️ Recovery Phrase</h3><input id="setRecoveryCurrentPwd" type="password" placeholder="Current password"><input id="setRecoveryPhrase" type="text" placeholder="New recovery phrase"><input id="setRecoveryPhraseConfirm" type="text" placeholder="Confirm"><div class="modal-actions"><button class="cancel" id="setRecoveryCancel">Cancel</button><button class="confirm" id="setRecoveryConfirm">Save</button></div></div></div>
+<div class="modal-overlay" id="sharePostModal"><div class="modal" style="max-width:460px;"><h3>📤 Share This Post</h3><p style="font-size:15px;color:var(--muted);margin-bottom:14px;" id="sharePostIntro">Choose where to share it. People will need to create a JARVIS account to see it.</p>
+  <button class="save-rec-btn device" onclick="window.__sharePostToWall()"><span class="icon">🌍</span><span class="label">Share to Wall<span class="hint">Repost on the JARVIS Wall</span></span></button>
+  <a id="sharePostWhatsApp" target="_blank" rel="noopener" class="save-rec-btn drive" style="text-decoration:none;"><span class="icon">💚</span><span class="label">WhatsApp<span class="hint">Send via WhatsApp</span></span></a>
+  <a id="sharePostTelegram" target="_blank" rel="noopener" class="save-rec-btn drive" style="text-decoration:none;background:linear-gradient(135deg,#0088cc,#005f8f);"><span class="icon">✈️</span><span class="label">Telegram<span class="hint">Send via Telegram</span></span></a>
+  <a id="sharePostEmail" class="save-rec-btn share" style="text-decoration:none;"><span class="icon">✉️</span><span class="label">Email<span class="hint">Open your mail app</span></span></a>
+  <a id="sharePostSms" class="save-rec-btn share" style="text-decoration:none;background:linear-gradient(135deg,#0d7a8c,#0a6474);"><span class="icon">💬</span><span class="label">SMS<span class="hint">Send via text message</span></span></a>
+  <button class="save-rec-btn device" onclick="window.__copyPostLink()" style="background:#6b7a87;"><span class="icon">📋</span><span class="label">Copy Link<span class="hint">Paste anywhere</span></span></button>
+  <div class="modal-actions" style="margin-top:14px;"><button class="cancel" onclick="document.getElementById('sharePostModal').classList.remove('show')" style="width:100%;max-width:none;">Close</button></div>
+</div></div>
 <div id="lightbox"><button class="close-lb" id="lightboxClose">✕</button><img id="lightboxImg" alt=""><a class="dl-lb" id="lightboxDownload" download target="_blank" style="position:absolute;bottom:calc(30px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);padding:14px 28px;border-radius:20px;background:#d4af37;color:#0b2a4a;font-weight:700;text-decoration:none;font-size:17px;">⬇ Download</a></div>
 <div id="avatarViewerModal"><button class="close-lb" id="avatarViewerClose" onclick="document.getElementById('avatarViewerModal').classList.remove('show')">✕</button><img id="avatarViewerImg" src="" alt=""><div id="avatarViewerName">User</div></div>
 <div class="toast" id="toast"></div>
@@ -833,6 +871,15 @@ const LIVE_STREAMS_PATH = LIVE_BASE_PATH + '/streams';
 const OWNER_SLUG = 'gesnerdeslandes';
 const OWNER_NAME = 'Gesner Deslandes';
 const FR_PATH = 'friend_requests';
+
+const REACTION_TYPES = [
+  { key: 'like', emoji: '👍', label: 'Like' },
+  { key: 'love', emoji: '❤️', label: 'Love' },
+  { key: 'haha', emoji: '😂', label: 'Haha' },
+  { key: 'wow', emoji: '😮', label: 'Wow' },
+  { key: 'sad', emoji: '😢', label: 'Sad' },
+  { key: 'fire', emoji: '🔥', label: 'Fire' }
+];
 
 let fbApp, db, auth;
 try { fbApp = initializeApp(firebaseConfig); db = getDatabase(fbApp); auth = getAuth(fbApp); }
@@ -869,7 +916,9 @@ const App = {
   _friendReqListener: null, _publicUsersListener: null,
   networkMode: 'normal', userLiteMode: false, liteMode: false, lastConnectionType: '',
   pinnedStatus: null, contactPresence: {},
-  selectedVisibility: 'public', selectedVisibleTo: []
+  selectedVisibility: 'public', selectedVisibleTo: [],
+  openCommentsFor: {}, // postKey -> bool
+  pendingSharedPost: null
 };
 
 let currentAuthUser = null;
@@ -1337,12 +1386,48 @@ onAuthStateChanged(auth, async function(user) {
     try { await set(dbRef(db, PRESENCE_PATH + '/' + slug), { online: true, lastSeen: serverTimestamp(), name: App.myName }); } catch (e) {}
     safeStartMainApp();
     if (window._pendingLiveJoin) setTimeout(attemptJoinPendingLive, 1500);
+    if (window._pendingPostView) setTimeout(attemptViewSharedPost, 1800);
   } else { currentAuthUser = null; }
 });
 
 async function attemptJoinPendingLive() {
   var slug = window._pendingLiveJoin; if (!slug) return;
   try { var snap = await get(dbRef(db, LIVE_ACTIVE_PATH + '/' + slug)); if (!snap.exists()) { toast('Live stream ended', true); window._pendingLiveJoin = null; return; } var data = snap.val(); window._pendingLiveJoin = null; try { window.history.replaceState({}, document.title, window.location.pathname); } catch (e) {} setTimeout(function() { window.__watchLiveStream(slug, data.streamId); }, 500); } catch (e) {}
+}
+
+async function attemptViewSharedPost() {
+  var postKey = window._pendingPostView; if (!postKey) return;
+  try {
+    var snap = await get(dbRef(db, STATUS_FEED_PATH + '/' + postKey));
+    if (!snap.exists()) { toast('Post not found', true); window._pendingPostView = null; return; }
+    var post = snap.val(); post._k = postKey;
+    if (!postVisibleToMe(post)) {
+      // Not visible to me: navigate to Wall and show a soft warning
+      try { document.querySelector('.nav-item[data-tab="status"]').click(); } catch (e) {}
+      toast('This post is not shared with you. Add the author as a friend to see more.', true);
+      window._pendingPostView = null; return;
+    }
+    window._pendingPostView = null;
+    // Navigate to Wall and scroll to post
+    try { document.querySelector('.nav-item[data-tab="status"]').click(); } catch (e) {}
+    setTimeout(function() {
+      var cards = document.querySelectorAll('#statusFeedList .status-card');
+      // Ensure the shared post is rendered — if not in feed list, render it standalone
+      var found = false;
+      for (var i = 0; i < cards.length; i++) {
+        if (cards[i].getAttribute('data-post-key') === postKey) { cards[i].scrollIntoView({ behavior: 'smooth', block: 'center' }); cards[i].style.boxShadow = '0 0 0 3px #d4af37'; found = true; break; }
+      }
+      if (!found) {
+        // Render the shared post as a standalone card
+        var feed = document.getElementById('statusFeedList');
+        if (feed) {
+          var standalone = '<div class="section-title" style="color:#d4af37;">📌 Shared Post</div>';
+          feed.innerHTML = standalone + renderSingleStatusCard(post, true);
+          window._cachedPosts = [post];
+        }
+      }
+    }, 400);
+  } catch (e) { toast('Could not load shared post', true); }
 }
 
 function getAudioCtx() { if (!App.audioCtx) { try { App.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } return App.audioCtx; }
@@ -1658,18 +1743,140 @@ $('statusModalConfirm').addEventListener('click', async function() {
   finally { $('statusModalConfirm').disabled = false; }
 });
 
-// === Status feed: no expiry, supports Public / Myself / Selective Friends ===
+// === Visibility ===
 function postVisibleToMe(p) {
   if (!p) return false;
   if (isOwner()) return true;
   if (p.authorSlug === App.mySlug) return true;
-  var v = p.visibility || 'public'; // legacy posts = public
+  var v = p.visibility || 'public';
   if (v === 'public') return true;
   if (v === 'private') return false;
   if (v === 'selective') { var vt = p.visibleTo || {}; return !!vt[App.mySlug]; }
   return true;
 }
 
+// === Reaction helpers ===
+function reactionsForPost(p) {
+  // Merge legacy likes + new reactions into a flat map: { slug: {type, time} }
+  var merged = {};
+  if (p.likes) { Object.keys(p.likes).forEach(function(s){ merged[s] = { type: 'like', time: (p.likes[s] && p.likes[s].time) || 0 }; }); }
+  if (p.reactions) { Object.keys(p.reactions).forEach(function(s){ var r = p.reactions[s]; if (r && r.type) merged[s] = { type: r.type, time: r.time || 0 }; }); }
+  return merged;
+}
+function reactionCounts(p) {
+  var merged = reactionsForPost(p);
+  var counts = {}; REACTION_TYPES.forEach(function(rt){ counts[rt.key] = 0; });
+  Object.keys(merged).forEach(function(s){ var t = merged[s].type; if (counts[t] !== undefined) counts[t]++; });
+  return counts;
+}
+function myReaction(p) { var merged = reactionsForPost(p); var mine = merged[App.mySlug]; return mine ? mine.type : null; }
+
+window.__reactToPost = async function(postKey, reactionType) {
+  var valid = false; REACTION_TYPES.forEach(function(rt){ if (rt.key === reactionType) valid = true; });
+  if (!valid) return;
+  var rRef = dbRef(db, STATUS_FEED_PATH + '/' + postKey + '/reactions/' + App.mySlug);
+  var existing = await get(rRef);
+  if (existing.exists() && existing.val() && existing.val().type === reactionType) {
+    await remove(rRef); toast('Reaction removed');
+  } else {
+    await set(rRef, { type: reactionType, time: Date.now() });
+    toast(REACTION_TYPES.filter(function(r){return r.key===reactionType;})[0].emoji + ' Reacted');
+    // Also clear legacy likes so we don't double-count
+    try { await remove(dbRef(db, STATUS_FEED_PATH + '/' + postKey + '/likes/' + App.mySlug)); } catch (e) {}
+  }
+};
+
+// === Comments toggle per post ===
+window.__togglePostComments = function(postKey) {
+  App.openCommentsFor[postKey] = !App.openCommentsFor[postKey];
+  renderStatusFeedList(window._cachedPosts || []);
+  if (App.openCommentsFor[postKey]) {
+    setTimeout(function() {
+      var el = document.getElementById('comments-' + postKey);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      var inp = document.getElementById('commentInput-' + postKey);
+      if (inp) inp.focus();
+    }, 80);
+  }
+};
+
+window.__submitComment = async function(postKey) {
+  var inp = document.getElementById('commentInput-' + postKey);
+  if (!inp) return;
+  var text = (inp.value || '').trim();
+  if (!text) return;
+  inp.value = '';
+  try {
+    await push(dbRef(db, STATUS_FEED_PATH + '/' + postKey + '/comments'), { author: App.mySlug, text: text, time: Date.now() });
+    var post = (window._cachedPosts || []).filter(function(p){ return p._k === postKey; })[0];
+    if (post && post.authorSlug !== App.mySlug) {
+      await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, post.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: '💬 Comment: "' + text + '"', time: Date.now() });
+    }
+    toast('Comment sent ✓');
+  } catch (e) { toast('Failed to comment', true); }
+};
+
+window.__toggleCommentEmoji = function(postKey) {
+  var el = document.getElementById('commentEmoji-' + postKey);
+  if (el) el.classList.toggle('show');
+};
+window.__insertCommentEmoji = function(postKey, emoji) {
+  var inp = document.getElementById('commentInput-' + postKey);
+  if (!inp) return;
+  var start = inp.selectionStart || 0, end = inp.selectionEnd || 0;
+  var val = inp.value || '';
+  inp.value = val.slice(0, start) + emoji + val.slice(end);
+  inp.selectionStart = inp.selectionEnd = start + emoji.length;
+  inp.focus();
+};
+
+// === Share post ===
+window.__openSharePost = function(postKey) {
+  var post = (window._cachedPosts || []).filter(function(p){ return p._k === postKey; })[0];
+  if (!post) return;
+  App.pendingSharedPost = post;
+  var base = window.location.origin + window.location.pathname;
+  var url = base + '?post=' + encodeURIComponent(postKey);
+  var intro = 'Share this post. Recipients need a JARVIS account to see it — they can also add @' + (post.authorSlug || 'author') + ' as a friend to see all their posts.';
+  document.getElementById('sharePostIntro').textContent = intro;
+  var shareText = '📌 Check out this post on JARVIS Wall by @' + (post.authorName || post.authorSlug) + ' — sign up to see it:';
+  document.getElementById('sharePostWhatsApp').href = 'https://wa.me/?text=' + encodeURIComponent(shareText + ' ' + url);
+  document.getElementById('sharePostTelegram').href = 'https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(shareText);
+  document.getElementById('sharePostEmail').href = 'mailto:?subject=' + encodeURIComponent('JARVIS post from @' + (post.authorName || post.authorSlug)) + '&body=' + encodeURIComponent(shareText + '\n\n' + url);
+  document.getElementById('sharePostSms').href = 'sms:?&body=' + encodeURIComponent(shareText + ' ' + url);
+  App._sharePostUrl = url;
+  App._sharePostText = shareText;
+  document.getElementById('sharePostModal').classList.add('show');
+};
+
+window.__sharePostToWall = async function() {
+  var p = App.pendingSharedPost; if (!p) return;
+  try {
+    var newPost = {
+      authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto,
+      text: (p.text || '') + '\n\n— Shared from @' + (p.authorName || p.authorSlug),
+      link: p.link || '',
+      bgColor: p.bgColor || '#0d7a8c',
+      mediaUrl: p.mediaUrl || null,
+      mediaType: p.mediaType || null,
+      visibility: 'public',
+      sharedFrom: { slug: p.authorSlug, name: p.authorName, postKey: p._k },
+      time: Date.now()
+    };
+    await push(dbRef(db, STATUS_FEED_PATH), newPost);
+    document.getElementById('sharePostModal').classList.remove('show');
+    toast('Reposted to Wall ✓');
+  } catch (e) { toast('Failed to repost', true); }
+};
+
+window.__copyPostLink = function() {
+  var url = App._sharePostUrl; if (!url) return;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function(){ toast('Link copied ✓'); }).catch(function(){ prompt('Copy:', url); });
+  } else { prompt('Copy:', url); }
+};
+
+// === Status feed ===
 function listenUserStatuses() {
   onValue(query(dbRef(db, STATUS_FEED_PATH), limitToLast(200)), function(snap) {
     var d = snap.val() || {};
@@ -1681,7 +1888,6 @@ function listenUserStatuses() {
   }, function(err) {
     var cached = LS.get('cached_statuses', []);
     if (cached.length) {
-      // Still enforce visibility on cached posts
       var filtered = cached.filter(postVisibleToMe);
       renderStatusFeedList(filtered);
     }
@@ -1696,32 +1902,102 @@ function visBadgeHtml(p) {
   return '';
 }
 
+function renderSingleStatusCard(p, standalone) {
+  var mine = p.authorSlug === App.mySlug;
+  var media = '';
+  if (p.mediaUrl) {
+    if (p.mediaType === 'image') {
+      if (App.liteMode) media = '<div class="lazy-img" onclick="window.__loadLazyStatusImg(this, \'' + esc(p.mediaUrl) + '\', \'' + esc(p.authorName) + '\')"><span class="lazy-icon">🖼️</span><span>Tap to load image</span></div>';
+      else media = '<img src="' + p.mediaUrl + '" class="status-media" loading="lazy" onclick="window.__viewAvatar(\'' + p.mediaUrl + '\',\'' + esc(p.authorName) + '\')">';
+    } else media = '<video src="' + p.mediaUrl + '" controls playsinline webkit-playsinline class="status-media" preload="none"></video>';
+  }
+  var link = '';
+  if (p.link) {
+    var _ytId = getYouTubeId(p.link);
+    if (_ytId) {
+      if (App.liteMode) link = '<div class="lazy-img" onclick="window.__loadLazyYt(this, \'' + _ytId + '\')"><span class="lazy-icon">▶️</span><span>Tap to load YouTube video</span></div>';
+      else link = '<div style="position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:12px;overflow:hidden;margin-bottom:10px;"><iframe src="https://www.youtube.com/embed/' + _ytId + '?playsinline=1&rel=0" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
+    } else link = '<a href="' + esc(p.link) + '" target="_blank" class="status-link">🔗 ' + esc(p.link) + '</a>';
+  }
+  var txt = p.text ? '<div class="status-content-box" style="background:' + (p.bgColor || '#0d7a8c') + '">' + esc(p.text) + '</div>' : '';
+  var comments = p.comments || {};
+  var commentKeys = Object.keys(comments).sort(function(a, b) { return (comments[a].time || 0) - (comments[b].time || 0); });
+  var commentCount = commentKeys.length;
+  var reactionCountsObj = reactionCounts(p);
+  var myR = myReaction(p);
+
+  var reactionBarHtml = '<div class="reaction-bar">';
+  REACTION_TYPES.forEach(function(rt) {
+    var c = reactionCountsObj[rt.key] || 0;
+    var active = myR === rt.key;
+    reactionBarHtml += '<button class="reaction-btn' + (active ? ' active' : '') + '" onclick="window.__reactToPost(\'' + p._k + '\',\'' + rt.key + '\')"><span class="r-emoji">' + rt.emoji + '</span>' + (c > 0 ? '<span class="r-count">' + c + '</span>' : '') + '</button>';
+  });
+  reactionBarHtml += '<button class="comment-btn" onclick="window.__togglePostComments(\'' + p._k + '\')">💬 ' + commentCount + '</button>';
+  reactionBarHtml += '<button class="share-btn" onclick="window.__openSharePost(\'' + p._k + '\')">📤 Share</button>';
+  reactionBarHtml += '</div>';
+
+  var commentsHtml = '';
+  if (App.openCommentsFor[p._k]) {
+    commentsHtml += '<div class="comments-panel" id="comments-' + p._k + '">';
+    if (!commentKeys.length) commentsHtml += '<div class="comments-empty">No comments yet. Be the first!</div>';
+    else {
+      for (var ci = 0; ci < commentKeys.length; ci++) {
+        var cmt = comments[commentKeys[ci]];
+        commentsHtml += '<div class="comment-row"><span class="comment-author">@' + esc(cmt.author) + '</span><span class="comment-time">' + formatDateTime(cmt.time, 'short') + '</span><div style="margin-top:4px;">' + esc(cmt.text) + '</div></div>';
+      }
+    }
+    commentsHtml += '<div class="emoji-picker-inline" id="commentEmoji-' + p._k + '">';
+    ['😀','😂','🥰','😍','😎','🤔','😢','😭','😡','😱','👍','❤️','🔥','✨','🎉','💯','🙏','👏','💪','🌟','💖','🙌','👌','🤝'].forEach(function(em) {
+      commentsHtml += '<button class="emoji-pick" onclick="window.__insertCommentEmoji(\'' + p._k + '\',\'' + em + '\')">' + em + '</button>';
+    });
+    commentsHtml += '</div>';
+    commentsHtml += '<div class="comment-form"><button class="emoji-toggle" onclick="window.__toggleCommentEmoji(\'' + p._k + '\')">😊</button><input id="commentInput-' + p._k + '" type="text" placeholder="Add a comment..." onkeydown="if(event.key===\'Enter\')window.__submitComment(\'' + p._k + '\')"><button class="send-comment" onclick="window.__submitComment(\'' + p._k + '\')">Send</button></div>';
+    commentsHtml += '</div>';
+  }
+
+  var friendNudge = '';
+  if (!mine && !isOwner() && p.authorSlug && !findContact(p.authorSlug)) {
+    friendNudge = '<div class="friend-nudge">👋 Add <strong>@' + esc(p.authorSlug) + '</strong> as a friend to see all their posts and interact more.<button onclick="window.__sendFriendRequest(\'' + esc(p.authorSlug) + '\')">+ Add Friend</button></div>';
+  }
+
+  var badge = visBadgeHtml(p);
+  var standaloneBadge = standalone ? ' style="box-shadow:0 0 0 3px #d4af37;"' : '';
+  return '<div class="status-card" data-post-key="' + esc(p._k) + '"' + standaloneBadge + '>' +
+    '<div class="status-card-header">' +
+      '<div class="avatar" style="width:50px;height:50px;font-size:20px" onclick="window.__viewAvatar(\'' + (p.authorPhoto || '') + '\',\'' + esc(p.authorName) + '\')">' + avatarInner(p.authorPhoto, p.authorName) + '</div>' +
+      '<div style="flex:1"><div style="font-weight:700;font-size:17px;">' + esc(p.authorName) + ' <small style="color:var(--accent);font-size:14px;">(@' + esc(p.authorSlug) + ')</small>' + badge + '</div><small style="color:var(--muted);font-size:14px;">' + formatDateTime(p.time) + '</small></div>' +
+      (mine || isOwner() ? '<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:22px" onclick="window.__delStatus(\'' + p._k + '\')">🗑</button>' : '') +
+    '</div>' +
+    txt + media + link +
+    reactionBarHtml +
+    commentsHtml +
+    friendNudge +
+  '</div>';
+}
+
 function renderStatusFeedList(posts) {
   var sf = $('statusFeedList'); if (!sf) return;
   var visible = (posts || []).filter(postVisibleToMe);
   if (!visible.length) { sf.innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No posts yet.<br>Tap "+ Post Public Status" above to write something — it stays until you delete it.</p></div>'; window._cachedPosts = []; return; }
   var html = '';
-  for (var i = 0; i < visible.length; i++) {
-    var p = visible[i], mine = p.authorSlug === App.mySlug;
-    var media = '';
-    if (p.mediaUrl) { if (p.mediaType === 'image') { if (App.liteMode) { media = '<div class="lazy-img" onclick="window.__loadLazyStatusImg(this, \'' + esc(p.mediaUrl) + '\', \'' + esc(p.authorName) + '\')"><span class="lazy-icon">🖼️</span><span>Tap to load image</span></div>'; } else { media = '<img src="' + p.mediaUrl + '" class="status-media" loading="lazy" onclick="window.__viewAvatar(\'' + p.mediaUrl + '\',\'' + esc(p.authorName) + '\')">'; } } else { media = '<video src="' + p.mediaUrl + '" controls playsinline webkit-playsinline class="status-media" preload="none"></video>'; } }
-    var link = '';
-    if (p.link) { var _ytId = getYouTubeId(p.link); if (_ytId) { if (App.liteMode) { link = '<div class="lazy-img" onclick="window.__loadLazyYt(this, \'' + _ytId + '\')"><span class="lazy-icon">▶️</span><span>Tap to load YouTube video</span></div>'; } else { link = '<div style="position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:12px;overflow:hidden;margin-bottom:10px;"><iframe src="https://www.youtube.com/embed/' + _ytId + '?playsinline=1&rel=0" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>'; } } else { link = '<a href="' + esc(p.link) + '" target="_blank" class="status-link">🔗 ' + esc(p.link) + '</a>'; } }
-    var txt = p.text ? '<div class="status-content-box" style="background:' + (p.bgColor || '#0d7a8c') + '">' + esc(p.text) + '</div>' : '';
-    var cm = p.comments || {}, cc = Object.keys(cm).length;
-    var lk = p.likes || {}, lc = Object.keys(lk).length, ml = !!lk[App.mySlug];
-    var vb = visBadgeHtml(p);
-    html += '<div class="status-card"><div class="status-card-header"><div class="avatar" style="width:50px;height:50px;font-size:20px" onclick="window.__viewAvatar(\'' + (p.authorPhoto || '') + '\',\'' + esc(p.authorName) + '\')">' + avatarInner(p.authorPhoto, p.authorName) + '</div><div style="flex:1"><div style="font-weight:700;font-size:17px;">' + esc(p.authorName) + ' <small style="color:var(--accent);font-size:14px;">(@' + esc(p.authorSlug) + ')</small>' + vb + '</div><small style="color:var(--muted);font-size:14px;">' + formatDateTime(p.time) + '</small></div>' + (mine || isOwner() ? '<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:22px" onclick="window.__delStatus(\'' + p._k + '\')">🗑</button>' : '') + '</div>' + txt + media + link + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;border-top:1px solid #f0f0f0;padding-top:8px;"><button style="background:' + (ml ? '#d4af37' : '#eef2f6') + ';color:' + (ml ? '#0b2a4a' : 'var(--text)') + ';border:none;padding:10px 14px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__toggleStatusLike(\'' + p._k + '\')">👍 (' + lc + ')</button><button style="background:#eef2f6;border:none;padding:10px 14px;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;" onclick="window.__openStatusComments(\'' + p._k + '\')">💬 (' + cc + ')</button></div></div>';
-  }
+  for (var i = 0; i < visible.length; i++) html += renderSingleStatusCard(visible[i], false);
   sf.innerHTML = html; window._cachedPosts = visible;
 }
 
 window.__loadLazyStatusImg = function(el, url, name) { if (!el || !url) return; var img = document.createElement('img'); img.className = 'status-media'; img.loading = 'lazy'; img.src = url; img.onclick = function() { window.__viewAvatar(url, name); }; if (el.parentNode) el.parentNode.replaceChild(img, el); };
 window.__loadLazyYt = function(el, ytId) { if (!el || !ytId) return; var wrap = document.createElement('div'); wrap.style.cssText = 'position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:12px;overflow:hidden;margin-bottom:10px;'; wrap.innerHTML = '<iframe src="https://www.youtube.com/embed/' + ytId + '?playsinline=1&rel=0&autoplay=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>'; if (el.parentNode) el.parentNode.replaceChild(wrap, el); };
 
-window.__toggleStatusLike = async function(k) { var posts = window._cachedPosts || [], p = null; for (var i = 0; i < posts.length; i++) if (posts[i]._k === k) { p = posts[i]; break; } if (!p) return; var lr = dbRef(db, STATUS_FEED_PATH + '/' + k + '/likes/' + App.mySlug); var sn = await get(lr); if (sn.exists()) { await remove(lr); toast('Unliked'); } else { await set(lr, { time: Date.now() }); toast('Liked 👍'); if (p.authorSlug !== App.mySlug) { await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: '👍 Liked your status.', time: Date.now() }); } } };
 window.__delStatus = async function(k) { if (confirm('Delete this post permanently?')) { await remove(dbRef(db, STATUS_FEED_PATH + '/' + k)); toast('Post deleted'); } };
-window.__openStatusComments = function(k) { var posts = window._cachedPosts || [], p = null; for (var i = 0; i < posts.length; i++) if (posts[i]._k === k) { p = posts[i]; break; } if (!p) return; App.activeStatusObj = p; $('statusCommentInput').value = ''; renderStatusCommentsLocal(); $('statusCommentsModal').classList.add('show'); };
+
+window.__openStatusComments = function(k) {
+  var posts = window._cachedPosts || [], p = null;
+  for (var i = 0; i < posts.length; i++) if (posts[i]._k === k) { p = posts[i]; break; }
+  if (!p) return;
+  App.activeStatusObj = p;
+  $('statusCommentInput').value = '';
+  renderStatusCommentsLocal();
+  $('statusCommentsModal').classList.add('show');
+};
 function renderStatusCommentsLocal() { if (!App.activeStatusObj) return; var d = App.activeStatusObj.comments || {}; var c = Object.keys(d).map(function(k) { return d[k]; }).sort(function(a, b) { return a.time - b.time; }); var list = $('statusCommentsList'); if (!c.length) { list.innerHTML = '<div style="font-size:16px;color:var(--muted);text-align:center;padding:8px;">No comments yet. Be the first!</div>'; return; } var h = ''; for (var i = 0; i < c.length; i++) h += '<div class="comment-row"><strong style="color:var(--accent);">@' + esc(c[i].author) + ':</strong> ' + esc(c[i].text) + '</div>'; list.innerHTML = h; }
 $('statusCommentCancel').addEventListener('click', function() { $('statusCommentsModal').classList.remove('show'); });
 $('statusCommentSend').addEventListener('click', async function() { var text = $('statusCommentInput').value.trim(); if (!text || !App.activeStatusObj) return; await push(dbRef(db, STATUS_FEED_PATH + '/' + App.activeStatusObj._k + '/comments'), { author: App.mySlug, text: text, time: Date.now() }); if (App.activeStatusObj.authorSlug !== App.mySlug) { await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, App.activeStatusObj.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: '💬 Comment: "' + text + '"', time: Date.now() }); } $('statusCommentInput').value = ''; $('statusCommentsModal').classList.remove('show'); toast('Sent ✓'); });
