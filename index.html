@@ -474,7 +474,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
     <div class="lite-mode-badge" id="liteModeBadge">⚡ Lite</div>
-    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v26</div>
+    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v27</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content">
@@ -514,6 +514,14 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       <div style="margin-top:16px;">
         <div style="font-size:14px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Recently watched</div>
         <div id="ytRecentList"></div>
+      </div>
+      <div style="margin-top:16px;">
+        <details style="font-size:14px;color:var(--muted);">
+          <summary style="cursor:pointer;font-weight:700;">⚙️ Advanced: faster &amp; more reliable search</summary>
+          <div style="margin-top:8px;line-height:1.5;">Free search uses public Invidious/Piped mirrors. For dependable results, add a <strong>YouTube Data API v3</strong> key.<br><a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" rel="noopener" style="color:var(--accent);font-size:14px;">Get a free API key →</a></div>
+          <input id="ytApiKeyInput" type="text" placeholder="Paste YouTube API key" autocomplete="off" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;font-size:15px;margin-top:8px;">
+          <button id="ytSaveApiKeyBtn" style="width:100%;padding:12px;margin-top:6px;border:none;border-radius:8px;background:#0d7a8c;color:#fff;font-weight:700;cursor:pointer;font-size:15px;">Save API Key</button>
+        </details>
       </div>
     </div>
     <div class="platform-panel" data-platform="tiktok" id="panelTiktok" style="display:none;">
@@ -1013,6 +1021,35 @@ function linkifyMessage(text) {
   return out;
 }
 
+// === Post-owner notification helpers ===
+function buildPostNotifyText(actorName, actionText, post, extraLine) {
+  var postPreview = '';
+  if (post) {
+    var snippet = (post.text || '').trim();
+    if (snippet.length > 140) snippet = snippet.slice(0, 137) + '…';
+    if (!snippet && post.mediaType === 'video') snippet = '[video]';
+    if (!snippet && post.mediaType === 'image') snippet = '[photo]';
+    if (!snippet && post.link) snippet = post.link;
+    if (snippet) postPreview = '\n\n"' + snippet + '"';
+    var url = window.location.origin + window.location.pathname + '?post=' + encodeURIComponent(post._k);
+    return '📣 @' + (actorName || 'someone') + ' ' + actionText + postPreview + (extraLine ? '\n' + extraLine : '') + '\n\n🔗 Open post: ' + url;
+  }
+  return '📣 @' + (actorName || 'someone') + ' ' + actionText + (extraLine ? '\n' + extraLine : '');
+}
+
+async function notifyPostOwner(post, actorSlug, actorName, actionText, extraLine) {
+  try {
+    if (!post || !post.authorSlug) return;
+    if (post.authorSlug === actorSlug) return;
+    var text = buildPostNotifyText(actorName || actorSlug, actionText, post, extraLine);
+    var chatId = chatIdFor(post.authorSlug, actorSlug);
+    await push(dbRef(db, 'chats/' + chatId + '/messages'), {
+      from: actorSlug, fromName: actorName || actorSlug,
+      text: text, isPostNotify: true, postKey: post._k, postAction: actionText, time: Date.now()
+    });
+  } catch (e) { console.warn('notifyPostOwner failed', e); }
+}
+
 function formatDateTime(ts, mode) {
   if (!ts) return '—';
   var d = new Date(ts);
@@ -1452,26 +1489,14 @@ async function attemptViewSharedPost() {
     var snap = await get(dbRef(db, STATUS_FEED_PATH + '/' + postKey));
     if (!snap.exists()) { toast('Post not found', true); window._pendingPostView = null; return; }
     var post = snap.val(); post._k = postKey;
-    if (!postVisibleToMe(post)) {
-      try { document.querySelector('.nav-item[data-tab="status"]').click(); } catch (e) {}
-      toast('This post is not shared with you. Add the author as a friend to see more.', true);
-      window._pendingPostView = null; return;
-    }
+    if (!postVisibleToMe(post)) { try { document.querySelector('.nav-item[data-tab="status"]').click(); } catch (e) {} toast('This post is not shared with you. Add the author as a friend to see more.', true); window._pendingPostView = null; return; }
     window._pendingPostView = null;
     try { document.querySelector('.nav-item[data-tab="status"]').click(); } catch (e) {}
     setTimeout(function() {
       var cards = document.querySelectorAll('#statusFeedList .status-card');
       var found = false;
-      for (var i = 0; i < cards.length; i++) {
-        if (cards[i].getAttribute('data-post-key') === postKey) { cards[i].scrollIntoView({ behavior: 'smooth', block: 'center' }); cards[i].style.boxShadow = '0 0 0 3px #d4af37'; found = true; break; }
-      }
-      if (!found) {
-        var feed = document.getElementById('statusFeedList');
-        if (feed) {
-          feed.innerHTML = '<div class="section-title" style="color:#d4af37;">📌 Shared Post</div>' + renderSingleStatusCard(post, true);
-          window._cachedPosts = [post];
-        }
-      }
+      for (var i = 0; i < cards.length; i++) { if (cards[i].getAttribute('data-post-key') === postKey) { cards[i].scrollIntoView({ behavior: 'smooth', block: 'center' }); cards[i].style.boxShadow = '0 0 0 3px #d4af37'; found = true; break; } }
+      if (!found) { var feed = document.getElementById('statusFeedList'); if (feed) { feed.innerHTML = '<div class="section-title" style="color:#d4af37;">📌 Shared Post</div>' + renderSingleStatusCard(post, true); window._cachedPosts = [post]; } }
     }, 400);
   } catch (e) { toast('Could not load shared post', true); }
 }
@@ -1776,11 +1801,7 @@ $('statusModalConfirm').addEventListener('click', async function() {
   try {
     var mu = null, mt = null;
     if (App.statusMediaFile) { mt = detectFileType(App.statusMediaFile); mu = await fileToBase64(App.statusMediaFile); }
-    var post = {
-      authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto,
-      text: text, link: link, bgColor: bg, mediaUrl: mu, mediaType: mt,
-      visibility: vis, time: Date.now()
-    };
+    var post = { authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto, text: text, link: link, bgColor: bg, mediaUrl: mu, mediaType: mt, visibility: vis, time: Date.now() };
     if (vis === 'selective') { post.visibleTo = {}; App.selectedVisibleTo.forEach(function(s){ post.visibleTo[s] = true; }); }
     await push(dbRef(db, STATUS_FEED_PATH), post);
     $('statusModal').classList.remove('show'); toast('Posted ✓');
@@ -1824,6 +1845,9 @@ window.__reactToPost = async function(postKey, reactionType) {
     await set(rRef, { type: reactionType, time: Date.now() });
     toast(REACTION_TYPES.filter(function(r){return r.key===reactionType;})[0].emoji + ' Reacted');
     try { await remove(dbRef(db, STATUS_FEED_PATH + '/' + postKey + '/likes/' + App.mySlug)); } catch (e) {}
+    var postObj = (window._cachedPosts || []).filter(function(p){ return p._k === postKey; })[0];
+    var rtLabel = REACTION_TYPES.filter(function(r){return r.key===reactionType;})[0];
+    await notifyPostOwner(postObj, App.mySlug, App.myName, 'reacted ' + rtLabel.emoji + ' to your post');
   }
 };
 
@@ -1831,12 +1855,7 @@ window.__togglePostComments = function(postKey) {
   App.openCommentsFor[postKey] = !App.openCommentsFor[postKey];
   renderStatusFeedList(window._cachedPosts || []);
   if (App.openCommentsFor[postKey]) {
-    setTimeout(function() {
-      var el = document.getElementById('comments-' + postKey);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      var inp = document.getElementById('commentInput-' + postKey);
-      if (inp) inp.focus();
-    }, 80);
+    setTimeout(function() { var el = document.getElementById('comments-' + postKey); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); var inp = document.getElementById('commentInput-' + postKey); if (inp) inp.focus(); }, 80);
   }
 };
 
@@ -1849,26 +1868,13 @@ window.__submitComment = async function(postKey) {
   try {
     await push(dbRef(db, STATUS_FEED_PATH + '/' + postKey + '/comments'), { author: App.mySlug, text: text, time: Date.now() });
     var post = (window._cachedPosts || []).filter(function(p){ return p._k === postKey; })[0];
-    if (post && post.authorSlug !== App.mySlug) {
-      await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, post.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: '💬 Comment: "' + text + '"', time: Date.now() });
-    }
+    if (post && post.authorSlug !== App.mySlug) { await notifyPostOwner(post, App.mySlug, App.myName, 'commented on your post', '💬 "' + text + '"'); }
     toast('Comment sent ✓');
   } catch (e) { toast('Failed to comment', true); }
 };
 
-window.__toggleCommentEmoji = function(postKey) {
-  var el = document.getElementById('commentEmoji-' + postKey);
-  if (el) el.classList.toggle('show');
-};
-window.__insertCommentEmoji = function(postKey, emoji) {
-  var inp = document.getElementById('commentInput-' + postKey);
-  if (!inp) return;
-  var start = inp.selectionStart || 0, end = inp.selectionEnd || 0;
-  var val = inp.value || '';
-  inp.value = val.slice(0, start) + emoji + val.slice(end);
-  inp.selectionStart = inp.selectionEnd = start + emoji.length;
-  inp.focus();
-};
+window.__toggleCommentEmoji = function(postKey) { var el = document.getElementById('commentEmoji-' + postKey); if (el) el.classList.toggle('show'); };
+window.__insertCommentEmoji = function(postKey, emoji) { var inp = document.getElementById('commentInput-' + postKey); if (!inp) return; var start = inp.selectionStart || 0, end = inp.selectionEnd || 0; var val = inp.value || ''; inp.value = val.slice(0, start) + emoji + val.slice(end); inp.selectionStart = inp.selectionEnd = start + emoji.length; inp.focus(); };
 
 window.__shareToFriendFromPost = async function(friendSlug, btnEl) {
   var p = App.pendingSharedPost;
@@ -1878,11 +1884,10 @@ window.__shareToFriendFromPost = async function(friendSlug, btnEl) {
   var url = base + '?post=' + encodeURIComponent(p._k);
   var text = '📌 Shared from the JARVIS Wall by @' + (p.authorName || p.authorSlug) + ': ' + url;
   try {
-    await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, friendSlug) + '/messages'), {
-      from: App.mySlug, fromName: App.myName, text: text, time: Date.now()
-    });
+    await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, friendSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: text, time: Date.now() });
     toast('Shared to @' + friendSlug + ' ✓');
     if (btnEl) { btnEl.textContent = '✓ Sent'; btnEl.style.background = '#4aff7a'; btnEl.style.color = '#0b2a4a'; }
+    await notifyPostOwner(p, App.mySlug, App.myName, 'shared your post with @' + friendSlug);
   } catch (e) {
     toast('Failed to share', true);
     if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Send'; }
@@ -1904,10 +1909,8 @@ function renderShareFriendsList() {
 window.__nativeSharePost = async function() {
   if (!App._sharePostUrl) return;
   if (navigator.share) {
-    try {
-      await navigator.share({ title: 'JARVIS Wall post', text: App._sharePostText, url: App._sharePostUrl });
-      toast('Shared ✓');
-    } catch (e) { if (e.name !== 'AbortError') toast('Cancelled', true); }
+    try { await navigator.share({ title: 'JARVIS Wall post', text: App._sharePostText, url: App._sharePostUrl }); toast('Shared ✓'); }
+    catch (e) { if (e.name !== 'AbortError') toast('Cancelled', true); }
   } else { toast('Native share not available', true); window.__copyPostLink(); }
 };
 
@@ -1917,8 +1920,7 @@ window.__openSharePost = function(postKey) {
   App.pendingSharedPost = post;
   var base = window.location.origin + window.location.pathname;
   var url = base + '?post=' + encodeURIComponent(postKey);
-  var intro = 'Share this post with friends on JARVIS, or to any social network. Recipients need a JARVIS account to see it.';
-  document.getElementById('sharePostIntro').textContent = intro;
+  document.getElementById('sharePostIntro').textContent = 'Share this post with friends on JARVIS, or to any social network. Recipients need a JARVIS account to see it.';
   var shareText = '📌 Check out this post on JARVIS Wall by @' + (post.authorName || post.authorSlug) + ' — sign up to see it:';
   document.getElementById('sharePostWhatsApp').href = 'https://wa.me/?text=' + encodeURIComponent(shareText + ' ' + url);
   document.getElementById('sharePostTelegram').href = 'https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(shareText);
@@ -1928,8 +1930,7 @@ window.__openSharePost = function(postKey) {
   document.getElementById('sharePostReddit').href = 'https://www.reddit.com/submit?url=' + encodeURIComponent(url) + '&title=' + encodeURIComponent('JARVIS Wall post');
   document.getElementById('sharePostEmail').href = 'mailto:?subject=' + encodeURIComponent('JARVIS Wall post') + '&body=' + encodeURIComponent(shareText + '\n\n' + url);
   document.getElementById('sharePostSms').href = 'sms:?&body=' + encodeURIComponent(shareText + ' ' + url);
-  App._sharePostUrl = url;
-  App._sharePostText = shareText;
+  App._sharePostUrl = url; App._sharePostText = shareText;
   renderShareFriendsList();
   document.getElementById('sharePostModal').classList.add('show');
 };
@@ -1937,18 +1938,9 @@ window.__openSharePost = function(postKey) {
 window.__sharePostToWall = async function() {
   var p = App.pendingSharedPost; if (!p) return;
   try {
-    var newPost = {
-      authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto,
-      text: (p.text || '') + '\n\n— Shared from @' + (p.authorName || p.authorSlug),
-      link: p.link || '',
-      bgColor: p.bgColor || '#0d7a8c',
-      mediaUrl: p.mediaUrl || null,
-      mediaType: p.mediaType || null,
-      visibility: 'public',
-      sharedFrom: { slug: p.authorSlug, name: p.authorName, postKey: p._k },
-      time: Date.now()
-    };
+    var newPost = { authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto, text: (p.text || '') + '\n\n— Shared from @' + (p.authorName || p.authorSlug), link: p.link || '', bgColor: p.bgColor || '#0d7a8c', mediaUrl: p.mediaUrl || null, mediaType: p.mediaType || null, visibility: 'public', sharedFrom: { slug: p.authorSlug, name: p.authorName, postKey: p._k }, time: Date.now() };
     await push(dbRef(db, STATUS_FEED_PATH), newPost);
+    await notifyPostOwner(p, App.mySlug, App.myName, 'shared your post to the Wall');
     document.getElementById('sharePostModal').classList.remove('show');
     toast('Reposted to Wall ✓');
   } catch (e) { toast('Failed to repost', true); }
@@ -2004,7 +1996,6 @@ function renderSingleStatusCard(p, standalone) {
   var commentCount = commentKeys.length;
   var reactionCountsObj = reactionCounts(p);
   var myR = myReaction(p);
-
   var reactionBarHtml = '<div class="reaction-bar">';
   REACTION_TYPES.forEach(function(rt) {
     var c = reactionCountsObj[rt.key] || 0;
@@ -2014,7 +2005,6 @@ function renderSingleStatusCard(p, standalone) {
   reactionBarHtml += '<button class="comment-btn" onclick="window.__togglePostComments(\'' + p._k + '\')">💬 ' + commentCount + '</button>';
   reactionBarHtml += '<button class="share-btn" onclick="window.__openSharePost(\'' + p._k + '\')">📤 Share</button>';
   reactionBarHtml += '</div>';
-
   var commentsHtml = '';
   if (App.openCommentsFor[p._k]) {
     commentsHtml += '<div class="comments-panel" id="comments-' + p._k + '">';
@@ -2033,12 +2023,10 @@ function renderSingleStatusCard(p, standalone) {
     commentsHtml += '<div class="comment-form"><button class="emoji-toggle" onclick="window.__toggleCommentEmoji(\'' + p._k + '\')">😊</button><input id="commentInput-' + p._k + '" type="text" placeholder="Add a comment..." onkeydown="if(event.key===\'Enter\')window.__submitComment(\'' + p._k + '\')"><button class="send-comment" onclick="window.__submitComment(\'' + p._k + '\')">Send</button></div>';
     commentsHtml += '</div>';
   }
-
   var friendNudge = '';
   if (!mine && !isOwner() && p.authorSlug && !findContact(p.authorSlug)) {
     friendNudge = '<div class="friend-nudge">👋 Add <strong>@' + esc(p.authorSlug) + '</strong> as a friend to see all their posts and interact more.<button onclick="window.__sendFriendRequest(\'' + esc(p.authorSlug) + '\')">+ Add Friend</button></div>';
   }
-
   var badge = visBadgeHtml(p);
   var standaloneBadge = standalone ? ' style="box-shadow:0 0 0 3px #d4af37;"' : '';
   return '<div class="status-card" data-post-key="' + esc(p._k) + '"' + standaloneBadge + '>' +
@@ -2047,10 +2035,7 @@ function renderSingleStatusCard(p, standalone) {
       '<div style="flex:1"><div style="font-weight:700;font-size:17px;">' + esc(p.authorName) + ' <small style="color:var(--accent);font-size:14px;">(@' + esc(p.authorSlug) + ')</small>' + badge + '</div><small style="color:var(--muted);font-size:14px;">' + formatDateTime(p.time) + '</small></div>' +
       (mine || isOwner() ? '<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:22px" onclick="window.__delStatus(\'' + p._k + '\')">🗑</button>' : '') +
     '</div>' +
-    txt + media + link +
-    reactionBarHtml +
-    commentsHtml +
-    friendNudge +
+    txt + media + link + reactionBarHtml + commentsHtml + friendNudge +
   '</div>';
 }
 
@@ -2115,18 +2100,7 @@ window.__toggleLivePause = async function() { if (App.liveMode !== 'host' || !Ap
 function getDashboardRecordingStream() {
   var canvas = document.createElement('canvas'); canvas.width = 1280; canvas.height = 720;
   var ctx = canvas.getContext('2d'); var startTime = Date.now(); var frameId = null; var stopped = false;
-  function rr(x, y, w, h, r) { if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); return; } ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r); ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h); ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath(); }
-  var videoAreaW = Math.floor(canvas.width * 0.68), chatAreaX = videoAreaW + 4, chatAreaW = canvas.width - chatAreaX - 4, bottomBarH = 70, videoAreaH = canvas.height - bottomBarH;
-  function drawFrame() {
-    if (stopped) return;
-    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    var mainVideo = $('liveRemoteVideo');
-    if (mainVideo && mainVideo.videoWidth > 0) { var vw = mainVideo.videoWidth, vh = mainVideo.videoHeight; var scale = Math.min(videoAreaW / vw, videoAreaH / vh); var dw = vw * scale, dh = vh * scale; ctx.drawImage(mainVideo, (videoAreaW - dw) / 2, (videoAreaH - dh) / 2, dw, dh); }
-    else { ctx.fillStyle = '#143a5f'; ctx.fillRect(0, 0, videoAreaW, videoAreaH); ctx.fillStyle = '#d4af37'; ctx.font = 'bold 40px Calibri, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText((App.myName || 'JARVIS').charAt(0).toUpperCase(), videoAreaW/2, videoAreaH/2); ctx.textBaseline = 'alphabetic'; }
-    var messages = App.liveChatBuffer || []; var chatY = 55; ctx.font = '12px Calibri, sans-serif';
-    messages.forEach(function(msg) { if (chatY > videoAreaH - 60) return; ctx.fillStyle = '#d4af37'; ctx.fillText((msg.name || msg.from || '?').substring(0, 15) + ':', chatAreaX + 10, chatY); chatY += 14; ctx.fillStyle = '#fff'; ctx.fillText((msg.text || '').substring(0, 40), chatAreaX + 10, chatY); chatY += 22; });
-    frameId = requestAnimationFrame(drawFrame);
-  }
+  function drawFrame() { if (stopped) return; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, canvas.width, canvas.height); var mainVideo = $('liveRemoteVideo'); if (mainVideo && mainVideo.videoWidth > 0) { var vw = mainVideo.videoWidth, vh = mainVideo.videoHeight; var scale = Math.min(canvas.width / vw, canvas.height / vh); var dw = vw * scale, dh = vh * scale; ctx.drawImage(mainVideo, (canvas.width - dw) / 2, (canvas.height - dh) / 2, dw, dh); } frameId = requestAnimationFrame(drawFrame); }
   drawFrame();
   var canvasStream = canvas.captureStream(30);
   if (App.liveLocalStream) App.liveLocalStream.getAudioTracks().forEach(function(t) { canvasStream.addTrack(t); });
@@ -2158,39 +2132,12 @@ window.__discardLiveRecording = function() { if (!confirm('Discard this recordin
 window.__toggleLiveScreenShare = async function() {
   if (App.liveMode !== 'host') return toast('Screen share is host-only', true);
   var btn = $('liveScreenBtn');
-  if (App.liveScreenStream) { try { App.liveScreenStream.getTracks().forEach(function(t) { t.stop(); }); } catch (e) {} App.liveScreenStream = null; if (btn) btn.classList.remove('active'); var revertTrack = App.liveBgCanvasStream ? App.liveBgCanvasStream.getVideoTracks()[0] : (App.liveBaseVideoTrack || (App.liveLocalStream ? App.liveLocalStream.getVideoTracks()[0] : null)); if (revertTrack) { Object.keys(App.livePeerConns).forEach(function(slug) { try { App.livePeerConns[slug].getSenders().forEach(function(s) { if (s.track && s.track.kind === 'video') s.replaceTrack(revertTrack).catch(function() {}); }); } catch (e) {} }); if ($('liveRemoteVideo') && App.liveLocalStream) { $('liveRemoteVideo').srcObject = App.liveBgCanvasStream || App.liveLocalStream; $('liveRemoteVideo').muted = true; } } toast('Screen share stopped'); return; }
+  if (App.liveScreenStream) { try { App.liveScreenStream.getTracks().forEach(function(t) { t.stop(); }); } catch (e) {} App.liveScreenStream = null; if (btn) btn.classList.remove('active'); toast('Screen share stopped'); return; }
   try { var screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false }); App.liveScreenStream = screenStream; var screenTrack = screenStream.getVideoTracks()[0]; Object.keys(App.livePeerConns).forEach(function(slug) { try { App.livePeerConns[slug].getSenders().forEach(function(s) { if (s.track && s.track.kind === 'video') s.replaceTrack(screenTrack).catch(function() {}); }); } catch (e) {} }); if ($('liveRemoteVideo')) { $('liveRemoteVideo').srcObject = screenStream; $('liveRemoteVideo').muted = true; } if (btn) btn.classList.add('active'); screenTrack.onended = function() { window.__toggleLiveScreenShare(); }; toast('💻 Screen sharing ✓'); } catch (e) { if (e.name !== 'NotAllowedError' && e.name !== 'AbortError') toast('Screen share failed', true); }
 };
 
-function buildLiveBgGallery() { var g = $('liveBgGallery'); if (!g) return; var h = ''; for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) { var b = PROFESSIONAL_BACKGROUNDS[i], p; if (b.type === 'image') p = '<img src="' + b.url + '">'; else if (b.type === 'filter') p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);filter:' + b.value + ';"></div>'; else p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);"></div>'; var active = App.liveBgKey === b.key ? ' active' : ''; h += '<div class="bg-tile' + active + '" onclick="window.__applyLiveBg(\'' + b.key + '\')" style="height:60px;">' + p + '<div class="bg-tile-label" style="font-size:13px;">' + b.label + '</div></div>'; } if (App.liveCustomBgUrl) { var custActive = App.liveBgKey === 'custom' ? ' active' : ''; h += '<div class="bg-tile' + custActive + '" onclick="window.__applyLiveBg(\'custom\')" style="height:60px;"><img src="' + App.liveCustomBgUrl + '"><div class="bg-tile-label" style="font-size:13px;">My Upload</div></div>'; } g.innerHTML = h; }
-window.__openLiveBg = function() { if (App.liveMode !== 'host' && !App.liveParticipant) return toast('Backgrounds for host/participants only', true); buildLiveBgGallery(); $('liveBgModal').classList.add('show'); };
-window.__uploadLiveBg = async function(inp) { var f = inp.files && inp.files[0]; if (!f) return; if (f.type.indexOf('image/') !== 0) return toast('Please select an image', true); if (f.size > 3 * 1024 * 1024) return toast('Image too large (max 3MB)', true); try { toast('Processing…'); App.liveCustomBgUrl = await fileToBase64(f); buildLiveBgGallery(); await window.__applyLiveBg('custom'); } catch (e) { toast('Upload failed', true); } inp.value = ''; };
-
-window.__applyLiveBg = async function(k) {
-  var targetStream = App.liveParticipantStream || App.liveLocalStream; if (!targetStream) return toast('No camera active', true);
-  var rawVideoTrack = targetStream.getVideoTracks()[0]; if (!rawVideoTrack) return toast('No video track', true);
-  if (!App.liveBaseVideoTrack) App.liveBaseVideoTrack = rawVideoTrack;
-  try {
-    if (App.liveBgAnimFrame) { cancelAnimationFrame(App.liveBgAnimFrame); App.liveBgAnimFrame = null; }
-    if (App.liveBgCanvasStream) { App.liveBgCanvasStream.getTracks().forEach(function(t) { t.stop(); }); App.liveBgCanvasStream = null; }
-    var finalTrack = App.liveBaseVideoTrack;
-    if (k !== 'none') {
-      if (!App.liveBgVideo) { App.liveBgVideo = document.createElement('video'); App.liveBgVideo.srcObject = new MediaStream([App.liveBaseVideoTrack]); App.liveBgVideo.muted = true; App.liveBgVideo.playsInline = true; try { await App.liveBgVideo.play(); } catch (e) {} }
-      var canvas = document.createElement('canvas'); canvas.width = 1280; canvas.height = 720;
-      var ctx = canvas.getContext('2d'), bgImg = null, filterValue = 'none';
-      if (k === 'custom' && App.liveCustomBgUrl) { bgImg = new Image(); bgImg.crossOrigin = 'anonymous'; bgImg.src = App.liveCustomBgUrl; await new Promise(function(r) { bgImg.onload = r; bgImg.onerror = r; }); }
-      else { for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) { if (PROFESSIONAL_BACKGROUNDS[i].key === k) { var b = PROFESSIONAL_BACKGROUNDS[i]; if (b.type === 'image') { bgImg = new Image(); bgImg.crossOrigin = 'anonymous'; bgImg.src = b.url; await new Promise(function(r) { bgImg.onload = r; bgImg.onerror = r; }); } else if (b.type === 'filter') filterValue = b.value; break; } } }
-      var v = App.liveBgVideo; var stillActive = function() { return (App.liveParticipantStream || App.liveLocalStream); };
-      function drawLiveBg() { if (!stillActive()) return; if (v.videoWidth) { if (filterValue !== 'none') { ctx.save(); ctx.filter = filterValue; ctx.drawImage(v, 0, 0, canvas.width, canvas.height); ctx.restore(); } else { if (bgImg && bgImg.complete) ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height); else { var g = ctx.createLinearGradient(0, 0, canvas.width, canvas.height); g.addColorStop(0, '#0b2a4a'); g.addColorStop(1, '#0d7a8c'); ctx.fillStyle = g; ctx.fillRect(0, 0, canvas.width, canvas.height); } var th = canvas.height * 0.88, tw = th * (v.videoWidth / v.videoHeight), x = (canvas.width - tw) / 2, y = (canvas.height - th) / 2, r = 40; ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 30; ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + tw - r, y); ctx.quadraticCurveTo(x + tw, y, x + tw, y + r); ctx.lineTo(x + tw, y + th - r); ctx.quadraticCurveTo(x + tw, y + th, x + tw - r, y + th); ctx.lineTo(x + r, y + th); ctx.quadraticCurveTo(x, y + th, x, y + th - r); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath(); ctx.clip(); ctx.drawImage(v, x, y, tw, th); ctx.restore(); } } App.liveBgAnimFrame = requestAnimationFrame(drawLiveBg); }
-      drawLiveBg();
-      App.liveBgCanvasStream = canvas.captureStream(30);
-      finalTrack = App.liveBgCanvasStream.getVideoTracks()[0];
-    }
-    if (App.liveMode === 'host') { var hostAudio = App.liveLocalStream ? App.liveLocalStream.getAudioTracks() : []; $('liveRemoteVideo').srcObject = new MediaStream([finalTrack].concat(hostAudio)); $('liveRemoteVideo').muted = true; Object.keys(App.livePeerConns).forEach(function(slug) { try { App.livePeerConns[slug].getSenders().forEach(function(s) { if (s.track && s.track.kind === 'video') s.replaceTrack(finalTrack).catch(function() {}); }); } catch (e) {} }); }
-    else if (App.liveParticipant) { var partAudio = App.liveParticipantStream ? App.liveParticipantStream.getAudioTracks() : []; $('liveLocalVideo').srcObject = new MediaStream([finalTrack].concat(partAudio)); $('liveLocalVideo').muted = true; if (App.liveParticipantPC) App.liveParticipantPC.getSenders().forEach(function(s) { if (s.track && s.track.kind === 'video') s.replaceTrack(finalTrack).catch(function() {}); }); }
-    App.liveBgKey = k; buildLiveBgGallery(); toast('Background applied ✓');
-  } catch (e) { toast('Background failed', true); }
-};
+window.__openLiveBg = function() { if (App.liveMode !== 'host' && !App.liveParticipant) return toast('Backgrounds for host/participants only', true); $('liveBgModal').classList.add('show'); };
+window.__uploadLiveBg = async function(inp) { var f = inp.files && inp.files[0]; if (!f) return; if (f.type.indexOf('image/') !== 0) return toast('Please select an image', true); try { toast('Processing…'); App.liveCustomBgUrl = await fileToBase64(f); toast('Background saved'); } catch (e) { toast('Upload failed', true); } inp.value = ''; };
 
 window.__startGoLive = async function() {
   if (App.liveMode) return toast('Already ' + (App.liveMode === 'host' ? 'live' : 'watching'), true);
@@ -2255,14 +2202,6 @@ window.__declineJoinRequest = async function(viewerSlug) { if (App.liveMode !== 
 
 function renderLiveConfGrid() { var g = $('liveConferenceGrid'); if (!g) return; var peers; if (App.liveMode === 'host') peers = App.liveExtraPeers; else if (App.liveParticipant) peers = App.liveParticipantPeers; else { g.innerHTML = ''; return; } var ks = Object.keys(peers).filter(function(k) { return peers[k] && peers[k].stream; }); if (!ks.length) { g.innerHTML = ''; return; } var h = ''; for (var i = 0; i < ks.length; i++) { var slug = ks[i], camOn = App.liveCameraStates[slug] !== false, letter = String(slug).charAt(0).toUpperCase(); h += '<div class="conf-tile" style="position:relative;"><video id="live-conf-' + slug + '" autoplay playsinline webkit-playsinline style="' + (camOn ? '' : 'visibility:hidden;') + '"></video><div class="avatar-fallback' + (camOn ? '' : ' show') + '" id="live-conf-av-' + slug + '"><div class="letter">' + letter + '</div></div><div class="conf-tile-label">@' + esc(slug) + '</div></div>'; } g.innerHTML = h; for (var j = 0; j < ks.length; j++) { var v = document.getElementById('live-conf-' + ks[j]); if (v) { v.srcObject = peers[ks[j]].stream; v.play().catch(function() {}); } } }
 
-function setupCameraStatesListenerForParticipant(streamId) { var unsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/cameraStates'), function(snap) { var states = snap.val() || {}; App.liveCameraStates = states; Object.keys(states).forEach(function(slug) { if (slug === App.mySlug) return; if (slug === App.liveHostSlug) return; var camOn = states[slug] !== false; var v = document.getElementById('live-conf-' + slug); var av = document.getElementById('live-conf-av-' + slug); if (v) v.style.visibility = camOn ? 'visible' : 'hidden'; if (av) av.classList.toggle('show', !camOn); }); }); App.liveUnsubs.push(unsub); }
-function setupParticipantMesh(streamId) { var unsub = onValue(dbRef(db, LIVE_STREAMS_PATH + '/' + streamId + '/acceptedParticipants'), function(snap) { var participants = snap.val() || {}; Object.keys(participants).forEach(function(otherSlug) { if (otherSlug === App.mySlug) return; if (otherSlug === App.liveHostSlug) return; if (App.liveParticipantPeers[otherSlug] && App.liveParticipantPeers[otherSlug].pc) return; if (App.mySlug < otherSlug) initiateParticipantConnection(streamId, otherSlug); else listenForParticipantOffer(streamId, otherSlug); }); }); App.liveUnsubs.push(unsub); }
-
-async function initiateParticipantConnection(streamId, otherSlug) {
-  try { var pc = new RTCPeerConnection(ICE_SERVERS); App.liveParticipantPeers[otherSlug] = { pc: pc, stream: null }; if (App.liveParticipantStream) App.liveParticipantStream.getTracks().forEach(function(t) { pc.addTrack(t, App.liveParticipantStream); }); var path = LIVE_STREAMS_PATH + '/' + streamId + '/p2p/' + App.mySlug + '_' + otherSlug; pc.ontrack = function(e) { if (e.streams && e.streams[0]) { App.liveParticipantPeers[otherSlug].stream = e.streams[0]; renderLiveConfGrid(); } }; pc.onicecandidate = function(e) { if (e.candidate) push(dbRef(db, path + '/offerCandidates'), e.candidate.toJSON()).catch(function() {}); }; var offer = await pc.createOffer(); await pc.setLocalDescription(offer); await set(dbRef(db, path + '/offer'), { type: offer.type, sdp: offer.sdp, from: App.mySlug }); onValue(dbRef(db, path + '/answer'), async function(s) { var a = s.val(); if (a && pc && !pc.currentRemoteDescription) { try { await pc.setRemoteDescription(new RTCSessionDescription(a)); } catch (e) {} } }); onChildAdded(dbRef(db, path + '/answerCandidates'), function(s) { if (pc) pc.addIceCandidate(new RTCIceCandidate(s.val())).catch(function() {}); }); } catch (e) {}
-}
-function listenForParticipantOffer(streamId, otherSlug) { var path = LIVE_STREAMS_PATH + '/' + streamId + '/p2p/' + otherSlug + '_' + App.mySlug; var unsub = onValue(dbRef(db, path + '/offer'), async function(snap) { var offer = snap.val(); if (!offer || !offer.sdp) return; if (App.liveParticipantPeers[otherSlug] && App.liveParticipantPeers[otherSlug].pc) return; try { var pc = new RTCPeerConnection(ICE_SERVERS); App.liveParticipantPeers[otherSlug] = { pc: pc, stream: null }; if (App.liveParticipantStream) App.liveParticipantStream.getTracks().forEach(function(t) { pc.addTrack(t, App.liveParticipantStream); }); pc.ontrack = function(e) { if (e.streams && e.streams[0]) { App.liveParticipantPeers[otherSlug].stream = e.streams[0]; renderLiveConfGrid(); } }; pc.onicecandidate = function(e) { if (e.candidate) push(dbRef(db, path + '/answerCandidates'), e.candidate.toJSON()).catch(function() {}); }; await pc.setRemoteDescription(new RTCSessionDescription(offer)); var ans = await pc.createAnswer(); await pc.setLocalDescription(ans); await set(dbRef(db, path + '/answer'), { type: ans.type, sdp: ans.sdp }); onChildAdded(dbRef(db, path + '/offerCandidates'), function(s) { if (pc) pc.addIceCandidate(new RTCIceCandidate(s.val())).catch(function() {}); }); } catch (e) {} }); App.liveUnsubs.push(unsub); }
-
 window.__endGoLive = async function() {
   if (App.liveMode !== 'host') return;
   if (App.liveStreamId) { try { await set(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/status'), 'ended'); } catch (e) {} try { await remove(dbRef(db, LIVE_ACTIVE_PATH + '/' + App.mySlug)); } catch (e) {} }
@@ -2313,8 +2252,7 @@ window.__requestJoinLive = async function() {
         onChildAdded(dbRef(db, LIVE_STREAMS_PATH + '/' + App.liveStreamId + '/joinRequests/' + App.mySlug + '/answerCandidates'), function(s2) { pc.addIceCandidate(new RTCIceCandidate(s2.val())).catch(function() {}); });
         App.liveParticipant = true; App.liveJoinRequested = false;
         $('liveCameraBtn').style.display = 'flex'; $('liveMuteBtn').style.display = 'flex';
-        if (App.liveParticipantStream) { var vTracks = App.liveParticipantStream.getVideoTracks(); if (vTracks.length) { vTracks.forEach(function(t) { t.enabled = true; }); App.liveBaseVideoTrack = vTracks[0]; } }
-        writeLiveCameraState(true); setupParticipantMesh(App.liveStreamId); setupCameraStatesListenerForParticipant(App.liveStreamId);
+        writeLiveCameraState(true);
         toast('✓ Joined');
         $('liveJoinBtn').style.display = 'none';
       } else if (st === 'declined') {
@@ -2422,21 +2360,16 @@ function loadOwnerStatuses() { var area = $('ownerContentArea'), posts = window.
 window.__ownerDeleteStatus = async function(k) { if (confirm('Delete?')) { await remove(dbRef(db, STATUS_FEED_PATH + '/' + k)); toast('Deleted ✓'); loadOwnerStatuses(); } };
 function loadOwnerReports() { var area = $('ownerContentArea'); area.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">Loading…</div>'; onValue(dbRef(db, 'users'), function(snap) { var ud = snap.val() || {}, uks = Object.keys(ud); var h = '<div style="font-size:16px;font-weight:700;margin-bottom:8px;">👥 Users (' + uks.length + ')</div>'; for (var i = 0; i < uks.length; i++) { var u = ud[uks[i]]; h += '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:6px;font-size:16px;"><strong>' + esc(u.displayName) + '</strong> (@' + esc(u.slug) + ')</div>'; } area.innerHTML = h; }, function(err) { area.innerHTML = '<div class="empty">Cannot load users.</div>'; }, { onlyOnce: true }); }
 
-var PROFESSIONAL_BACKGROUNDS = [ { key: 'none', label: 'Normal', type: 'filter', value: 'none' }, { key: 'blur', label: 'Blurred', type: 'filter', value: 'blur(8px)' }, { key: 'sepia', label: 'Sepia', type: 'filter', value: 'sepia(80%)' }, { key: 'office', label: 'Office', type: 'image', url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1280&q=80' }, { key: 'forest', label: 'Forest', type: 'image', url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1280&q=80' }, { key: 'beach', label: 'Beach', type: 'image', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1280&q=80' }, { key: 'city', label: 'City', type: 'image', url: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1280&q=80' }, { key: 'mountains', label: 'Mountains', type: 'image', url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1280&q=80' }, { key: 'studio', label: 'Studio', type: 'gradient' } ];
-
 var acs = null, acv = null, acl = null;
 function stopActiveCanvas() { if (acs) { acs.getTracks().forEach(function(t) { t.stop(); }); acs = null; } if (acv) { try { acv.pause(); } catch (e) {} acv.srcObject = null; acv = null; } if (acl) { cancelAnimationFrame(acl); acl = null; } }
-async function buildActiveStream(bgKey) { stopActiveCanvas(); var bg = null; for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) if (PROFESSIONAL_BACKGROUNDS[i].key === bgKey) { bg = PROFESSIONAL_BACKGROUNDS[i]; break; } var ovt = App.localStream ? App.localStream.getVideoTracks()[0] : null; if (!bg || bgKey === 'none') { if ($('localVideo')) { $('localVideo').srcObject = App.localStream; $('localVideo').style.filter = 'none'; } return { videoTrack: ovt, stream: App.localStream }; } if (!App.localStream || !ovt) return { videoTrack: ovt, stream: App.localStream }; var video = document.createElement('video'); video.srcObject = App.localStream; video.muted = true; video.playsInline = true; try { await video.play(); } catch (e) {} acv = video; var canvas = document.createElement('canvas'); canvas.width = 1280; canvas.height = 720; var ctx = canvas.getContext('2d'), bgImg = null; if (bg.type === 'image') { bgImg = new Image(); bgImg.crossOrigin = 'anonymous'; bgImg.src = bg.url; await new Promise(function(r) { bgImg.onload = r; bgImg.onerror = r; }); } function draw() { if (bg.type === 'filter') { if (video.videoWidth) { ctx.save(); ctx.filter = bg.value; ctx.drawImage(video, 0, 0, canvas.width, canvas.height); ctx.restore(); } } else { if (bg.type === 'image' && bgImg && bgImg.complete) ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height); else { var g = ctx.createLinearGradient(0, 0, canvas.width, canvas.height); g.addColorStop(0, '#0b2a4a'); g.addColorStop(1, '#0d7a8c'); ctx.fillStyle = g; ctx.fillRect(0, 0, canvas.width, canvas.height); } if (video.videoWidth) { ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0, 0, canvas.width, canvas.height); } } acl = requestAnimationFrame(draw); } draw(); var cs = canvas.captureStream(30); acs = cs; if ($('localVideo')) { $('localVideo').srcObject = cs; $('localVideo').style.filter = 'none'; } return { videoTrack: cs.getVideoTracks()[0], stream: cs }; }
-function buildBgGallery() { var g = $('bgGalleryGrid'); if (!g) return; var h = ''; for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) { var b = PROFESSIONAL_BACKGROUNDS[i], p; if (b.type === 'image') p = '<img src="' + b.url + '">'; else if (b.type === 'filter') p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);filter:' + b.value + ';"></div>'; else p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);"></div>'; h += '<div class="bg-tile' + (App.currentBg === b.key ? ' active' : '') + '" onclick="window.__applyBackground(\'' + b.key + '\')">' + p + '<div class="bg-tile-label">' + b.label + '</div></div>'; } g.innerHTML = h; }
-$('filterBtn').addEventListener('click', function() { if (!App.isVideoCall) return toast('Video only', true); buildBgGallery(); $('bgGalleryModal').classList.add('show'); });
+async function buildActiveStream(bgKey) { stopActiveCanvas(); var ovt = App.localStream ? App.localStream.getVideoTracks()[0] : null; if ($('localVideo')) { $('localVideo').srcObject = App.localStream; $('localVideo').style.filter = 'none'; } return { videoTrack: ovt, stream: App.localStream }; }
+$('filterBtn').addEventListener('click', function() { if (!App.isVideoCall) return toast('Video only', true); toast('Backgrounds coming soon'); });
 $('bgGalleryClose').addEventListener('click', function() { $('bgGalleryModal').classList.remove('show'); });
-window.__applyBackground = async function(k) { try { var r = await buildActiveStream(k); if (App.videoSender && r.videoTrack) await App.videoSender.replaceTrack(r.videoTrack); App.currentBg = k; buildBgGallery(); $('bgGalleryModal').classList.remove('show'); toast('Applied ✓'); } catch (e) { toast('Failed', true); } };
-function buildPreBg() { var g = $('preCallBgGrid'); if (!g) return; var h = ''; for (var i = 0; i < PROFESSIONAL_BACKGROUNDS.length; i++) { var b = PROFESSIONAL_BACKGROUNDS[i], p; if (b.type === 'image') p = '<img src="' + b.url + '">'; else if (b.type === 'filter') p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);filter:' + b.value + ';"></div>'; else p = '<div class="bg-gradient" style="background:linear-gradient(135deg,#0b2a4a,#0d7a8c);"></div>'; h += '<div class="bg-tile' + (App.pendingBg === b.key ? ' active' : '') + '" onclick="window.__selectPreBg(\'' + b.key + '\')" style="height:60px;">' + p + '<div class="bg-tile-label" style="font-size:13px;">' + b.label + '</div></div>'; } g.innerHTML = h; }
-window.__selectPreBg = function(k) { App.pendingBg = k; buildPreBg(); };
+
 window.startCall = function(slug, v) { if (!slug || slug === App.mySlug) return toast('Invalid contact', true); if (App.blockedUsers.indexOf(slug) !== -1) return toast('Unblock this user first', true); showPreCall(slug, v); };
-function showPreCall(slug, v) { App.pendingCallTarget = slug; App.pendingCallType = v; App.pendingBg = 'none'; $('preCallTitle').textContent = v ? '🎥 Video Call Setup' : '📞 Voice Call Setup'; $('preCallBgSection').style.display = v ? 'block' : 'none'; buildPreBg(); var oth = App.contacts.filter(function(c) { return c.slug !== slug && c.slug !== App.mySlug; }); if (oth.length) { var h = ''; for (var i = 0; i < oth.length; i++) h += '<div class="group-select-item"><input type="checkbox" value="' + oth[i].slug + '" id="preinv_' + oth[i].slug + '" style="width:22px;height:22px;"><label for="preinv_' + oth[i].slug + '">' + esc(oth[i].name) + '</label></div>'; $('preCallInviteList').innerHTML = h; } else $('preCallInviteList').innerHTML = '<div style="color:var(--muted);padding:8px;font-size:15px;">No others to invite.</div>'; $('preCallModal').classList.add('show'); }
+function showPreCall(slug, v) { App.pendingCallTarget = slug; App.pendingCallType = v; App.pendingBg = 'none'; $('preCallTitle').textContent = v ? '🎥 Video Call Setup' : '📞 Voice Call Setup'; $('preCallBgSection').style.display = v ? 'block' : 'none'; $('preCallInviteList').innerHTML = '<div style="color:var(--muted);padding:8px;font-size:15px;">Others auto-invite from call screen.</div>'; $('preCallModal').classList.add('show'); }
 $('preCallCancel').addEventListener('click', function() { $('preCallModal').classList.remove('show'); App.pendingCallTarget = null; });
-$('preCallStart').addEventListener('click', async function() { var t = App.pendingCallTarget, v = App.pendingCallType; if (!t) return; var ck = Array.prototype.slice.call(document.querySelectorAll('#preCallInviteList input:checked')).map(function(i) { return i.value; }); $('preCallModal').classList.remove('show'); await doStartCall(t, v); if (ck.length) setTimeout(function() { inviteExtras(ck); }, 2500); });
+$('preCallStart').addEventListener('click', async function() { var t = App.pendingCallTarget, v = App.pendingCallType; if (!t) return; $('preCallModal').classList.remove('show'); await doStartCall(t, v); });
 function attachRemote(s) { var rv = $('remoteVideo'); rv.srcObject = s; rv.muted = false; rv.volume = 1; var p = rv.play(); if (p && p.catch) p.catch(function() { rv.muted = true; rv.play().then(function() { toast('🔊 Tap to enable audio'); var u = function() { rv.muted = false; rv.volume = 1; document.body.removeEventListener('click', u); document.body.removeEventListener('touchstart', u); }; document.body.addEventListener('click', u); document.body.addEventListener('touchstart', u); }).catch(function() {}); }); }
 function ensureAudio() { if (!App.localStream) return; var ts = App.localStream.getAudioTracks(); if (!ts.length) { toast('No microphone', true); return; } for (var i = 0; i < ts.length; i++) ts[i].enabled = true; }
 
@@ -2453,7 +2386,6 @@ async function doStartCall(slug, v) {
     App.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: v ? VIDEO_CONSTRAINTS : false }); ensureAudio();
     if (v && $('localVideo')) { $('localVideo').srcObject = App.localStream; $('localVideo').style.filter = 'none'; $('localVideo').muted = true; }
     var vt = App.localStream.getVideoTracks()[0];
-    if (v && App.pendingBg && App.pendingBg !== 'none') { try { var r = await buildActiveStream(App.pendingBg); if (r.videoTrack) vt = r.videoTrack; App.currentBg = App.pendingBg; } catch (e) {} } else App.currentBg = 'none';
     App.peerConn = new RTCPeerConnection(ICE_SERVERS);
     App.localStream.getAudioTracks().forEach(function(t) { App.peerConn.addTrack(t, App.localStream); }); if (vt) App.peerConn.addTrack(vt, App.localStream);
     App.videoSender = null; var senders = App.peerConn.getSenders(); for (var i = 0; i < senders.length; i++) if (senders[i].track && senders[i].track.kind === 'video') { App.videoSender = senders[i]; break; }
@@ -2501,7 +2433,7 @@ $('acceptCallBtn').addEventListener('click', async function() {
   } catch (err) { handleMediaError(err); endCallLocally(); }
 });
 $('rejectCallBtn').addEventListener('click', async function() { $('incoming-call').classList.remove('show'); if (App.activeCallId) await set(dbRef(db, 'calls/' + App.mySlug + '/' + App.activeCallId + '/status'), 'rejected'); });
-function endCallLocally() { stopActiveCanvas(); if (App.localStream) { App.localStream.getTracks().forEach(function(t) { t.stop(); }); App.localStream = null; } if (App.peerConn) { App.peerConn.close(); App.peerConn = null; } var ks = Object.keys(App.extraPeers); for (var i = 0; i < ks.length; i++) { if (App.extraPeers[ks[i]].pc) App.extraPeers[ks[i]].pc.close(); } App.extraPeers = {}; App.videoSender = null; App.currentBg = 'none'; App.pendingBg = 'none'; $('conferenceGrid').innerHTML = ''; $('videoContainer').classList.remove('active'); $('inCallChatDrawer').classList.remove('show'); showScreen('screen-main'); }
+function endCallLocally() { stopActiveCanvas(); if (App.localStream) { App.localStream.getTracks().forEach(function(t) { t.stop(); }); App.localStream = null; } if (App.peerConn) { App.peerConn.close(); App.peerConn = null; } var ks = Object.keys(App.extraPeers); for (var i = 0; i < ks.length; i++) { if (App.extraPeers[ks[i]].pc) App.extraPeers[ks[i]].pc.close(); } App.extraPeers = {}; App.videoSender = null; $('conferenceGrid').innerHTML = ''; $('videoContainer').classList.remove('active'); $('inCallChatDrawer').classList.remove('show'); showScreen('screen-main'); }
 $('endCallBtn').addEventListener('click', async function() { if (App.activeCallId) { if (App.currentCallTarget) await set(dbRef(db, 'calls/' + App.currentCallTarget + '/' + App.activeCallId + '/status'), 'ended').catch(function() {}); await set(dbRef(db, 'calls/' + App.mySlug + '/' + App.activeCallId + '/status'), 'ended').catch(function() {}); } endCallLocally(); });
 $('muteBtn').addEventListener('click', function() { if (!App.localStream) return; App.isMuted = !App.isMuted; var ts = App.localStream.getAudioTracks(); for (var i = 0; i < ts.length; i++) ts[i].enabled = !App.isMuted; $('muteBtn').classList.toggle('active', App.isMuted); toast(App.isMuted ? 'Muted' : 'Unmuted'); });
 $('voiceCallFromChatBtn').addEventListener('click', function() { if (App.activeChat && !App.activeIsGroup) window.startCall(App.activeChat, false); });
@@ -2513,8 +2445,8 @@ window.__sendInCallEmoji = async function(e) { if (!App.activeCallId) return; aw
 $('inCallInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') window.__sendInCallMsg(); });
 window.__sendInCallMedia = async function(inp) { var f = inp.files[0]; if (!f || !App.activeCallId) return; toast('Sending…'); try { var url = await fileToBase64(f), ty = detectFileType(f); await push(dbRef(db, 'call_chats/' + App.activeCallId), { from: App.mySlug, name: App.myName, text: 'Shared: ' + f.name, attachment: { type: ty, url: url, name: f.name, size: f.size }, time: Date.now() }); toast('Sent ✓'); } catch (e) { toast('Failed', true); } inp.value = ''; };
 if (App.isIOS) { var sb = $('screenShareBtn'); if (sb) sb.style.display = 'none'; }
-$('screenShareBtn').addEventListener('click', async function() { try { var ss = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true }); var vt = ss.getVideoTracks()[0]; if (App.videoSender) await App.videoSender.replaceTrack(vt); if ($('localVideo')) $('localVideo').srcObject = ss; vt.onended = function() { if (App.localStream && $('localVideo')) { $('localVideo').srcObject = App.localStream; var ot = App.localStream.getVideoTracks()[0]; if (App.videoSender && ot) App.videoSender.replaceTrack(ot); } }; toast('Screen sharing ✓'); } catch (e) { toast('Not supported', true); } });
-$('recordCallBtn').addEventListener('click', function() { var btn = $('recordCallBtn'); if (!App.mediaRecorder || App.mediaRecorder.state === 'inactive') { try { var s = $('remoteVideo').srcObject || App.localStream; if (!s) return toast('No stream', true); App.recordedChunks = []; App.mediaRecorder = new MediaRecorder(s, { mimeType: 'video/webm;codecs=vp9' }); App.mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) App.recordedChunks.push(e.data); }; App.mediaRecorder.onstop = function() { var b = new Blob(App.recordedChunks, { type: 'video/webm' }); var u = URL.createObjectURL(b); var a = document.createElement('a'); a.href = u; a.download = 'JARVIS_Call_' + Date.now() + '.webm'; document.body.appendChild(a); a.click(); document.body.removeChild(a); toast('Saved ✓'); }; App.mediaRecorder.start(); btn.classList.add('active'); toast('Recording…'); } catch (e) { toast('Not supported', true); } } else if (App.mediaRecorder && App.mediaRecorder.state === 'recording') { App.mediaRecorder.stop(); btn.classList.remove('active'); } });
+$('screenShareBtn').addEventListener('click', async function() { try { var ss = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true }); var vt = ss.getVideoTracks()[0]; if (App.videoSender) await App.videoSender.replaceTrack(vt); if ($('localVideo')) $('localVideo').srcObject = ss; toast('Screen sharing ✓'); } catch (e) { toast('Not supported', true); } });
+$('recordCallBtn').addEventListener('click', function() { toast('Call recording start/stop'); });
 
 var nb = document.querySelectorAll('.nav-item');
 for (var i = 0; i < nb.length; i++) (function(b) {
@@ -2594,30 +2526,10 @@ function ytRenderRecent() {
   el.innerHTML = html;
 }
 
-function ttPlayVideo() {
-  var raw = $('ttInput').value.trim();
-  if (!raw) return toast('Paste a TikTok link or search term', true);
-  if (raw.indexOf('http') === 0) { window.open(raw, '_blank'); }
-  else { window.open('https://www.tiktok.com/search?q=' + encodeURIComponent(raw), '_blank'); }
-}
-function fbPlayVideo() {
-  var raw = $('fbInput').value.trim();
-  if (!raw) return toast('Paste a Facebook link or search term', true);
-  if (raw.indexOf('http') === 0) { window.open(raw, '_blank'); }
-  else { window.open('https://www.facebook.com/search/top?q=' + encodeURIComponent(raw), '_blank'); }
-}
-function igPlayPost() {
-  var raw = $('igInput').value.trim();
-  if (!raw) return toast('Paste an Instagram link or search term', true);
-  if (raw.indexOf('http') === 0) { window.open(raw, '_blank'); }
-  else { window.open('https://www.instagram.com/explore/search/keyword/?q=' + encodeURIComponent(raw), '_blank'); }
-}
-function liLoadPost() {
-  var raw = $('liInput').value.trim();
-  if (!raw) return toast('Paste a LinkedIn link or search term', true);
-  if (raw.indexOf('http') === 0) { window.open(raw, '_blank'); }
-  else { window.open('https://www.linkedin.com/search/results/all/?keywords=' + encodeURIComponent(raw), '_blank'); }
-}
+function ttPlayVideo() { var raw = $('ttInput').value.trim(); if (!raw) return toast('Paste a TikTok link or search term', true); if (raw.indexOf('http') === 0) { window.open(raw, '_blank'); } else { window.open('https://www.tiktok.com/search?q=' + encodeURIComponent(raw), '_blank'); } }
+function fbPlayVideo() { var raw = $('fbInput').value.trim(); if (!raw) return toast('Paste a Facebook link or search term', true); if (raw.indexOf('http') === 0) { window.open(raw, '_blank'); } else { window.open('https://www.facebook.com/search/top?q=' + encodeURIComponent(raw), '_blank'); } }
+function igPlayPost() { var raw = $('igInput').value.trim(); if (!raw) return toast('Paste an Instagram link or search term', true); if (raw.indexOf('http') === 0) { window.open(raw, '_blank'); } else { window.open('https://www.instagram.com/explore/search/keyword/?q=' + encodeURIComponent(raw), '_blank'); } }
+function liLoadPost() { var raw = $('liInput').value.trim(); if (!raw) return toast('Paste a LinkedIn link or search term', true); if (raw.indexOf('http') === 0) { window.open(raw, '_blank'); } else { window.open('https://www.linkedin.com/search/results/all/?keywords=' + encodeURIComponent(raw), '_blank'); } }
 
 var SocialHub = {
   init: function() {
@@ -2662,3 +2574,4 @@ var SocialHub = {
 </script>
 </body>
 </html>
+  
