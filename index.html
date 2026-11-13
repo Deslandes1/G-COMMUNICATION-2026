@@ -285,8 +285,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .friend-badge{background:#dcfce7;color:#0b2a4a;border:none;padding:9px 16px;border-radius:14px;font-size:14px;font-weight:700}
 .blocked-badge{background:#fff0f0;color:#ff4757;border:none;padding:9px 16px;border-radius:14px;font-size:14px;font-weight:700}
 .pending-badge{background:#fff8e1;color:#8b6914;border:none;padding:9px 16px;border-radius:14px;font-size:14px;font-weight:600}
-
-/* ══════════ SOCIAL HUB ══════════ */
+.wall-btn{display:block;width:100%;padding:14px;background:linear-gradient(135deg,#ff4757,#cc2334);color:#fff;border:none;border-radius:10px;font-size:17px;font-weight:700;cursor:pointer;margin-bottom:12px;box-shadow:0 4px 12px rgba(255,71,87,.3)}
 .platform-tabs{display:flex;gap:6px;padding:10px 12px;overflow-x:auto;background:#fff;border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;z-index:5}
 .platform-tabs::-webkit-scrollbar{display:none}
 .platform-tab{flex-shrink:0;padding:11px 16px;border:2px solid var(--border);background:#f7f9fb;border-radius:22px;font-size:15px;font-weight:700;color:var(--text);cursor:pointer;white-space:nowrap;font-family:Calibri,sans-serif;display:flex;align-items:center;gap:6px}
@@ -316,8 +315,6 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .social-embed-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
 .ext-notice{background:#fff8e1;border:1px solid #d4af37;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:14px;color:#8b6914;line-height:1.5;display:flex;align-items:flex-start;gap:8px}
 .ext-notice .icon{font-size:20px;flex-shrink:0}
-
-/* ══════════ RESPONSIVE ══════════ */
 @media (max-width: 540px){
   .live-chat-side{width:45%;min-width:150px;max-width:230px}
   .live-chat-msg{font-size:13px;padding:6px 8px}
@@ -416,7 +413,10 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v21</div>
     <div class="online-dot"></div>
   </header>
-  <div id="tabChats" class="tab-content"><div id="contactsList"></div></div>
+  <div id="tabChats" class="tab-content">
+    <button class="wall-btn" onclick="window.openWall()">📌 Open The Wall / Feed</button>
+    <div id="contactsList"></div>
+  </div>
   <div id="tabNewusers" class="tab-content" style="display:none;">
     <div class="section-title" id="incomingReqHeader" style="display:none;color:#d4af37;">📩 Friend Requests</div>
     <div id="incomingRequestsList"></div>
@@ -2047,7 +2047,6 @@ if (App.isIOS) { var sb = $('screenShareBtn'); if (sb) sb.style.display = 'none'
 $('screenShareBtn').addEventListener('click', async function() { try { var ss = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true }); var vt = ss.getVideoTracks()[0]; if (App.videoSender) await App.videoSender.replaceTrack(vt); if ($('localVideo')) $('localVideo').srcObject = ss; vt.onended = function() { if (App.localStream && $('localVideo')) { $('localVideo').srcObject = App.localStream; var ot = App.localStream.getVideoTracks()[0]; if (App.videoSender && ot) App.videoSender.replaceTrack(ot); } }; toast('Screen sharing ✓'); } catch (e) { toast('Not supported', true); } });
 $('recordCallBtn').addEventListener('click', function() { var btn = $('recordCallBtn'); if (!App.mediaRecorder || App.mediaRecorder.state === 'inactive') { try { var s = $('remoteVideo').srcObject || App.localStream; if (!s) return toast('No stream', true); App.recordedChunks = []; App.mediaRecorder = new MediaRecorder(s, { mimeType: 'video/webm;codecs=vp9' }); App.mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) App.recordedChunks.push(e.data); }; App.mediaRecorder.onstop = function() { var b = new Blob(App.recordedChunks, { type: 'video/webm' }); var u = URL.createObjectURL(b); var a = document.createElement('a'); a.href = u; a.download = 'JARVIS_Call_' + Date.now() + '.webm'; document.body.appendChild(a); a.click(); document.body.removeChild(a); toast('Saved ✓'); }; App.mediaRecorder.start(); btn.classList.add('active'); toast('Recording…'); } catch (e) { toast('Not supported', true); } } else if (App.mediaRecorder && App.mediaRecorder.state === 'recording') { App.mediaRecorder.stop(); btn.classList.remove('active'); } });
 
-/* ══════════════ NAVIGATION + TAB SWITCHING ══════════════ */
 var nb = document.querySelectorAll('.nav-item');
 for (var i = 0; i < nb.length; i++) (function(b) {
   b.addEventListener('click', function() {
@@ -2065,14 +2064,19 @@ for (var i = 0; i < nb.length; i++) (function(b) {
   });
 })(nb[i]);
 
+window.openWall = function() {
+  var b = document.querySelector('.nav-item[data-tab="status"]');
+  if (b) b.click();
+  setTimeout(function() {
+    var el = document.getElementById('statusFeedList');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+};
+
 $('chatBackBtn').addEventListener('click', function() { App.activeChat = null; showScreen('screen-main'); });
 window.__lb = function(u) { $('lightboxImg').src = u; $('lightboxDownload').href = u; $('lightbox').classList.add('show'); };
 $('lightboxClose').addEventListener('click', function() { $('lightbox').classList.remove('show'); });
 $('clearBtn').addEventListener('click', function() { if (confirm('Clear local data?')) { if (App.liveMode) cleanupLive(); LS.del('mySlug'); LS.del('contacts'); LS.del('groups'); LS.del('unreadCounts'); LS.del('blockedUsers'); LS.del('cached_chats'); LS.del('cached_statuses'); LS.del('lastSeenTimes'); LS.del('userLiteMode'); LS.del('pinnedStatus'); LS.del('presence'); LS.del('ytRecent'); LS.del('youtubeApiKey'); location.reload(); } });
-
-/* ═══════════════════════════════════════════════════════════
-   SOCIAL HUB — YouTube, TikTok, Facebook, Instagram, LinkedIn, Gmail, WhatsApp
-   ═══════════════════════════════════════════════════════════ */
 
 var InAppBrowser = {
   isOpen: false,
