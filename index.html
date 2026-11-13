@@ -317,10 +317,6 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .ext-notice{background:#fff8e1;border:1px solid #d4af37;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:14px;color:#8b6914;line-height:1.5;display:flex;align-items:flex-start;gap:8px}
 .ext-notice .icon{font-size:20px;flex-shrink:0}
 
-/* ══════════ IN-APP BROWSER (restored) ══════════ */
-#iabBlocked { display:none; flex-direction:column; align-items:center; justify-content:center; padding:30px; text-align:center; background:#fff; position:absolute; inset:0; z-index:2; }
-#iabBlocked.show { display:flex; }
-
 /* ══════════ RESPONSIVE ══════════ */
 @media (max-width: 540px){
   .live-chat-side{width:45%;min-width:150px;max-width:230px}
@@ -770,30 +766,6 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 <input type="file" id="avatarInput" accept="image/*" style="display:none;">
 <input type="file" id="fileInput" style="display:none;">
 <input type="file" id="statusMediaInput" accept="image/*,video/*" style="display:none;">
-
-<!-- ══════════════ IN-APP BROWSER (RESTORED) ══════════════ -->
-<div id="inAppBrowser" class="modal-overlay" style="padding:0;background:#0b2a4a;align-items:stretch;justify-content:stretch;">
-  <div style="width:100%;height:100%;display:flex;flex-direction:column;background:#fff;">
-    <div style="display:flex;gap:6px;align-items:center;padding:10px 12px;background:#0b2a4a;color:#fff;flex-shrink:0;padding-top:calc(10px + env(safe-area-inset-top));">
-      <button id="iabBackBtn2" style="background:rgba(255,255,255,.15);color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:22px;cursor:pointer;flex-shrink:0;">‹</button>
-      <input id="iabUrl" type="text" readonly style="flex:1;padding:10px 14px;border-radius:20px;border:none;font-size:14px;background:rgba(255,255,255,.15);color:#fff;min-width:0;">
-      <button id="iabReload" style="background:rgba(255,255,255,.15);color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;flex-shrink:0;">🔄</button>
-      <button id="iabExternal" style="background:rgba(255,255,255,.15);color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;flex-shrink:0;">↗</button>
-      <button id="iabClose" style="background:rgba(255,71,87,.35);color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;flex-shrink:0;">✕</button>
-    </div>
-    <div style="flex:1;position:relative;background:#f2f5f8;min-height:0;">
-      <iframe id="iabFrame" style="width:100%;height:100%;border:0;display:block;background:#fff;" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
-      <div id="iabBlocked">
-        <div style="font-size:60px;margin-bottom:16px;">🚫</div>
-        <h3 style="font-size:20px;margin-bottom:8px;color:#0b2a4a;">This site blocked in-app view</h3>
-        <p style="font-size:15px;color:#6b7a87;margin-bottom:20px;line-height:1.5;">Some sites (Google, Facebook, etc.) don't allow being shown inside other apps.</p>
-        <button id="iabOpenBtn" style="background:#0d7a8c;color:#fff;border:none;padding:14px 28px;border-radius:10px;font-weight:700;font-size:16px;cursor:pointer;">Open in Browser</button>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- ══════════════ END IN-APP BROWSER ══════════════ -->
-
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
