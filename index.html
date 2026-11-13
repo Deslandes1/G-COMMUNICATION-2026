@@ -135,7 +135,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .status-feed{padding:12px;display:flex;flex-direction:column;gap:14px}
 .status-card{background:#fff;border-radius:16px;padding:18px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(11,42,74,.05)}
 .status-card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.status-content-box{border-radius:12px;padding:20px;color:#fff;font-weight:700;font-size:19px !important;text-align:center;word-break:break-word;margin-bottom:12px}
+.status-content-box{border-radius:12px;padding:20px;color:#fff;font-weight:700;font-size:19px !important;text-align:center;word-break:break-word;margin-bottom:12px;white-space:pre-wrap}
 .status-media{width:100%;border-radius:12px;margin-bottom:10px;max-height:75vh;object-fit:contain;background:#000;display:block}
 .status-link{display:block;background:#f0f4f8;padding:14px;border-radius:8px;color:var(--accent);font-weight:600;text-decoration:none;word-break:break-all;font-size:16px !important;margin-bottom:10px;border:1px dashed var(--accent)}
 .pinned-card{border:2px solid #d4af37 !important;background:#fff;box-shadow:0 4px 16px rgba(212,175,55,.2) !important}
@@ -315,6 +315,11 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 .social-embed-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
 .ext-notice{background:#fff8e1;border:1px solid #d4af37;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:14px;color:#8b6914;line-height:1.5;display:flex;align-items:flex-start;gap:8px}
 .ext-notice .icon{font-size:20px;flex-shrink:0}
+/* Post emoji button */
+.post-emoji-btn{background:#eef2f6;border:1.5px solid var(--border);border-radius:10px;padding:0 14px;font-size:22px;cursor:pointer;height:52px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text)}
+.post-input-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:12px}
+.post-input-row > input, .post-input-row > textarea{flex:1;margin-bottom:0 !important}
+#statusCommentsList .comment-row{background:#f7f9fb;padding:10px 12px;border-radius:8px;font-size:16px;white-space:pre-wrap;word-break:break-word}
 @media (max-width: 540px){
   .live-chat-side{width:45%;min-width:150px;max-width:230px}
   .live-chat-msg{font-size:13px;padding:6px 8px}
@@ -336,6 +341,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   .social-result-thumb{width:100px;height:58px}
   .social-result-title{font-size:14px}
   .social-result-meta{font-size:12px}
+  .post-emoji-btn{padding:0 10px;font-size:20px}
 }
 @media (min-width: 640px){
   body{padding:16px;background:#e4e9ef}
@@ -410,7 +416,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
     <div class="lite-mode-badge" id="liteModeBadge">⚡ Lite</div>
-    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v21</div>
+    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v22</div>
     <div class="online-dot"></div>
   </header>
   <div id="tabChats" class="tab-content">
@@ -545,7 +551,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       <button class="btn-primary" id="startGoLiveBtn" style="width:100%;max-width:none;background:linear-gradient(135deg,#ff4757,#cc2334);color:#fff;">🔴 Go Live Stream</button>
       <button class="btn-primary" id="openPostStatusBtn" style="width:100%;max-width:none;margin-top:10px;">+ Post Public Status</button>
     </div>
-    <div class="section-title">Public Updates (24h)</div>
+    <div class="section-title">Public Updates (All Posts)</div>
     <div id="statusFeedList" class="status-feed"></div>
   </div>
   <div id="tabCalls" class="tab-content" style="display:none;">
@@ -722,21 +728,41 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 </div>
 <div class="modal-overlay" id="addModal"><div class="modal"><h3>Send Friend Request</h3><input id="modalName" type="text" placeholder="Username" maxlength="20" autocapitalize="none"><div id="modalStatus" style="font-size:16px;margin-bottom:10px"></div><div class="modal-actions"><button class="cancel" id="modalCancel">Cancel</button><button class="confirm" id="modalConfirm" disabled>Send Request</button></div></div></div>
 <div class="modal-overlay" id="groupModal"><div class="modal"><h3>Create Group</h3><input id="groupNameInput" type="text" placeholder="Group Name" maxlength="30"><div style="font-size:16px;color:var(--muted);margin-bottom:6px">Select Members:</div><div class="group-select-list" id="groupMembersSelection"></div><div class="modal-actions"><button class="cancel" id="groupModalCancel">Cancel</button><button class="confirm" id="groupModalConfirm">Create</button></div></div></div>
-<div class="modal-overlay" id="statusModal"><div class="modal"><h3>Post Status</h3><textarea id="statusTextInput" rows="2" placeholder="Write status..."></textarea><input id="statusLinkInput" type="text" placeholder="Video link to embed" style="margin-top:8px;"><div style="margin-bottom:10px"><label style="font-size:16px;display:block;margin-bottom:4px">Background:</label><input type="color" id="statusBgColor" value="#0d7a8c" style="width:100%;height:44px;border-radius:6px;cursor:pointer;"></div><div style="margin-bottom:10px"><button class="btn-primary" id="statusMediaSelectBtn" style="width:100%;max-width:none;padding:14px;background:#143a5f;color:#fff;">📹 Select Photo/Video</button><div id="statusMediaName" style="font-size:15px;color:var(--accent);margin-top:4px;"></div></div><div class="modal-actions"><button class="cancel" id="statusModalCancel">Cancel</button><button class="confirm" id="statusModalConfirm">Post</button></div></div></div>
+<div class="modal-overlay" id="statusModal"><div class="modal"><h3>Post Status</h3>
+  <div class="post-input-row">
+    <textarea id="statusTextInput" rows="2" placeholder="Write status... Add emojis 😊"></textarea>
+    <button class="post-emoji-btn" onclick="window.__openEmojiFor('statusTextInput')" title="Add emoji">😊</button>
+  </div>
+  <div class="post-input-row">
+    <input id="statusLinkInput" type="text" placeholder="Video link to embed (optional)">
+    <button class="post-emoji-btn" onclick="window.__openEmojiFor('statusLinkInput')" title="Add emoji">😊</button>
+  </div>
+  <div style="margin-bottom:10px"><label style="font-size:16px;display:block;margin-bottom:4px">Background:</label><input type="color" id="statusBgColor" value="#0d7a8c" style="width:100%;height:44px;border-radius:6px;cursor:pointer;"></div><div style="margin-bottom:10px"><button class="btn-primary" id="statusMediaSelectBtn" style="width:100%;max-width:none;padding:14px;background:#143a5f;color:#fff;">📹 Select Photo/Video</button><div id="statusMediaName" style="font-size:15px;color:var(--accent);margin-top:4px;"></div></div><div class="modal-actions"><button class="cancel" id="statusModalCancel">Cancel</button><button class="confirm" id="statusModalConfirm">Post</button></div></div></div>
 <div class="modal-overlay" id="editMsgModal"><div class="modal"><h3>Edit Message</h3><input id="editMsgInput" type="text" placeholder="Edit text..."><div style="margin-bottom:12px"><label style="font-size:16px;display:block;margin-bottom:4px">Replace Media (optional):</label><input type="file" id="editMediaInput" accept="image/*,video/*,audio/*"></div><div class="modal-actions"><button class="cancel" id="editMsgCancel">Cancel</button><button class="confirm" id="editMsgConfirm">Save</button></div></div></div>
-<div class="modal-overlay" id="statusCommentsModal"><div class="modal" style="max-width:420px;"><h3>Comments & DM</h3><div id="statusCommentsList" style="max-height:220px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:8px;"></div><input id="statusCommentInput" type="text" placeholder="Comment..."><div class="modal-actions"><button class="cancel" id="statusCommentCancel">Close</button><button class="confirm" id="statusCommentSend">Send DM</button></div></div></div>
+<div class="modal-overlay" id="statusCommentsModal"><div class="modal" style="max-width:420px;"><h3>Comments & DM</h3><div id="statusCommentsList" style="max-height:220px;overflow-y:auto;margin-bottom:12px;display:flex;flex-direction:column;gap:8px;"></div>
+  <div class="post-input-row">
+    <input id="statusCommentInput" type="text" placeholder="Comment... Add emojis 😊">
+    <button class="post-emoji-btn" onclick="window.__openEmojiFor('statusCommentInput')" title="Add emoji">😊</button>
+  </div>
+  <div class="modal-actions"><button class="cancel" id="statusCommentCancel">Close</button><button class="confirm" id="statusCommentSend">Send DM</button></div></div></div>
 <div class="modal-overlay" id="editPinnedStatusModal">
   <div class="modal">
     <h3>📌 Edit Pinned Status</h3>
     <p style="font-size:15px;color:var(--muted);margin-bottom:14px;">This appears at the top of Status for everyone. It never expires — only you can edit or delete it.</p>
     <label style="font-size:15px;font-weight:700;display:block;margin-bottom:6px;color:var(--navy);">Text (optional)</label>
-    <textarea id="pinnedTextInput" rows="2" placeholder="Write something…" style="width:100%;padding:14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;margin-bottom:6px;outline:none;font-family:Calibri,sans-serif;"></textarea>
+    <div class="post-input-row">
+      <textarea id="pinnedTextInput" rows="2" placeholder="Write something… Add emojis 😊" style="width:100%;padding:14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;margin-bottom:0;outline:none;font-family:Calibri,sans-serif;"></textarea>
+      <button class="post-emoji-btn" onclick="window.__openEmojiFor('pinnedTextInput')" title="Add emoji">😊</button>
+    </div>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;">
       <span style="font-size:13px;color:var(--muted);">Text background:</span>
       <input type="color" id="pinnedBgColor" value="#0d7a8c" style="width:64px;height:36px;border:none;border-radius:6px;cursor:pointer;">
     </div>
     <label style="font-size:15px;font-weight:700;display:block;margin-bottom:6px;color:var(--navy);">YouTube / video / website link (optional)</label>
-    <input id="pinnedLinkInput" type="text" placeholder="https://www.youtube.com/watch?v=…" style="width:100%;padding:14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;margin-bottom:4px;outline:none;">
+    <div class="post-input-row">
+      <input id="pinnedLinkInput" type="text" placeholder="https://www.youtube.com/watch?v=…" style="width:100%;padding:14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;margin-bottom:0;outline:none;">
+      <button class="post-emoji-btn" onclick="window.__openEmojiFor('pinnedLinkInput')" title="Add emoji">😊</button>
+    </div>
     <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">YouTube links play inline. Other links become a clickable button.</div>
     <label style="font-size:15px;font-weight:700;display:block;margin-bottom:6px;color:var(--navy);">Photo / video file (optional)</label>
     <input id="pinnedMediaInput" type="file" accept="image/*,video/*" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;margin-bottom:4px;">
@@ -1567,11 +1593,12 @@ $('statusMediaSelectBtn').addEventListener('click', function() { $('statusMediaI
 $('statusMediaInput').addEventListener('change', function(e) { var f = e.target.files && e.target.files[0]; if (f) { App.statusMediaFile = f; $('statusMediaName').textContent = 'Selected: ' + f.name; } });
 $('statusModalConfirm').addEventListener('click', async function() { var text = $('statusTextInput').value.trim(), link = $('statusLinkInput').value.trim(), bg = $('statusBgColor').value; if (!text && !link && !App.statusMediaFile) return toast('Add content', true); toast('Posting…'); $('statusModalConfirm').disabled = true; try { var mu = null, mt = null; if (App.statusMediaFile) { mt = detectFileType(App.statusMediaFile); mu = await fileToBase64(App.statusMediaFile); } await push(dbRef(db, STATUS_FEED_PATH), { authorSlug: App.mySlug, authorName: App.myName, authorPhoto: App.myPhoto, text: text, link: link, bgColor: bg, mediaUrl: mu, mediaType: mt, time: Date.now() }); $('statusModal').classList.remove('show'); toast('Posted ✓'); } catch (err) { toast('Failed', true); } finally { $('statusModalConfirm').disabled = false; } });
 
-function listenUserStatuses() { onValue(query(dbRef(db, STATUS_FEED_PATH), limitToLast(50)), function(snap) { var d = snap.val() || {}; var fs = App.contacts.map(function(c) { return c.slug; }); var now = Date.now(); var posts = Object.keys(d).map(function(k) { var v = d[k]; v._k = k; return v; }).filter(function(p) { return (now - (p.time || 0)) <= 24 * 60 * 60 * 1000; }).filter(function(p) { return isOwner() || p.authorSlug === App.mySlug || fs.indexOf(p.authorSlug) !== -1; }).sort(function(a, b) { return (b.time || 0) - (a.time || 0); }); LS.set('cached_statuses', posts); renderStatusFeedList(posts); }, function(err) { var cached = LS.get('cached_statuses', []); if (cached.length) renderStatusFeedList(cached); }); }
+// === Status feed: NO EXPIRY. Posts persist until author or owner deletes them. ===
+function listenUserStatuses() { onValue(query(dbRef(db, STATUS_FEED_PATH), limitToLast(100)), function(snap) { var d = snap.val() || {}; var fs = App.contacts.map(function(c) { return c.slug; }); var posts = Object.keys(d).map(function(k) { var v = d[k]; v._k = k; return v; }).filter(function(p) { return isOwner() || p.authorSlug === App.mySlug || fs.indexOf(p.authorSlug) !== -1; }).sort(function(a, b) { return (b.time || 0) - (a.time || 0); }); LS.set('cached_statuses', posts); renderStatusFeedList(posts); }, function(err) { var cached = LS.get('cached_statuses', []); if (cached.length) renderStatusFeedList(cached); }); }
 
 function renderStatusFeedList(posts) {
   var sf = $('statusFeedList'); if (!sf) return;
-  if (!posts || !posts.length) { sf.innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No recent status updates.</p></div>'; window._cachedPosts = []; return; }
+  if (!posts || !posts.length) { sf.innerHTML = '<div class="empty"><div class="empty-icon">⭕</div><p>No posts yet.<br>Tap "+ Post Public Status" above to write something — it stays until you delete it.</p></div>'; window._cachedPosts = []; return; }
   var html = '';
   for (var i = 0; i < posts.length; i++) {
     var p = posts[i], mine = p.authorSlug === App.mySlug;
@@ -1591,14 +1618,38 @@ window.__loadLazyStatusImg = function(el, url, name) { if (!el || !url) return; 
 window.__loadLazyYt = function(el, ytId) { if (!el || !ytId) return; var wrap = document.createElement('div'); wrap.style.cssText = 'position:relative;padding-bottom:56.25%;height:0;background:#000;border-radius:12px;overflow:hidden;margin-bottom:10px;'; wrap.innerHTML = '<iframe src="https://www.youtube.com/embed/' + ytId + '?playsinline=1&rel=0&autoplay=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>'; if (el.parentNode) el.parentNode.replaceChild(wrap, el); };
 
 window.__toggleStatusLike = async function(k) { var posts = window._cachedPosts || [], p = null; for (var i = 0; i < posts.length; i++) if (posts[i]._k === k) { p = posts[i]; break; } if (!p) return; var lr = dbRef(db, STATUS_FEED_PATH + '/' + k + '/likes/' + App.mySlug); var sn = await get(lr); if (sn.exists()) { await remove(lr); toast('Unliked'); } else { await set(lr, { time: Date.now() }); toast('Liked 👍'); if (p.authorSlug !== App.mySlug) { await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, p.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: '👍 Liked your status.', time: Date.now() }); } } };
-window.__delStatus = async function(k) { if (confirm('Delete status?')) { await remove(dbRef(db, STATUS_FEED_PATH + '/' + k)); toast('Deleted'); } };
+window.__delStatus = async function(k) { if (confirm('Delete this post permanently?')) { await remove(dbRef(db, STATUS_FEED_PATH + '/' + k)); toast('Post deleted'); } };
 window.__openStatusComments = function(k) { var posts = window._cachedPosts || [], p = null; for (var i = 0; i < posts.length; i++) if (posts[i]._k === k) { p = posts[i]; break; } if (!p) return; App.activeStatusObj = p; $('statusCommentInput').value = ''; renderStatusCommentsLocal(); $('statusCommentsModal').classList.add('show'); };
-function renderStatusCommentsLocal() { if (!App.activeStatusObj) return; var d = App.activeStatusObj.comments || {}; var c = Object.keys(d).map(function(k) { return d[k]; }).sort(function(a, b) { return a.time - b.time; }); var list = $('statusCommentsList'); if (!c.length) { list.innerHTML = '<div style="font-size:16px;color:var(--muted);text-align:center;padding:8px;">No comments yet.</div>'; return; } var h = ''; for (var i = 0; i < c.length; i++) h += '<div style="background:#f7f9fb;padding:10px 12px;border-radius:8px;font-size:16px;"><strong style="color:var(--accent);">@' + esc(c[i].author) + ':</strong> ' + esc(c[i].text) + '</div>'; list.innerHTML = h; }
+function renderStatusCommentsLocal() { if (!App.activeStatusObj) return; var d = App.activeStatusObj.comments || {}; var c = Object.keys(d).map(function(k) { return d[k]; }).sort(function(a, b) { return a.time - b.time; }); var list = $('statusCommentsList'); if (!c.length) { list.innerHTML = '<div style="font-size:16px;color:var(--muted);text-align:center;padding:8px;">No comments yet. Be the first!</div>'; return; } var h = ''; for (var i = 0; i < c.length; i++) h += '<div class="comment-row"><strong style="color:var(--accent);">@' + esc(c[i].author) + ':</strong> ' + esc(c[i].text) + '</div>'; list.innerHTML = h; }
 $('statusCommentCancel').addEventListener('click', function() { $('statusCommentsModal').classList.remove('show'); });
 $('statusCommentSend').addEventListener('click', async function() { var text = $('statusCommentInput').value.trim(); if (!text || !App.activeStatusObj) return; await push(dbRef(db, STATUS_FEED_PATH + '/' + App.activeStatusObj._k + '/comments'), { author: App.mySlug, text: text, time: Date.now() }); if (App.activeStatusObj.authorSlug !== App.mySlug) { await push(dbRef(db, 'chats/' + chatIdFor(App.mySlug, App.activeStatusObj.authorSlug) + '/messages'), { from: App.mySlug, fromName: App.myName, text: '💬 Comment: "' + text + '"', time: Date.now() }); } $('statusCommentInput').value = ''; $('statusCommentsModal').classList.remove('show'); toast('Sent ✓'); });
 
-$('emojiBtn').addEventListener('click', function() { $('emojiPalette').classList.toggle('show'); });
-var ebi = document.querySelectorAll('.emoji-item'); for (var i = 0; i < ebi.length; i++) (function(b) { b.addEventListener('click', function() { $('chatInput').value += b.textContent; $('sendBtn').disabled = false; }); })(ebi[i]);
+// === Emoji picker for text inputs / textareas (posts, comments, pinned) ===
+window.__emojiTargetId = 'chatInput';
+document.addEventListener('focusin', function(e){ var t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) { window.__emojiTargetId = t.id || window.__emojiTargetId; } });
+window.__openEmojiFor = function(targetId) {
+  window.__emojiTargetId = targetId;
+  var p = document.getElementById('emojiPalette');
+  if (!p) return;
+  // Hide chat emoji when opening for status inputs, and vice versa (single palette reused)
+  p.classList.add('show');
+  // Sync send button state for chat input if that's the target
+  if (targetId === 'chatInput') { var sb = document.getElementById('sendBtn'); if (sb) sb.disabled = !document.getElementById('chatInput').value.trim(); }
+};
+window.__insertEmoji = function(emoji) {
+  var targetId = window.__emojiTargetId || 'chatInput';
+  var el = document.getElementById(targetId);
+  if (!el) return;
+  var start = el.selectionStart || 0, end = el.selectionEnd || 0;
+  var val = el.value || '';
+  el.value = val.slice(0, start) + emoji + val.slice(end);
+  el.selectionStart = el.selectionEnd = start + emoji.length;
+  el.focus();
+  if (targetId === 'chatInput') { var sb = document.getElementById('sendBtn'); if (sb) sb.disabled = !el.value.trim(); }
+};
+
+$('emojiBtn').addEventListener('click', function() { window.__openEmojiFor('chatInput'); });
+var ebi = document.querySelectorAll('.emoji-item'); for (var i = 0; i < ebi.length; i++) (function(b) { b.addEventListener('click', function() { window.__insertEmoji(b.textContent); }); })(ebi[i]);
 var qb = document.querySelectorAll('.quick-reaction'); for (var j = 0; j < qb.length; j++) (function(b) { b.addEventListener('click', function() { $('chatInput').value = b.dataset.emoji; sendMessage(null); }); })(qb[j]);
 
 function listenActiveLiveStreams() { if (App._activeStreamsListener) { try { if (typeof App._activeStreamsListener === 'function') App._activeStreamsListener(); } catch (e) {} App._activeStreamsListener = null; } try { App._activeStreamsListener = onValue(dbRef(db, LIVE_ACTIVE_PATH), function(snap) { App.activeLiveStreams = snap.val() || {}; renderActiveLiveStreams(); if (debouncedBuildUI) debouncedBuildUI(); }, function(err) {}); } catch (e) {} }
@@ -1948,7 +1999,7 @@ function openOwnerSpace() { loadOwnerStatuses(); $('ownerSpaceModal').classList.
 $('ownerSpaceClose').addEventListener('click', function() { $('ownerSpaceModal').classList.remove('show'); });
 $('ownerTabStatusBtn').addEventListener('click', function() { $('ownerTabStatusBtn').style.background = 'linear-gradient(135deg,#f0d369,#d4af37)'; $('ownerTabStatusBtn').style.color = 'var(--navy)'; $('ownerTabChatsBtn').style.background = '#143a5f'; $('ownerTabChatsBtn').style.color = '#fff'; loadOwnerStatuses(); });
 $('ownerTabChatsBtn').addEventListener('click', function() { $('ownerTabChatsBtn').style.background = 'linear-gradient(135deg,#f0d369,#d4af37)'; $('ownerTabChatsBtn').style.color = 'var(--navy)'; $('ownerTabStatusBtn').style.background = '#143a5f'; $('ownerTabStatusBtn').style.color = '#fff'; loadOwnerReports(); });
-function loadOwnerStatuses() { var area = $('ownerContentArea'), posts = window._cachedPosts || []; if (!posts.length) { area.innerHTML = '<div class="empty"><p>No statuses.</p></div>'; return; } var h = ''; for (var i = 0; i < posts.length; i++) { var p = posts[i]; h += '<div style="background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;"><div style="font-size:15px;font-weight:700;margin-bottom:6px;">@' + esc(p.authorSlug) + ' (' + esc(p.authorName) + ')</div><div style="font-size:16px;margin-bottom:8px;">' + esc(p.text || '') + '</div><button class="btn-primary" style="max-width:none;padding:10px 14px;font-size:15px;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus(\'' + p._k + '\')">🗑 Delete</button></div>'; } area.innerHTML = h; }
+function loadOwnerStatuses() { var area = $('ownerContentArea'), posts = window._cachedPosts || []; if (!posts.length) { area.innerHTML = '<div class="empty"><p>No statuses.</p></div>'; return; } var h = ''; for (var i = 0; i < posts.length; i++) { var p = posts[i]; h += '<div style="background:#f9fafb;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;"><div style="font-size:15px;font-weight:700;margin-bottom:6px;">@' + esc(p.authorSlug) + ' (' + esc(p.authorName) + ')</div><div style="font-size:16px;margin-bottom:8px;white-space:pre-wrap;">' + esc(p.text || '') + '</div><button class="btn-primary" style="max-width:none;padding:10px 14px;font-size:15px;background:#ff4757;color:#fff;" onclick="window.__ownerDeleteStatus(\'' + p._k + '\')">🗑 Delete</button></div>'; } area.innerHTML = h; }
 window.__ownerDeleteStatus = async function(k) { if (confirm('Delete?')) { await remove(dbRef(db, STATUS_FEED_PATH + '/' + k)); toast('Deleted ✓'); loadOwnerStatuses(); } };
 function loadOwnerReports() { var area = $('ownerContentArea'); area.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">Loading…</div>'; onValue(dbRef(db, 'users'), function(snap) { var ud = snap.val() || {}, uks = Object.keys(ud); var h = '<div style="font-size:16px;font-weight:700;margin-bottom:8px;">👥 Users (' + uks.length + ')</div>'; for (var i = 0; i < uks.length; i++) { var u = ud[uks[i]]; h += '<div style="background:#fff;border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:6px;font-size:16px;"><strong>' + esc(u.displayName) + '</strong> (@' + esc(u.slug) + ')</div>'; } area.innerHTML = h; }, function(err) { area.innerHTML = '<div class="empty">Cannot load users.</div>'; }, { onlyOnce: true }); }
 
