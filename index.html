@@ -341,7 +341,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
   body{padding:16px;background:#e4e9ef}
   #app{max-width:1100px;border-radius:20px}
   .msg{max-width:68%}
-  #tabChats,#tabCalls,#tabVoicemail,#tabWall,#tabProfile,#tabNewusers,#tabSocial{max-width:760px;margin:0 auto;width:100%}
+  #tabChats,#tabCalls,#tabVoicemail,#tabStatus,#tabProfile,#tabNewusers,#tabSocial{max-width:760px;margin:0 auto;width:100%}
 }
 </style>
 </head>
@@ -410,24 +410,18 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="logo">G</div>
     <h2 id="headerTitle">Friend List</h2>
     <div class="lite-mode-badge" id="liteModeBadge">⚡ Lite</div>
-    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v22</div>
+    <div id="buildBadge" style="font-size:12px;background:rgba(212,175,55,.25);color:#d4af37;padding:4px 10px;border-radius:10px;font-weight:700;letter-spacing:.5px;">v21</div>
     <div class="online-dot"></div>
   </header>
-
-  <!-- ============ FRIENDS TAB ============ -->
   <div id="tabChats" class="tab-content">
     <div id="contactsList"></div>
   </div>
-
-  <!-- ============ NEW USERS TAB ============ -->
   <div id="tabNewusers" class="tab-content" style="display:none;">
     <div class="section-title" id="incomingReqHeader" style="display:none;color:#d4af37;">📩 Friend Requests</div>
     <div id="incomingRequestsList"></div>
     <div class="section-title">✨ All Jarvis Users</div>
     <div id="newUsersList"></div>
   </div>
-
-  <!-- ============ SOCIAL TAB ============ -->
   <div id="tabSocial" class="tab-content" style="display:none;">
     <div class="platform-tabs" id="platformTabs">
       <button class="platform-tab active" data-platform="youtube">▶️ YouTube</button>
@@ -517,11 +511,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       </div>
     </div>
   </div>
-
-  <!-- ============ WALL (FEED) TAB — RESTORED ON TASKBAR ============ -->
-  <div id="tabWall" class="tab-content" style="display:none;">
-
-    <!-- PINNED STATUS -->
+  <div id="tabStatus" class="tab-content" style="display:none;">
     <div id="pinnedStatusCard" class="status-card pinned-card" style="margin:12px 12px 0;">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
         <span class="pinned-badge">📌 PINNED</span>
@@ -535,8 +525,6 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
         </div>
       </div>
     </div>
-
-    <!-- INFORMATION PANEL -->
     <div class="info-panel" id="importantInfoPanel" style="margin:12px 12px 0;">
       <div class="ip-header">📌 IMPORTANT INFO</div>
       <div class="ip-name">Gesner Deslandes</div>
@@ -551,29 +539,19 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
         <a class="ip-link-tile tile-robot" href="https://deslandes1.github.io/JARVIS-HUMANOID-ROBOT-LIVE-2026/" target="_blank" rel="noopener"><span class="ip-icon">🤖</span>JARVIS<br>Robot Live</a>
       </div>
     </div>
-
-    <!-- GO LIVE + POST STATUS BUTTONS -->
-    <div class="status-card" style="margin:12px 12px 0;">
+    <div class="section-title" id="liveNowHeader" style="display:none;color:#ff4757;">🔴 Live Now</div>
+    <div id="liveStreamsList" class="status-feed"></div>
+    <div class="status-card" style="margin:0 12px;">
       <button class="btn-primary" id="startGoLiveBtn" style="width:100%;max-width:none;background:linear-gradient(135deg,#ff4757,#cc2334);color:#fff;">🔴 Go Live Stream</button>
       <button class="btn-primary" id="openPostStatusBtn" style="width:100%;max-width:none;margin-top:10px;">+ Post Public Status</button>
     </div>
-
-    <!-- LIVE NOW -->
-    <div class="section-title" id="liveNowHeader" style="display:none;color:#ff4757;">🔴 Live Now</div>
-    <div id="liveStreamsList" class="status-feed"></div>
-
-    <!-- PUBLIC UPDATES FEED (THE WALL) -->
     <div class="section-title">Public Updates (24h)</div>
     <div id="statusFeedList" class="status-feed"></div>
   </div>
-
-  <!-- ============ CALLS TAB ============ -->
   <div id="tabCalls" class="tab-content" style="display:none;">
     <div class="section-title">Peer-to-Peer & Conference Calling</div>
     <div id="callContactsList"></div>
   </div>
-
-  <!-- ============ VOICEMAIL TAB ============ -->
   <div id="tabVoicemail" class="tab-content" style="display:none;">
     <div class="section-title">Send Voicemail</div>
     <div style="padding:0 20px 10px"><select id="vmRecipient" style="width:100%;padding:14px;border-radius:8px;font-size:17px;font-family:Calibri,sans-serif;"><option value="">Select recipient</option></select></div>
@@ -581,8 +559,6 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
     <div class="section-title">Inbox</div>
     <div id="voicemailList"></div>
   </div>
-
-  <!-- ============ PROFILE TAB ============ -->
   <div id="tabProfile" class="tab-content" style="display:none;">
     <div class="profile-card">
       <div class="avatar-big" id="profileAvatar" title="Tap to upload photo"><span id="profileAvatarLetter">G</span><img id="profileAvatarImg" alt="" style="display:none;"></div>
@@ -608,18 +584,15 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
       <button class="btn-primary" id="clearBtn" style="background:#ff4757;color:#fff;width:100%;max-width:none;">Clear Local Data</button>
     </div>
   </div>
-
   <div class="fab-container">
     <button id="addGroupFab" class="fab gold">👥</button>
     <button id="addContactFab" class="fab">＋</button>
   </div>
-
-  <!-- ============ BOTTOM NAV — WALL RESTORED BETWEEN SOCIAL AND CALLS ============ -->
   <nav class="bottom-nav">
     <button class="nav-item active" data-tab="chats"><span class="icon">💬</span>Friends</button>
     <button class="nav-item" data-tab="newusers"><span class="icon">✨</span>New Users</button>
     <button class="nav-item" data-tab="social"><span class="icon">🌐</span>Social</button>
-    <button class="nav-item" data-tab="wall"><span class="icon">⭕</span>Wall</button>
+    <button class="nav-item" data-tab="status"><span class="icon">⭕</span>Wall</button>
     <button class="nav-item" data-tab="calls"><span class="icon">📞</span>Calls</button>
     <button class="nav-item" data-tab="voicemail"><span class="icon">🎙</span>Voicemail</button>
     <button class="nav-item" data-tab="profile"><span class="icon">👤</span>Profile</button>
@@ -755,7 +728,7 @@ html,body{height:100%;min-height:100%;height:-webkit-fill-available;overflow:hid
 <div class="modal-overlay" id="editPinnedStatusModal">
   <div class="modal">
     <h3>📌 Edit Pinned Status</h3>
-    <p style="font-size:15px;color:var(--muted);margin-bottom:14px;">This appears at the top of Wall for everyone. It never expires — only you can edit or delete it.</p>
+    <p style="font-size:15px;color:var(--muted);margin-bottom:14px;">This appears at the top of Status for everyone. It never expires — only you can edit or delete it.</p>
     <label style="font-size:15px;font-weight:700;display:block;margin-bottom:6px;color:var(--navy);">Text (optional)</label>
     <textarea id="pinnedTextInput" rows="2" placeholder="Write something…" style="width:100%;padding:14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;margin-bottom:6px;outline:none;font-family:Calibri,sans-serif;"></textarea>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;">
@@ -1588,7 +1561,6 @@ $('groupModalConfirm').addEventListener('click', async function() { var name = $
 $('profileAvatar').addEventListener('click', function() { $('avatarInput').click(); });
 $('avatarInput').addEventListener('change', async function(e) { var f = e.target.files && e.target.files[0]; if (!f) return; try { toast('Processing…'); var url = await fileToBase64(f); App.myPhoto = url; LS.set('avatar', url); updateProfileHeader(); await set(dbRef(db, 'users/' + App.mySlug + '/photo'), url); try { await set(dbRef(db, 'public_users/' + App.mySlug + '/photo'), url); } catch (e) {} toast('Photo updated ✓'); } catch (err) { toast('Failed', true); } e.target.value = ''; });
 
-/* ============ WALL: POST STATUS HANDLER (single, correct) ============ */
 $('openPostStatusBtn').addEventListener('click', function() { $('statusTextInput').value = ''; $('statusLinkInput').value = ''; $('statusMediaName').textContent = ''; App.statusMediaFile = null; $('statusModal').classList.add('show'); });
 $('statusModalCancel').addEventListener('click', function() { $('statusModal').classList.remove('show'); });
 $('statusMediaSelectBtn').addEventListener('click', function() { $('statusMediaInput').click(); });
@@ -2074,7 +2046,6 @@ if (App.isIOS) { var sb = $('screenShareBtn'); if (sb) sb.style.display = 'none'
 $('screenShareBtn').addEventListener('click', async function() { try { var ss = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true }); var vt = ss.getVideoTracks()[0]; if (App.videoSender) await App.videoSender.replaceTrack(vt); if ($('localVideo')) $('localVideo').srcObject = ss; vt.onended = function() { if (App.localStream && $('localVideo')) { $('localVideo').srcObject = App.localStream; var ot = App.localStream.getVideoTracks()[0]; if (App.videoSender && ot) App.videoSender.replaceTrack(ot); } }; toast('Screen sharing ✓'); } catch (e) { toast('Not supported', true); } });
 $('recordCallBtn').addEventListener('click', function() { var btn = $('recordCallBtn'); if (!App.mediaRecorder || App.mediaRecorder.state === 'inactive') { try { var s = $('remoteVideo').srcObject || App.localStream; if (!s) return toast('No stream', true); App.recordedChunks = []; App.mediaRecorder = new MediaRecorder(s, { mimeType: 'video/webm;codecs=vp9' }); App.mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) App.recordedChunks.push(e.data); }; App.mediaRecorder.onstop = function() { var b = new Blob(App.recordedChunks, { type: 'video/webm' }); var u = URL.createObjectURL(b); var a = document.createElement('a'); a.href = u; a.download = 'JARVIS_Call_' + Date.now() + '.webm'; document.body.appendChild(a); a.click(); document.body.removeChild(a); toast('Saved ✓'); }; App.mediaRecorder.start(); btn.classList.add('active'); toast('Recording…'); } catch (e) { toast('Not supported', true); } } else if (App.mediaRecorder && App.mediaRecorder.state === 'recording') { App.mediaRecorder.stop(); btn.classList.remove('active'); } });
 
-/* ============ TAB SWITCHING — WALL RESTORED ============ */
 var nb = document.querySelectorAll('.nav-item');
 for (var i = 0; i < nb.length; i++) (function(b) {
   b.addEventListener('click', function() {
@@ -2084,9 +2055,9 @@ for (var i = 0; i < nb.length; i++) (function(b) {
     for (var k = 0; k < tabs.length; k++) tabs[k].style.display = 'none';
     var tab = $('tab' + t.charAt(0).toUpperCase() + t.slice(1));
     if (tab) tab.style.display = 'block';
-    $('headerTitle').textContent = t === 'chats' ? 'Friend List' : t === 'newusers' ? 'All Users' : t === 'social' ? 'Social Hub' : t === 'wall' ? 'Wall / Feed' : t.charAt(0).toUpperCase() + t.slice(1);
+    $('headerTitle').textContent = t === 'chats' ? 'Friend List' : t === 'newusers' ? 'All Users' : t === 'social' ? 'Social Hub' : t === 'status' ? 'The Wall' : t.charAt(0).toUpperCase() + t.slice(1);
     if (t === 'voicemail') listenVoicemails();
-    if (t === 'wall') { renderPinnedStatus(App.pinnedStatus); renderActiveLiveStreams(); if (window._cachedPosts) renderStatusFeedList(window._cachedPosts); }
+    if (t === 'status') { renderPinnedStatus(App.pinnedStatus); renderActiveLiveStreams(); }
     if (t === 'newusers') { renderNewUsersTab(); updateNewUsersBadge(); }
     if (t === 'social') { try { SocialHub.init(); } catch (e) {} }
   });
@@ -2227,26 +2198,26 @@ var SocialHub = {
       $('ytApiKeyInput').value = LS.get('youtubeApiKey', '') || '';
       $('ytSaveApiKeyBtn').addEventListener('click', function() { var v = $('ytApiKeyInput').value.trim(); if (v) { LS.set('youtubeApiKey', v); toast('YouTube API key saved ✓'); } else { LS.del('youtubeApiKey'); toast('API key cleared'); } });
       ytRenderRecent();
-
+      
       $('ttOpenBtn').addEventListener('click', ttPlayVideo);
       $('ttInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') ttPlayVideo(); });
       $('ttHomeBtn').addEventListener('click', function() { window.open('https://www.tiktok.com/', '_blank'); });
-
+      
       $('fbOpenBtn').addEventListener('click', fbPlayVideo);
       $('fbInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') fbPlayVideo(); });
       $('fbHomeBtn').addEventListener('click', function() { window.open('https://www.facebook.com/', '_blank'); });
-
+      
       $('igOpenBtn').addEventListener('click', igPlayPost);
       $('igInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') igPlayPost(); });
       $('igHomeBtn').addEventListener('click', function() { window.open('https://www.instagram.com/', '_blank'); });
-
+      
       $('liOpenBtn').addEventListener('click', liLoadPost);
       $('liInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') liLoadPost(); });
       $('liHomeBtn').addEventListener('click', function() { window.open('https://www.linkedin.com/feed/', '_blank'); });
-
+      
       $('gmailOpenBtn').addEventListener('click', function() { window.open('https://accounts.google.com/ServiceLogin?service=mail', '_blank'); });
       $('gmailInboxBtn').addEventListener('click', function() { window.open('https://mail.google.com/mail/u/0/#inbox', '_blank'); });
-
+      
       $('waOpenBtn').addEventListener('click', function() { window.open('https://web.whatsapp.com/', '_blank'); });
       $('waHomeBtn').addEventListener('click', function() { window.open('https://web.whatsapp.com/', '_blank'); });
     }
